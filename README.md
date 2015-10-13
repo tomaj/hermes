@@ -1,5 +1,7 @@
 # hermes
 
+[![Build Status](https://travis-ci.org/tomaj/hermes.svg)](https://travis-ci.org/tomaj/hermes)
+
 ## todo
 
 * create global bin command
