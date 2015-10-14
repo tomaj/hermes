@@ -1,6 +1,9 @@
 # hermes
 
 [![Build Status](https://travis-ci.org/tomaj/hermes.svg)](https://travis-ci.org/tomaj/hermes)
+[![Dependency Status](https://www.versioneye.com/user/projects/561e165436d0ab00210000dc/badge.svg?style=flat)](https://www.versioneye.com/user/projects/561e165436d0ab00210000dc)
+[![Code Climate](https://codeclimate.com/github/tomaj/hermes/badges/gpa.svg)](https://codeclimate.com/github/tomaj/hermes)
+[![Test Coverage](https://codeclimate.com/github/tomaj/hermes/badges/coverage.svg)](https://codeclimate.com/github/tomaj/hermes/coverage)
 
 ## todo
 
@@ -14,7 +17,6 @@
 * add extensive readme
 * create laravel library
 * ability to re-send message with retry-count
-* enable code coverage
 * delayed execution (ability to process message after interval)
 * add recomended packages to composer
 
