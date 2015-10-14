@@ -21,4 +21,4 @@ script:
     - make sniff test
 
 after_script:
-    - CODECLIMATE_REPO_TOKEN=aaf8c4cfec2a0e80d50992af6d41e35cfeefca12edf92caccba7771d6cfed423 ./vendor/bin/test-reporte
+    - CODECLIMATE_REPO_TOKEN=aaf8c4cfec2a0e80d50992af6d41e35cfeefca12edf92caccba7771d6cfed423 ./vendor/bin/test-reporter
