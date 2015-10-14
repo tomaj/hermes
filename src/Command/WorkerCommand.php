@@ -15,15 +15,6 @@ use Tomaj\Hermes\Handler\HandlerInterface;
 use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\Handler\DumpHandler;
 
-class MyHandler implements HandlerInterface
-{
-    public function handle(MessageInterface $message)
-    {
-        echo "Prisiel mi message";
-        var_dump($message);
-    }
-}
-
 class WorkerCommand extends Command
 {
     protected function configure()
@@ -60,6 +51,6 @@ class WorkerCommand extends Command
 
         $dispatcher->handle();
         
-        $output->writeln('Hello');
+        $output->writeln('End.');
     }
 }
