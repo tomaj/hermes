@@ -6,6 +6,7 @@ use PHPUnit_Framework_TestCase;
 use Tomaj\Hermes\Driver\DummyDriver;
 
 require dirname(__FILE__). '/../vendor/autoload.php';
+require_once __DIR__ . '/DummyDriver.php';
 
 class EmitTest extends PHPUnit_Framework_TestCase
 {

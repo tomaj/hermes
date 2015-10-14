@@ -24,6 +24,8 @@ class Dispatcher implements DispatcherInterface
     public function handle()
     {
         $this->driver->wait(function ($message) {
+            echo "New message:";
+            print_r($message);
             $this->dispatch($message);
         });
     }
