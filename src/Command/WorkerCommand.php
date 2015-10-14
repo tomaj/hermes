@@ -23,10 +23,10 @@ class WorkerCommand extends Command
             ->setName('hermes:worker')
             ->setDescription('Hermes Worker')
             ->addOption(
-               'events',
-               null,
-               InputOption::VALUE_OPTIONAL,
-               'If set, the worker will process only this comma separated events'
+                'events',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'If set, the worker will process only this comma separated events'
             )
         ;
     }

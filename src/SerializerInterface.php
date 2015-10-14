@@ -4,7 +4,7 @@ namespace Tomaj\Hermes;
 
 interface SerializerInterface
 {
-	public function serialize(MessageInterface $message);
+    public function serialize(MessageInterface $message);
 
-	public function unserialize($string);
+    public function unserialize($string);
 }

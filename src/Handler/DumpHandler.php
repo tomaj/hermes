@@ -8,6 +8,6 @@ class DumpHandler implements HandlerInterface
 {
     public function handle(MessageInterface $message)
     {
-    	var_dump($message);
+        var_dump($message);
     }
 }

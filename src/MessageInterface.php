@@ -4,9 +4,9 @@ namespace Tomaj\Hermes;
 
 interface MessageInterface
 {
-	public function getId();
+    public function getId();
 
-	public function getCreated();
+    public function getCreated();
 
     public function getType();
 
