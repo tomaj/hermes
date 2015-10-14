@@ -16,7 +16,6 @@
 * ability to re-send message with retry-count
 * enable code coverage
 * delayed execution (ability to process message after interval)
-* change time() to microtime()
 * add recomended packages to composer
 
 

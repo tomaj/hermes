@@ -24,7 +24,7 @@ class Message implements MessageInterface
         if ($created) {
             $this->created = $created;
         } else {
-            $this->created = time();
+            $this->created = microtime();
         }
         $this->type = $type;
         $this->payload = $payload;
