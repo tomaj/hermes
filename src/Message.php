@@ -2,7 +2,7 @@
 
 namespace Tomaj\Hermes;
 
-use Ramsey\Uuid\Uuid;
+use Rhumsaa\Uuid\Uuid;
 
 class Message implements MessageInterface
 {
