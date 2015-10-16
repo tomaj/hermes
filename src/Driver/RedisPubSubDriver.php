@@ -38,12 +38,18 @@ class RedisPubSubDriver implements DriverInterface
         return $redis;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function send(Message $message)
     {
         $redis = $this->getRedis();
         $redis->publish($this->channel, $this->serializer->serialize($message));
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function wait(Closure $callback)
     {
         $redis = $this->getRedis();

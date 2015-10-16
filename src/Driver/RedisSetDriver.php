@@ -46,12 +46,18 @@ class RedisSetDriver implements DriverInterface
         return $redis;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function send(Message $message)
     {
         $redis = $this->getRedis();
         $redis->sadd($this->key, $this->serializer->serialize($message));
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function wait(Closure $callback)
     {
         while (true) {

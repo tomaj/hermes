@@ -4,6 +4,9 @@ namespace Tomaj\Hermes;
 
 class MessageSerializer implements SerializerInterface
 {
+    /**
+     * {@inheritdoc}
+     */
     public function serialize(MessageInterface $message)
     {
         return json_encode([
@@ -16,6 +19,9 @@ class MessageSerializer implements SerializerInterface
         ]);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function unserialize($string)
     {
         $data = json_decode($string, true);
