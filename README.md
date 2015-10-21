@@ -19,6 +19,7 @@
 * create nette-database driver
 * create laravel library
 * create global bin command
+* generate apigen
 
 ## Usage
 
