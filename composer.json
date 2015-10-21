@@ -19,11 +19,13 @@
     "require-dev": {
         "phpunit/phpunit": "~4.3",
         "squizlabs/php_codesniffer": "~2.2",
+        "videlalvaro/php-amqplib": "*",
         "codeclimate/php-test-reporter": "dev-master"
     },
     "suggest": {
         "monolog/monolog": "Basic logger implements psr/logger",
-        "ext-redis": "Allow use for redis driver with native redis php extension"
+        "ext-redis": "Allow use for redis driver with native redis php extension",
+        "videlalvaro/php-amqplib": "Allow using rabbimq as driver"
     },
     "autoload": {
         "classmap": [

@@ -1,5 +1,10 @@
 language: php
 
+services:
+    - redis-server
+    - elasticsearch
+    - rabbitmq
+
 php:
     - 5.4
     - 5.5
