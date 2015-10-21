@@ -22,7 +22,8 @@
         "codeclimate/php-test-reporter": "dev-master"
     },
     "suggest": {
-        "monolog/monolog": "Basic logger implements psr/logger"
+        "monolog/monolog": "Basic logger implements psr/logger",
+        "ext-redis": "Allow use for redis driver with native redis php extension"
     },
     "autoload": {
         "classmap": [
