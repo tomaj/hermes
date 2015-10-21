@@ -67,7 +67,7 @@ class Dispatcher implements DispatcherInterface
     {
         $this->driver->wait(function ($message) {
             $this->log(LogLevel::INFO, "Start handle message #{$message->getId()} ({$message->getType()})", $this->messageLoggerContext($message));
-            $this->dispatch($message);            
+            $this->dispatch($message);
         });
     }
 
