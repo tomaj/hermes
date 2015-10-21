@@ -82,7 +82,7 @@ class Dispatcher implements DispatcherInterface
         foreach ($this->handlers[$type] as $handler) {
             // check if handler implements Psr\Log\LoggerAwareInterface (you can use \Psr\Log\LoggerAwareTrait)
             if ($this->logger and method_exists($handler, 'setLogger')) {
-                $handler->setLogger($this->logger)
+                $handler->setLogger($this->logger);
             }
 
             try {
