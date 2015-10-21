@@ -5,21 +5,20 @@
 [![Code Climate](https://codeclimate.com/github/tomaj/hermes/badges/gpa.svg)](https://codeclimate.com/github/tomaj/hermes)
 [![Test Coverage](https://codeclimate.com/github/tomaj/hermes/badges/coverage.svg)](https://codeclimate.com/github/tomaj/hermes/coverage)
 
-## todo
+## Todo v1
 
-* create global bin command
 * create rabbit and redis drivers
-* create nette library
-* create nette-database driver
-* add DocBloks
-* add Changelog
-* add logging
+* add recomended packages to composer
 * add extensive readme
-* create laravel library
 * ability to re-send message with retry-count
 * delayed execution (ability to process message after interval)
-* add recomended packages to composer
 
+## Todo later
+
+* create nette library
+* create nette-database driver
+* create laravel library
+* create global bin command
 
 ## Usage
 
