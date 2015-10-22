@@ -30,11 +30,14 @@ There are two part for use - emitting messages and handling.
 Emmiting messages (anywhere in aplication, easy and quick). You can see *bin/send.php* file
 
 ```php
+use Redis;
 use Tomaj\Hermes\Message;
 use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\Driver\RedisSetDriver;
 
-$driver = new RedisSetDriver();
+$redis = new Redis();
+$redis->connect('127.0.0.1', 6379);
+$driver = new RedisSetDriver($redis);
 $dispatcher = new Dispatcher($driver);
 
 $message = new Message('eventtype', ['data' => 'anything']);
@@ -47,9 +50,10 @@ $dispatcher->emit($message);
 For handling and processing message you will need handler and register it to dispatcher:
 
 ```php
+use Redis;
 use Tomaj\Hermes\Driver\RedisSetDriver;
 use Tomaj\Hermes\Dispatcher;
-use Tomaj\Hermes\
+use Tomaj\Hermes\Handler\HandlerInterface;
 
 class MyHandler implements HandlerInterface
 {
@@ -60,7 +64,9 @@ class MyHandler implements HandlerInterface
 }
 
 
-$driver = new RedisSetDriver();
+$redis = new Redis();
+$redis->connect('127.0.0.1', 6379);
+$driver = new RedisSetDriver($redis);
 $dispatcher = new Dispatcher($driver);
 
 $dispatcher->registerHandler('eventtype', new MyHandler());
