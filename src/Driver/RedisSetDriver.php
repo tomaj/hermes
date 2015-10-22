@@ -6,44 +6,33 @@ use Exception;
 use Tomaj\Hermes\Message;
 use Closure;
 use Redis;
+use Predis;
 use Tomaj\Hermes\MessageSerializer;
+use InvalidArgumentException;
 
 class RedisSetDriver implements DriverInterface
 {
+    use MaxItemsTrait;
+    // use SerializerAwareTrait;
+
     private $key;
 
-    private $host;
-
-    private $port;
-
-    private $database;
-
-    private $timeout;
+    private $redis;
 
     private $serializer;
 
-    public function __construct($key = 'hermes', $host = 'localhost', $port = 6379, $database = 0, $timeout = 1)
+    private $refreshInterval;
+
+    public function __construct($redis, $key = 'hermes', $refreshInterval = 1)
     {
-        if (!extension_loaded('redis')) {
-            throw new Exception('Redis extension must be loaded');
+        if (!(($redis instanceof Predis\Client) || ($redis instanceof Redis))) {
+            throw new InvalidArgumentException('Predis\Client or Redis instance required');
         }
 
         $this->key = $key;
-        $this->host = $host;
-        $this->port = $port;
-        $this->database = $database;
-        $this->timeout = $timeout;
+        $this->redis = $redis;
+        $this->refreshInterval = $refreshInterval;
         $this->serializer = new MessageSerializer();
-    }
-
-    private function getRedis()
-    {
-        $redis = new Redis();
-        $redis->connect($this->host, $this->port);
-        if ($this->database) {
-            $redis->select($this->database);
-        }
-        return $redis;
     }
 
     /**
@@ -51,8 +40,7 @@ class RedisSetDriver implements DriverInterface
      */
     public function send(Message $message)
     {
-        $redis = $this->getRedis();
-        $redis->sadd($this->key, $this->serializer->serialize($message));
+        $this->redis->sadd($this->key, $this->serializer->serialize($message));
     }
 
     /**
@@ -61,16 +49,26 @@ class RedisSetDriver implements DriverInterface
     public function wait(Closure $callback)
     {
         while (true) {
-            sleep($this->timeout);
-
-            $redis = $this->getRedis();
+            if (!$this->shouldProcessNext()) {
+                break;
+            }
             while (true) {
-                $messageString = $redis->sPop($this->key);
+                if ($this->redis instanceof Predis\Client) {
+                    $messageString = $this->redis->spop($this->key);
+                } else {
+                    $messageString = $this->redis->sPop($this->key);
+                }
+                
                 if (!$messageString) {
                     break;
                 }
 
                 $callback($this->serializer->unserialize($messageString));
+                $this->incrementProcessedItems();
+            }
+
+            if ($this->refreshInterval) {
+                sleep($this->refreshInterval);
             }
         }
     }
