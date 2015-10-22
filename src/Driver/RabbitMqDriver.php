@@ -22,14 +22,6 @@ class RabbitMqDriver implements DriverInterface
         $this->serializer = new MessageSerializer();
     }
 
-    private function getRabbitmqChannel()
-    {
-        $connection = new AMQPStreamConnection($this->host, $this->port, $this->user, $this->password);
-        $channel = $connection->channel();
-        $channel->queue_declare($this->queue, false, false, false, false);
-        return $channel;
-    }
-
     /**
      * {@inheritdoc}
      */
