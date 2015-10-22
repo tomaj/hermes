@@ -7,10 +7,10 @@ use Tomaj\Hermes\Driver\DummyDriver;
 use Tomaj\Hermes\Message;
 use Tomaj\Hermes\Handler\TestHandler;
 
-require dirname(__FILE__). '/../vendor/autoload.php';
-require_once __DIR__ . '/DummyDriver.php';
+require dirname(__FILE__). '/../../vendor/autoload.php';
+require_once __DIR__ . '/../drivers/DummyDriver.php';
+require_once __DIR__ . '/../handler/TestHandler.php';
 require_once __DIR__ . '/TestLogger.php';
-require_once __DIR__ . '/TestHandler.php';
 
 class LoggerTest extends PHPUnit_Framework_TestCase
 {

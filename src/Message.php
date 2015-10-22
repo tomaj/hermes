@@ -2,7 +2,7 @@
 
 namespace Tomaj\Hermes;
 
-use Rhumsaa\Uuid\Uuid;
+use Ramsey\Uuid\Uuid;
 
 class Message implements MessageInterface
 {
@@ -49,7 +49,6 @@ class Message implements MessageInterface
         }
         $this->type = $type;
         $this->payload = $payload;
-        
     }
 
     /**

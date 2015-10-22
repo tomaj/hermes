@@ -7,7 +7,7 @@ use Tomaj\Hermes\Driver\DummyDriver;
 use Tomaj\Hermes\Handler\TestHandler;
 
 require __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/TestHandler.php';
+require_once __DIR__ . '/handler/TestHandler.php';
 
 class HandleTest extends PHPUnit_Framework_TestCase
 {

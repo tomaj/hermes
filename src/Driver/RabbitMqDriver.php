@@ -15,7 +15,7 @@ class RabbitMqDriver implements DriverInterface
 
     private $queue;
     
-    public function __construct(AMQPChannel $channel, $queue = 'hermes')
+    public function __construct(AMQPChannel $channel, $queue)
     {
         $this->channel = $channel;
         $this->queue = $queue;

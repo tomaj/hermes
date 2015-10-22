@@ -39,7 +39,7 @@ interface MessageInterface
      * Warning! This data has to be serializable to string. Dont put there php resources
      * like database connection resources, file handlers etc..
      *
-     * @return string
+     * @return array
      */
     public function getPayload();
 }
