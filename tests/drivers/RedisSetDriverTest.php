@@ -12,13 +12,13 @@ require __DIR__ . '/../../vendor/autoload.php';
 
 class RedisSetDriverTest extends PHPUnit_Framework_TestCase
 {
-	/**
+    /**
      * @expectedException InvalidArgumentException
      */
-	public function testConstructorShouldThrowExceptionForInvalidRedis()
-	{
-		new RedisSetDriver(new \stdClass(), 'testkey');
-	}
+    public function testConstructorShouldThrowExceptionForInvalidRedis()
+    {
+        new RedisSetDriver(new \stdClass(), 'testkey');
+    }
 
     public function testConstructorShouldWorkWithPredis()
     {
@@ -34,7 +34,7 @@ class RedisSetDriverTest extends PHPUnit_Framework_TestCase
 
     public function testPredisSendMessage()
     {
-    	$message = new Message('message1key', ['a' => 'b']);
+        $message = new Message('message1key', ['a' => 'b']);
 
         $redis = $this->getMock('Predis\Client', ['sadd']);
         $redis->expects($this->once())
@@ -46,7 +46,7 @@ class RedisSetDriverTest extends PHPUnit_Framework_TestCase
 
     public function testRedisSendMessage()
     {
-    	$message = new Message('message2key', ['c' => 'd']);
+        $message = new Message('message2key', ['c' => 'd']);
 
         $redis = $this->getMock('Redis', ['sadd']);
         $redis->expects($this->once())
@@ -58,19 +58,19 @@ class RedisSetDriverTest extends PHPUnit_Framework_TestCase
 
     public function testPredisWaitForMessage()
     {
-    	$message = new Message('message1', ['test' => 'value']);
+        $message = new Message('message1', ['test' => 'value']);
 
-		$redis = $this->getMock('Predis\Client', ['sPop']);
-		$redis->expects($this->at(0))
+        $redis = $this->getMock('Predis\Client', ['sPop']);
+        $redis->expects($this->at(0))
             ->method('sPop')
             ->with('mykey1')
-            ->will($this->returnValue( (new MessageSerializer)->serialize($message)));
+            ->will($this->returnValue((new MessageSerializer)->serialize($message)));
 
         $processed = [];
         $driver = new RedisSetDriver($redis, 'mykey1', 0);
         $driver->setMaxProcessItems(1);
         $driver->wait(function ($message) use (&$processed) {
-        	$processed[] = $message;        	
+            $processed[] = $message;
         });
 
         $this->assertEquals(1, count($processed));
@@ -79,19 +79,19 @@ class RedisSetDriverTest extends PHPUnit_Framework_TestCase
 
     public function testRedisWaitForMessage()
     {
-    	$message = new Message('message1', ['test' => 'value']);
+        $message = new Message('message1', ['test' => 'value']);
 
-		$redis = $this->getMock('Redis', ['sPop']);
-		$redis->expects($this->at(0))
+        $redis = $this->getMock('Redis', ['sPop']);
+        $redis->expects($this->at(0))
             ->method('sPop')
             ->with('mykey1')
-            ->will($this->returnValue( (new MessageSerializer)->serialize($message)));
+            ->will($this->returnValue((new MessageSerializer)->serialize($message)));
 
         $processed = [];
         $driver = new RedisSetDriver($redis, 'mykey1', 0);
         $driver->setMaxProcessItems(1);
         $driver->wait(function ($message) use (&$processed) {
-        	$processed[] = $message;        	
+            $processed[] = $message;
         });
 
         $this->assertEquals(1, count($processed));

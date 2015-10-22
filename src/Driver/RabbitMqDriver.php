@@ -49,7 +49,7 @@ class RabbitMqDriver implements DriverInterface
             $callback($message);
         });
 
-        while(count($this->channel->callbacks)) {
+        while (count($this->channel->callbacks)) {
             $this->channel->wait();
         }
     }

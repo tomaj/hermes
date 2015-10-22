@@ -6,10 +6,10 @@ use Tomaj\Hermes\SerializerInterface;
 
 trait SerializerAwareTrait
 {
-	private $serializer;
+    private $serializer;
 
-	public function setSerializer(SerializerInterface $serializer)
-	{
-		$this->serializer = $serializer;
-	}
+    public function setSerializer(SerializerInterface $serializer)
+    {
+        $this->serializer = $serializer;
+    }
 }

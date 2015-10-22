@@ -18,8 +18,8 @@ $dispatcher = new Dispatcher($driver);
 
 $counter = 1;
 while (true) {
-	$dispatcher->emit(new Message('type1', ['message' => $counter]));
-	echo "Emited message $counter\n";
-	$counter++;
-	sleep(1);
+    $dispatcher->emit(new Message('type1', ['message' => $counter]));
+    echo "Emited message $counter\n";
+    $counter++;
+    sleep(1);
 }
