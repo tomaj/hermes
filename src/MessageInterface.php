@@ -16,9 +16,9 @@ interface MessageInterface
     public function getId();
 
     /**
-     * Message creation date - timestamp
+     * Message creation date - microtime timestamp
      *
-     * @return int
+     * @return string
      */
     public function getCreated();
 

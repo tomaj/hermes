@@ -35,8 +35,6 @@ class Dispatcher implements DispatcherInterface
      * Create new Dispatcher
      *
      * @param DriverInterface $driver
-     *
-     * @return $this
      */
     public function __construct(DriverInterface $driver, LoggerInterface $logger = null)
     {
@@ -81,7 +79,7 @@ class Dispatcher implements DispatcherInterface
 
         foreach ($this->handlers[$type] as $handler) {
             // check if handler implements Psr\Log\LoggerAwareInterface (you can use \Psr\Log\LoggerAwareTrait)
-            if ($this->logger and method_exists($handler, 'setLogger')) {
+            if ($this->logger && method_exists($handler, 'setLogger')) {
                 $handler->setLogger($this->logger);
             }
 
@@ -90,7 +88,6 @@ class Dispatcher implements DispatcherInterface
                 $this->log(LogLevel::INFO, "End handle message #{$message->getId()} ({$message->getType()})", $this->messageLoggerContext($message));
             } catch (Exception $e) {
                 $handlerClass = get_class($handler);
-                var_dump($e);
                 $this->log(LogLevel::ERROR, "Handler {$handlerClass} throws exception - {$e->getMessage()}", ['error' => $e, 'message' => $this->messageLoggerContext($message), 'exception' => $e]);
             }
         }

@@ -22,7 +22,7 @@ class Message implements MessageInterface
     private $id;
 
     /**
-     * @var DateTime
+     * @var string
      */
     private $created;
 
@@ -32,7 +32,7 @@ class Message implements MessageInterface
      * @var string   $type
      * @var string   $payload
      * @var string   $id
-     * @var int      $created
+     * @var string   $created   microtime timestamp
      *
      */
     public function __construct($type, $payload = null, $id = null, $created = null)

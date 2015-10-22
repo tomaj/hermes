@@ -14,6 +14,8 @@ class RabbitMqDriver implements DriverInterface
     private $channel;
 
     private $queue;
+
+    private $serializer;
     
     public function __construct(AMQPChannel $channel, $queue)
     {
