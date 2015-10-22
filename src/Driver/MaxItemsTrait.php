@@ -4,8 +4,14 @@ namespace Tomaj\Hermes\Driver;
 
 trait MaxItemsTrait
 {
+    /**
+     * @var integer
+     */
     private $processed = 0;
 
+    /**
+     * @var integer
+     */
     private $maxProcessItems = 0;
 
     public function setMaxProcessItems($count)
