@@ -4,22 +4,7 @@
 [![Dependency Status](https://www.versioneye.com/user/projects/561e165436d0ab00210000dc/badge.svg?style=flat)](https://www.versioneye.com/user/projects/561e165436d0ab00210000dc)
 [![Code Climate](https://codeclimate.com/github/tomaj/hermes/badges/gpa.svg)](https://codeclimate.com/github/tomaj/hermes)
 [![Test Coverage](https://codeclimate.com/github/tomaj/hermes/badges/coverage.svg)](https://codeclimate.com/github/tomaj/hermes/coverage)
-
-## Todo v1
-
-* create rabbit and redis drivers
-* add recomended packages to composer
-* add extensive readme
-* ability to re-send message with retry-count
-* delayed execution (ability to process message after interval)
-
-## Todo later
-
-* create nette library
-* create nette-database driver
-* create laravel library
-* create global bin command
-* generate apigen
+[![Latest Stable Version](https://img.shields.io/packagist/v/monolog/monolog.svg)](https://packagist.org/packages/monolog/monolog)
 
 ## Usage
 
