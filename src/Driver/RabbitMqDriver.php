@@ -7,36 +7,18 @@ use Exception;
 use Tomaj\Hermes\Message;
 use Tomaj\Hermes\MessageSerializer;
 use PhpAmqpLib\Message\AMQPMessage;
-use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Channel\AMQPChannel;
 
 class RabbitMqDriver implements DriverInterface
 {
-    private $host;
-
-    private $port;
-
-    private $user;
-
-    private $password;
-
-    private $vhost;
+    private $channel;
 
     private $queue;
     
-    public function __construct($host = 'localhost', $port = 5672, $user = 'guest', $password = 'guest', $vhost = '/', $queue = 'hermes')
+    public function __construct(AMQPChannel $channel, $queue = 'hermes')
     {
-        if (!class_exists('PhpAmqpLib\Connection\AMQPStreamConnection')) {
-            throw new Exception('You need to install "videlalvaro/php-amqplib" composer package for rabbitmq driver');
-        }
-
-        $this->host = $host;
-        $this->port = $port;
-        $this->user = $user;
-        $this->password = $password;
-        $this->vhost = $vhost;
+        $this->channel = $channel;
         $this->queue = $queue;
-    
-
         $this->serializer = new MessageSerializer();
     }
 
@@ -53,10 +35,8 @@ class RabbitMqDriver implements DriverInterface
      */
     public function send(Message $message)
     {
-        $rabbitChannel = $this->getRabbitmqChannel();
         $rabbitMessage = new AMQPMessage($this->serializer->serialize($message));
-        $rabbitChannel->basic_publish($rabbitMessage, '', $this->queue);
-        $rabbitChannel->close();
+        $this->channel->basic_publish($rabbitMessage, '', $this->queue);
     }
 
     /**
@@ -64,10 +44,13 @@ class RabbitMqDriver implements DriverInterface
      */
     public function wait(Closure $callback)
     {
-        $rabbitChannel = $this->getRabbitmqChannel();
-        $rabbitChannel->basic_consume($this->queue, '', false, true, false, false, function ($rabbitMessage) use ($callback) {
+        $this->channel->basic_consume($this->queue, '', false, true, false, false, function ($rabbitMessage) use ($callback) {
             $message = $this->serializer->unserialize($rabbitMessage->body);
             $callback($message);
         });
+
+        while(count($this->channel->callbacks)) {
+            $this->channel->wait();
+        }
     }
 }
