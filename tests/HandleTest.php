@@ -5,9 +5,11 @@ namespace Tomaj\Hermes;
 use PHPUnit_Framework_TestCase;
 use Tomaj\Hermes\Driver\DummyDriver;
 use Tomaj\Hermes\Handler\TestHandler;
+use Tomaj\Hermes\Handler\ExceptionHandler;
 
 require __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/handler/TestHandler.php';
+require_once __DIR__ . '/handler/ExceptionHandler.php';
 
 class HandleTest extends PHPUnit_Framework_TestCase
 {
@@ -37,7 +39,7 @@ class HandleTest extends PHPUnit_Framework_TestCase
         $message1 = new Message('eventx', ['a' => 'x']);
 
         $driver = new DummyDriver([$message1]);
-        $dispatcher = new DIspatcher($driver);
+        $dispatcher = new Dispatcher($driver);
 
         $handler1 = new TestHandler();
         $handler2 = new TestHandler();
@@ -64,7 +66,7 @@ class HandleTest extends PHPUnit_Framework_TestCase
         $message2 = new Message('eventy', ['a' => 'x']);
 
         $driver = new DummyDriver([$message1, $message2]);
-        $dispatcher = new DIspatcher($driver);
+        $dispatcher = new Dispatcher($driver);
 
         $handler = new TestHandler();
 
@@ -74,5 +76,16 @@ class HandleTest extends PHPUnit_Framework_TestCase
 
         $receivedMessages = $handler->getReceivedMessages();
         $this->assertEquals(0, count($receivedMessages));
+    }
+
+    public function testHandlerWithException()
+    {
+        $message1 = new Message('eventx', ['a' => 'x']);
+
+        $driver = new DummyDriver([$message1]);
+        $dispatcher = new Dispatcher($driver);
+
+        $dispatcher->registerHandler('eventx', new ExceptionHandler());
+        $dispatcher->handle();
     }
 }
