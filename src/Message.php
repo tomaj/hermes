@@ -37,14 +37,12 @@ class Message implements MessageInterface
      */
     public function __construct($type, $payload = null, $id = null, $created = null)
     {
-        if ($id) {
-            $this->id = $id;
-        } else {
+        $this->id = $id;
+        if (!$id) {
             $this->id = Uuid::uuid4()->toString();
         }
-        if ($created) {
-            $this->created = $created;
-        } else {
+        $this->created = $created;
+        if (!$created) {
             $this->created = microtime();
         }
         $this->type = $type;

@@ -48,7 +48,11 @@ class Dispatcher implements DispatcherInterface
     public function emit(MessageInterface $message)
     {
         $this->driver->send($message);
-        $this->log(LogLevel::INFO, "Dispatcher send message #{$message->getId()} to driver " . get_class($this->driver), $this->messageLoggerContext($message));
+        $this->log(
+            LogLevel::INFO,
+            "Dispatcher send message #{$message->getId()} to driver " . get_class($this->driver),
+            $this->messageLoggerContext($message)
+        );
         return $this;
     }
 
@@ -64,7 +68,11 @@ class Dispatcher implements DispatcherInterface
     public function handle()
     {
         $this->driver->wait(function (MessageInterface $message) {
-            $this->log(LogLevel::INFO, "Start handle message #{$message->getId()} ({$message->getType()})", $this->messageLoggerContext($message));
+            $this->log(
+                LogLevel::INFO,
+                "Start handle message #{$message->getId()} ({$message->getType()})",
+                $this->messageLoggerContext($message)
+            );
             $this->dispatch($message);
         });
     }
@@ -85,10 +93,18 @@ class Dispatcher implements DispatcherInterface
 
             try {
                 $handler->handle($message);
-                $this->log(LogLevel::INFO, "End handle message #{$message->getId()} ({$message->getType()})", $this->messageLoggerContext($message));
+
+                $this->log(
+                    LogLevel::INFO,
+                    "End handle message #{$message->getId()} ({$message->getType()})",
+                    $this->messageLoggerContext($message)
+                );
             } catch (Exception $e) {
-                $handlerClass = get_class($handler);
-                $this->log(LogLevel::ERROR, "Handler {$handlerClass} throws exception - {$e->getMessage()}", ['error' => $e, 'message' => $this->messageLoggerContext($message), 'exception' => $e]);
+                $this->log(
+                    LogLevel::ERROR,
+                    "Handler " . get_class($handler) . " throws exception - {$e->getMessage()}",
+                    ['error' => $e, 'message' => $this->messageLoggerContext($message), 'exception' => $e]
+                );
             }
         }
     }
