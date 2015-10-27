@@ -55,10 +55,18 @@ class RabbitMqDriver implements DriverInterface
      */
     public function wait(Closure $callback)
     {
-        $this->channel->basic_consume($this->queue, '', false, true, false, false, function ($rabbitMessage) use ($callback) {
-            $message = $this->serializer->unserialize($rabbitMessage->body);
-            $callback($message);
-        });
+        $this->channel->basic_consume(
+            $this->queue,
+            '',
+            false,
+            true,
+            false,
+            false,
+            function ($rabbitMessage) use ($callback) {
+                $message = $this->serializer->unserialize($rabbitMessage->body);
+                $callback($message);
+            }
+        );
 
         while (count($this->channel->callbacks)) {
             $this->channel->wait();
