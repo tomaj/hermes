@@ -20,7 +20,7 @@ class CustomSerializerTest extends PHPUnit_Framework_TestCase
         $dummyDriver->send($message);
 
         $receivedMessage = false;
-        $dummyDriver->wait(function(MessageInterface $message) use (&$receivedMessage){ 
+        $dummyDriver->wait(function (MessageInterface $message) use (&$receivedMessage) {
             $receivedMessage = $message;
         });
         $this->assertEquals($message, $receivedMessage);

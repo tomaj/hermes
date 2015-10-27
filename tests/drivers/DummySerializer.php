@@ -9,11 +9,11 @@ class DummySerializer implements SerializerInterface
 {
     public function serialize(MessageInterface $message)
     {
-    	return serialize($message);
+        return serialize($message);
     }
 
-	public function unserialize($string)
-	{
-		return unserialize($string);
-	}    
+    public function unserialize($string)
+    {
+        return unserialize($string);
+    }
 }

@@ -26,8 +26,8 @@ class RabbitMqDriverTest extends PHPUnit_Framework_TestCase
 
         $messages = [];
         $channel->expects($this->once())
-        	->method('basic_publish')
-        	->will($this->returnCallback(function (AMQPMessage $msg, $exchange = "", $routing_key = "", $mandatory = false, $immediate = false, $ticket = null) use (&$messages) {
+            ->method('basic_publish')
+            ->will($this->returnCallback(function (AMQPMessage $msg, $exchange = "", $routing_key = "", $mandatory = false, $immediate = false, $ticket = null) use (&$messages) {
                 $messages[] = array($msg, $exchange, $routing_key, $mandatory, $immediate, $ticket);
             }));
 
