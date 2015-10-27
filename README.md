@@ -83,9 +83,14 @@ You have implement in you application:
 4. create php file that will run on you server "forever" and register there dispatcher
 
 
-# How to use
+## How to use
 
-Emmiting messages (anywhere in aplication, easy and quick). You can see *bin/send.php* file
+This simple example is usign Redis driver and it is example how to send email in background.
+
+
+### Emiting event
+
+Emmiting messages (anywhere in aplication, easy and quick).
 
 ```php
 use Redis;
@@ -98,49 +103,148 @@ $redis->connect('127.0.0.1', 6379);
 $driver = new RedisSetDriver($redis);
 $dispatcher = new Dispatcher($driver);
 
-$message = new Message('eventtype', ['data' => 'anything']);
+$message = new Message('send-email', [
+	'to' => 'test@test.com',
+	'subject' => 'Testing hermes email',
+	'message' => 'Hello from hermes!'
+]);
 
 $dispatcher->emit($message);
 
 ```
 
+### Processing event
 
-For handling and processing message you will need handler and register it to dispatcher:
+For procesing event we need to create some php file that will be running in CLI. We can create this simple implementation and register this simple handler.
+
 
 ```php
+# file handler.php
 use Redis;
 use Tomaj\Hermes\Driver\RedisSetDriver;
 use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\Handler\HandlerInterface;
 
-class MyHandler implements HandlerInterface
+class SendEmailHandler implements HandlerInterface
 {
+	// here you will receive message that was emmited from web aplication
 	public function handle(MessageInterface $message)
     {
-    	// code to process message
+    	$payload = $message->getPayload();
+    	mail($payload['to'], $payload['subject'], $payload['message']);
+    	return true;
     }
 }
 
 
+// create dispatcher like in first snippet
 $redis = new Redis();
 $redis->connect('127.0.0.1', 6379);
 $driver = new RedisSetDriver($redis);
 $dispatcher = new Dispatcher($driver);
 
-$dispatcher->registerHandler('eventtype', new MyHandler());
+// register handler for event
+$dispatcher->registerHandler('send-email', new SendEmailHandler());
 
+// at this point this script will wait for new message
 $dispatcher->handle();
 ```
 
-# Extend hermes
+For running handler.php on your server you can use tools like [upstart], [supervisord][], [monit][], [god][],  or any other alternative.
+
+[upstart]: http://upstart.ubuntu.com/
+[supervisord]: http://supervisord.org
+[monit]: https://mmonit.com/monit/
+[god]: http://godrb.com/
+
+
+# Scaling hermes
+
+If you have lot of messages that you need to process you can scale you hermes workers very easily. You just run multiple instancies of handlers - cli files that will register handlers to dispatcher and than run `$dispatcher->handle()`. You can also put you source codes to multiple machines and scale it out to as many nodes as you want. But you need driver that suport this 2 things:
+
+ 1. driver needs to be able to work over network
+ 2. one message must be delivered to only one worker
+
+If you ensure this, hermes will work perfect. Rabbit driver or Redis driver can handle this stuff and this products are made for big loads too.
+
+# Extending hermes
 
 Hermes is written as separated classes that depends on each other via interfaces. You can easily change implementation of classes. For example you can create new driver, use other logger. Or if you really want you can create your own messages format that will be send to your driver serialized via your custom serializer.
 
-# How to write your own driver
+### How to write your own driver
 
-TODO
+Each driver has to implements `Tomaj\Hermes\Driver\DriverInterface` with 2 methods (**send** and **wait**). Simple driver that will use [Gearmen][] as driver
 
-# How to write your own serializer
+```php
+namespace My\Custom\Driver;
 
-TODO
+use Tomaj\Hermes\Driver\DriverInterface;
+use Tomaj\Hermes\Message;
+use Closure;
+
+class GearmenDriver implements DriverInterface
+{
+	private $client;
+
+	private $worker;
+
+	private $channel;
+
+	private $serializer;
+
+	public function __construct(GearmanClient $client, GearmanWorker $worker, $channel = 'hermes')
+	{
+		$this->client = $client;
+		$this->worker = $worker;
+		$this->channel = $channel;
+		$this->serializer = $serialier;
+	}
+
+	public function send(Message $message)
+	{
+		$this->client->do($this->channel, $this->serializer->serialize($message));
+	}
+
+	public function wait(Closure $callback)
+	{
+		$worker->addFunction($this->channel, function ($gearmanMessage) use ($callback) {
+			$message = $this->serializer->unserialize($gearmanMessage);
+			$callback($message);
+		});
+		while ($this->worker->work());
+	}
+}
+```
+
+[Gearmen]: http://gearman.org/
+
+### How to write your own serializer
+
+If you want o use your own serializer in your drivers you have create new class that implements Tomaj\Hermes\MessageSerializer and you need driver that will support it. You can add trait `Tomaj\Hermes\Driver\SerializerAwareTrait` to your driver that will add method `setSerializer` to your driver.
+
+Simple serializer that will use library [jms/serializer][]:
+
+```php
+namespace My\Custom\Serializer;
+
+use Tomaj\Hermes\SerializerInterface;
+use Tomaj\Hermes\MessageInterface;
+
+class JmsSerializer implements SerializerInterface
+{
+	public function serialize(MessageInterface $message)
+	{
+		$serializer = JMS\Serializer\SerializerBuilder::create()->build();
+		return $serializer->serialize($message, 'json');
+	}
+
+	public function unserialize($string)
+	{
+		$serializer = JMS\Serializer\SerializerBuilder::create()->build();
+		return $serializer->deserialize($message, 'json');
+	}
+}
+```
+
+[jms/serializer]: http://jmsyst.com/libs/serializer
 
