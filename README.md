@@ -157,6 +157,56 @@ For running handler.php on your server you can use tools like [upstart], [superv
 [monit]: https://mmonit.com/monit/
 [god]: http://godrb.com/
 
+## Logging
+
+Hermes can use any [psr/log][] logger. You can use logger for dispatcher and see what type of messages comes to dispatcher and when some handler process message. If you add trait `Psr\Log\LoggerAwareTrait` (or implement `Psr\Log\LoggerAwareInterface`) to your handler, you can use logger also in your handler and dispatcher inject will set it.
+
+Basic example with [monolog][]:
+
+```php
+
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+
+// create a log channel
+$log = new Logger('hermes');
+$log->pushHandler(new StreamHandler('hermes.log'));
+
+// $driver = ....
+
+$dispatcher = new Dispatcher($driver, $log);
+```
+
+and if you want to log also some informatino in handlers:
+
+```php
+
+```php
+# file handler.php
+use Redis;
+use Tomaj\Hermes\Driver\RedisSetDriver;
+use Tomaj\Hermes\Dispatcher;
+use Tomaj\Hermes\Handler\HandlerInterface;
+use Psr\Log\LoggerAwareTrait;
+
+class SendEmailHandlerWithLogger implements HandlerInterface
+{
+	// enable logger
+	use LoggerAwareTrait;
+
+	public function handle(MessageInterface $message)
+    {
+    	$payload = $message->getPayload();
+
+    	// log info message
+    	$this->logger->info("Trying to send email to {$payload['to']}");
+    	
+    	mail($payload['to'], $payload['subject'], $payload['message']);
+    	return true;
+    }
+}
+
+```
 
 # Scaling hermes
 
