@@ -17,10 +17,10 @@ class EmitTest extends PHPUnit_Framework_TestCase
 
         $this->assertNull($driver->getMessage());
 
-        $dispatcher->emit(new Message('event-type', 'content'));
+        $dispatcher->emit(new Message('event-type', ['content']));
 
         $message = $driver->getMessage();
         $this->assertEquals('event-type', $message->getType());
-        $this->assertEquals('content', $message->getPayload());
+        $this->assertEquals(['content'], $message->getPayload());
     }
 }

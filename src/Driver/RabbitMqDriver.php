@@ -4,7 +4,7 @@ namespace Tomaj\Hermes\Driver;
 
 use Closure;
 use Exception;
-use Tomaj\Hermes\Message;
+use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
 use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Channel\AMQPChannel;
@@ -44,7 +44,7 @@ class RabbitMqDriver implements DriverInterface
     /**
      * {@inheritdoc}
      */
-    public function send(Message $message)
+    public function send(MessageInterface $message)
     {
         $rabbitMessage = new AMQPMessage($this->serializer->serialize($message));
         $this->channel->basic_publish($rabbitMessage, '', $this->queue);

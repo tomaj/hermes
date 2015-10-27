@@ -48,6 +48,7 @@ class Dispatcher implements DispatcherInterface
     public function emit(MessageInterface $message)
     {
         $this->driver->send($message);
+        
         $this->log(
             LogLevel::INFO,
             "Dispatcher send message #{$message->getId()} to driver " . get_class($this->driver),

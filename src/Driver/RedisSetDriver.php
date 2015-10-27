@@ -3,10 +3,8 @@
 namespace Tomaj\Hermes\Driver;
 
 use Exception;
-use Tomaj\Hermes\Message;
+use Tomaj\Hermes\MessageInterface;
 use Closure;
-use Redis;
-use Predis;
 use Tomaj\Hermes\MessageSerializer;
 use InvalidArgumentException;
 
@@ -48,7 +46,7 @@ class RedisSetDriver implements DriverInterface
      */
     public function __construct($redis, $key = 'hermes', $refreshInterval = 1)
     {
-        if (!(($redis instanceof Predis\Client) || ($redis instanceof Redis))) {
+        if (!(($redis instanceof \Predis\Client) || ($redis instanceof \Redis))) {
             throw new InvalidArgumentException('Predis\Client or Redis instance required');
         }
 
@@ -61,7 +59,7 @@ class RedisSetDriver implements DriverInterface
     /**
      * {@inheritdoc}
      */
-    public function send(Message $message)
+    public function send(MessageInterface $message)
     {
         $this->redis->sadd($this->key, $this->serializer->serialize($message));
     }
@@ -76,7 +74,7 @@ class RedisSetDriver implements DriverInterface
                 break;
             }
             while (true) {
-                if ($this->redis instanceof Predis\Client) {
+                if ($this->redis instanceof \Predis\Client) {
                     $messageString = $this->redis->spop($this->key);
                 } else {
                     $messageString = $this->redis->sPop($this->key);

@@ -30,12 +30,12 @@ class Message implements MessageInterface
      * Native implementation of message.
      *
      * @var string   $type
-     * @var string   $payload
+     * @var array    $payload
      * @var string   $id
      * @var string   $created   microtime timestamp
      *
      */
-    public function __construct($type, $payload = null, $id = null, $created = null)
+    public function __construct($type, array $payload = null, $id = null, $created = null)
     {
         $this->id = $id;
         if (!$id) {

@@ -2,7 +2,7 @@
 
 namespace Tomaj\Hermes\Driver;
 
-use Tomaj\Hermes\Message;
+use Tomaj\Hermes\MessageInterface;
 use Closure;
 use Tomaj\Hermes\MessageSerializer;
 use Tomaj\Hermes\Driver\SerializerAwareTrait;
@@ -27,7 +27,7 @@ class DummyDriver implements DriverInterface
         }
     }
 
-    public function send(Message $message)
+    public function send(MessageInterface $message)
     {
         $this->events[] = $this->serializer->serialize($message);
     }

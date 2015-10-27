@@ -2,7 +2,7 @@
 
 namespace Tomaj\Hermes\Driver;
 
-use Tomaj\Hermes\Message;
+use Tomaj\Hermes\MessageInterface;
 use Closure;
 
 interface DriverInterface
@@ -14,11 +14,11 @@ interface DriverInterface
      * This method has to be as fast as possible because it will be called in
      * web server threads.
      *
-     * @param Message   $message
+     * @param MessageInterface   $message
      *
      * @return $this
      */
-    public function send(Message $message);
+    public function send(MessageInterface $message);
 
     /**
      * Processing wait method.
