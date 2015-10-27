@@ -12,7 +12,7 @@ use PhpAmqpLib\Channel\AMQPChannel;
 class RabbitMqDriver implements DriverInterface
 {
     /**
-     * @var AMQPChannel
+     * @var \AMQPChannel
      */
     private $channel;
 
@@ -22,7 +22,7 @@ class RabbitMqDriver implements DriverInterface
     private $queue;
 
     /**
-     * @var Tomaj\Hermes\SerializerInterface
+     * @var \Tomaj\Hermes\SerializerInterface
      */
     private $serializer;
     
