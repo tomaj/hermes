@@ -13,7 +13,7 @@ use InvalidArgumentException;
 class RedisSetDriver implements DriverInterface
 {
     use MaxItemsTrait;
-    // use SerializerAwareTrait;
+    use SerializerAwareTrait;
 
     /**
      * @var string
@@ -24,11 +24,6 @@ class RedisSetDriver implements DriverInterface
      * @var Redis|Predis\Client
      */
     private $redis;
-
-    /**
-     * @var Tomaj\Hermes\SerializerInterface
-     */
-    private $serializer;
 
     /**
      * @var integer

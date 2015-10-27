@@ -4,35 +4,48 @@ namespace Tomaj\Hermes\Driver;
 
 use Tomaj\Hermes\Message;
 use Closure;
+use Tomaj\Hermes\MessageSerializer;
+use Tomaj\Hermes\Driver\SerializerAwareTrait;
 
 class DummyDriver implements DriverInterface
 {
+    use SerializerAwareTrait;
+
     private $storage = [];
 
     private $events = [];
 
     public function __construct($events = null)
     {
+        $this->serializer = new MessageSerializer();
+
         if (!$events) {
             $events = [];
         }
-        $this->events = $events;
+        foreach ($events as $event) {
+            $this->events[] = $this->serializer->serialize($event);
+        }
     }
 
     public function send(Message $message)
     {
-        $this->storage[] = $message;
+        $this->events[] = $this->serializer->serialize($message);
     }
 
     public function getMessage()
     {
-        return array_pop($this->storage);
+        $message = array_pop($this->events);
+        if (!$message) {
+            return null;
+        }
+        return $this->serializer->unserialize($message);
     }
 
     public function wait(Closure $callback)
     {
         foreach ($this->events as $event) {
-            $callback($event);
+            $message = $this->serializer->unserialize($event);
+            $callback($message);
         }
     }
 }

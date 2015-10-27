@@ -19,5 +19,4 @@ class EchoHandlerTest extends PHPUnit_Framework_TestCase
         $echoHandler = new EchoHandler();
         $echoHandler->handle($message);
     }
-
 }

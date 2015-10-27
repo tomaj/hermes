@@ -11,6 +11,8 @@ use PhpAmqpLib\Channel\AMQPChannel;
 
 class RabbitMqDriver implements DriverInterface
 {
+    use SerializerAwareTrait;
+
     /**
      * @var \AMQPChannel
      */
@@ -20,11 +22,6 @@ class RabbitMqDriver implements DriverInterface
      * @var string
      */
     private $queue;
-
-    /**
-     * @var \Tomaj\Hermes\SerializerInterface
-     */
-    private $serializer;
     
     /**
      * Create new RabbitMqDriver with provided channel.

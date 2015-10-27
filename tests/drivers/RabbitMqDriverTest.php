@@ -20,7 +20,6 @@ class RabbitMqDriverTest extends PHPUnit_Framework_TestCase
             $this->markTestSkipped("Please update AMQP to version >= 1.0");
         }
 
-
         $message = new Message('message1key', ['a' => 'b']);
 
         $channel = $this->getMock('PhpAmqpLib\Channel\AMQPChannel', ['basic_publish'], [], '', false);
@@ -37,5 +36,4 @@ class RabbitMqDriverTest extends PHPUnit_Framework_TestCase
 
         $this->assertCount(1, $messages);
     }
-
 }
