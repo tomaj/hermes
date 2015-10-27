@@ -12,7 +12,7 @@ class Message implements MessageInterface
     private $type;
 
     /**
-     * @var string
+     * @var array
      */
     private $payload;
 
