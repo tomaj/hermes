@@ -34,8 +34,8 @@ class RabbitMqDriver implements DriverInterface
      *
      * @see examples/rabbitmq folder
      *
-     * @param AMQPChannel   $channel 
-     * @param string        $queue  
+     * @param AMQPChannel   $channel
+     * @param string        $queue
      */
     public function __construct(AMQPChannel $channel, $queue)
     {

@@ -6,9 +6,9 @@ use Tomaj\Hermes\SerializerInterface;
 
 trait SerializerAwareTrait
 {
-	/**
-	 * @var SerializerInterface
-	 */
+    /**
+     * @var SerializerInterface
+     */
     private $serializer;
 
     /**
