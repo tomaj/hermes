@@ -1,5 +1,7 @@
 # Hermes
 
+[![Join the chat at https://gitter.im/tomaj/hermes](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/tomaj/hermes?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Background job processing PHP library
 
 [![Join the chat at https://gitter.im/tomaj/hermes](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/tomaj/hermes)
