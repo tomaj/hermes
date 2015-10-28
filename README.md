@@ -2,9 +2,7 @@
 
 [![Join the chat at https://gitter.im/tomaj/hermes](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/tomaj/hermes?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Background job processing PHP library
-
-[![Join the chat at https://gitter.im/tomaj/hermes](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/tomaj/hermes)
+**Background job processing PHP library**
 
 [![Build Status](https://travis-ci.org/tomaj/hermes.svg)](https://travis-ci.org/tomaj/hermes)
 [![Dependency Status](https://www.versioneye.com/user/projects/561e165436d0ab00210000dc/badge.svg?style=flat)](https://www.versioneye.com/user/projects/561e165436d0ab00210000dc)
