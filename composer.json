@@ -25,12 +25,14 @@
         "squizlabs/php_codesniffer": "~2.2",
         "videlalvaro/php-amqplib": "*",
         "codeclimate/php-test-reporter": "dev-master",
-        "jakub-onderka/php-parallel-lint": "^0.9.0"
+        "jakub-onderka/php-parallel-lint": "^0.9.0",
+        "ext-redis": "*",
+        "predis/predis": "*"
     },
     "suggest": {
         "monolog/monolog": "Basic logger implements psr/logger",
         "ext-redis": "Allow use for redis driver with native redis php extension",
-        "nrk/predis": "Allow use for redis driver with php package Predis",
+        "npredis/predis": "Allow use for redis driver with php package Predis",
         "videlalvaro/php-amqplib": "Allow using rabbimq as driver"
     },
     "autoload": {
