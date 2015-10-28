@@ -74,9 +74,12 @@ class RedisSetDriver implements DriverInterface
                 break;
             }
             while (true) {
+                $messageString = false;
+                
                 if ($this->redis instanceof \Predis\Client) {
                     $messageString = $this->redis->spop($this->key);
-                } else {
+                }
+                if ($this->redis instanceof \Redis) {
                     $messageString = $this->redis->sPop($this->key);
                 }
                 

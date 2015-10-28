@@ -11,8 +11,6 @@ class DummyDriver implements DriverInterface
 {
     use SerializerAwareTrait;
 
-    private $storage = [];
-
     private $events = [];
 
     public function __construct($events = null)
