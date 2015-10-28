@@ -1,10 +1,24 @@
+# Change Log
+All notable changes to this project will be documented in this file.
+Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
+## [Unreleased][unreleased]
 
-2015-10-16  Tomas Majer <tomasmajer@gmail.com>
+### Added
+ - Nothing right now
 
-   * Added docblock
+### Changed
+ - Nothing right now
 
+### Fixed
+ - Nothing right now
 
-2015-10-14  Tomas Majer <tomasmajer@gmail.com>
+### Removed
+ - Nothing right now
 
-   * Initial version with basic features and initial drivers
+## 0.1.0 - 2015-10-28
+
+### Added
+ - initial version with 2 drivers
+
+[unreleased]: https://github.com/tomaj/hermes/compare/0.1.0...HEAD
