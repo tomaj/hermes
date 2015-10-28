@@ -19,7 +19,7 @@ class Message implements MessageInterface
     /**
      * @var string
      */
-    private $id;
+    private $messageId;
 
     /**
      * @var string
@@ -31,15 +31,15 @@ class Message implements MessageInterface
      *
      * @var string   $type
      * @var array    $payload
-     * @var string   $id
+     * @var string   $messageId
      * @var string   $created   microtime timestamp
      *
      */
-    public function __construct($type, array $payload = null, $id = null, $created = null)
+    public function __construct($type, array $payload = null, $messageId = null, $created = null)
     {
-        $this->id = $id;
-        if (!$id) {
-            $this->id = Uuid::uuid4()->toString();
+        $this->messageId = $messageId;
+        if (!$messageId) {
+            $this->messageId = Uuid::uuid4()->toString();
         }
         $this->created = $created;
         if (!$created) {
@@ -54,7 +54,7 @@ class Message implements MessageInterface
      */
     public function getId()
     {
-        return $this->id;
+        return $this->messageId;
     }
 
     /**
