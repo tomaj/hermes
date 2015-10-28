@@ -18,6 +18,7 @@ matrix:
         - php: 7.0
 
 before_script:
+    - echo "extension = redis.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
     - composer self-update
     - composer install --dev
 
