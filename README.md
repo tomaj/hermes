@@ -182,8 +182,6 @@ $dispatcher = new Dispatcher($driver, $log);
 and if you want to log also some informatino in handlers:
 
 ```php
-
-```php
 # file handler.php
 use Redis;
 use Tomaj\Hermes\Driver\RedisSetDriver;
