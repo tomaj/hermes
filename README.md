@@ -2,6 +2,8 @@
 
 Background job processing PHP library
 
+[![Join the chat at https://gitter.im/tomaj/hermes](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/tomaj/hermes)
+
 [![Build Status](https://travis-ci.org/tomaj/hermes.svg)](https://travis-ci.org/tomaj/hermes)
 [![Dependency Status](https://www.versioneye.com/user/projects/561e165436d0ab00210000dc/badge.svg?style=flat)](https://www.versioneye.com/user/projects/561e165436d0ab00210000dc)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/tomaj/hermes/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/tomaj/hermes/?branch=master)
