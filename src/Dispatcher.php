@@ -74,7 +74,7 @@ class Dispatcher implements DispatcherInterface
                 "Start handle message #{$message->getId()} ({$message->getType()})",
                 $this->messageLoggerContext($message)
             );
-            $this->dispatch($message);
+            return $this->dispatch($message);
         });
     }
 
@@ -82,9 +82,11 @@ class Dispatcher implements DispatcherInterface
     {
         $type = $message->getType();
 
-        if (!isset($this->handlers[$type])) {
-            return;
+        if (!isset($this->handlers[$type]) || count($this->handlers[$type]) == 0) {
+            return true;
         }
+
+        $result = true;
 
         foreach ($this->handlers[$type] as $handler) {
             // check if handler implements Psr\Log\LoggerAwareInterface (you can use \Psr\Log\LoggerAwareTrait)
@@ -93,7 +95,10 @@ class Dispatcher implements DispatcherInterface
             }
 
             try {
-                $handler->handle($message);
+                $handleResult = $handler->handle($message);
+                if ($result && !$handleResult) {
+                    $result = false;
+                }
 
                 $this->log(
                     LogLevel::INFO,
@@ -106,8 +111,11 @@ class Dispatcher implements DispatcherInterface
                     "Handler " . get_class($handler) . " throws exception - {$e->getMessage()}",
                     ['error' => $e, 'message' => $this->messageLoggerContext($message), 'exception' => $e]
                 );
+                $result = false;
             }
         }
+
+        return $result;
     }
 
     /**

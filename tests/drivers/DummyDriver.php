@@ -13,6 +13,8 @@ class DummyDriver implements DriverInterface
 
     private $events = [];
 
+    private $waitResult = null;
+
     public function __construct($events = null)
     {
         $this->serializer = new MessageSerializer();
@@ -43,7 +45,12 @@ class DummyDriver implements DriverInterface
     {
         foreach ($this->events as $event) {
             $message = $this->serializer->unserialize($event);
-            $callback($message);
+            $this->waitResult = $callback($message);
         }
+    }
+
+    public function waitResult()
+    {
+        return $this->waitResult;
     }
 }

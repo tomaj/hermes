@@ -31,7 +31,7 @@ class HandleTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(1, count($receivedMessages));
         $this->assertEquals('event2', $receivedMessages[0]->getType());
         $this->assertEquals(['c' => 'd'], $receivedMessages[0]->getPayload());
-        
+        $this->assertTrue($driver->waitResult());
     }
 
     public function testMuplitpleHandlersOnOneEvent()
@@ -42,7 +42,7 @@ class HandleTest extends PHPUnit_Framework_TestCase
         $dispatcher = new Dispatcher($driver);
 
         $handler1 = new TestHandler();
-        $handler2 = new TestHandler();
+        $handler2 = new TestHandler(false);
 
         $dispatcher->registerHandler('eventx', $handler1);
         $dispatcher->registerHandler('eventx', $handler2);
@@ -58,6 +58,8 @@ class HandleTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(1, count($receivedMessages));
         $this->assertEquals('eventx', $receivedMessages[0]->getType());
         $this->assertEquals(['a' => 'x'], $receivedMessages[0]->getPayload());
+
+        $this->assertFalse($driver->waitResult());
     }
 
     public function testOtherEvent()
@@ -76,6 +78,7 @@ class HandleTest extends PHPUnit_Framework_TestCase
 
         $receivedMessages = $handler->getReceivedMessages();
         $this->assertEquals(0, count($receivedMessages));
+        $this->assertTrue($driver->waitResult());
     }
 
     public function testHandlerWithException()
@@ -87,5 +90,7 @@ class HandleTest extends PHPUnit_Framework_TestCase
 
         $dispatcher->registerHandler('eventx', new ExceptionHandler());
         $dispatcher->handle();
+
+        $this->assertFalse($driver->waitResult());
     }
 }
