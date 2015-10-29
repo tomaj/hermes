@@ -2,8 +2,9 @@
     "name": "tomaj/hermes",
     "description": "Hermes background processing php library",
     "type": "library",
-    "license": "LGPL",
-    "keywords": ["event"],
+    "license": "MIT",
+    "keywords": ["event", "background", "workers"],
+    "homepage": "https://github.com/tomaj/hermes",
     "authors": [
         {
             "name": "Tomas Majer",
@@ -36,8 +37,11 @@
         "videlalvaro/php-amqplib": "Allow using rabbimq as driver"
     },
     "autoload": {
-        "classmap": [
-            "src/"
-        ]
+        "psr-4": {
+             "Tomaj\\Hermes\\": "src"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
     }
 }
