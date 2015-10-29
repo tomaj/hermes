@@ -13,16 +13,16 @@
 
 ## What is Hermes?
 
-If you need process some task outside of http request in your web app you can utilize hermes. Hermes provides message broker for sending messages from http thread to offline processing jobs. Recommended use for sending emails, call other API or other time consuming operations.
+If you need to process some task outside of http request in your web app, you can utilize Hermes. Hermes provides message broker for sending messages from http thread to offline processing jobs. Recommended use for sending emails, call other API or other time consuming operations.
 
-Other goal for hermes is variability to use various message brokers like redis, rabbit, database and ability to easy create new drivers for other messaging solutions. And also simple creation of workers to perform tasks on specified events.
+Other goal for Hermes is variability to use various message brokers like redis, rabbit, database and ability to easy create new drivers for other messaging solutions. And also simple creation of workers to perform tasks on specified events.
 
 
-## Instalation
+## Installation
 
-This library requires PHP 5.4 or later. It works also an HHVM and PHP 7.0.
+This library requires PHP 5.4 or later. It works also on HHVM and PHP 7.0.
 
-Recommended instlation method is via Composer:
+Recommended installation method is via Composer:
 
 ```bash
 $ composer require tomaj/hermes
@@ -38,7 +38,7 @@ Library is compliant with [PSR-1][], [PSR-2][], [PSR-3][] and [PSR-4][].
 
 ## Optional dependencies
 
-Hermes is able to log activity with logger that is compatible with `psr/log` interface. For more information take a look at [psr/log][]
+Hermes is able to log activity with logger that is compatible with `psr/log` interface. For more information take a look at [psr/log][].
 
 Library works without logger but maintener recommends installing [monolog][] for logging.
 
@@ -50,17 +50,16 @@ Library works without logger but maintener recommends installing [monolog][] for
 
  * Laravel provider (not yet implemented)
  * Nette provider (not yet implemented)
- * Simple CLI example (not yet implemneted)
+ * Simple CLI example (not yet implemented)
 
 ## Supported drivers
 
-Righ now Hermes library is distributed with 2 drivers:
+Right now Hermes library is distributed with 2 drivers:
 
- * Redis driver ([phpredis][] and [Predis][])
- * RabbitMQ driver 
- * PDO driver (not yet)
+ * Redis driver ([phpredis][] or [Predis][])
+ * RabbitMQ driver
 
-Note: You have to install all 3th party libraries for initializing connections to this drivers. For example you have to add `nrk/predis` to your composer.json and create connection to your redis instance.
+Note: You have to install all 3rd party libraries for initializing connections to this drivers. For example you have to add `nrk/predis` to your *composer.json* and create connection to your redis instance.
 
 [phpredis]: https://github.com/phpredis/phpredis
 [Predis]: https://github.com/nrk/predis
@@ -68,33 +67,33 @@ Note: You have to install all 3th party libraries for initializing connections t
 
 ## Concept - How hermes works?
 
-Hermes works as dispatcher for events from your php requests on webserver to particular handler running on cli. Basicaly like this:
+Hermes works as a dispatcher for events from your php requests on webserver to particular handler running on cli. Basicaly like this:
 
 ```
---> request to /file.php -> emit(Message) -> Hermes Dispatcher
+--> http request to /file.php -> emit(Message) -> Hermes Dispatcher
                                                              \  
                                                  Queue (redis, rabbit etc...)
                                                              /
---> running php cli file like worker waiting for new Message-s from Queue
-        when received message call you registered handler to process it.
+--> running php cli file waiting for new Message-s from Queue
+        when received new message it calls registered handler to process it.
 ```
 
-You have implement in you application:
+You have to implement these four steps in your application:
 
-1. select driver that you would like to use and put it on Dispatcher
-2. emit events when you need to process something in background
-3. write handler class that will process you message from 1.
-4. create php file that will run on you server "forever" and register there dispatcher
+1. select driver that you would like to use and register it to Dispatcher
+2. emit events when you need to process something in the background
+3. write handler class that will process your message from 2.
+4. create php file that will run on your server "forever" and run Dispatcher there
 
 
 ## How to use
 
-This simple example is usign Redis driver and it is example how to send email in background.
+This simple example demonstrates using Redis driver and is an example how to send email in the background.
 
 
-### Emiting event
+### Emitting event
 
-Emmiting messages (anywhere in aplication, easy and quick).
+Emmitting messages (anywhere in application, easy and quick).
 
 ```php
 use Redis;
@@ -114,12 +113,11 @@ $message = new Message('send-email', [
 ]);
 
 $dispatcher->emit($message);
-
 ```
 
 ### Processing event
 
-For procesing event we need to create some php file that will be running in CLI. We can create this simple implementation and register this simple handler.
+For processing an event we need to create some php file that will be running in CLI. We can create this simple implementation and register this simple handler.
 
 
 ```php
@@ -131,8 +129,8 @@ use Tomaj\Hermes\Handler\HandlerInterface;
 
 class SendEmailHandler implements HandlerInterface
 {
-	// here you will receive message that was emmited from web aplication
-	public function handle(MessageInterface $message)
+    // here you will receive message that was emmited from web aplication
+    public function handle(MessageInterface $message)
     {
     	$payload = $message->getPayload();
     	mail($payload['to'], $payload['subject'], $payload['message']);
@@ -141,7 +139,7 @@ class SendEmailHandler implements HandlerInterface
 }
 
 
-// create dispatcher like in first snippet
+// create dispatcher like in the first snippet
 $redis = new Redis();
 $redis->connect('127.0.0.1', 6379);
 $driver = new RedisSetDriver($redis);
@@ -154,7 +152,7 @@ $dispatcher->registerHandler('send-email', new SendEmailHandler());
 $dispatcher->handle();
 ```
 
-For running handler.php on your server you can use tools like [upstart], [supervisord][], [monit][], [god][],  or any other alternative.
+For running *handler.php* on your server you can use tools like [upstart][], [supervisord][], [monit][], [god][],  or any other alternative.
 
 [upstart]: http://upstart.ubuntu.com/
 [supervisord]: http://supervisord.org
@@ -163,7 +161,7 @@ For running handler.php on your server you can use tools like [upstart], [superv
 
 ## Logging
 
-Hermes can use any [psr/log][] logger. You can use logger for dispatcher and see what type of messages comes to dispatcher and when some handler process message. If you add trait `Psr\Log\LoggerAwareTrait` (or implement `Psr\Log\LoggerAwareInterface`) to your handler, you can use logger also in your handler and dispatcher inject will set it.
+Hermes can use any [psr/log][] logger. You can set logger for Dispatcher and see what type of messages come to Dispatcher and when a handler processed a message. If you add trait `Psr\Log\LoggerAwareTrait` (or implement `Psr\Log\LoggerAwareInterface`) to your handler, you can use logger also in your handler (Dispatcher injects it automatically).
 
 Basic example with [monolog][]:
 
@@ -181,7 +179,7 @@ $log->pushHandler(new StreamHandler('hermes.log'));
 $dispatcher = new Dispatcher($driver, $log);
 ```
 
-and if you want to log also some informatino in handlers:
+and if you want to log also some information in handlers:
 
 ```php
 use Redis;
@@ -192,14 +190,14 @@ use Psr\Log\LoggerAwareTrait;
 
 class SendEmailHandlerWithLogger implements HandlerInterface
 {
-	// enable logger
-	use LoggerAwareTrait;
+    // enable logger
+    use LoggerAwareTrait;
 
-	public function handle(MessageInterface $message)
+    public function handle(MessageInterface $message)
     {
-    	$payload = $message->getPayload();
+        $payload = $message->getPayload();
 
-    	// log info message
+        // log info message
     	$this->logger->info("Trying to send email to {$payload['to']}");
 
     	mail($payload['to'], $payload['subject'], $payload['message']);
@@ -209,22 +207,22 @@ class SendEmailHandlerWithLogger implements HandlerInterface
 
 ```
 
-# Scaling hermes
+# Scaling Hermes
 
-If you have lot of messages that you need to process you can scale you hermes workers very easily. You just run multiple instancies of handlers - cli files that will register handlers to dispatcher and than run `$dispatcher->handle()`. You can also put you source codes to multiple machines and scale it out to as many nodes as you want. But you need driver that suport this 2 things:
+If you have a lot of messages that you need to process, you can scale your Hermes workers very easily. You just run multiple instances of handlers - cli files that will register handlers to dispatcher and then run `$dispatcher->handle()`. You can also put your source codes to multiple machines and scale it out to as many nodes as you want. But you need a driver that supports these 2 things:
 
  1. driver needs to be able to work over network
  2. one message must be delivered to only one worker
 
-If you ensure this, hermes will work perfect. Rabbit driver or Redis driver can handle this stuff and this products are made for big loads too.
+If you ensure this, Hermes will work perfectly. Rabbit driver or Redis driver can handle this stuff and these products are made for big loads, too.
 
-# Extending hermes
+# Extending Hermes
 
-Hermes is written as separated classes that depends on each other via interfaces. You can easily change implementation of classes. For example you can create new driver, use other logger. Or if you really want you can create your own messages format that will be send to your driver serialized via your custom serializer.
+Hermes is written as separated classes that depend on each other via interfaces. You can easily change implementation of classes. For example you can create new driver, use other logger. Or if you really want, you can create your own messages format that will be send to your driver serialized via your custom serializer.
 
 ### How to write your own driver
 
-Each driver has to implements `Tomaj\Hermes\Driver\DriverInterface` with 2 methods (**send** and **wait**). Simple driver that will use [Gearmen][] as driver
+Each driver has to implement `Tomaj\Hermes\Driver\DriverInterface` with 2 methods (**send** and **wait**). Simple driver that will use [Gearman][] as a driver
 
 ```php
 namespace My\Custom\Driver;
@@ -233,7 +231,7 @@ use Tomaj\Hermes\Driver\DriverInterface;
 use Tomaj\Hermes\Message;
 use Closure;
 
-class GearmenDriver implements DriverInterface
+class GearmanDriver implements DriverInterface
 {
 	private $client;
 
@@ -267,11 +265,11 @@ class GearmenDriver implements DriverInterface
 }
 ```
 
-[Gearmen]: http://gearman.org/
+[Gearman]: http://gearman.org/
 
 ### How to write your own serializer
 
-If you want o use your own serializer in your drivers you have create new class that implements Tomaj\Hermes\MessageSerializer and you need driver that will support it. You can add trait `Tomaj\Hermes\Driver\SerializerAwareTrait` to your driver that will add method `setSerializer` to your driver.
+If you want o use your own serializer in your drivers, you have to create a new class that implements `Tomaj\Hermes\MessageSerializer` and you need a driver that will support it. You can add trait `Tomaj\Hermes\Driver\SerializerAwareTrait` to your driver that will add method `setSerializer` to your driver.
 
 Simple serializer that will use library [jms/serializer][]:
 
