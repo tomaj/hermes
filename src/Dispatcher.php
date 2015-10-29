@@ -82,40 +82,52 @@ class Dispatcher implements DispatcherInterface
     {
         $type = $message->getType();
 
-        if (!isset($this->handlers[$type]) || count($this->handlers[$type]) == 0) {
+        if (!$this->hasHandlers($type)) {
             return true;
         }
 
         $result = true;
 
         foreach ($this->handlers[$type] as $handler) {
-            // check if handler implements Psr\Log\LoggerAwareInterface (you can use \Psr\Log\LoggerAwareTrait)
-            if ($this->logger && method_exists($handler, 'setLogger')) {
-                $handler->setLogger($this->logger);
-            }
+            $handlerResult = $this->handleMessage($handler, $message);
 
-            try {
-                $handleResult = $handler->handle($message);
-                if ($result && !$handleResult) {
-                    $result = false;
-                }
-
-                $this->log(
-                    LogLevel::INFO,
-                    "End handle message #{$message->getId()} ({$message->getType()})",
-                    $this->messageLoggerContext($message)
-                );
-            } catch (Exception $e) {
-                $this->log(
-                    LogLevel::ERROR,
-                    "Handler " . get_class($handler) . " throws exception - {$e->getMessage()}",
-                    ['error' => $e, 'message' => $this->messageLoggerContext($message), 'exception' => $e]
-                );
+            if ($result && !$handlerResult) {
                 $result = false;
             }
         }
 
         return $result;
+    }
+
+    private function handleMessage($handler, $message)
+    {
+        // check if handler implements Psr\Log\LoggerAwareInterface (you can use \Psr\Log\LoggerAwareTrait)
+        if ($this->logger && method_exists($handler, 'setLogger')) {
+            $handler->setLogger($this->logger);
+        }
+
+        try {
+            $result = $handler->handle($message);
+            
+            $this->log(
+                LogLevel::INFO,
+                "End handle message #{$message->getId()} ({$message->getType()})",
+                $this->messageLoggerContext($message)
+            );
+        } catch (Exception $e) {
+            $this->log(
+                LogLevel::ERROR,
+                "Handler " . get_class($handler) . " throws exception - {$e->getMessage()}",
+                ['error' => $e, 'message' => $this->messageLoggerContext($message), 'exception' => $e]
+            );
+            $result = false;
+        }
+        return $result;
+    }
+
+    private function hasHandlers($type)
+    {
+        return isset($this->handlers[$type]) && count($this->handlers[$type]) > 0;
     }
 
     /**
