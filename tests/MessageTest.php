@@ -1,10 +1,9 @@
 <?php
 
-namespace Tomaj\Hermes;
+namespace Tomaj\Hermes\Test;
 
 use PHPUnit_Framework_TestCase;
-
-require dirname(__FILE__). '/../vendor/autoload.php';
+use Tomaj\Hermes\Message;
 
 class MessageTest extends PHPUnit_Framework_TestCase
 {

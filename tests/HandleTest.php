@@ -1,15 +1,13 @@
 <?php
 
-namespace Tomaj\Hermes;
+namespace Tomaj\Hermes\Test;
 
 use PHPUnit_Framework_TestCase;
-use Tomaj\Hermes\Driver\DummyDriver;
-use Tomaj\Hermes\Handler\TestHandler;
-use Tomaj\Hermes\Handler\ExceptionHandler;
-
-require __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/handler/TestHandler.php';
-require_once __DIR__ . '/handler/ExceptionHandler.php';
+use Tomaj\Hermes\Test\Driver\DummyDriver;
+use Tomaj\Hermes\Test\Handler\TestHandler;
+use Tomaj\Hermes\Test\Handler\ExceptionHandler;
+use Tomaj\Hermes\Message;
+use Tomaj\Hermes\Dispatcher;
 
 class HandleTest extends PHPUnit_Framework_TestCase
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tomaj\Hermes\Driver;
+namespace Tomaj\Hermes\Test\Driver;
 
 use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\SerializerInterface;

@@ -1,13 +1,12 @@
 <?php
 
-namespace Tomaj\Hermes;
+namespace Tomaj\Hermes\Test\Driver;
 
 use PHPUnit_Framework_TestCase;
-use Tomaj\Hermes\Handler\TestHandler;
-use Tomaj\Hermes\Driver\RabbitMqDriver;
 use PhpAmqpLib\Message\AMQPMessage;
-
-require __DIR__ . '/../../vendor/autoload.php';
+use Tomaj\Hermes\Test\Handler\TestHandler;
+use Tomaj\Hermes\Driver\RabbitMqDriver;
+use Tomaj\Hermes\Message;
 
 class RabbitMqDriverTest extends PHPUnit_Framework_TestCase
 {

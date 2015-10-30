@@ -1,11 +1,10 @@
 <?php
 
-namespace Tomaj\Hermes;
+namespace Tomaj\Hermes\Test\Handler;
 
 use PHPUnit_Framework_TestCase;
+use Tomaj\Hermes\Message;
 use Tomaj\Hermes\Handler\EchoHandler;
-
-require __DIR__ . '/../../vendor/autoload.php';
 
 class EchoHandlerTest extends PHPUnit_Framework_TestCase
 {

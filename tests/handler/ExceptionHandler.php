@@ -1,9 +1,10 @@
 <?php
 
-namespace Tomaj\Hermes\Handler;
+namespace Tomaj\Hermes\Test\Handler;
 
-use Tomaj\Hermes\MessageInterface;
 use RuntimeException;
+use Tomaj\Hermes\MessageInterface;
+use Tomaj\Hermes\Handler\HandlerInterface;
 
 class ExceptionHandler implements HandlerInterface
 {

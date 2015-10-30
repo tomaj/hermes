@@ -1,16 +1,12 @@
 <?php
 
-namespace Tomaj\Hermes;
+namespace Tomaj\Hermes\Test\Logger;
 
 use PHPUnit_Framework_TestCase;
-use Tomaj\Hermes\Driver\DummyDriver;
+use Tomaj\Hermes\Test\Driver\DummyDriver;
+use Tomaj\Hermes\Test\Handler\TestHandler;
 use Tomaj\Hermes\Message;
-use Tomaj\Hermes\Handler\TestHandler;
-
-require dirname(__FILE__). '/../../vendor/autoload.php';
-require_once __DIR__ . '/../drivers/DummyDriver.php';
-require_once __DIR__ . '/../handler/TestHandler.php';
-require_once __DIR__ . '/TestLogger.php';
+use Tomaj\Hermes\Dispatcher;
 
 class LoggerTest extends PHPUnit_Framework_TestCase
 {

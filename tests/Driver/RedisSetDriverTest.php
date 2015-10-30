@@ -1,14 +1,12 @@
 <?php
 
-namespace Tomaj\Hermes;
+namespace Tomaj\Hermes\Test\Driver;
 
 use PHPUnit_Framework_TestCase;
 use Tomaj\Hermes\Driver\RedisSetDriver;
-use Tomaj\Hermes\Handler\TestHandler;
+use Tomaj\Hermes\Test\Handler\TestHandler;
 use Tomaj\Hermes\Message;
 use Tomaj\Hermes\MessageSerializer;
-
-require __DIR__ . '/../../vendor/autoload.php';
 
 class RedisSetDriverTest extends PHPUnit_Framework_TestCase
 {

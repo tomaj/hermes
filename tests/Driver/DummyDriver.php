@@ -1,10 +1,11 @@
 <?php
 
-namespace Tomaj\Hermes\Driver;
+namespace Tomaj\Hermes\Test\Driver;
 
-use Tomaj\Hermes\MessageInterface;
 use Closure;
+use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
+use Tomaj\Hermes\Driver\DriverInterface;
 use Tomaj\Hermes\Driver\SerializerAwareTrait;
 
 class DummyDriver implements DriverInterface

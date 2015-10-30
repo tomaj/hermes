@@ -1,14 +1,12 @@
 <?php
 
-namespace Tomaj\Hermes;
+namespace Tomaj\Hermes\Test;
 
 use PHPUnit_Framework_TestCase;
-use Tomaj\Hermes\Driver\DummyDriver;
-use Tomaj\Hermes\Driver\DummySerializer;
+use Tomaj\Hermes\Test\Driver\DummyDriver;
+use Tomaj\Hermes\Test\Driver\DummySerializer;
 use Tomaj\Hermes\MessageInterface;
-
-require __DIR__ . '/../../vendor/autoload.php';
-require __DIR__ . '/DummySerializer.php';
+use Tomaj\Hermes\Message;
 
 class CustomSerializerTest extends PHPUnit_Framework_TestCase
 {

@@ -41,6 +41,11 @@
              "Tomaj\\Hermes\\": "src"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Tomaj\\Hermes\\Test\\": "tests"
+        }
+    },
     "scripts": {
         "test": "phpunit"
     }

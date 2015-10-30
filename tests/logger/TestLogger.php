@@ -1,10 +1,10 @@
 <?php
 
-namespace Tomaj\Hermes;
+namespace Tomaj\Hermes\Test\Logger;
 
 use Tomaj\Hermes\Message;
-use Closure;
 use Psr\Log\LoggerInterface;
+use Closure;
 
 class TestLogger implements LoggerInterface
 {

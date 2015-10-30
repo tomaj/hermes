@@ -1,8 +1,9 @@
 <?php
 
-namespace Tomaj\Hermes\Handler;
+namespace Tomaj\Hermes\Test\Handler;
 
 use Tomaj\Hermes\MessageInterface;
+use Tomaj\Hermes\Handler\HandlerInterface;
 
 class TestHandler implements HandlerInterface
 {
@@ -12,7 +13,7 @@ class TestHandler implements HandlerInterface
 
     public function __construct($result = true)
     {
-    	$this->result = $result;
+        $this->result = $result;
     }
 
     public function handle(MessageInterface $message)
