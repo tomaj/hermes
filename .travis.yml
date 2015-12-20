@@ -24,6 +24,7 @@ matrix:
 
 before_script:
     - echo "extension = redis.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+    - echo "extension = zmq.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
     - travis_retry composer self-update
     - travis_retry composer update ${COMPOSER_FLAGS} --no-interaction --prefer-source
 
