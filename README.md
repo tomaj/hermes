@@ -55,13 +55,18 @@ Library works without logger but maintener recommends installing [monolog][] for
 
 Right now Hermes library is distributed with 2 drivers:
 
- * Redis driver ([phpredis][] or [Predis][])
- * RabbitMQ driver
+ * [Redis][] driver ([phpredis][] or [Predis][])
+ * [RabbitMQ][] driver
+ * [ZeroMQ][] drivver (via [php-zmq][] extension)
 
 Note: You have to install all 3rd party libraries for initializing connections to this drivers. For example you have to add `nrk/predis` to your *composer.json* and create connection to your redis instance.
 
+[Redis]: http://redis.io/
+[RabbitMQ]: https://www.rabbitmq.com/
+[ZeroMQ]: http://zeromq.org/
 [phpredis]: https://github.com/phpredis/phpredis
 [Predis]: https://github.com/nrk/predis
+[php-zmq]: http://zeromq.org/bindings:php
 
 
 ## Concept - How hermes works?
