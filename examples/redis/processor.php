@@ -2,7 +2,6 @@
 
 use Tomaj\Hermes\Driver\RedisSetDriver;
 use Tomaj\Hermes\Dispatcher;
-use Tomaj\Hermes\Message;
 use Tomaj\Hermes\Handler\EchoHandler;
 
 require_once __DIR__ . '/../../vendor/autoload.php';
