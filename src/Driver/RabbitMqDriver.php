@@ -14,7 +14,7 @@ class RabbitMqDriver implements DriverInterface
     use SerializerAwareTrait;
 
     /**
-     * @var \AMQPChannel
+     * @var AMQPChannel
      */
     private $channel;
 

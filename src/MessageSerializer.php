@@ -25,7 +25,6 @@ class MessageSerializer implements SerializerInterface
     public function unserialize($string)
     {
         $data = json_decode($string, true);
-        // todo check if data is OK
         $message = $data['message'];
         return new Message($message['type'], $message['payload'], $message['id'], $message['created']);
     }
