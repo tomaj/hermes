@@ -7,6 +7,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Tomaj\Hermes\Handler\HandlerInterface;
 use Tomaj\Hermes\Driver\DriverInterface;
+use Tracy\Debugger;
 
 class Dispatcher implements DispatcherInterface
 {
@@ -120,6 +121,7 @@ class Dispatcher implements DispatcherInterface
                 "Handler " . get_class($handler) . " throws exception - {$e->getMessage()}",
                 ['error' => $e, 'message' => $this->messageLoggerContext($message), 'exception' => $e]
             );
+            Debugger::log($e, Debugger::EXCEPTION);
             $result = false;
         }
         return $result;
