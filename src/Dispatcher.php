@@ -7,6 +7,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Tomaj\Hermes\Handler\HandlerInterface;
 use Tomaj\Hermes\Driver\DriverInterface;
+use Tomaj\Hermes\Restart\RestartInterface;
 use Tracy\Debugger;
 
 class Dispatcher implements DispatcherInterface
@@ -26,6 +27,13 @@ class Dispatcher implements DispatcherInterface
     private $logger;
 
     /**
+     * Restart
+     *
+     * @var RestartInterface
+     */
+    private $restart;
+
+    /**
      * All registered handalers
      *
      * @var array
@@ -36,11 +44,14 @@ class Dispatcher implements DispatcherInterface
      * Create new Dispatcher
      *
      * @param DriverInterface $driver
+     * @param LoggerInterface $logger
+     * @param RestartInterface $restart
      */
-    public function __construct(DriverInterface $driver, LoggerInterface $logger = null)
+    public function __construct(DriverInterface $driver, LoggerInterface $logger = null, RestartInterface $restart = null)
     {
         $this->driver = $driver;
         $this->logger = $logger;
+        $this->restart = $restart;
     }
 
     /**
@@ -49,7 +60,7 @@ class Dispatcher implements DispatcherInterface
     public function emit(MessageInterface $message)
     {
         $this->driver->send($message);
-        
+
         $this->log(
             LogLevel::INFO,
             "Dispatcher send message #{$message->getId()} to driver " . get_class($this->driver),
@@ -109,7 +120,7 @@ class Dispatcher implements DispatcherInterface
 
         try {
             $result = $handler->handle($message);
-            
+
             $this->log(
                 LogLevel::INFO,
                 "End handle message #{$message->getId()} ({$message->getType()})",
