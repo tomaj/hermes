@@ -10,6 +10,8 @@ interface SerializerInterface
      * Method is used when serializing $message to driver.
      * Message has to be serializable to string.
      *
+     * @param MessageInterface $message
+     * 
      * @return string
      */
     public function serialize(MessageInterface $message);
@@ -17,7 +19,7 @@ interface SerializerInterface
     /**
      * Opposite serialize method.
      *
-     * Message needs to be unserialized from input string.
+     * Message needs to be un-serialized from input string.
      * This string will be received from driver.
      *
      * @param string $string
