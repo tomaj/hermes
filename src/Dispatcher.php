@@ -3,10 +3,12 @@
 namespace Tomaj\Hermes;
 
 use Exception;
+use Nette\Application\AbortException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Tomaj\Hermes\Handler\HandlerInterface;
 use Tomaj\Hermes\Driver\DriverInterface;
+use Tomaj\Hermes\Restart\RestartException;
 use Tomaj\Hermes\Restart\RestartInterface;
 use Tracy\Debugger;
 use DateTime;
@@ -87,22 +89,25 @@ class Dispatcher implements DispatcherInterface
      */
     public function handle()
     {
-        $this->driver->wait(function (MessageInterface $message) {
-            $this->log(
-                LogLevel::INFO,
-                "Start handle message #{$message->getId()} ({$message->getType()})",
-                $this->messageLoggerContext($message)
-            );
+        try {
+            $this->driver->wait(function (MessageInterface $message) {
+                $this->log(
+                    LogLevel::INFO,
+                    "Start handle message #{$message->getId()} ({$message->getType()})",
+                    $this->messageLoggerContext($message)
+                );
 
-            $result = $this->dispatch($message);
+                $result = $this->dispatch($message);
 
-            if ($this->restart->shouldRestart($this->startTime)) {
-                $this->log(LogLevel::NOTICE, 'Existing hermes dispatcher - restart');
-                exit;
-            }
+                if ($this->restart && $this->restart->shouldRestart($this->startTime)) {
+                    throw new RestartException('Restart');
+                }
 
-            return $result;
-        });
+                return $result;
+            });
+        } catch (RestartException $e) {
+            $this->log(LogLevel::NOTICE, 'Existing hermes dispatcher - restart');
+        }
     }
 
     /**
