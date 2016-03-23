@@ -32,7 +32,7 @@ class Message implements MessageInterface
      * @var string   $type
      * @var array    $payload
      * @var string   $messageId
-     * @var string   $created   microtime timestamp
+     * @var string   $created   timestamp (micro)
      *
      */
     public function __construct($type, array $payload = null, $messageId = null, $created = null)
