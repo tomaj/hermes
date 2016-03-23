@@ -3,7 +3,6 @@
 namespace Tomaj\Hermes;
 
 use Exception;
-use Nette\Application\AbortException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Tomaj\Hermes\Handler\HandlerInterface;
@@ -107,6 +106,8 @@ class Dispatcher implements DispatcherInterface
             });
         } catch (RestartException $e) {
             $this->log(LogLevel::NOTICE, 'Existing hermes dispatcher - restart');
+        } catch (Exception $exception) {
+            Debugger::log($exception, Debugger::EXCEPTION);
         }
     }
 
