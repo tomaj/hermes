@@ -2,11 +2,10 @@
 
 namespace Tomaj\Hermes\Driver;
 
-use Exception;
 use Tomaj\Hermes\MessageInterface;
-use Closure;
 use Tomaj\Hermes\MessageSerializer;
 use InvalidArgumentException;
+use Closure;
 
 class RedisSetDriver implements DriverInterface
 {
@@ -19,7 +18,7 @@ class RedisSetDriver implements DriverInterface
     private $key;
 
     /**
-     * @var Redis|Predis\Client
+     * @var \Redis\Predis\Client|Redis|\RedisProxy\RedisProxy
      */
     private $redis;
 
@@ -40,14 +39,14 @@ class RedisSetDriver implements DriverInterface
      *
      * @see examples/redis
      *
-     * @param Redis\Predis\Client    $redis
-     * @param string                 $key
-     * @param integer                $refreshInterval
+     * @param \Redis\Predis\Client|Redis|\RedisProxy\RedisProxy    $redis
+     * @param string                                               $key
+     * @param integer                                              $refreshInterval
      */
     public function __construct($redis, $key = 'hermes', $refreshInterval = 1)
     {
-        if (!(($redis instanceof \Predis\Client) || ($redis instanceof \Redis))) {
-            throw new InvalidArgumentException('Predis\Client or Redis instance required');
+        if (!(($redis instanceof \Predis\Client) || ($redis instanceof \Redis) || ($redis instanceof \RedisProxy\RedisProxy))) {
+            throw new InvalidArgumentException('Predis\Client or Redis or RedisProxy instance required');
         }
 
         $this->key = $key;
@@ -75,14 +74,15 @@ class RedisSetDriver implements DriverInterface
             }
             while (true) {
                 $messageString = false;
-                
+
                 if ($this->redis instanceof \Predis\Client) {
                     $messageString = $this->redis->spop($this->key);
-                }
-                if ($this->redis instanceof \Redis) {
+                } else if ($this->redis instanceof \Redis) {
                     $messageString = $this->redis->sPop($this->key);
+                } else if ($this->redis instanceof \RedisProxy\RedisProxy) {
+                    $messageString = $this->redis->spop($this->key);
                 }
-                
+
                 if (!$messageString) {
                     break;
                 }
