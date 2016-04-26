@@ -25,7 +25,7 @@
     "require-dev": {
         "phpunit/phpunit": "~4.3",
         "squizlabs/php_codesniffer": "~2.2",
-        "videlalvaro/php-amqplib": "*",
+        "php-amqplib/php-amqplib": "*",
         "scrutinizer/ocular": "~1.1",
         "jakub-onderka/php-parallel-lint": "^0.9.0",
         "ext-redis": "*",
@@ -37,7 +37,7 @@
         "ext-redis": "Allow use for redis driver with native redis php extension",
         "ext-zmq": "Allow use for ZeroMQ driver with native zmq php extension",
         "npredis/predis": "Allow use for redis driver with php package Predis",
-        "videlalvaro/php-amqplib": "Allow using rabbimq as driver"
+        "php-amqplib/php-amqplib": "Allow using rabbimq as driver"
     },
     "autoload": {
         "psr-4": {

@@ -1,0 +1,77 @@
+<?php
+
+namespace Tomaj\Hermes\Driver;
+
+use Closure;
+use PhpAmqpLib\Channel\AMQPChannel;
+use PhpAmqpLib\Connection\AMQPLazyConnection;
+use PhpAmqpLib\Message\AMQPMessage;
+use Tomaj\Hermes\MessageInterface;
+use Tomaj\Hermes\MessageSerializer;
+
+class LazyRabbitMqDriver implements DriverInterface
+{
+    use SerializerAwareTrait;
+
+    /** @var AMQPLazyConnection */
+    private $connection;
+    
+    /** @var AMQPChannel */
+    private $channel;
+
+    /** @var string */
+    private $queue;
+    
+    /**
+     * @param AMQPLazyConnection $connection
+     * @param string $queue
+     */
+    public function __construct(AMQPLazyConnection $connection, $queue)
+    {
+        $this->connection = $connection;
+        $this->queue = $queue;
+        $this->serializer = new MessageSerializer();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function send(MessageInterface $message)
+    {
+        $rabbitMessage = new AMQPMessage($this->serializer->serialize($message));
+        $this->getChannel()->basic_publish($rabbitMessage, '', $this->queue);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function wait(Closure $callback)
+    {
+        $this->getChannel()->basic_consume(
+            $this->queue,
+            '',
+            false,
+            true,
+            false,
+            false,
+            function ($rabbitMessage) use ($callback) {
+                $message = $this->serializer->unserialize($rabbitMessage->body);
+                $callback($message);
+            }
+        );
+
+        while (count($this->getChannel()->callbacks)) {
+            $this->getChannel()->wait();
+        }
+    }
+    
+    private function getChannel()
+    {
+        if ($this->channel) {
+            return $this->channel;
+        }
+        $this->channel = $this->connection->channel();
+        $this->channel->queue_declare($this->queue, false, false, false, false);
+        return $this->channel;
+    }
+}
