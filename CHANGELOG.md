@@ -4,21 +4,29 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ## [Unreleased][unreleased]
 
+
+## 0.4.0 - 2016-04-26
+
 ### Added
- - Nothing right now
+
+* Added RabbitMQ Lazy driver
+
+## 0.3.0 - 2016-03-23
+
+### Added
+
+* Added possibility to gracefull restart worker with RestartInterface
+* Added Tracy debugger log when error occured
+
+## 0.2.0 - 2015-10-30
 
 ### Changed
- - Nothing right now
 
-### Fixed
- - Nothing right now
-
-### Removed
- - Nothing right now
+* Handling responses from handlers.
+* Tests structure refactored
 
 ## 0.1.0 - 2015-10-28
 
 ### Added
- - initial version with 2 drivers
 
-[unreleased]: https://github.com/tomaj/hermes/compare/0.1.0...HEAD
+* initial version with 2 drivers
