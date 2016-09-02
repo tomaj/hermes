@@ -65,6 +65,7 @@ class RabbitMqDriver implements DriverInterface
             function ($rabbitMessage) use ($callback) {
                 $message = $this->serializer->unserialize($rabbitMessage->body);
                 $callback($message);
+                $rabbitMessage->delivery_info['channel']->basic_ack($rabbitMessage->delivery_info['delivery_tag']);
             }
         );
 

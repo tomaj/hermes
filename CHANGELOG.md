@@ -4,6 +4,12 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ## [Unreleased][unreleased]
 
+## 1.0.0 - 2016-09-02
+
+### Added
+
+* First stable version
+* Added ACK to rabbitmq driver
 
 ## 0.4.0 - 2016-04-26
 
