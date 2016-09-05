@@ -4,6 +4,12 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ## [Unreleased][unreleased]
 
+## 1.1.0 - 2016-09-05
+
+### Added
+
+* Amazon SQS driver
+
 ## 1.0.0 - 2016-09-02
 
 ### Added
