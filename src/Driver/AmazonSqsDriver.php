@@ -109,7 +109,7 @@ class AmazonSqsDriver implements DriverInterface
                 foreach ($messages as $message) {
                     $hermesMessage = $this->serializer->unserialize($message['Body']);
                     $callback($hermesMessage);
-                    $result = $this->client->deleteMessage(array(
+                    $this->client->deleteMessage(array(
                         'QueueUrl' => $this->queueUrl,
                         'ReceiptHandle' => $message['ReceiptHandle'],
                     ));
