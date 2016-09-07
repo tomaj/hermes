@@ -8,7 +8,7 @@ use Aws\Sqs\SqsClient;
 require_once __DIR__.'/../../vendor/autoload.php';
 
 $client = SqsClient::factory([
-	'version' => 'latest',
+    'version' => 'latest',
     'region'  => 'eu-west-1',
     'key' => '*key*',
     'secret' => '*secret*',

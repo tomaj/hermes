@@ -64,7 +64,7 @@ class AmazonSqsDriver implements DriverInterface
      *
      * @see examples/sqs folder
      *
-     * @param AMQPChannel   $client
+     * @param SqsClient   $client
      * @param string        $queueName
      * @param array         $queueAttributes
      */
