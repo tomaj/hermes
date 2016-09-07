@@ -4,7 +4,7 @@ use Tomaj\Hermes\Driver\ZeroMqDriver;
 use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\Handler\EchoHandler;
 
-require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__.'/../../vendor/autoload.php';
 
 // Prepare ZMQ server
 $context = new ZMQContext(1);

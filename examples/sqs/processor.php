@@ -5,7 +5,7 @@ use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\Handler\EchoHandler;
 use Aws\Sqs\SqsClient;
 
-require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__.'/../../vendor/autoload.php';
 
 $client = SqsClient::factory([
 	'version' => 'latest',

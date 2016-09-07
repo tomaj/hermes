@@ -5,7 +5,7 @@ use PhpAmqpLib\Connection\AMQPStreamConnection;
 use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\Handler\EchoHandler;
 
-require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__.'/../../vendor/autoload.php';
 
 $queueName = 'hermes_queue';
 $connection = new AMQPStreamConnection('localhost', 5672, 'guest', 'guest', '/guest');

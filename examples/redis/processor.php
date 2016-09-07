@@ -4,7 +4,7 @@ use Tomaj\Hermes\Driver\RedisSetDriver;
 use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\Handler\EchoHandler;
 
-require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__.'/../../vendor/autoload.php';
 
 $redis = new Redis();
 $redis->connect('127.0.0.1', 6379);
