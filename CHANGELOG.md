@@ -4,6 +4,10 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ## [Unreleased][unreleased]
 
+### Updated
+
+* Amazon aws library updated to version 3 in composer - still works with v2 but you have to initialize Sqs client in v2 style
+
 ## 1.1.0 - 2016-09-05
 
 ### Added

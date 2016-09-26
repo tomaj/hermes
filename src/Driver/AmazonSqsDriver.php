@@ -31,7 +31,7 @@ class AmazonSqsDriver implements DriverInterface
      * integer
      */
     private $sleepInterval = 0;
-    
+
     /**
      * Create new Amazon SQS driver.
      *
@@ -46,7 +46,7 @@ class AmazonSqsDriver implements DriverInterface
      *    'region'  => '<region name>'
      *  ));
      * </code>
-     * 
+     *
      * or
      *
      * <code>
@@ -64,7 +64,7 @@ class AmazonSqsDriver implements DriverInterface
      *
      * @see examples/sqs folder
      *
-     * @param SqsClient   $client
+     * @param SqsClient     $client
      * @param string        $queueName
      * @param array         $queueAttributes
      */
@@ -78,6 +78,7 @@ class AmazonSqsDriver implements DriverInterface
             'QueueName'  => $queueName,
             'Attributes' => $queueAttributes,
         ]);
+
         $this->queueUrl = $result->get('QueueUrl');
     }
 
