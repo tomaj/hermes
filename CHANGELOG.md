@@ -4,9 +4,13 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ## [Unreleased][unreleased]
 
-### Updated
+### Changed
+
+* Dropped support for php 5.4
 
 ## 1.2.0 - 2016-09-26
+
+### Updated
 
 * Amazon aws library updated to version 3 in composer - still works with v2 but you have to initialize Sqs client in v2 style
 

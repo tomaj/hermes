@@ -17,19 +17,19 @@
         "source": "https://github.com/tomaj/hermes"
     },
     "require": {
-        "php": ">= 5.4.0",
+        "php": ">= 5.5.0",
         "ramsey/uuid": "~3.0",
         "psr/log": "1.0.0",
         "tracy/tracy": "^2.0"
     },
     "require-dev": {
+        "ext-redis": "*",
+        "ext-zmq": "*",
         "phpunit/phpunit": "~4.3",
         "squizlabs/php_codesniffer": "~2.2",
         "php-amqplib/php-amqplib": "^2.6.3",
         "scrutinizer/ocular": "~1.1",
         "jakub-onderka/php-parallel-lint": "^0.9.0",
-        "ext-redis": "*",
-        "ext-zmq": "*",
         "predis/predis": "*",
         "aws/aws-sdk-php": "3.*"
     },
