@@ -63,7 +63,7 @@ class Dispatcher implements DispatcherInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @deprecated - use Emitter::emit method intead
      */
     public function emit(MessageInterface $message)
     {
