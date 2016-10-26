@@ -32,7 +32,6 @@ class Emitter implements EmitterInterface
     {
         $this->driver = $driver;
         $this->logger = $logger;
-        $this->startTime = new DateTime();
     }
 
     /**
@@ -48,6 +47,23 @@ class Emitter implements EmitterInterface
             $this->messageLoggerContext($message)
         );
         return $this;
+    }
+
+    /**
+     * Serialize message to logger context
+     *
+     * @param MessageInterface $message
+     *
+     * @return array
+     */
+    private function messageLoggerContext(MessageInterface $message)
+    {
+        return [
+            'id' => $message->getId(),
+            'created' => $message->getCreated(),
+            'type' => $message->getType(),
+            'payload' => $message->getPayload(),
+        ];
     }
 
     /**

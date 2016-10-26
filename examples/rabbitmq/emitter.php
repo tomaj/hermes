@@ -1,7 +1,7 @@
 <?php
 
 use Tomaj\Hermes\Driver\RabbitMqDriver;
-use Tomaj\Hermes\Dispatcher;
+use Tomaj\Hermes\Emitter;
 use Tomaj\Hermes\Message;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 
@@ -14,11 +14,11 @@ $channel = $connection->channel();
 $channel->queue_declare($queueName, false, false, false, false);
 $driver = new RabbitMqDriver($channel, $queueName);
 
-$dispatcher = new Dispatcher($driver);
+$emitter = new Emitter($driver);
 
 $counter = 1;
 while (true) {
-    $dispatcher->emit(new Message('type1', ['message' => $counter]));
+    $emitter->emit(new Message('type1', ['message' => $counter]));
     echo "Emited message $counter\n";
     $counter++;
     sleep(1);
