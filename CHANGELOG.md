@@ -7,6 +7,7 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 ### Changed
 
 * Dropped support for php 5.4
+* Deprecated emit() in Disapatcher - introduced Emitter
 
 ## 1.2.0 - 2016-09-26
 

@@ -71,10 +71,10 @@ Note: You have to install all 3rd party libraries for initializing connections t
 
 ## Concept - How hermes works?
 
-Hermes works as a dispatcher for events from your php requests on webserver to particular handler running on cli. Basicaly like this:
+Hermes works as a emitter and dispatcher for events from your php requests on webserver to particular handler running on cli. Basicaly like this:
 
 ```
---> http request to /file.php -> emit(Message) -> Hermes Dispatcher
+--> http request to /file.php -> emit(Message) -> Hermes Emitter
                                                              \  
                                                  Queue (redis, rabbit etc...)
                                                              /
@@ -84,7 +84,7 @@ Hermes works as a dispatcher for events from your php requests on webserver to p
 
 You have to implement these four steps in your application:
 
-1. select driver that you would like to use and register it to Dispatcher
+1. select driver that you would like to use and register it to Dispatcher and Emitter
 2. emit events when you need to process something in the background
 3. write handler class that will process your message from 2.
 4. create php file that will run on your server "forever" and run Dispatcher there
@@ -102,13 +102,13 @@ Emmitting messages (anywhere in application, easy and quick).
 ```php
 use Redis;
 use Tomaj\Hermes\Message;
-use Tomaj\Hermes\Dispatcher;
+use Tomaj\Hermes\Emitter;
 use Tomaj\Hermes\Driver\RedisSetDriver;
 
 $redis = new Redis();
 $redis->connect('127.0.0.1', 6379);
 $driver = new RedisSetDriver($redis);
-$dispatcher = new Dispatcher($driver);
+$emitter = new Emitter($driver);
 
 $message = new Message('send-email', [
 	'to' => 'test@test.com',
@@ -116,7 +116,7 @@ $message = new Message('send-email', [
 	'message' => 'Hello from hermes!'
 ]);
 
-$dispatcher->emit($message);
+$emitter->emit($message);
 ```
 
 ### Processing event
@@ -165,7 +165,7 @@ For running *handler.php* on your server you can use tools like [upstart][], [su
 
 ## Logging
 
-Hermes can use any [psr/log][] logger. You can set logger for Dispatcher and see what type of messages come to Dispatcher and when a handler processed a message. If you add trait `Psr\Log\LoggerAwareTrait` (or implement `Psr\Log\LoggerAwareInterface`) to your handler, you can use logger also in your handler (Dispatcher injects it automatically).
+Hermes can use any [psr/log][] logger. You can set logger for Dispatcher or Emitter and see what type of messages come to Dispatcher or Emitter and when a handler processed a message. If you add trait `Psr\Log\LoggerAwareTrait` (or implement `Psr\Log\LoggerAwareInterface`) to your handler, you can use logger also in your handler (Dispatcher and Emitter injects it automatically).
 
 Basic example with [monolog][]:
 
