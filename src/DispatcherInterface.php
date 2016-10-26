@@ -7,16 +7,6 @@ use Tomaj\Hermes\Handler\HandlerInterface;
 interface DispatcherInterface
 {
     /**
-     * Emit new message
-     *
-     * @param MessageInterface  $message
-     *
-     * @return $this
-     */
-    public function emit(MessageInterface $message);
-
-
-    /**
      * Register new handler
      *
      * With this method you can register new handler for selected $type.

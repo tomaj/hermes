@@ -6,7 +6,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Tomaj\Hermes\Driver\DriverInterface;
 
-class Emitter implements DispatcherInterface
+class Emitter implements EmitterInterface
 {
     /**
      * Dispatcher driver
