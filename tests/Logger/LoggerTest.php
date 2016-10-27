@@ -6,6 +6,7 @@ use PHPUnit_Framework_TestCase;
 use Tomaj\Hermes\Test\Driver\DummyDriver;
 use Tomaj\Hermes\Test\Handler\TestHandler;
 use Tomaj\Hermes\Message;
+use Tomaj\Hermes\Emitter;
 use Tomaj\Hermes\Dispatcher;
 
 class LoggerTest extends PHPUnit_Framework_TestCase
@@ -14,9 +15,9 @@ class LoggerTest extends PHPUnit_Framework_TestCase
     {
         $driver = new DummyDriver();
         $testLogger = new TestLogger();
-        $dispatcher = new Dispatcher($driver, $testLogger);
+        $emitter = new Emitter($driver, $testLogger);
         $message = new Message('test', ['asdsd' => 'asdsd']);
-        $dispatcher->emit($message);
+        $emitter->emit($message);
 
         $logData = $testLogger->getLogs();
         $this->assertCount(1, $logData);
