@@ -8,7 +8,7 @@ class SharedFileRestart implements RestartInterface
 {
     private $filePath;
 
-    public function __construct($filePath)
+    public function __construct(string $filePath)
     {
         $this->filePath = $filePath;
     }
@@ -16,7 +16,7 @@ class SharedFileRestart implements RestartInterface
     /**
      * {@inheritdoc}
      */
-    public function shouldRestart(DateTime $startTime)
+    public function shouldRestart(DateTime $startTime): bool
     {
         if (!file_exists($this->filePath)) {
             return false;

@@ -60,6 +60,9 @@ class RedisSetDriverTest extends PHPUnit_Framework_TestCase
 
         $redis = $this->getMock('Predis\Client', ['sPop']);
         $redis->expects($this->at(0))
+            ->method('zrangebyscore')
+            ->will($this->returnValue([]));
+        $redis->expects($this->at(1))
             ->method('sPop')
             ->with('mykey1')
             ->will($this->returnValue((new MessageSerializer)->serialize($message)));
@@ -79,8 +82,11 @@ class RedisSetDriverTest extends PHPUnit_Framework_TestCase
     {
         $message = new Message('message1', ['test' => 'value']);
 
-        $redis = $this->getMock('Redis', ['sPop']);
+        $redis = $this->getMock('Redis', ['zRangeByScore', 'sPop']);
         $redis->expects($this->at(0))
+            ->method('zRangeByScore')
+            ->will($this->returnValue([]));
+        $redis->expects($this->at(1))
             ->method('sPop')
             ->with('mykey1')
             ->will($this->returnValue((new MessageSerializer)->serialize($message)));

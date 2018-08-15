@@ -16,9 +16,9 @@ interface DriverInterface
      *
      * @param MessageInterface   $message
      *
-     * @return $this
+     * @return bool
      */
-    public function send(MessageInterface $message);
+    public function send(MessageInterface $message): bool;
 
     /**
      * Processing wait method.
@@ -32,5 +32,5 @@ interface DriverInterface
      *
      * @return void
      */
-    public function wait(Closure $callback);
+    public function wait(Closure $callback): void;
 }

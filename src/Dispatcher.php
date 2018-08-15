@@ -65,7 +65,7 @@ class Dispatcher implements DispatcherInterface
     /**
      * @deprecated - use Emitter::emit method intead
      */
-    public function emit(MessageInterface $message)
+    public function emit(MessageInterface $message): DispatcherInterface
     {
         $this->driver->send($message);
 
@@ -86,7 +86,7 @@ class Dispatcher implements DispatcherInterface
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         try {
             $this->driver->wait(function (MessageInterface $message) {
@@ -118,7 +118,7 @@ class Dispatcher implements DispatcherInterface
      *
      * @return bool
      */
-    private function dispatch(MessageInterface $message)
+    private function dispatch(MessageInterface $message): bool
     {
         $type = $message->getType();
 
@@ -147,7 +147,7 @@ class Dispatcher implements DispatcherInterface
      *
      * @return bool
      */
-    private function handleMessage(HandlerInterface $handler, MessageInterface $message)
+    private function handleMessage(HandlerInterface $handler, MessageInterface $message): bool
     {
         // check if handler implements Psr\Log\LoggerAwareInterface (you can use \Psr\Log\LoggerAwareTrait)
         if ($this->logger && method_exists($handler, 'setLogger')) {
@@ -181,7 +181,7 @@ class Dispatcher implements DispatcherInterface
      *
      * @return bool
      */
-    private function hasHandlers($type)
+    private function hasHandlers(string $type): bool
     {
         return isset($this->handlers[$type]) && count($this->handlers[$type]) > 0;
     }
@@ -189,13 +189,14 @@ class Dispatcher implements DispatcherInterface
     /**
      * {@inheritdoc}
      */
-    public function registerHandler($type, HandlerInterface $handler)
+    public function registerHandler(string $type, HandlerInterface $handler): DispatcherInterface
     {
         if (!isset($this->handlers[$type])) {
             $this->handlers[$type] = [];
         }
 
         $this->handlers[$type][] = $handler;
+        return $this;
     }
 
     /**
@@ -205,7 +206,7 @@ class Dispatcher implements DispatcherInterface
      *
      * @return array
      */
-    private function messageLoggerContext(MessageInterface $message)
+    private function messageLoggerContext(MessageInterface $message): array
     {
         return [
             'id' => $message->getId(),
@@ -218,13 +219,13 @@ class Dispatcher implements DispatcherInterface
     /**
      * Interal log method wrapper
      *
-     * @param string $level
+     * @param mixed $level
      * @param string $message
      * @param array $context
      *
      * @return void
      */
-    private function log($level, $message, array $context = array())
+    private function log($level, string $message, array $context = array()): void
     {
         if ($this->logger) {
             $this->logger->log($level, $message, $context);

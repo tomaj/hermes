@@ -18,5 +18,5 @@ interface HandlerInterface
      * 
      * @return bool
      */
-    public function handle(MessageInterface $message);
+    public function handle(MessageInterface $message): bool;
 }

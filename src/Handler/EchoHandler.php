@@ -9,7 +9,7 @@ class EchoHandler implements HandlerInterface
     /**
      * {@inheritdoc}
      */
-    public function handle(MessageInterface $message)
+    public function handle(MessageInterface $message): bool
     {
         echo "Received message: #{$message->getId()} (type {$message->getType()})\n";
         $payload = json_encode($message->getPayload());

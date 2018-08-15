@@ -14,7 +14,7 @@ interface SerializerInterface
      * 
      * @return string
      */
-    public function serialize(MessageInterface $message);
+    public function serialize(MessageInterface $message): string;
 
     /**
      * Opposite serialize method.
@@ -26,5 +26,5 @@ interface SerializerInterface
      *
      * @return MessageInterface
      */
-    public function unserialize($string);
+    public function unserialize(string $string): MessageInterface;
 }

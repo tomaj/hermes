@@ -27,15 +27,20 @@ class Message implements MessageInterface
     private $created;
 
     /**
+     * @var string
+     */
+    private $executeAt;
+
+    /**
      * Native implementation of message.
      *
      * @var string   $type
      * @var array    $payload
      * @var string   $messageId
-     * @var string   $created   timestamp (micro)
-     *
+     * @var float    $created   timestamp (microtime(true))
+     * @var float    $executeAt timestamp (microtime(true))
      */
-    public function __construct($type, array $payload = null, $messageId = null, $created = null)
+    public function __construct(string $type, array $payload = null, string $messageId = null, float $created = null, float $executeAt = null)
     {
         $this->messageId = $messageId;
         if (!$messageId) {
@@ -43,16 +48,17 @@ class Message implements MessageInterface
         }
         $this->created = $created;
         if (!$created) {
-            $this->created = microtime();
+            $this->created = microtime(true);
         }
         $this->type = $type;
         $this->payload = $payload;
+        $this->executeAt = $executeAt;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getId()
+    public function getId(): string
     {
         return $this->messageId;
     }
@@ -60,7 +66,7 @@ class Message implements MessageInterface
     /**
      * {@inheritdoc}
      */
-    public function getCreated()
+    public function getCreated(): float
     {
         return $this->created;
     }
@@ -68,7 +74,15 @@ class Message implements MessageInterface
     /**
      * {@inheritdoc}
      */
-    public function getType()
+    public function getExecuteAt(): ?float
+    {
+        return $this->executeAt;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getType(): string
     {
         return $this->type;
     }
@@ -76,7 +90,7 @@ class Message implements MessageInterface
     /**
      * {@inheritdoc}
      */
-    public function getPayload()
+    public function getPayload(): ?array
     {
         return $this->payload;
     }

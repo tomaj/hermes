@@ -13,7 +13,7 @@ interface EmitterInterface
      *
      * @return $this
      */
-    public function emit(MessageInterface $message);
+    public function emit(MessageInterface $message): EmitterInterface;
 }
 
 

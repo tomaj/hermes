@@ -15,5 +15,5 @@ interface RestartInterface
      * @param DateTime $startTime
      * @return bool
      */
-    public function shouldRestart(DateTime $startTime);
+    public function shouldRestart(DateTime $startTime): bool;
 }

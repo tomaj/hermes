@@ -68,7 +68,7 @@ class AmazonSqsDriver implements DriverInterface
      * @param string        $queueName
      * @param array         $queueAttributes
      */
-    public function __construct(SqsClient $client, $queueName, $queueAttributes = [])
+    public function __construct(SqsClient $client, string $queueName, array $queueAttributes = [])
     {
         $this->client = $client;
         $this->queueName = $queueName;
@@ -85,18 +85,19 @@ class AmazonSqsDriver implements DriverInterface
     /**
      * {@inheritdoc}
      */
-    public function send(MessageInterface $message)
+    public function send(MessageInterface $message): bool
     {
         $this->client->sendMessage([
             'QueueUrl'    => $this->queueUrl,
             'MessageBody' => $this->serializer->serialize($message),
         ]);
+        return true;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function wait(Closure $callback)
+    public function wait(Closure $callback): void
     {
         while (true) {
             $result = $this->client->receiveMessage(array(

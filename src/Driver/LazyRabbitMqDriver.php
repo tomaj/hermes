@@ -26,7 +26,7 @@ class LazyRabbitMqDriver implements DriverInterface
      * @param AMQPLazyConnection $connection
      * @param string $queue
      */
-    public function __construct(AMQPLazyConnection $connection, $queue)
+    public function __construct(AMQPLazyConnection $connection, string $queue)
     {
         $this->connection = $connection;
         $this->queue = $queue;
@@ -36,16 +36,17 @@ class LazyRabbitMqDriver implements DriverInterface
     /**
      * {@inheritdoc}
      */
-    public function send(MessageInterface $message)
+    public function send(MessageInterface $message): bool
     {
         $rabbitMessage = new AMQPMessage($this->serializer->serialize($message));
         $this->getChannel()->basic_publish($rabbitMessage, '', $this->queue);
+        return true;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function wait(Closure $callback)
+    public function wait(Closure $callback): void
     {
         $this->getChannel()->basic_consume(
             $this->queue,
@@ -65,7 +66,7 @@ class LazyRabbitMqDriver implements DriverInterface
         }
     }
     
-    private function getChannel()
+    private function getChannel(): AMQPChannel
     {
         if ($this->channel) {
             return $this->channel;

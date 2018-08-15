@@ -16,13 +16,13 @@ class TestHandler implements HandlerInterface
         $this->result = $result;
     }
 
-    public function handle(MessageInterface $message)
+    public function handle(MessageInterface $message): bool
     {
         $this->receivedMessages[] = $message;
         return $this->result;
     }
 
-    public function getReceivedMessages()
+    public function getReceivedMessages(): array
     {
         return $this->receivedMessages;
     }

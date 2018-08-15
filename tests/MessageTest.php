@@ -20,4 +20,13 @@ class MessageTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('asdssd', $message->getType());
         $this->assertEquals(null, $message->getPayload());
     }
+
+    public function testMessageWithScheduleAt()
+    {
+        $created = microtime(true);
+        $executeAt = microtime(true);
+        $message = new Message('asdsd', ['a' => 'b'], '123', $created, $executeAt);
+        $this->assertEquals($created, $message->getCreated());
+        $this->assertEquals($executeAt, $message->getExecuteAt());
+    }
 }

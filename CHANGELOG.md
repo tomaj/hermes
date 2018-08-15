@@ -4,6 +4,14 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ## [Unreleased][unreleased]
 
+
+## 2.0.0 - 2018-08-14
+
+### Added
+
+* Message now support scheduled parameter - Driver needs to support this behaviour.
+* Type hints
+
 ### Changed
 
 * Dropped support for php 5.4
