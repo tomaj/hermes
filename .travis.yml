@@ -2,7 +2,6 @@ language: php
 
 services:
     - redis-server
-    - elasticsearch
     - rabbitmq
 
 php:
@@ -16,7 +15,7 @@ matrix:
         - php: hhvm
 
 before_script:
-    - apt-get install libzmq3-dev
+    - sudo apt-get install libzmq3-dev
     - echo "extension = redis.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
     - echo "extension = zmq.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
     - travis_retry composer self-update
