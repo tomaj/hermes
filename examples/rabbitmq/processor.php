@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 use Tomaj\Hermes\Driver\RabbitMqDriver;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
