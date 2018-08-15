@@ -6,7 +6,6 @@ services:
 
 php:
     - 7.1
-    - hhvm
 
 sudo: false
 
