@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Tomaj\Hermes\Test\Driver;
 
@@ -28,9 +29,10 @@ class DummyDriver implements DriverInterface
         }
     }
 
-    public function send(MessageInterface $message)
+    public function send(MessageInterface $message): bool
     {
         $this->events[] = $this->serializer->serialize($message);
+        return true;
     }
 
     public function getMessage()
@@ -42,7 +44,7 @@ class DummyDriver implements DriverInterface
         return $this->serializer->unserialize($message);
     }
 
-    public function wait(Closure $callback)
+    public function wait(Closure $callback): void
     {
         foreach ($this->events as $event) {
             $message = $this->serializer->unserialize($event);

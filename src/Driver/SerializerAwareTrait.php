@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Tomaj\Hermes\Driver;
 
@@ -21,7 +22,7 @@ trait SerializerAwareTrait
      *
      * @return void
      */
-    public function setSerializer(SerializerInterface $serializer)
+    public function setSerializer(SerializerInterface $serializer): void
     {
         $this->serializer = $serializer;
     }

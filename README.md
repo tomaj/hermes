@@ -302,6 +302,11 @@ class JmsSerializer implements SerializerInterface
 [jms/serializer]: http://jmsyst.com/libs/serializer
 
 
+
+### Scheduled execution
+
+From version 2.0 you can add 4th parameter to Message as timestamp in future. This message will be processed after this time. This funcionality is supported in RedisDriver right now.
+
 ## Change log
 
 Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.

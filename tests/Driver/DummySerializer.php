@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Tomaj\Hermes\Test\Driver;
 
@@ -7,12 +8,12 @@ use Tomaj\Hermes\SerializerInterface;
 
 class DummySerializer implements SerializerInterface
 {
-    public function serialize(MessageInterface $message)
+    public function serialize(MessageInterface $message): string
     {
         return serialize($message);
     }
 
-    public function unserialize($string)
+    public function unserialize(string $string): MessageInterface
     {
         return unserialize($string);
     }

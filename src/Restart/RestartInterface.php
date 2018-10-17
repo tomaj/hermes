@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Tomaj\Hermes\Restart;
 
@@ -15,5 +16,5 @@ interface RestartInterface
      * @param DateTime $startTime
      * @return bool
      */
-    public function shouldRestart(DateTime $startTime);
+    public function shouldRestart(DateTime $startTime): bool;
 }

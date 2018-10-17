@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Tomaj\Hermes\Test\Restart;
 
@@ -9,12 +10,12 @@ class StopRestart implements RestartInterface
 {
     private $eventsStop;
 
-    public function __construct($eventsStop = 1)
+    public function __construct(int $eventsStop = 1)
     {
         $this->eventsStop = $eventsStop;
     }
 
-    public function shouldRestart(DateTime $startTime)
+    public function shouldRestart(DateTime $startTime): bool
     {
         if ($this->eventsStop == 1) {
             return true;

@@ -19,6 +19,11 @@ class RedisSetDriver implements DriverInterface
     private $key;
 
     /**
+     * @var string
+     */
+    private $scheduleKey;
+
+    /**
      * @var Redis|Predis\Client
      */
     private $redis;
@@ -44,13 +49,14 @@ class RedisSetDriver implements DriverInterface
      * @param string                 $key
      * @param integer                $refreshInterval
      */
-    public function __construct($redis, $key = 'hermes', $refreshInterval = 1)
+    public function __construct($redis, string $key = 'hermes', int $refreshInterval = 1, string $scheduleKey = 'hermes_schedule')
     {
         if (!(($redis instanceof \Predis\Client) || ($redis instanceof \Redis))) {
             throw new InvalidArgumentException('Predis\Client or Redis instance required');
         }
 
         $this->key = $key;
+        $this->scheduleKey = $scheduleKey;
         $this->redis = $redis;
         $this->refreshInterval = $refreshInterval;
         $this->serializer = new MessageSerializer();
@@ -59,21 +65,53 @@ class RedisSetDriver implements DriverInterface
     /**
      * {@inheritdoc}
      */
-    public function send(MessageInterface $message)
+    public function send(MessageInterface $message): bool
     {
-        $this->redis->sadd($this->key, $this->serializer->serialize($message));
+        if ($message->getExecuteAt() && $message->getExecuteAt() > microtime(true)) {
+            $this->redis->zadd($this->scheduleKey, $message->getExecuteAt(), $this->serializer->serialize($message));
+        } else {
+            $this->redis->sadd($this->key, $this->serializer->serialize($message));
+        }
+        return true;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function wait(Closure $callback)
+    public function wait(Closure $callback): void
     {
         while (true) {
             if (!$this->shouldProcessNext()) {
                 break;
             }
             while (true) {
+                
+                // check schedule
+                $messageString = false;
+                if ($this->redis instanceof \Predis\Client) {
+                    $messagesString = $this->redis->zrangebyscore($this->scheduleKey, '-inf', microtime(true), 'LIMIT', 0, 1);
+                    if (count($messagesString)) {
+                        foreach ($messagesString as $messageString) {
+                            $this->redis->zrem($this->scheduleKey, $messageString);
+                        }
+                    }
+                }
+                if ($this->redis instanceof \Redis) {
+                    $messagesString = $this->redis->zRangeByScore($this->scheduleKey, '-inf', microtime(true), ['limit' => [0, 1]]);
+                    $messagesString = [];
+                    if (count($messagesString)) {
+                        foreach ($messagesString as $messageString) {
+                            $this->redis->zRem($this->scheduleKey, $messageString);
+                        }
+                    }
+                }
+                if (count($messagesString)) {
+                    foreach ($messagesString as $messageString) {
+                        $this->send($this->serializer->unserialize($messageString));
+                    }
+                }
+
+
                 $messageString = false;
                 
                 if ($this->redis instanceof \Predis\Client) {

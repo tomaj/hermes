@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Tomaj\Hermes\Driver;
 
@@ -14,22 +15,23 @@ trait MaxItemsTrait
      */
     private $maxProcessItems = 0;
 
-    public function setMaxProcessItems($count)
+    public function setMaxProcessItems(int $count): void
     {
         $this->maxProcessItems = $count;
     }
 
-    public function incrementProcessedItems()
+    public function incrementProcessedItems(): int
     {
         $this->processed++;
+        return $this->processed;
     }
 
-    public function processed()
+    public function processed(): int
     {
         return $this->processed;
     }
 
-    public function shouldProcessNext()
+    public function shouldProcessNext(): bool
     {
         if ($this->maxProcessItems == 0) {
             return true;

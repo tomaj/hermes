@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Tomaj\Hermes;
 
@@ -7,7 +8,7 @@ class MessageSerializer implements SerializerInterface
     /**
      * {@inheritdoc}
      */
-    public function serialize(MessageInterface $message)
+    public function serialize(MessageInterface $message): string
     {
         return json_encode([
             'message' => [
@@ -15,6 +16,7 @@ class MessageSerializer implements SerializerInterface
                 'type' => $message->getType(),
                 'created' => $message->getCreated(),
                 'payload' => $message->getPayload(),
+                'execute_at' => $message->getExecuteAt(),
             ]
         ]);
     }
@@ -22,10 +24,14 @@ class MessageSerializer implements SerializerInterface
     /**
      * {@inheritdoc}
      */
-    public function unserialize($string)
+    public function unserialize(string $string): MessageInterface
     {
         $data = json_decode($string, true);
         $message = $data['message'];
-        return new Message($message['type'], $message['payload'], $message['id'], $message['created']);
+        $executeAt = null;
+        if (isset($message['execute_at'])) {
+            $executeAt = $message['execute_at'];
+        }
+        return new Message($message['type'], $message['payload'], $message['id'], $message['created'], $executeAt);
     }
 }

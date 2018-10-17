@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Tomaj\Hermes\Driver;
 
@@ -54,7 +55,7 @@ class ZeroMqDriver implements DriverInterface
      * @param ZMQSocket         $ZMQSocket
      * @param integer|bool      $refreshInterval
      */
-    public function __construct(ZMQSocket $ZMQSocket, $refreshInterval = false)
+    public function __construct(ZMQSocket $ZMQSocket, int $refreshInterval = false)
     {
         $this->ZMQSocket = $ZMQSocket;
         $this->refreshInterval = $refreshInterval;
@@ -64,7 +65,7 @@ class ZeroMqDriver implements DriverInterface
     /**
      * {@inheritdoc}
      */
-    public function send(MessageInterface $message)
+    public function send(MessageInterface $message): bool
     {
         $this->ZMQSocket->send($this->serializer->serialize($message));
         $reply = $this->ZMQSocket->recv();
@@ -74,7 +75,7 @@ class ZeroMqDriver implements DriverInterface
     /**
      * {@inheritdoc}
      */
-    public function wait(Closure $callback)
+    public function wait(Closure $callback): void
     {
         while (true) {
 

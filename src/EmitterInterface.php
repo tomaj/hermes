@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Tomaj\Hermes;
 
@@ -13,7 +14,7 @@ interface EmitterInterface
      *
      * @return $this
      */
-    public function emit(MessageInterface $message);
+    public function emit(MessageInterface $message): EmitterInterface;
 }
 
 

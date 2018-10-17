@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Tomaj\Hermes\Driver;
 
@@ -34,7 +35,7 @@ class RabbitMqDriver implements DriverInterface
      * @param AMQPChannel   $channel
      * @param string        $queue
      */
-    public function __construct(AMQPChannel $channel, $queue)
+    public function __construct(AMQPChannel $channel, string $queue)
     {
         $this->channel = $channel;
         $this->queue = $queue;
@@ -44,16 +45,17 @@ class RabbitMqDriver implements DriverInterface
     /**
      * {@inheritdoc}
      */
-    public function send(MessageInterface $message)
+    public function send(MessageInterface $message): bool
     {
         $rabbitMessage = new AMQPMessage($this->serializer->serialize($message));
         $this->channel->basic_publish($rabbitMessage, '', $this->queue);
+        return true;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function wait(Closure $callback)
+    public function wait(Closure $callback): void
     {
         $this->channel->basic_consume(
             $this->queue,

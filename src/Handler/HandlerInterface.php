@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Tomaj\Hermes\Handler;
 
@@ -18,5 +19,5 @@ interface HandlerInterface
      * 
      * @return bool
      */
-    public function handle(MessageInterface $message);
+    public function handle(MessageInterface $message): bool;
 }

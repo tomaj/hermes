@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Tomaj\Hermes;
 
@@ -13,14 +14,21 @@ interface MessageInterface
      *
      * @return string
      */
-    public function getId();
+    public function getId(): string;
 
     /**
-     * Message creation date - micro timestamp
+     * Message creation date - microtime(true)
      *
-     * @return string
+     * @return float
      */
-    public function getCreated();
+    public function getCreated(): float;
+
+    /**
+     * Message executing date - microtime(true)
+     *
+     * @return float
+     */
+    public function getExecuteAt(): ?float;
 
     /**
      * Message type
@@ -30,7 +38,7 @@ interface MessageInterface
      *
      * @return string
      */
-    public function getType();
+    public function getType(): string;
 
     /**
      * Payload data.
@@ -41,5 +49,5 @@ interface MessageInterface
      *
      * @return array
      */
-    public function getPayload();
+    public function getPayload(): ?array;
 }

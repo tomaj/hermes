@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Tomaj\Hermes;
 
@@ -37,7 +38,7 @@ class Emitter implements EmitterInterface
     /**
      * {@inheritdoc}
      */
-    public function emit(MessageInterface $message)
+    public function emit(MessageInterface $message): EmitterInterface
     {
         $this->driver->send($message);
 
@@ -56,7 +57,7 @@ class Emitter implements EmitterInterface
      *
      * @return array
      */
-    private function messageLoggerContext(MessageInterface $message)
+    private function messageLoggerContext(MessageInterface $message): array
     {
         return [
             'id' => $message->getId(),
@@ -69,13 +70,13 @@ class Emitter implements EmitterInterface
     /**
      * Interal log method wrapper
      *
-     * @param string $level
+     * @param mixed $level
      * @param string $message
      * @param array $context
      *
      * @return void
      */
-    private function log($level, $message, array $context = array())
+    private function log($level, string $message, array $context = array()): void
     {
         if ($this->logger) {
             $this->logger->log($level, $message, $context);

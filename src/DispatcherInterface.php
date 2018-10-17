@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Tomaj\Hermes;
 
@@ -18,5 +19,5 @@ interface DispatcherInterface
      *
      * @return $this
      */
-    public function registerHandler($type, HandlerInterface $handler);
+    public function registerHandler(string $type, HandlerInterface $handler): DispatcherInterface;
 }
