@@ -20,4 +20,9 @@ interface DispatcherInterface
      * @return $this
      */
     public function registerHandler(string $type, HandlerInterface $handler): DispatcherInterface;
+
+    /**
+     * Basic method for background job to star listening.
+     */
+    public function handle(): void
 }
