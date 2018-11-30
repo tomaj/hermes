@@ -4,6 +4,9 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ## [Unreleased][unreleased]
 
+#### Added
+
+* Added missing handle() method to DispatcherInterface
 
 ## 2.0.0 - 2018-08-14
 
