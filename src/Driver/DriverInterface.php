@@ -29,7 +29,7 @@ interface DriverInterface
      * or can be implemented as callback for driver emit method (like rabbitmq or redis pubsub).
      * When driver receive new message, you have to call $callback with this message like $callback($message)
      *
-     * @param Clousure  $callback
+     * @param Closure  $callback
      *
      * @return void
      */
