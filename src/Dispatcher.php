@@ -227,6 +227,17 @@ class Dispatcher implements DispatcherInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function registerHandlers(string $type, array $handlers): DispatcherInterface
+    {
+        foreach ($handlers as $handler) {
+            $this->registerHandler($type, $handler);
+        }
+        return $this;
+    }
+
+    /**
      * Serialize message to logger context
      *
      * @param MessageInterface $message
