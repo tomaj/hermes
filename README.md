@@ -211,6 +211,36 @@ class SendEmailHandlerWithLogger implements HandlerInterface
 
 ```
 
+# Retry
+
+If you need to retry you handle() method when they fail for some reason you can add `RetryTrait` to handler.
+If you want you can override `maxRetry()` method from this trait to specify how many times hermes will try to run your handle().
+**Warning:** if you want to use retry you have to use driver that support delayed execution (`$executeAt` message parameter) 
+
+```php
+declare(strict_types=1);
+
+namespace Tomaj\Hermes\Handler;
+
+use Tomaj\Hermes\MessageInterface;
+
+class EchoHandler implements HandlerInterface
+{
+    use RetryTrait;
+
+    public function handle(MessageInterface $message): bool
+    {
+        throw new \Exception('this will always fail');
+    }
+    
+    // optional - default is 25
+    public function maxRetry(): int
+    {
+        return 10;
+    }
+}
+```
+
 # Scaling Hermes
 
 If you have a lot of messages that you need to process, you can scale your Hermes workers very easily. You just run multiple instances of handlers - cli files that will register handlers to dispatcher and then run `$dispatcher->handle()`. You can also put your source codes to multiple machines and scale it out to as many nodes as you want. But you need a driver that supports these 2 things:
