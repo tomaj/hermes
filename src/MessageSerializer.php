@@ -17,6 +17,7 @@ class MessageSerializer implements SerializerInterface
                 'created' => $message->getCreated(),
                 'payload' => $message->getPayload(),
                 'execute_at' => $message->getExecuteAt(),
+                'retries' => $message->getRetries(),
             ]
         ]);
     }
@@ -32,6 +33,10 @@ class MessageSerializer implements SerializerInterface
         if (isset($message['execute_at'])) {
             $executeAt = $message['execute_at'];
         }
-        return new Message($message['type'], $message['payload'], $message['id'], $message['created'], $executeAt);
+        $retries = 0;
+        if (isset($message['retries'])) {
+            $retries = intval($message['retries']);
+        }
+        return new Message($message['type'], $message['payload'], $message['id'], $message['created'], $executeAt, $retries);
     }
 }

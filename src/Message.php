@@ -23,7 +23,7 @@ class Message implements MessageInterface
     private $messageId;
 
     /**
-     * @var string
+     * @var float
      */
     private $created;
 
@@ -33,6 +33,11 @@ class Message implements MessageInterface
     private $executeAt;
 
     /**
+     * @var int
+     */
+    private $retries;
+
+    /**
      * Native implementation of message.
      *
      * @var string   $type
@@ -40,12 +45,18 @@ class Message implements MessageInterface
      * @var string   $messageId
      * @var float    $created   timestamp (microtime(true))
      * @var float    $executeAt timestamp (microtime(true))
+     * @var int      $retries
      */
-    public function __construct(string $type, array $payload = null, string $messageId = null, float $created = null, float $executeAt = null)
+    public function __construct(string $type, array $payload = null, string $messageId = null, float $created = null, float $executeAt = null, int $retries = 0)
     {
         $this->messageId = $messageId;
         if (!$messageId) {
-            $this->messageId = Uuid::uuid4()->toString();
+            try {
+                $this->messageId = Uuid::uuid4()->toString();
+            } catch (\Exception $e) {
+                $this->messageId = rand(10000, 99999999);
+            }
+
         }
         $this->created = $created;
         if (!$created) {
@@ -54,6 +65,7 @@ class Message implements MessageInterface
         $this->type = $type;
         $this->payload = $payload;
         $this->executeAt = $executeAt;
+        $this->retries = $retries;
     }
 
     /**
@@ -94,5 +106,13 @@ class Message implements MessageInterface
     public function getPayload(): ?array
     {
         return $this->payload;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getRetries(): int
+    {
+        return $this->retries;
     }
 }

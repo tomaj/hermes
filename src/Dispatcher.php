@@ -108,7 +108,9 @@ class Dispatcher implements DispatcherInterface
         } catch (RestartException $e) {
             $this->log(LogLevel::NOTICE, 'Existing hermes dispatcher - restart');
         } catch (Exception $exception) {
-            Debugger::log($exception, Debugger::EXCEPTION);
+            if (Debugger::isEnabled()) {
+                Debugger::log($exception, Debugger::EXCEPTION);
+            }
         }
     }
 
@@ -169,10 +171,34 @@ class Dispatcher implements DispatcherInterface
                 "Handler " . get_class($handler) . " throws exception - {$e->getMessage()}",
                 ['error' => $e, 'message' => $this->messageLoggerContext($message), 'exception' => $e]
             );
-            Debugger::log($e, Debugger::EXCEPTION);
+            if (Debugger::isEnabled()) {
+                Debugger::log($e, Debugger::EXCEPTION);
+            }
+
+            if (method_exists($handler, 'canRetry')) {
+                if ($message->getRetries() < $handler->maxRetry()) {
+                    $executeAt = $this->nextRetry($message);
+                    $newMessage = new Message($message->getType(), $message->getPayload(), $message->getId(), $message->getCreated(), $executeAt, $message->getRetries() + 1);
+                    $this->driver->send($newMessage);
+                }
+            }
+
             $result = false;
         }
         return $result;
+    }
+
+    /**
+     * Calculate next retry
+     *
+     * Inspired by ruby sidekiq (https://github.com/mperham/sidekiq/wiki/Error-Handling#automatic-job-retry)
+     *
+     * @param MessageInterface $message
+     * @return float
+     */
+    private function nextRetry(MessageInterface $message): float
+    {
+        return microtime(true) + pow($message->getRetries(), 4) + 15 + (rand(1, 30) * ($message->getRetries() + 1));
     }
 
     /**

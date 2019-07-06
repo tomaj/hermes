@@ -7,6 +7,8 @@ use Tomaj\Hermes\MessageInterface;
 
 class EchoHandler implements HandlerInterface
 {
+    use RetryTrait;
+
     /**
      * {@inheritdoc}
      */

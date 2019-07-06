@@ -50,4 +50,11 @@ interface MessageInterface
      * @return array
      */
     public function getPayload(): ?array;
+
+    /**
+     * Total retries for message
+     *
+     * @return int
+     */
+    public function getRetries(): int;
 }

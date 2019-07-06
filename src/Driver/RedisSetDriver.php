@@ -98,7 +98,6 @@ class RedisSetDriver implements DriverInterface
                 }
                 if ($this->redis instanceof \Redis) {
                     $messagesString = $this->redis->zRangeByScore($this->scheduleKey, '-inf', microtime(true), ['limit' => [0, 1]]);
-                    $messagesString = [];
                     if (count($messagesString)) {
                         foreach ($messagesString as $messageString) {
                             $this->redis->zRem($this->scheduleKey, $messageString);
