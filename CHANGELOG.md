@@ -4,6 +4,10 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ## [Unreleased][unreleased]
 
+### Added
+
+* Ability to register multiple handlers at once for one key (`registerHandlers` in `DispatcherInterface`)
+
 ## 2.1.0 - 2019-07-06
 
 ### Added
