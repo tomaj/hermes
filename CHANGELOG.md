@@ -4,6 +4,12 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ## [Unreleased][unreleased]
 
+## 2.1.0 - 2019-07-06
+
+### Added
+
+* Added retry to handlers
+
 #### Added
 
 * Added missing handle() method to DispatcherInterface
