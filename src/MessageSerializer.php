@@ -31,7 +31,7 @@ class MessageSerializer implements SerializerInterface
         $message = $data['message'];
         $executeAt = null;
         if (isset($message['execute_at'])) {
-            $executeAt = $message['execute_at'];
+            $executeAt = floatval($message['execute_at']);
         }
         $retries = 0;
         if (isset($message['retries'])) {
