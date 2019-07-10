@@ -39,7 +39,7 @@ class LazyRabbitMqDriver implements DriverInterface
      */
     public function send(MessageInterface $message): bool
     {
-        $rabbitMessage = new AMQPMessage($this->serializer->serialize($message));
+        $rabbitMessage = new AMQPMessage($this->serializer->serialize($message), ['delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT]);
         $this->getChannel()->basic_publish($rabbitMessage, '', $this->queue);
         return true;
     }
@@ -53,12 +53,13 @@ class LazyRabbitMqDriver implements DriverInterface
             $this->queue,
             '',
             false,
-            true,
+            false,
             false,
             false,
             function ($rabbitMessage) use ($callback) {
                 $message = $this->serializer->unserialize($rabbitMessage->body);
                 $callback($message);
+                $rabbitMessage->delivery_info['channel']->basic_ack($rabbitMessage->delivery_info['delivery_tag']);
             }
         );
 
@@ -73,7 +74,8 @@ class LazyRabbitMqDriver implements DriverInterface
             return $this->channel;
         }
         $this->channel = $this->connection->channel();
-        $this->channel->queue_declare($this->queue, false, false, false, false);
+        $this->channel->queue_declare($this->queue, false, true, false, false);
+        $this->channel->basic_qos(null, 1, null);
         return $this->channel;
     }
 }

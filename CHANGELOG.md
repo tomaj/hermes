@@ -7,6 +7,7 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 ### Added
 
 * Ability to register multiple handlers at once for one key (`registerHandlers` in `DispatcherInterface`)
+* Fixed loss of messages when the handler crashes and mechanism of retries for RabbitMQ Drivers 
 
 ## 2.1.0 - 2019-07-06
 

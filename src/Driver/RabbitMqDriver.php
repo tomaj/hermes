@@ -47,7 +47,7 @@ class RabbitMqDriver implements DriverInterface
      */
     public function send(MessageInterface $message): bool
     {
-        $rabbitMessage = new AMQPMessage($this->serializer->serialize($message));
+        $rabbitMessage = new AMQPMessage($this->serializer->serialize($message), ['delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT]);
         $this->channel->basic_publish($rabbitMessage, '', $this->queue);
         return true;
     }
@@ -61,7 +61,7 @@ class RabbitMqDriver implements DriverInterface
             $this->queue,
             '',
             false,
-            true,
+            false,
             false,
             false,
             function ($rabbitMessage) use ($callback) {
