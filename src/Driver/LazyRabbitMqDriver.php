@@ -22,15 +22,19 @@ class LazyRabbitMqDriver implements DriverInterface
 
     /** @var string */
     private $queue;
+
+    /** @var array */
+    private $amqpMessageProperties = [];
     
     /**
      * @param AMQPLazyConnection $connection
      * @param string $queue
      */
-    public function __construct(AMQPLazyConnection $connection, string $queue)
+    public function __construct(AMQPLazyConnection $connection, string $queue, array $amqpMessageProperties = [])
     {
         $this->connection = $connection;
         $this->queue = $queue;
+        $this->amqpMessageProperties = $amqpMessageProperties;
         $this->serializer = new MessageSerializer();
     }
 
@@ -39,7 +43,7 @@ class LazyRabbitMqDriver implements DriverInterface
      */
     public function send(MessageInterface $message): bool
     {
-        $rabbitMessage = new AMQPMessage($this->serializer->serialize($message));
+        $rabbitMessage = new AMQPMessage($this->serializer->serialize($message), $this->amqpMessageProperties);
         $this->getChannel()->basic_publish($rabbitMessage, '', $this->queue);
         return true;
     }
@@ -53,12 +57,13 @@ class LazyRabbitMqDriver implements DriverInterface
             $this->queue,
             '',
             false,
-            true,
+            false,
             false,
             false,
             function ($rabbitMessage) use ($callback) {
                 $message = $this->serializer->unserialize($rabbitMessage->body);
                 $callback($message);
+                $rabbitMessage->delivery_info['channel']->basic_ack($rabbitMessage->delivery_info['delivery_tag']);
             }
         );
 
@@ -73,7 +78,7 @@ class LazyRabbitMqDriver implements DriverInterface
             return $this->channel;
         }
         $this->channel = $this->connection->channel();
-        $this->channel->queue_declare($this->queue, false, false, false, false);
+        $this->channel->queue_declare($this->queue, false, true, false, false);
         return $this->channel;
     }
 }
