@@ -23,7 +23,12 @@ class RabbitMqDriver implements DriverInterface
      * @var string
      */
     private $queue;
-    
+
+    /**
+     * @var array
+     */
+    private $amqpMessageProperties = [];
+
     /**
      * Create new RabbitMqDriver with provided channel.
      *
@@ -34,11 +39,13 @@ class RabbitMqDriver implements DriverInterface
      *
      * @param AMQPChannel   $channel
      * @param string        $queue
+     * @param array         $amqpMessageProperties
      */
-    public function __construct(AMQPChannel $channel, string $queue)
+    public function __construct(AMQPChannel $channel, string $queue, array $amqpMessageProperties = [])
     {
         $this->channel = $channel;
         $this->queue = $queue;
+        $this->amqpMessageProperties = $amqpMessageProperties;
         $this->serializer = new MessageSerializer();
     }
 
@@ -47,7 +54,7 @@ class RabbitMqDriver implements DriverInterface
      */
     public function send(MessageInterface $message): bool
     {
-        $rabbitMessage = new AMQPMessage($this->serializer->serialize($message));
+        $rabbitMessage = new AMQPMessage($this->serializer->serialize($message), $this->amqpMessageProperties);
         $this->channel->basic_publish($rabbitMessage, '', $this->queue);
         return true;
     }
@@ -61,7 +68,7 @@ class RabbitMqDriver implements DriverInterface
             $this->queue,
             '',
             false,
-            true,
+            false,
             false,
             false,
             function ($rabbitMessage) use ($callback) {
