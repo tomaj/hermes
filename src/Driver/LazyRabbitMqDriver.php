@@ -57,7 +57,7 @@ class LazyRabbitMqDriver implements DriverInterface
             $this->queue,
             '',
             false,
-            false,
+            true,
             false,
             false,
             function ($rabbitMessage) use ($callback) {
