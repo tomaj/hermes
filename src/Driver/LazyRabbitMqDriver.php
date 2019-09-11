@@ -78,7 +78,7 @@ class LazyRabbitMqDriver implements DriverInterface
             return $this->channel;
         }
         $this->channel = $this->connection->channel();
-        $this->channel->queue_declare($this->queue, false, true, false, false);
+        $this->channel->queue_declare($this->queue, false, false, false, false);
         return $this->channel;
     }
 }
