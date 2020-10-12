@@ -12,7 +12,7 @@ class ExceptionHandler implements HandlerInterface
 {
     public function handle(MessageInterface $message): bool
     {
-    	Debugger::enable(Debugger::DETECT, __DIR__);
+        Debugger::enable(Debugger::DETECT, __DIR__);
         throw new RuntimeException('Error in handler');
     }
 }

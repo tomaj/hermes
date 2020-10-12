@@ -78,7 +78,6 @@ class ZeroMqDriver implements DriverInterface
     public function wait(Closure $callback): void
     {
         while (true) {
-
             if (!$this->shouldProcessNext()) {
                 break;
             }
