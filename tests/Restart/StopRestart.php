@@ -8,19 +8,20 @@ use Tomaj\Hermes\Restart\RestartInterface;
 
 class StopRestart implements RestartInterface
 {
-    private $eventsStop;
-
-    public function __construct(int $eventsStop = 1)
-    {
-        $this->eventsStop = $eventsStop;
-    }
+    static private $eventsStop;
 
     public function shouldRestart(DateTime $startTime): bool
     {
-        if ($this->eventsStop == 1) {
+        if (self::$eventsStop === 1) {
             return true;
         }
-        $this->eventsStop--;
+        self::$eventsStop--;
         return false;
+    }
+
+    public function restart(DateTime $restartTime = null): bool
+    {
+        self::$eventsStop = 1;
+        return true;
     }
 }

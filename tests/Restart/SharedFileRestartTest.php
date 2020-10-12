@@ -9,21 +9,43 @@ use DateTime;
 
 class SharedFileRestartTest extends PHPUnit_Framework_TestCase
 {
-    public function testWithNotExistsingFile()
+    public function testShouldRestartWithNotExistsingFile()
     {
-        $sharedRestart1 = new SharedFileRestart('unknownfilepath.txt');
-        $this->assertFalse($sharedRestart1->shouldRestart(new DateTime()));
+        $sharedFileRestart = new SharedFileRestart('unknownfilepath.txt');
+        $this->assertFalse($sharedFileRestart->shouldRestart(new DateTime()));
     }
 
-    public function testWithNewFile()
+    public function testShouldRestartWithNewFile()
     {
-        $sharedRestart1 = new SharedFileRestart(tempnam(sys_get_temp_dir(), 'hermestest'));
-        $this->assertTrue($sharedRestart1->shouldRestart(new DateTime('-3 minutes')));
+        $sharedFileRestart = new SharedFileRestart(tempnam(sys_get_temp_dir(), 'hermestest'));
+        $this->assertTrue($sharedFileRestart->shouldRestart(new DateTime('-3 minutes')));
     }
 
-    public function testWithOldFile()
+    public function testShouldRestartWithOldFile()
     {
-        $sharedRestart1 = new SharedFileRestart(tempnam(sys_get_temp_dir(), 'hermestest'));
-        $this->assertFalse($sharedRestart1->shouldRestart(new DateTime('+3 minutes')));
+        $sharedFileRestart = new SharedFileRestart(tempnam(sys_get_temp_dir(), 'hermestest'));
+        $this->assertFalse($sharedFileRestart->shouldRestart(new DateTime('+3 minutes')));
+    }
+
+    public function testRestartCreatedCorrectFile()
+    {
+        $fileName = sys_get_temp_dir() . '/hermestest_restart_' . time();
+        $sharedFileRestart = new SharedFileRestart($fileName);
+
+        $this->assertFalse(file_exists($fileName));
+
+        // try to initiate restart Hermes
+        $restartTime = new DateTime();
+        $this->assertTrue($sharedFileRestart->restart($restartTime));
+
+        $this->assertTrue(file_exists($fileName));
+
+        $fileModificationTime = filemtime($fileName);
+        $this->assertNotFalse($fileModificationTime);
+
+        $this->assertEquals($restartTime->format('U'), $fileModificationTime);
+
+        // clean after test
+        unlink($fileName);
     }
 }

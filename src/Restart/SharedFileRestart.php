@@ -30,4 +30,18 @@ class SharedFileRestart implements RestartInterface
 
         return false;
     }
+
+    /**
+     * {@inheritdoc}
+     *
+     * Creates file defined in contructor with modification time `$restartTime` (or current DateTime).
+     */
+    public function restart(DateTime $restartTime = null): bool
+    {
+        if ($restartTime === null) {
+            $restartTime = new DateTime();
+        }
+
+        return touch($this->filePath, (int) $restartTime->format('U'));
+    }
 }
