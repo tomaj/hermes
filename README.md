@@ -261,13 +261,11 @@ $restart = Tomaj\Hermes\Restart\SharedFileRestart($restartFile);
 // $log = ...
 // $driver = ....
 $dispatcher = new Dispatcher($driver, $log, $restart);
-```
 
-And then:
+// ...
 
-```php
-// initiate shutdown; eg. from PHP application
-touch($restartFile, time());
+// restart can be triggered be calling `RestartInteface::restart()`
+$restart->restart();
 ```
 
 ### RedisRestart
@@ -282,13 +280,11 @@ $restart = Tomaj\Hermes\Restart\RedisRestart($redisClient, $redisRestartKey);
 // $log = ...
 // $driver = ....
 $dispatcher = new Dispatcher($driver, $log, $restart);
-```
 
-And then:
+// ...
 
-```php
-// initiate shutdown; eg. from PHP application
-$redisClient->set($redisRestartKey, time());
+// restart can be triggered be calling `RestartInteface::restart()`
+$restart->restart();
 ```
 
 ## Scaling Hermes

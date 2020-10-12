@@ -59,4 +59,18 @@ class RedisRestart implements RestartInterface
 
         return true;
     }
+
+    /**
+     * {@inheritdoc}
+     *
+     * Sets to Redis value `$restartTime` (or current DateTime) to `$key` defined in constructor.
+     */
+    public function restart(DateTime $restartTime = null): bool
+    {
+        if ($restartTime === null) {
+            $restartTime = new DateTime();
+        }
+
+        return $this->redis->set($this->key, $restartTime->format('U'));
+    }
 }
