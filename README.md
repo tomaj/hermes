@@ -210,7 +210,7 @@ class SendEmailHandlerWithLogger implements HandlerInterface
 
 ```
 
-# Retry
+## Retry
 
 If you need to retry you handle() method when they fail for some reason you can add `RetryTrait` to handler.
 If you want you can override `maxRetry()` method from this trait to specify how many times hermes will try to run your handle().
@@ -240,7 +240,58 @@ class EchoHandler implements HandlerInterface
 }
 ```
 
-# Scaling Hermes
+## Graceful shutdown
+
+Hermes worker can be gracefully stopped.
+
+If implementation of `Tomaj\Hermes\Restart\RestartInteface` is provided when initiating `Dispatcher`, Hermes will check `RestartInteface::shouldRestart()` after each processed message. If it returns `true`, Hermes will shutdown _(notice is logged)_.
+
+> **WARNING:** Relaunch is not provided by this library and it should be handled by process controller you use to keep Hermes running _(eg. launchd, daemontools, supervisord, etc.)_.
+
+Currently two methods are implemented.
+
+### SharedFileRestart
+
+Shutdown initiated by touching predefined file.
+
+```php
+$restartFile = '/tmp/hermes_restart';
+$restart = Tomaj\Hermes\Restart\SharedFileRestart($restartFile);
+
+// $log = ...
+// $driver = ....
+$dispatcher = new Dispatcher($driver, $log, $restart);
+```
+
+And then:
+
+```php
+// initiate shutdown; eg. from PHP application
+touch($restartFile, time());
+```
+
+### RedisRestart
+
+Shutdown initiated by storing timestamp to Redis to predefined restart key.
+
+```php
+$redisClient = new Predis\Client();
+$redisRestartKey = 'hermes_restart'; // can be omitted; default value is `hermes_restart`
+$restart = Tomaj\Hermes\Restart\RedisRestart($redisClient, $redisRestartKey);
+
+// $log = ...
+// $driver = ....
+$dispatcher = new Dispatcher($driver, $log, $restart);
+```
+
+And then:
+
+```php
+// initiate shutdown; eg. from PHP application
+$redisClient->set($redisRestartKey, time());
+```
+
+## Scaling Hermes
 
 If you have a lot of messages that you need to process, you can scale your Hermes workers very easily. You just run multiple instances of handlers - cli files that will register handlers to dispatcher and then run `$dispatcher->handle()`. You can also put your source codes to multiple machines and scale it out to as many nodes as you want. But you need a driver that supports these 2 things:
 
@@ -249,7 +300,7 @@ If you have a lot of messages that you need to process, you can scale your Herme
 
 If you ensure this, Hermes will work perfectly. Rabbit driver or Redis driver can handle this stuff and these products are made for big loads, too.
 
-# Extending Hermes
+## Extending Hermes
 
 Hermes is written as separated classes that depend on each other via interfaces. You can easily change implementation of classes. For example you can create new driver, use other logger. Or if you really want, you can create your own messages format that will be send to your driver serialized via your custom serializer.
 

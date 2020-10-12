@@ -106,7 +106,7 @@ class Dispatcher implements DispatcherInterface
                 return $result;
             });
         } catch (RestartException $e) {
-            $this->log(LogLevel::NOTICE, 'Existing hermes dispatcher - restart');
+            $this->log(LogLevel::NOTICE, 'Exiting hermes dispatcher - restart');
         } catch (Exception $exception) {
             if (Debugger::isEnabled()) {
                 Debugger::log($exception, Debugger::EXCEPTION);
