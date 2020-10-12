@@ -12,7 +12,7 @@ interface SerializerInterface
      * Message has to be serializable to string.
      *
      * @param MessageInterface $message
-     * 
+     *
      * @return string
      */
     public function serialize(MessageInterface $message): string;

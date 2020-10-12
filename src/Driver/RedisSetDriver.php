@@ -85,7 +85,6 @@ class RedisSetDriver implements DriverInterface
                 break;
             }
             while (true) {
-                
                 // check schedule
                 $messageString = false;
                 if ($this->redis instanceof \Predis\Client) {

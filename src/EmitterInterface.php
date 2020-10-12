@@ -16,5 +16,3 @@ interface EmitterInterface
      */
     public function emit(MessageInterface $message): EmitterInterface;
 }
-
-

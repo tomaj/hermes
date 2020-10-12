@@ -56,7 +56,6 @@ class Message implements MessageInterface
             } catch (\Exception $e) {
                 $this->messageId = rand(10000, 99999999);
             }
-
         }
         $this->created = $created;
         if (!$created) {
