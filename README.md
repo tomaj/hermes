@@ -18,7 +18,7 @@ Other goal for Hermes is variability to use various message brokers like redis, 
 
 ## Installation
 
-This library requires PHP 7.1 or later.
+This library requires PHP 7.2 or later.
 
 Recommended installation method is via Composer:
 
