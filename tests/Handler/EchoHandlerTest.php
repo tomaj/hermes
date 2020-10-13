@@ -3,11 +3,11 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes\Test\Handler;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Tomaj\Hermes\Message;
 use Tomaj\Hermes\Handler\EchoHandler;
 
-class EchoHandlerTest extends PHPUnit_Framework_TestCase
+class EchoHandlerTest extends TestCase
 {
     public function testEchoHandler()
     {

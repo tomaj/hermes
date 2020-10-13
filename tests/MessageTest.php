@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes\Test;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Tomaj\Hermes\Message;
 
-class MessageTest extends PHPUnit_Framework_TestCase
+class MessageTest extends TestCase
 {
     public function testSimpleMessage()
     {

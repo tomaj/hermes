@@ -8,6 +8,8 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 * `RedisRestart` - implementation of `RestartInterface` allowing graceful shutdown of Hermes through Redis entry.
 * **BREAKING CHANGE**: Added `RestartInterface::restart()` method to initiate Hermes restart without knowing the requirements of used `RestartInterface` implementation. _Updated all related tests._
+* **BREAKING CHANGE**: Removed support for ZeroMQ - driver moved into [separated package](https://github.com/tomaj/hermes-zmq-driver)
+* Upgraded phpunit and tests
 
 ## 2.2.0 - 2019-07-12
 

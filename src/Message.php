@@ -40,12 +40,12 @@ class Message implements MessageInterface
     /**
      * Native implementation of message.
      *
-     * @var string   $type
-     * @var array    $payload
-     * @var string   $messageId
-     * @var float    $created   timestamp (microtime(true))
-     * @var float    $executeAt timestamp (microtime(true))
-     * @var int      $retries
+     * @param string $type
+     * @param array|null $payload
+     * @param string|null $messageId
+     * @param float|null $created timestamp (microtime(true))
+     * @param float|null $executeAt timestamp (microtime(true))
+     * @param int $retries
      */
     public function __construct(string $type, array $payload = null, string $messageId = null, float $created = null, float $executeAt = null, int $retries = 0)
     {

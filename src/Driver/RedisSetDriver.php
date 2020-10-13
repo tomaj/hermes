@@ -48,6 +48,7 @@ class RedisSetDriver implements DriverInterface
      * @param Redis\Predis\Client    $redis
      * @param string                 $key
      * @param integer                $refreshInterval
+     * @param string                 $scheduleKey
      */
     public function __construct($redis, string $key = 'hermes', int $refreshInterval = 1, string $scheduleKey = 'hermes_schedule')
     {
@@ -84,52 +85,49 @@ class RedisSetDriver implements DriverInterface
             if (!$this->shouldProcessNext()) {
                 break;
             }
-            while (true) {
-                // check schedule
-                $messageString = false;
-                if ($this->redis instanceof \Predis\Client) {
-                    $messagesString = $this->redis->zrangebyscore($this->scheduleKey, '-inf', microtime(true), 'LIMIT', 0, 1);
-                    if (count($messagesString)) {
-                        foreach ($messagesString as $messageString) {
-                            $this->redis->zrem($this->scheduleKey, $messageString);
-                        }
-                    }
-                }
-                if ($this->redis instanceof \Redis) {
-                    $messagesString = $this->redis->zRangeByScore($this->scheduleKey, '-inf', microtime(true), ['limit' => [0, 1]]);
-                    if (count($messagesString)) {
-                        foreach ($messagesString as $messageString) {
-                            $this->redis->zRem($this->scheduleKey, $messageString);
-                        }
-                    }
-                }
+
+            // check schedule
+            $messagesString = [];
+            if ($this->redis instanceof \Predis\Client) {
+                $messagesString = $this->redis->zrangebyscore($this->scheduleKey, '-inf', microtime(true), 'LIMIT', 0, 1);
                 if (count($messagesString)) {
                     foreach ($messagesString as $messageString) {
-                        $this->send($this->serializer->unserialize($messageString));
+                        $this->redis->zrem($this->scheduleKey, $messageString);
                     }
                 }
-
-
-                $messageString = false;
-                
-                if ($this->redis instanceof \Predis\Client) {
-                    $messageString = $this->redis->spop($this->key);
+            }
+            if ($this->redis instanceof \Redis) {
+                $messagesString = $this->redis->zRangeByScore($this->scheduleKey, '-inf', microtime(true), ['limit' => [0, 1]]);
+                if (count($messagesString)) {
+                    foreach ($messagesString as $messageString) {
+                        $this->redis->zRem($this->scheduleKey, $messageString);
+                    }
                 }
-                if ($this->redis instanceof \Redis) {
-                    $messageString = $this->redis->sPop($this->key);
+            }
+            if (count($messagesString)) {
+                foreach ($messagesString as $messageString) {
+                    $this->send($this->serializer->unserialize($messageString));
                 }
-                
-                if (!$messageString) {
-                    break;
-                }
-
-                $callback($this->serializer->unserialize($messageString));
-                $this->incrementProcessedItems();
             }
 
-            if ($this->refreshInterval) {
-                sleep($this->refreshInterval);
+
+            $messageString = false;
+
+            if ($this->redis instanceof \Predis\Client) {
+                $messageString = $this->redis->spop($this->key);
             }
+            if ($this->redis instanceof \Redis) {
+                $messageString = $this->redis->sPop($this->key);
+            }
+
+            if (!$messageString) {
+                if ($this->refreshInterval) {
+                    sleep($this->refreshInterval);
+                    continue;
+                }
+            }
+            $callback($this->serializer->unserialize($messageString));
+            $this->incrementProcessedItems();
         }
     }
 }

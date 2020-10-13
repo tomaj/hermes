@@ -3,31 +3,28 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes\Test\Driver;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Tomaj\Hermes\Driver\RedisSetDriver;
-use Tomaj\Hermes\Test\Handler\TestHandler;
 use Tomaj\Hermes\Message;
 use Tomaj\Hermes\MessageSerializer;
 
-class RedisSetDriverTest extends PHPUnit_Framework_TestCase
+class RedisSetDriverTest extends TestCase
 {
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testConstructorShouldThrowExceptionForInvalidRedis()
     {
+        $this->expectException(\InvalidArgumentException::class);
         new RedisSetDriver(new \stdClass(), 'testkey');
     }
 
     public function testConstructorShouldWorkWithPredis()
     {
-        $redis = $this->getMock('Predis\Client');
+        $redis = $this->createMock(\Predis\Client::class);
         $this->assertInstanceof('Tomaj\Hermes\Driver\RedisSetDriver', new RedisSetDriver($redis, 'key'));
     }
 
     public function testConstructorShouldWorkWithRedis()
     {
-        $redis = $this->getMock('Redis');
+        $redis = $this->createMock(\Redis::class);
         $this->assertInstanceof('Tomaj\Hermes\Driver\RedisSetDriver', new RedisSetDriver($redis, 'key'));
     }
 
@@ -35,7 +32,9 @@ class RedisSetDriverTest extends PHPUnit_Framework_TestCase
     {
         $message = new Message('message1key', ['a' => 'b']);
 
-        $redis = $this->getMock('Predis\Client', ['sadd']);
+        $redis = $this->getMockBuilder(\Predis\Client::class)
+            ->addMethods(['sadd'])
+            ->getMock();
         $redis->expects($this->once())
             ->method('sadd')
             ->with('mykey1', (new MessageSerializer)->serialize($message));
@@ -47,7 +46,7 @@ class RedisSetDriverTest extends PHPUnit_Framework_TestCase
     {
         $message = new Message('message2key', ['c' => 'd']);
 
-        $redis = $this->getMock('Redis', ['sadd']);
+        $redis = $this->createMock(\Redis::class);
         $redis->expects($this->once())
             ->method('sadd')
             ->with('mykey2', (new MessageSerializer)->serialize($message));
@@ -59,12 +58,16 @@ class RedisSetDriverTest extends PHPUnit_Framework_TestCase
     {
         $message = new Message('message1', ['test' => 'value']);
 
-        $redis = $this->getMock('Predis\Client', ['sPop']);
-        $redis->expects($this->at(0))
+        $redis = $this->getMockBuilder(\Predis\Client::class)
+            ->disableOriginalConstructor()
+            ->addMethods(['spop', 'zrangebyscore'])
+            ->getMock();
+
+        $redis->expects($this->once())
             ->method('zrangebyscore')
             ->will($this->returnValue([]));
-        $redis->expects($this->at(1))
-            ->method('sPop')
+        $redis->expects($this->once())
+            ->method('spop')
             ->with('mykey1')
             ->will($this->returnValue((new MessageSerializer)->serialize($message)));
 
@@ -75,7 +78,7 @@ class RedisSetDriverTest extends PHPUnit_Framework_TestCase
             $processed[] = $message;
         });
 
-        $this->assertEquals(1, count($processed));
+        $this->assertCount(1, $processed);
         $this->assertEquals($message->getId(), $processed[0]->getId());
     }
 
@@ -83,11 +86,12 @@ class RedisSetDriverTest extends PHPUnit_Framework_TestCase
     {
         $message = new Message('message1', ['test' => 'value']);
 
-        $redis = $this->getMock('Redis', ['zRangeByScore', 'sPop']);
-        $redis->expects($this->at(0))
+        $redis = $this->getMockBuilder(\Redis::class)
+            ->getMock();
+        $redis->expects($this->once())
             ->method('zRangeByScore')
             ->will($this->returnValue([]));
-        $redis->expects($this->at(1))
+        $redis->expects($this->once())
             ->method('sPop')
             ->with('mykey1')
             ->will($this->returnValue((new MessageSerializer)->serialize($message)));
@@ -99,7 +103,7 @@ class RedisSetDriverTest extends PHPUnit_Framework_TestCase
             $processed[] = $message;
         });
 
-        $this->assertEquals(1, count($processed));
+        $this->assertCount(1, $processed);
         $this->assertEquals($message->getId(), $processed[0]->getId());
     }
 }

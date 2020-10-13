@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes\Test;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Tomaj\Hermes\Restart\RedisRestart;
 
-class RedisRestartTest extends PHPUnit_Framework_TestCase
+class RedisRestartTest extends TestCase
 {
 
     public function testInitWithoutRedis()
     {
         $redis = null;
-        $this->setExpectedException('InvalidArgumentException', 'Predis\Client or Redis instance required');
+        $this->expectException(\InvalidArgumentException::class);
         new RedisRestart($redis);
     }
 
     public function testShouldRestartWithoutRedisEntry()
     {
-        $redis = $this->getMock('\Redis', ['get']);
+        $redis = $this->createMock(\Redis::class);
         $redis->expects($this->once())
             ->method('get')
             ->willReturn(null);
@@ -31,7 +31,7 @@ class RedisRestartTest extends PHPUnit_Framework_TestCase
     public function testShouldRestartWithFutureEntry()
     {
         $futureTime = (new \DateTime())->modify('+1 month')->format('U');
-        $redis = $this->getMock('\Redis', ['get']);
+        $redis = $this->createMock(\Redis::class);
         $redis->expects($this->once())
             ->method('get')
             ->with('hermes_restart')
@@ -44,7 +44,7 @@ class RedisRestartTest extends PHPUnit_Framework_TestCase
     public function testShouldRestartWithEntryAfterStartTime()
     {
         $pastTime = (new \DateTime())->modify('-1 month')->format('U');
-        $redis = $this->getMock('\Redis', ['get']);
+        $redis = $this->createMock(\Redis::class);
         $redis->expects($this->once())
             ->method('get')
             ->with('hermes_restart')
@@ -58,7 +58,7 @@ class RedisRestartTest extends PHPUnit_Framework_TestCase
     {
         $startTime = (new \DateTime())->modify('-1 hour');
         $restartTime = (new \DateTime())->modify('-5 minutes')->format('U');
-        $redis = $this->getMock('\Redis', ['get']);
+        $redis = $this->createMock(\Redis::class);
         $redis->expects($this->once())
             ->method('get')
             ->with('hermes_restart')
@@ -71,7 +71,7 @@ class RedisRestartTest extends PHPUnit_Framework_TestCase
     public function testRestartStoredCorrectValueToRedis()
     {
         $restartTime = (new \DateTime())->modify('-5 minutes');
-        $redis = $this->getMock('\Redis', ['set', 'get']);
+        $redis = $this->createMock(\Redis::class);
         $redis->expects($this->once())
             ->method('set')
             ->with('hermes_restart', $restartTime->format('U'))

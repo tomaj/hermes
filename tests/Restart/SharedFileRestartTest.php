@@ -3,11 +3,11 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes\Test;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Tomaj\Hermes\Restart\SharedFileRestart;
 use DateTime;
 
-class SharedFileRestartTest extends PHPUnit_Framework_TestCase
+class SharedFileRestartTest extends TestCase
 {
     public function testShouldRestartWithNotExistsingFile()
     {

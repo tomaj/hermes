@@ -3,12 +3,12 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes\Test;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Tomaj\Hermes\Test\Driver\DummyDriver;
 use Tomaj\Hermes\Emitter;
 use Tomaj\Hermes\Message;
 
-class EmitTest extends PHPUnit_Framework_TestCase
+class EmitTest extends TestCase
 {
     public function testEmitWithDummyDriver()
     {

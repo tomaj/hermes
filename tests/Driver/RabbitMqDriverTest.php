@@ -3,13 +3,13 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes\Test\Driver;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use PhpAmqpLib\Message\AMQPMessage;
-use Tomaj\Hermes\Test\Handler\TestHandler;
+use PhpAmqpLib\Channel\AMQPChannel;
 use Tomaj\Hermes\Driver\RabbitMqDriver;
 use Tomaj\Hermes\Message;
 
-class RabbitMqDriverTest extends PHPUnit_Framework_TestCase
+class RabbitMqDriverTest extends TestCase
 {
     public function testDriverPublishToChannel()
     {
@@ -22,7 +22,9 @@ class RabbitMqDriverTest extends PHPUnit_Framework_TestCase
 
         $message = new Message('message1key', ['a' => 'b']);
 
-        $channel = $this->getMock('PhpAmqpLib\Channel\AMQPChannel', ['basic_publish'], [], '', false);
+        $channel = $this->getMockBuilder(AMQPChannel::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $messages = [];
         $channel->expects($this->once())
@@ -35,5 +37,6 @@ class RabbitMqDriverTest extends PHPUnit_Framework_TestCase
         $driver->send($message);
 
         $this->assertCount(1, $messages);
+
     }
 }

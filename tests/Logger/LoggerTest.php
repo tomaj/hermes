@@ -3,14 +3,14 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes\Test\Logger;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Tomaj\Hermes\Test\Driver\DummyDriver;
 use Tomaj\Hermes\Test\Handler\TestHandler;
 use Tomaj\Hermes\Message;
 use Tomaj\Hermes\Emitter;
 use Tomaj\Hermes\Dispatcher;
 
-class LoggerTest extends PHPUnit_Framework_TestCase
+class LoggerTest extends TestCase
 {
     public function testLoggerWithEmit()
     {
@@ -24,9 +24,9 @@ class LoggerTest extends PHPUnit_Framework_TestCase
         $this->assertCount(1, $logData);
 
         $log = $logData[0];
-        $this->assertEquals($log['context']['type'], 'test');
-        $this->assertEquals($log['context']['payload'], ['asdsd' => 'asdsd']);
-        $this->assertContains($message->getId(), $log['message']);
+        $this->assertEquals('test', $log['context']['type']);
+        $this->assertEquals(['asdsd' => 'asdsd'], $log['context']['payload']);
+        $this->assertStringContainsString($message->getId(), $log['message']);
     }
 
     public function testHandlerLogger()
