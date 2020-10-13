@@ -6,6 +6,8 @@ services:
 
 php:
     - 7.1
+    - 7.2
+    - 7.3
 
 sudo: false
 
@@ -14,9 +16,7 @@ matrix:
         - php: hhvm
 
 before_script:
-    - sudo apt-get install libzmq3-dev
     - echo "extension = redis.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-    - echo "extension = zmq.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
     - travis_retry composer self-update
     - travis_retry composer install ${COMPOSER_FLAGS} --no-interaction --prefer-source
 

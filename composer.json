@@ -24,8 +24,7 @@
     },
     "require-dev": {
         "ext-redis": "*",
-        "ext-zmq": "*",
-        "phpunit/phpunit": "~4.3",
+        "phpunit/phpunit": "~9.4",
         "squizlabs/php_codesniffer": "~2.2",
         "php-amqplib/php-amqplib": "^2.6.3",
         "scrutinizer/ocular": "~1.1",
@@ -36,7 +35,6 @@
     "suggest": {
         "monolog/monolog": "Basic logger implements psr/logger",
         "ext-redis": "Allow use for redis driver with native redis php extension",
-        "ext-zmq": "Allow use for ZeroMQ driver with native zmq php extension",
         "predis/predis": "Allow use for redis driver with php package Predis",
         "aws/aws-sdk-php": "Allow use Amazon SQS driver",
         "php-amqplib/php-amqplib": "Allow using rabbimq as driver"

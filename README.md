@@ -18,7 +18,7 @@ Other goal for Hermes is variability to use various message brokers like redis, 
 
 ## Installation
 
-This library requires PHP 5.4 or later. It works also on HHVM and PHP 7.0.
+This library requires PHP 7.1 or later.
 
 Recommended installation method is via Composer:
 
@@ -52,19 +52,20 @@ Library works without logger but maintener recommends installing [monolog][] for
 
 ## Supported drivers
 
-Right now Hermes library is distributed with 2 drivers:
+Right now Hermes library is distributed with 3 drivers and one driver in separate package:
 
  * [Redis][] driver ([phpredis][] or [Predis][])
+ * [Amazon SQS][] driver
  * [RabbitMQ][] driver
- * [ZeroMQ][] drivver (via [php-zmq][] extension)
+ * [ZeroMQ][] drivver (via [php-zmq][] extension) availabe as [tomaj/hermes-zmq-driver](https://github.com/tomaj/hermes-zmq-driver) 
 
 Note: You have to install all 3rd party libraries for initializing connections to this drivers. For example you have to add `nrk/predis` to your *composer.json* and create connection to your redis instance.
 
 [Redis]: http://redis.io/
 [RabbitMQ]: https://www.rabbitmq.com/
-[ZeroMQ]: http://zeromq.org/
 [phpredis]: https://github.com/phpredis/phpredis
 [Predis]: https://github.com/nrk/predis
+[ZeroMQ]: http://zeromq.org/
 [php-zmq]: http://zeromq.org/bindings:php
 
 
