@@ -24,7 +24,7 @@
     },
     "require-dev": {
         "ext-redis": "*",
-        "phpunit/phpunit": "~9.4",
+        "phpunit/phpunit": "~4.3",
         "squizlabs/php_codesniffer": "~2.2",
         "php-amqplib/php-amqplib": "^2.6.3",
         "scrutinizer/ocular": "~1.1",
