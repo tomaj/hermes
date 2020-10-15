@@ -1,16 +1,15 @@
 <?php
 declare(strict_types=1);
 
-namespace Tomaj\Hermes\Test;
+namespace Tomaj\Hermes\Test\Restart;
 
 use PHPUnit\Framework\TestCase;
 use Tomaj\Hermes\Test\Driver\DummyDriver;
 use Tomaj\Hermes\Test\Handler\TestHandler;
 use Tomaj\Hermes\Message;
 use Tomaj\Hermes\Dispatcher;
-use Tomaj\Hermes\Test\Restart\StopRestart;
 
-class HandleRestartTest extends TestCase
+class DispatcherRestartTest extends TestCase
 {
     public function testEmitWithDummyDriverNoRestart()
     {

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Tomaj\Hermes\Test;
+namespace Tomaj\Hermes\Test\Driver;
 
 use PHPUnit\Framework\TestCase;
 use Tomaj\Hermes\Test\Driver\DummyDriver;

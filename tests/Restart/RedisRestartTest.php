@@ -1,15 +1,13 @@
 <?php
-
 declare(strict_types=1);
 
-namespace Tomaj\Hermes\Test;
+namespace Tomaj\Hermes\Test\Restart;
 
 use PHPUnit\Framework\TestCase;
 use Tomaj\Hermes\Restart\RedisRestart;
 
 class RedisRestartTest extends TestCase
 {
-
     public function testInitWithoutRedis()
     {
         $redis = null;
@@ -80,4 +78,6 @@ class RedisRestartTest extends TestCase
         $redisRestart = new RedisRestart($redis);
         $this->assertTrue($redisRestart->restart($restartTime));
     }
+
+
 }

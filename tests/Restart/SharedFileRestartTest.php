@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Tomaj\Hermes\Test;
+namespace Tomaj\Hermes\Test\Restart;
 
 use PHPUnit\Framework\TestCase;
 use Tomaj\Hermes\Restart\SharedFileRestart;
