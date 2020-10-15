@@ -71,6 +71,18 @@ class RedisRestart implements RestartInterface
             $restartTime = new DateTime();
         }
 
-        return $this->redis->set($this->key, $restartTime->format('U'));
+        $response = $this->redis->set($this->key, $restartTime->format('U'));
+
+        if ($this->redis instanceof \Redis) {
+            // \Redis::set() returns TRUE/FALSE
+            return $response;
+        }
+
+        if ($this->redis instanceof \Predis\Client) {
+            /** @var \Predis\Response\Status $response */
+            return $response->getPayload() === 'OK';
+        }
+
+        return false;
     }
 }
