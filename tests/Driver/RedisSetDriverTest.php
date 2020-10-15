@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Tomaj\Hermes\Driver\RedisSetDriver;
 use Tomaj\Hermes\Message;
 use Tomaj\Hermes\MessageSerializer;
+use Tomaj\Hermes\Restart\RestartException;
 
 class RedisSetDriverTest extends TestCase
 {
@@ -105,5 +106,21 @@ class RedisSetDriverTest extends TestCase
 
         $this->assertCount(1, $processed);
         $this->assertEquals($message->getId(), $processed[0]->getId());
+    }
+
+    public function testRestartBeforeStart()
+    {
+        $redis = $this->getMockBuilder(\Redis::class)
+            ->getMock();
+
+        $processed = [];
+        $driver = new RedisSetDriver($redis, 'mykey1', 0);
+        $driver->setRestart(new CustomRestart((new \DateTime())->modify("+5 minutes")));
+
+        $this->expectException(RestartException::class);
+
+        $driver->wait(function ($message) use (&$processed) {
+            $processed[] = $message;
+        });
     }
 }

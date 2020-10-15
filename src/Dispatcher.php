@@ -6,6 +6,7 @@ namespace Tomaj\Hermes;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
+use Tomaj\Hermes\Driver\RestartTrait;
 use Tomaj\Hermes\Handler\HandlerInterface;
 use Tomaj\Hermes\Driver\DriverInterface;
 use Tomaj\Hermes\Restart\RestartException;
@@ -61,6 +62,10 @@ class Dispatcher implements DispatcherInterface
         $this->logger = $logger;
         $this->restart = $restart;
         $this->startTime = new DateTime();
+
+        if ($restart && method_exists($this->driver, 'setRestart')) {
+            $this->driver->setRestart($restart);
+        }
     }
 
     /**

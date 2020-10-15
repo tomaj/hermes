@@ -2,15 +2,16 @@
 
 namespace Tomaj\Hermes\Driver;
 
-use Exception;
 use Tomaj\Hermes\MessageInterface;
 use Closure;
 use Tomaj\Hermes\MessageSerializer;
 use InvalidArgumentException;
+use Tomaj\Hermes\Restart\RestartException;
 
 class RedisSetDriver implements DriverInterface
 {
     use MaxItemsTrait;
+    use RestartTrait;
     use SerializerAwareTrait;
 
     /**
@@ -78,6 +79,8 @@ class RedisSetDriver implements DriverInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @throws RestartException
      */
     public function wait(Closure $callback): void
     {
@@ -85,6 +88,7 @@ class RedisSetDriver implements DriverInterface
             if (!$this->shouldProcessNext()) {
                 break;
             }
+            $this->checkRestart();
 
             // check schedule
             $messagesString = [];
@@ -110,7 +114,6 @@ class RedisSetDriver implements DriverInterface
                 }
             }
 
-
             $messageString = false;
 
             if ($this->redis instanceof \Predis\Client) {
@@ -120,14 +123,16 @@ class RedisSetDriver implements DriverInterface
                 $messageString = $this->redis->sPop($this->key);
             }
 
-            if (!$messageString) {
+            if ($messageString) {
+                $message = $this->serializer->unserialize($messageString);
+                $callback($message);
+                $this->incrementProcessedItems();
+            } else {
                 if ($this->refreshInterval) {
+                    $this->checkRestart();
                     sleep($this->refreshInterval);
-                    continue;
                 }
             }
-            $callback($this->serializer->unserialize($messageString));
-            $this->incrementProcessedItems();
         }
     }
 }

@@ -11,6 +11,8 @@ use Aws\Sqs\SqsClient;
 
 class AmazonSqsDriver implements DriverInterface
 {
+    use MaxItemsTrait;
+    use RestartTrait;
     use SerializerAwareTrait;
 
     /**
@@ -76,7 +78,7 @@ class AmazonSqsDriver implements DriverInterface
         $this->serializer = new MessageSerializer();
 
         $result = $client->createQueue([
-            'QueueName'  => $queueName,
+            'QueueName' => $queueName,
             'Attributes' => $queueAttributes,
         ]);
 
@@ -89,7 +91,7 @@ class AmazonSqsDriver implements DriverInterface
     public function send(MessageInterface $message): bool
     {
         $this->client->sendMessage([
-            'QueueUrl'    => $this->queueUrl,
+            'QueueUrl' => $this->queueUrl,
             'MessageBody' => $this->serializer->serialize($message),
         ]);
         return true;
@@ -101,28 +103,38 @@ class AmazonSqsDriver implements DriverInterface
     public function wait(Closure $callback): void
     {
         while (true) {
-            $result = $this->client->receiveMessage(array(
+            if (!$this->shouldProcessNext()) {
+                break;
+            }
+            $this->checkRestart();
+
+            $result = $this->client->receiveMessage([
                 'QueueUrl' => $this->queueUrl,
-                'WaitTimeSeconds' => 20,
-            ));
+                'WaitTimeSeconds' => 1,
+            ]);
+
+//            var_dump($result);
 
             $messages = $result['Messages'];
 
             if ($messages) {
                 $hermesMessages = [];
                 foreach ($messages as $message) {
-                    $this->client->deleteMessage(array(
+//                    var_dump($message);
+                    $this->client->deleteMessage([
                         'QueueUrl' => $this->queueUrl,
                         'ReceiptHandle' => $message['ReceiptHandle'],
-                    ));
+                    ]);
                     $hermesMessages[] = $this->serializer->unserialize($message['Body']);
                 }
                 foreach ($hermesMessages as $hermesMessage) {
                     $callback($hermesMessage);
+                    $this->incrementProcessedItems();
                 }
             }
 
             if ($this->sleepInterval) {
+                $this->checkRestart();
                 sleep($this->sleepInterval);
             }
         }
