@@ -4,6 +4,8 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ## [Unreleased][unreleased]
 
+## 3.0.0 - 2020-10-13
+
 ### Added
 
 * `RedisRestart` - implementation of `RestartInterface` allowing graceful shutdown of Hermes through Redis entry.
