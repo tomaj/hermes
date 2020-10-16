@@ -79,5 +79,20 @@ class RedisRestartTest extends TestCase
         $this->assertTrue($redisRestart->restart($restartTime));
     }
 
+    public function testRestartStoredCorrectValueToRedisPredis()
+    {
+        $restartTime = (new \DateTime())->modify('-5 minutes');
+        $redis = $this->getMockBuilder(\Predis\Client::class)
+            ->addMethods(['set'])
+            ->getMock();
+        $redis->expects($this->once())
+            ->method('set')
+            ->with('hermes_restart', $restartTime->format('U'))
+            ->willReturn(new \Predis\Response\Status('OK'));
+
+        $redisRestart = new RedisRestart($redis);
+        $this->assertTrue($redisRestart->restart($restartTime));
+    }
+
 
 }
