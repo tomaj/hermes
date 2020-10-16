@@ -10,6 +10,12 @@ use Tomaj\Hermes\MessageSerializer;
 use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Channel\AMQPChannel;
 
+/**
+ * Class RabbitMqDriver
+ * @package Tomaj\Hermes\Driver
+ *
+ * @deprecated use LazyRabbitMqDriver instead
+ */
 class RabbitMqDriver implements DriverInterface
 {
     use SerializerAwareTrait;

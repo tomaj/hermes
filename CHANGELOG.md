@@ -4,9 +4,12 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ## [Unreleased][unreleased]
 
+## 3.0.1 - 2020-10-16
+
 ### Changed
 
 * Fixed `RedisRestart::restart()` response for Predis instance. `\Predis\Client::set()` returns object _(with 'OK' payload)_ instead of bool.
+* Deprecated `RabbitMqDriver` (will be removed in 4.0.0) - use `LazyRabbitMqDriver` instead
 
 ## 3.0.0 - 2020-10-13
 
