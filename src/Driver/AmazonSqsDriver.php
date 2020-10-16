@@ -103,24 +103,21 @@ class AmazonSqsDriver implements DriverInterface
     public function wait(Closure $callback): void
     {
         while (true) {
+            $this->checkRestart();
             if (!$this->shouldProcessNext()) {
                 break;
             }
-            $this->checkRestart();
 
             $result = $this->client->receiveMessage([
                 'QueueUrl' => $this->queueUrl,
                 'WaitTimeSeconds' => 1,
             ]);
 
-//            var_dump($result);
-
             $messages = $result['Messages'];
 
             if ($messages) {
                 $hermesMessages = [];
                 foreach ($messages as $message) {
-//                    var_dump($message);
                     $this->client->deleteMessage([
                         'QueueUrl' => $this->queueUrl,
                         'ReceiptHandle' => $message['ReceiptHandle'],

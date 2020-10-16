@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Tomaj\Hermes\Driver;
 
@@ -85,10 +86,10 @@ class RedisSetDriver implements DriverInterface
     public function wait(Closure $callback): void
     {
         while (true) {
+            $this->checkRestart();
             if (!$this->shouldProcessNext()) {
                 break;
             }
-            $this->checkRestart();
 
             // check schedule
             $messagesString = [];
