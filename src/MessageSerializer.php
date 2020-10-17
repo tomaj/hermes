@@ -19,7 +19,7 @@ class MessageSerializer implements SerializerInterface
                 'execute_at' => $message->getExecuteAt(),
                 'retries' => $message->getRetries(),
             ]
-        ]);
+        ], JSON_INVALID_UTF8_IGNORE);
     }
 
     /**
