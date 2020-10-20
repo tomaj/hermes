@@ -3,16 +3,16 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes;
 
+use DateTime;
 use Exception;
-use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
-use Tomaj\Hermes\Driver\RestartTrait;
-use Tomaj\Hermes\Handler\HandlerInterface;
+use Psr\Log\LoggerInterface;
 use Tomaj\Hermes\Driver\DriverInterface;
+use Tomaj\Hermes\Handler\HandlerInterface;
 use Tomaj\Hermes\Restart\RestartException;
 use Tomaj\Hermes\Restart\RestartInterface;
 use Tracy\Debugger;
-use DateTime;
+
 
 class Dispatcher implements DispatcherInterface
 {

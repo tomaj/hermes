@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes\Driver;
 
-use Tomaj\Hermes\MessageInterface;
 use Closure;
-use Tomaj\Hermes\MessageSerializer;
 use InvalidArgumentException;
+use Tomaj\Hermes\MessageInterface;
+use Tomaj\Hermes\MessageSerializer;
 use Tomaj\Hermes\Restart\RestartException;
 
 class RedisSetDriver implements DriverInterface

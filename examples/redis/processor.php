@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
 
-use Tomaj\Hermes\Driver\RedisSetDriver;
 use Tomaj\Hermes\Dispatcher;
+use Tomaj\Hermes\Driver\RedisSetDriver;
 use Tomaj\Hermes\Handler\EchoHandler;
 use Tomaj\Hermes\Restart\RedisRestart;
 
