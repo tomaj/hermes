@@ -9,6 +9,7 @@ use PhpAmqpLib\Connection\AMQPLazyConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
+use Tomaj\Hermes\Restart\RestartException;
 
 class LazyRabbitMqDriver implements DriverInterface
 {
@@ -31,18 +32,22 @@ class LazyRabbitMqDriver implements DriverInterface
     /** @var integer */
     private $refreshInterval;
 
+    /** @var string */
+    private $consumerTag;
+
     /**
      * @param AMQPLazyConnection $connection
      * @param string $queue
      * @param array $amqpMessageProperties
      * @param int $refreshInterval
      */
-    public function __construct(AMQPLazyConnection $connection, string $queue, array $amqpMessageProperties = [], int $refreshInterval = 0)
+    public function __construct(AMQPLazyConnection $connection, string $queue, array $amqpMessageProperties = [], int $refreshInterval = 0, string $consumerTag = 'hermes')
     {
         $this->connection = $connection;
         $this->queue = $queue;
         $this->amqpMessageProperties = $amqpMessageProperties;
         $this->refreshInterval = $refreshInterval;
+        $this->consumerTag = $consumerTag;
         $this->serializer = new MessageSerializer();
     }
 
@@ -58,13 +63,15 @@ class LazyRabbitMqDriver implements DriverInterface
 
     /**
      * {@inheritdoc}
+     * @throws RestartException
+     * @throws \Exception
      */
     public function wait(Closure $callback): void
     {
         while (true) {
             $this->getChannel()->basic_consume(
                 $this->queue,
-                '',
+                $this->consumerTag,
                 false,
                 true,
                 false,
@@ -86,6 +93,9 @@ class LazyRabbitMqDriver implements DriverInterface
                 }
             }
         }
+
+        $this->getChannel()->close();
+        $this->connection->close();
     }
     
     private function getChannel(): AMQPChannel
