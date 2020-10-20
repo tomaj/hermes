@@ -1,19 +1,16 @@
 <?php
 declare(strict_types=1);
 
-use Tomaj\Hermes\Driver\RabbitMqDriver;
-use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Connection\AMQPLazyConnection;
+use Tomaj\Hermes\Driver\LazyRabbitMqDriver;
 use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\Handler\EchoHandler;
 
 require_once __DIR__.'/../../vendor/autoload.php';
 
 $queueName = 'hermes_queue';
-$connection = new AMQPStreamConnection('localhost', 5672, 'guest', 'guest', '/guest');
-$channel = $connection->channel();
-$channel->queue_declare($queueName, false, false, false, false);
-$driver = new RabbitMqDriver($channel, $queueName);
-
+$connection = new AMQPLazyConnection('localhost', 5672, 'guest', 'guest', '/');
+$driver = new LazyRabbitMqDriver($connection, $queueName, [], 0);
 
 $dispatcher = new Dispatcher($driver);
 
