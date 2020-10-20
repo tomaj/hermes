@@ -9,9 +9,12 @@ use PhpAmqpLib\Connection\AMQPLazyConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
+use Tomaj\Hermes\Restart\RestartException;
 
 class LazyRabbitMqDriver implements DriverInterface
 {
+    use MaxItemsTrait;
+    use RestartTrait;
     use SerializerAwareTrait;
 
     /** @var AMQPLazyConnection */
@@ -25,16 +28,26 @@ class LazyRabbitMqDriver implements DriverInterface
 
     /** @var array */
     private $amqpMessageProperties = [];
-    
+
+    /** @var integer */
+    private $refreshInterval;
+
+    /** @var string */
+    private $consumerTag;
+
     /**
      * @param AMQPLazyConnection $connection
      * @param string $queue
+     * @param array $amqpMessageProperties
+     * @param int $refreshInterval
      */
-    public function __construct(AMQPLazyConnection $connection, string $queue, array $amqpMessageProperties = [])
+    public function __construct(AMQPLazyConnection $connection, string $queue, array $amqpMessageProperties = [], int $refreshInterval = 0, string $consumerTag = 'hermes')
     {
         $this->connection = $connection;
         $this->queue = $queue;
         $this->amqpMessageProperties = $amqpMessageProperties;
+        $this->refreshInterval = $refreshInterval;
+        $this->consumerTag = $consumerTag;
         $this->serializer = new MessageSerializer();
     }
 
@@ -50,25 +63,39 @@ class LazyRabbitMqDriver implements DriverInterface
 
     /**
      * {@inheritdoc}
+     * @throws RestartException
+     * @throws \Exception
      */
     public function wait(Closure $callback): void
     {
-        $this->getChannel()->basic_consume(
-            $this->queue,
-            '',
-            false,
-            true,
-            false,
-            false,
-            function ($rabbitMessage) use ($callback) {
-                $message = $this->serializer->unserialize($rabbitMessage->body);
-                $callback($message);
-            }
-        );
+        while (true) {
+            $this->getChannel()->basic_consume(
+                $this->queue,
+                $this->consumerTag,
+                false,
+                true,
+                false,
+                false,
+                function ($rabbitMessage) use ($callback) {
+                    $message = $this->serializer->unserialize($rabbitMessage->body);
+                    $callback($message);
+                }
+            );
 
-        while (count($this->getChannel()->callbacks)) {
-            $this->getChannel()->wait();
+            while (count($this->getChannel()->callbacks)) {
+                $this->getChannel()->wait(null, true);
+                $this->checkRestart();
+                if (!$this->shouldProcessNext()) {
+                    break 2;
+                }
+                if ($this->refreshInterval) {
+                    sleep($this->refreshInterval);
+                }
+            }
         }
+
+        $this->getChannel()->close();
+        $this->connection->close();
     }
     
     private function getChannel(): AMQPChannel

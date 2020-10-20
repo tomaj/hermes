@@ -4,6 +4,14 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ## [Unreleased][unreleased]
 
+### Changed
+
+* Added support for *soft restart* to all drivers
+* Added `consumer tag` to LazyRabbitMq driver for consumer
+* Added support for _max items_ and _restart_ for LazyRabbitMq Driver
+* updated restart policy for AmazonSQS Driver  
+
+
 ## 3.0.1 - 2020-10-16
 
 ### Changed
