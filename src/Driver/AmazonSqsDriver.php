@@ -128,11 +128,11 @@ class AmazonSqsDriver implements DriverInterface
                     $callback($hermesMessage);
                     $this->incrementProcessedItems();
                 }
-            }
-
-            if ($this->sleepInterval) {
-                $this->checkRestart();
-                sleep($this->sleepInterval);
+            } else {
+                if ($this->sleepInterval) {
+                    $this->checkRestart();
+                    sleep($this->sleepInterval);
+                }
             }
         }
     }
