@@ -61,12 +61,13 @@ Right now Hermes library is distributed with 3 drivers and one driver in separat
 
 Note: You have to install all 3rd party libraries for initializing connections to this drivers. For example you have to add `nrk/predis` to your *composer.json* and create connection to your redis instance.
 
+[Amazon SQS]: https://aws.amazon.com/sqs/
+[php-zmq]: http://zeromq.org/bindings:php
+[phpredis]: https://github.com/phpredis/phpredis
 [Redis]: http://redis.io/
 [RabbitMQ]: https://www.rabbitmq.com/
-[phpredis]: https://github.com/phpredis/phpredis
 [Predis]: https://github.com/nrk/predis
 [ZeroMQ]: http://zeromq.org/
-[php-zmq]: http://zeromq.org/bindings:php
 
 
 ## Concept - How hermes works?
@@ -97,7 +98,7 @@ This simple example demonstrates using Redis driver and is an example how to sen
 
 ### Emitting event
 
-Emmitting messages (anywhere in application, easy and quick).
+Emitting messages (anywhere in application, easy and quick).
 
 ```php
 use Redis;
@@ -133,7 +134,7 @@ use Tomaj\Hermes\Handler\HandlerInterface;
 
 class SendEmailHandler implements HandlerInterface
 {
-    // here you will receive message that was emmited from web aplication
+    // here you will receive message that was emitted from web application
     public function handle(MessageInterface $message)
     {
     	$payload = $message->getPayload();
