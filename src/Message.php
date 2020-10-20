@@ -13,7 +13,7 @@ class Message implements MessageInterface
     private $type;
 
     /**
-     * @var array
+     * @var array|null
      */
     private $payload;
 
@@ -28,7 +28,7 @@ class Message implements MessageInterface
     private $created;
 
     /**
-     * @var string
+     * @var float|null
      */
     private $executeAt;
 
@@ -50,11 +50,11 @@ class Message implements MessageInterface
     public function __construct(string $type, array $payload = null, string $messageId = null, float $created = null, float $executeAt = null, int $retries = 0)
     {
         $this->messageId = $messageId;
-        if (!$messageId) {
+        if ($messageId === null || $messageId == "") {
             try {
                 $this->messageId = Uuid::uuid4()->toString();
             } catch (\Exception $e) {
-                $this->messageId = rand(10000, 99999999);
+                $this->messageId = (string) rand(10000, 99999999);
             }
         }
         $this->created = $created;
