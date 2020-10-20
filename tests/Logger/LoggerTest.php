@@ -10,6 +10,11 @@ use Tomaj\Hermes\Message;
 use Tomaj\Hermes\Emitter;
 use Tomaj\Hermes\Dispatcher;
 
+/**
+ * Class LoggerTest
+ * @package Tomaj\Hermes\Test\Logger
+ * @covers Emitter
+ */
 class LoggerTest extends TestCase
 {
     public function testLoggerWithEmit()

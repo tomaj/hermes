@@ -7,6 +7,11 @@ use PHPUnit\Framework\TestCase;
 use Tomaj\Hermes\Message;
 use Tomaj\Hermes\Handler\EchoHandler;
 
+/**
+ * Class EchoHandlerTest
+ * @package Tomaj\Hermes\Test\Handler
+ * @covers EchoHandler
+ */
 class EchoHandlerTest extends TestCase
 {
     public function testEchoHandler()

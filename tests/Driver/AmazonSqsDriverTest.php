@@ -10,6 +10,11 @@ use Tomaj\Hermes\Message;
 use Tomaj\Hermes\MessageSerializer;
 use Tomaj\Hermes\Restart\RestartException;
 
+/**
+ * Class AmazonSqsDriverTest
+ * @package Tomaj\Hermes\Test\Driver
+ * @covers AmazonSqsDriver
+ */
 class AmazonSqsDriverTest extends TestCase
 {
     private function prepareClient($queue, array $methods = [])

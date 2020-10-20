@@ -6,6 +6,11 @@ namespace Tomaj\Hermes\Test;
 use PHPUnit\Framework\TestCase;
 use Tomaj\Hermes\Message;
 
+/**
+ * Class MessageTest
+ * @package Tomaj\Hermes\Test
+ * @covers Message
+ */
 class MessageTest extends TestCase
 {
     public function testSimpleMessage()

@@ -9,6 +9,11 @@ use PhpAmqpLib\Channel\AMQPChannel;
 use Tomaj\Hermes\Driver\RabbitMqDriver;
 use Tomaj\Hermes\Message;
 
+/**
+ * Class RabbitMqDriverTest
+ * @package Tomaj\Hermes\Test\Driver
+ * @covers RabbitMqDriver
+ */
 class RabbitMqDriverTest extends TestCase
 {
     public function testDriverPublishToChannel()

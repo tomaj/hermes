@@ -8,6 +8,11 @@ use Tomaj\Hermes\Test\Driver\DummyDriver;
 use Tomaj\Hermes\Emitter;
 use Tomaj\Hermes\Message;
 
+/**
+ * Class EmitTest
+ * @package Tomaj\Hermes\Test
+ * @covers Emitter
+ */
 class EmitTest extends TestCase
 {
     public function testEmitWithDummyDriver()

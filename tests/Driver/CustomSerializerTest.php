@@ -4,11 +4,14 @@ declare(strict_types=1);
 namespace Tomaj\Hermes\Test\Driver;
 
 use PHPUnit\Framework\TestCase;
-use Tomaj\Hermes\Test\Driver\DummyDriver;
-use Tomaj\Hermes\Test\Driver\DummySerializer;
 use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\Message;
 
+/**
+ * Class CustomSerializerTest
+ * @package Tomaj\Hermes\Test\Driver
+ * @covers Message
+ */
 class CustomSerializerTest extends TestCase
 {
     public function testCustomSerializerTest()

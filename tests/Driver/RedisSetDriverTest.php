@@ -9,6 +9,11 @@ use Tomaj\Hermes\Message;
 use Tomaj\Hermes\MessageSerializer;
 use Tomaj\Hermes\Restart\RestartException;
 
+/**
+ * Class RedisSetDriverTest
+ * @package Tomaj\Hermes\Test\Driver
+ * @covers RedisSetDriver
+ */
 class RedisSetDriverTest extends TestCase
 {
     public function testConstructorShouldThrowExceptionForInvalidRedis()

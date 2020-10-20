@@ -6,6 +6,11 @@ namespace Tomaj\Hermes\Test\Restart;
 use PHPUnit\Framework\TestCase;
 use Tomaj\Hermes\Restart\RedisRestart;
 
+/**
+ * Class RedisRestartTest
+ * @package Tomaj\Hermes\Test\Restart
+ * @covers RedisRestart
+ */
 class RedisRestartTest extends TestCase
 {
     public function testInitWithoutRedis()

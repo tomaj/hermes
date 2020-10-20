@@ -10,6 +10,11 @@ use Tomaj\Hermes\Test\Handler\ExceptionHandler;
 use Tomaj\Hermes\Message;
 use Tomaj\Hermes\Dispatcher;
 
+/**
+ * Class HandleTest
+ * @package Tomaj\Hermes\Test
+ * @covers Dispatcher
+ */
 class HandleTest extends TestCase
 {
     public function testEmitWithDummyDriver()

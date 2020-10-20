@@ -7,6 +7,11 @@ use PHPUnit\Framework\TestCase;
 use Tomaj\Hermes\Restart\SharedFileRestart;
 use DateTime;
 
+/**
+ * Class SharedFileRestartTest
+ * @package Tomaj\Hermes\Test\Restart
+ * @covers SharedFileRestart
+ */
 class SharedFileRestartTest extends TestCase
 {
     public function testShouldRestartWithNotExistsingFile()

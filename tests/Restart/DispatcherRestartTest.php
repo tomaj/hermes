@@ -9,6 +9,11 @@ use Tomaj\Hermes\Test\Handler\TestHandler;
 use Tomaj\Hermes\Message;
 use Tomaj\Hermes\Dispatcher;
 
+/**
+ * Class DispatcherRestartTest
+ * @package Tomaj\Hermes\Test\Restart
+ * @covers Dispatcher
+ */
 class DispatcherRestartTest extends TestCase
 {
     public function testEmitWithDummyDriverNoRestart()
