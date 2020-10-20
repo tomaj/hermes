@@ -4,3 +4,4 @@ composer.lock
 build
 coverage.clover
 .idea
+.phpunit.cache
