@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes\Driver;
 
+use DateTime;
 use Tomaj\Hermes\Restart\RestartException;
 use Tomaj\Hermes\Restart\RestartInterface;
 
@@ -11,12 +12,13 @@ trait RestartTrait
     /** @var RestartInterface */
     private $restart;
 
+    /** @var DateTime */
     private $startTime;
 
     public function setRestart(RestartInterface $restart)
     {
         $this->restart = $restart;
-        $this->startTime = new \DateTime();
+        $this->startTime = new DateTime();
     }
 
     private function shouldRestart(): bool

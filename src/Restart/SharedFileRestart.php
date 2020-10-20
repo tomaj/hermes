@@ -34,7 +34,7 @@ class SharedFileRestart implements RestartInterface
     /**
      * {@inheritdoc}
      *
-     * Creates file defined in contructor with modification time `$restartTime` (or current DateTime).
+     * Creates file defined in constructor with modification time `$restartTime` (or current DateTime).
      */
     public function restart(DateTime $restartTime = null): bool
     {

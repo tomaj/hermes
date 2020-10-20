@@ -27,7 +27,7 @@ class Emitter implements EmitterInterface
      * Create new Dispatcher
      *
      * @param DriverInterface $driver
-     * @param LoggerInterface $logger
+     * @param LoggerInterface|null $logger
      */
     public function __construct(DriverInterface $driver, LoggerInterface $logger = null)
     {

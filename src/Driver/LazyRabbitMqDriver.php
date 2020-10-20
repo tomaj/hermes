@@ -40,6 +40,7 @@ class LazyRabbitMqDriver implements DriverInterface
      * @param string $queue
      * @param array $amqpMessageProperties
      * @param int $refreshInterval
+     * @param string $consumerTag
      */
     public function __construct(AMQPLazyConnection $connection, string $queue, array $amqpMessageProperties = [], int $refreshInterval = 0, string $consumerTag = 'hermes')
     {

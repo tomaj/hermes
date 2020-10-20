@@ -8,6 +8,7 @@ use Exception;
 use Psr\Log\LogLevel;
 use Psr\Log\LoggerInterface;
 use Tomaj\Hermes\Driver\DriverInterface;
+use Tomaj\Hermes\Driver\RestartTrait;
 use Tomaj\Hermes\Handler\HandlerInterface;
 use Tomaj\Hermes\Restart\RestartException;
 use Tomaj\Hermes\Restart\RestartInterface;
@@ -53,8 +54,8 @@ class Dispatcher implements DispatcherInterface
      * Create new Dispatcher
      *
      * @param DriverInterface $driver
-     * @param LoggerInterface $logger
-     * @param RestartInterface $restart
+     * @param LoggerInterface|null $logger
+     * @param RestartInterface|null $restart
      */
     public function __construct(DriverInterface $driver, LoggerInterface $logger = null, RestartInterface $restart = null)
     {
@@ -63,13 +64,17 @@ class Dispatcher implements DispatcherInterface
         $this->restart = $restart;
         $this->startTime = new DateTime();
 
+
+        // check if driver use RestartTrait
         if ($restart && method_exists($this->driver, 'setRestart')) {
             $this->driver->setRestart($restart);
         }
     }
 
     /**
-     * @deprecated - use Emitter::emit method intead
+     * @param MessageInterface $message
+     * @return DispatcherInterface
+     * @deprecated - use Emitter::emit method instead
      */
     public function emit(MessageInterface $message): DispatcherInterface
     {
