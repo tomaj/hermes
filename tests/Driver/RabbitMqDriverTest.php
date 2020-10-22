@@ -13,6 +13,8 @@ use Tomaj\Hermes\Message;
  * Class RabbitMqDriverTest
  * @package Tomaj\Hermes\Test\Driver
  * @covers \Tomaj\Hermes\Driver\RabbitMqDriver
+ * @covers \Tomaj\Hermes\Message
+ * @covers \Tomaj\Hermes\MessageSerializer
  */
 class RabbitMqDriverTest extends TestCase
 {
