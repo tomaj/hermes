@@ -12,7 +12,7 @@ use Tomaj\Hermes\Dispatcher;
 /**
  * Class DispatcherRestartTest
  * @package Tomaj\Hermes\Test\Restart
- * @covers Dispatcher
+ * @covers \Tomaj\Hermes\Dispatcher
  */
 class DispatcherRestartTest extends TestCase
 {

@@ -13,7 +13,7 @@ use Tomaj\Hermes\Dispatcher;
 /**
  * Class HandleTest
  * @package Tomaj\Hermes\Test
- * @covers Dispatcher
+ * @covers \Tomaj\Hermes\Dispatcher
  */
 class HandleTest extends TestCase
 {

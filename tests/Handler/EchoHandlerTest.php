@@ -10,7 +10,7 @@ use Tomaj\Hermes\Handler\EchoHandler;
 /**
  * Class EchoHandlerTest
  * @package Tomaj\Hermes\Test\Handler
- * @covers EchoHandler
+ * @covers \Tomaj\Hermes\Handler\EchoHandler
  */
 class EchoHandlerTest extends TestCase
 {

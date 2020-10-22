@@ -10,7 +10,7 @@ use Tomaj\Hermes\Message;
 /**
  * Class CustomSerializerTest
  * @package Tomaj\Hermes\Test\Driver
- * @covers Message
+ * @covers \Tomaj\Hermes\Message
  */
 class CustomSerializerTest extends TestCase
 {

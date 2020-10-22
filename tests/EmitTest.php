@@ -11,7 +11,7 @@ use Tomaj\Hermes\Message;
 /**
  * Class EmitTest
  * @package Tomaj\Hermes\Test
- * @covers Emitter
+ * @covers \Tomaj\Hermes\Emitter
  */
 class EmitTest extends TestCase
 {

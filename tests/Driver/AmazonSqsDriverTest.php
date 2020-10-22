@@ -13,7 +13,7 @@ use Tomaj\Hermes\Restart\RestartException;
 /**
  * Class AmazonSqsDriverTest
  * @package Tomaj\Hermes\Test\Driver
- * @covers AmazonSqsDriver
+ * @covers \Tomaj\Hermes\Driver\AmazonSqsDriver
  */
 class AmazonSqsDriverTest extends TestCase
 {

@@ -10,7 +10,7 @@ use DateTime;
 /**
  * Class SharedFileRestartTest
  * @package Tomaj\Hermes\Test\Restart
- * @covers SharedFileRestart
+ * @covers \Tomaj\Hermes\Restart\SharedFileRestart
  */
 class SharedFileRestartTest extends TestCase
 {

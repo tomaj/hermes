@@ -9,7 +9,7 @@ use Tomaj\Hermes\Restart\RedisRestart;
 /**
  * Class RedisRestartTest
  * @package Tomaj\Hermes\Test\Restart
- * @covers RedisRestart
+ * @covers \Tomaj\Hermes\Restart\RedisRestart
  */
 class RedisRestartTest extends TestCase
 {

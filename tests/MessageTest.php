@@ -9,7 +9,7 @@ use Tomaj\Hermes\Message;
 /**
  * Class MessageTest
  * @package Tomaj\Hermes\Test
- * @covers Message
+ * @covers \Tomaj\Hermes\Message
  */
 class MessageTest extends TestCase
 {

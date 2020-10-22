@@ -12,7 +12,7 @@ use Tomaj\Hermes\Restart\RestartException;
 /**
  * Class RedisSetDriverTest
  * @package Tomaj\Hermes\Test\Driver
- * @covers RedisSetDriver
+ * @covers \Tomaj\Hermes\Driver\RedisSetDriver
  */
 class RedisSetDriverTest extends TestCase
 {

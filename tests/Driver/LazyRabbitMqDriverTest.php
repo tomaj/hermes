@@ -12,7 +12,7 @@ use Tomaj\Hermes\Message;
 /**
  * Class LazyRabbitMqDriverTest
  * @package Tomaj\Hermes\Test\Driver
- * @covers LazyRabbitMqDriver
+ * @covers \Tomaj\Hermes\Driver\LazyRabbitMqDriver
  */
 class LazyRabbitMqDriverTest extends TestCase
 {

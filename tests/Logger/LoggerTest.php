@@ -13,7 +13,7 @@ use Tomaj\Hermes\Dispatcher;
 /**
  * Class LoggerTest
  * @package Tomaj\Hermes\Test\Logger
- * @covers Emitter
+ * @covers \Tomaj\Hermes\Emitter
  */
 class LoggerTest extends TestCase
 {
