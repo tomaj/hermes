@@ -14,6 +14,8 @@ use Tomaj\Hermes\Dispatcher;
  * Class HandleTest
  * @package Tomaj\Hermes\Test
  * @covers \Tomaj\Hermes\Dispatcher
+ * @covers \Tomaj\Hermes\Message
+ * @covers \Tomaj\Hermes\MessageSerializer
  */
 class HandleTest extends TestCase
 {

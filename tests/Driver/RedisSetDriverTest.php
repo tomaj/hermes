@@ -13,6 +13,8 @@ use Tomaj\Hermes\Restart\RestartException;
  * Class RedisSetDriverTest
  * @package Tomaj\Hermes\Test\Driver
  * @covers \Tomaj\Hermes\Driver\RedisSetDriver
+ * @covers \Tomaj\Hermes\Message
+ * @covers \Tomaj\Hermes\MessageSerializer
  */
 class RedisSetDriverTest extends TestCase
 {

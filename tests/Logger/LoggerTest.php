@@ -14,6 +14,9 @@ use Tomaj\Hermes\Dispatcher;
  * Class LoggerTest
  * @package Tomaj\Hermes\Test\Logger
  * @covers \Tomaj\Hermes\Emitter
+ * @covers \Tomaj\Hermes\Message
+ * @covers \Tomaj\Hermes\MessageSerializer
+ * @covers \Tomaj\Hermes\Dispatcher
  */
 class LoggerTest extends TestCase
 {

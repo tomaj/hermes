@@ -13,6 +13,8 @@ use Tomaj\Hermes\Dispatcher;
  * Class DispatcherRestartTest
  * @package Tomaj\Hermes\Test\Restart
  * @covers \Tomaj\Hermes\Dispatcher
+ * @covers \Tomaj\Hermes\Message
+ * @covers \Tomaj\Hermes\MessageSerializer
  */
 class DispatcherRestartTest extends TestCase
 {

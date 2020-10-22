@@ -14,6 +14,8 @@ use Tomaj\Hermes\Restart\RestartException;
  * Class AmazonSqsDriverTest
  * @package Tomaj\Hermes\Test\Driver
  * @covers \Tomaj\Hermes\Driver\AmazonSqsDriver
+ * @covers \Tomaj\Hermes\Message
+ * @covers \Tomaj\Hermes\MessageSerializer
  */
 class AmazonSqsDriverTest extends TestCase
 {

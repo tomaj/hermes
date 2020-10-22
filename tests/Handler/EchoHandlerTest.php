@@ -11,6 +11,7 @@ use Tomaj\Hermes\Handler\EchoHandler;
  * Class EchoHandlerTest
  * @package Tomaj\Hermes\Test\Handler
  * @covers \Tomaj\Hermes\Handler\EchoHandler
+ * @covers \Tomaj\Hermes\Message
  */
 class EchoHandlerTest extends TestCase
 {

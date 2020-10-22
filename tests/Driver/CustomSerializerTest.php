@@ -11,6 +11,7 @@ use Tomaj\Hermes\Message;
  * Class CustomSerializerTest
  * @package Tomaj\Hermes\Test\Driver
  * @covers \Tomaj\Hermes\Message
+ * @covers \Tomaj\Hermes\Driver\SerializerAwareTrait
  */
 class CustomSerializerTest extends TestCase
 {
