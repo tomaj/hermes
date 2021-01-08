@@ -184,7 +184,7 @@ class Dispatcher implements DispatcherInterface
                 Debugger::log($e, Debugger::EXCEPTION);
             }
 
-            if (method_exists($handler, 'canRetry')) {
+            if (method_exists($handler, 'canRetry') && method_exists($handler, 'maxRetry')) {
                 if ($message->getRetries() < $handler->maxRetry()) {
                     $executeAt = $this->nextRetry($message);
                     $newMessage = new Message($message->getType(), $message->getPayload(), $message->getId(), $message->getCreated(), $executeAt, $message->getRetries() + 1);
