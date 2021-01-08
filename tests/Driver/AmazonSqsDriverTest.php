@@ -31,7 +31,8 @@ class AmazonSqsDriverTest extends TestCase
         $client->expects($this->once())
             ->method('createQueue')
             ->with(['QueueName' => 'mykey1', 'Attributes' => []])->will($this->returnValue(new class {
-                public function get($string) {
+                public function get($string)
+                {
                     return 'mykey1';
                 }
             }));
@@ -89,4 +90,3 @@ class AmazonSqsDriverTest extends TestCase
         });
     }
 }
-

@@ -44,6 +44,5 @@ class RabbitMqDriverTest extends TestCase
         $driver->send($message);
 
         $this->assertCount(1, $messages);
-
     }
 }

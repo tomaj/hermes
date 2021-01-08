@@ -7,7 +7,6 @@ use Tomaj\Hermes\Driver\LazyRabbitMqDriver;
 use Tomaj\Hermes\Emitter;
 use Tomaj\Hermes\Message;
 
-
 require_once __DIR__.'/../../vendor/autoload.php';
 
 

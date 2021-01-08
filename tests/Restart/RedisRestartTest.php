@@ -98,6 +98,4 @@ class RedisRestartTest extends TestCase
         $redisRestart = new RedisRestart($redis);
         $this->assertTrue($redisRestart->restart($restartTime));
     }
-
-
 }
