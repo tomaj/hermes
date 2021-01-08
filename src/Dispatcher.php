@@ -14,7 +14,6 @@ use Tomaj\Hermes\Restart\RestartException;
 use Tomaj\Hermes\Restart\RestartInterface;
 use Tracy\Debugger;
 
-
 class Dispatcher implements DispatcherInterface
 {
     /**

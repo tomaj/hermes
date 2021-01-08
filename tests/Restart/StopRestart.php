@@ -8,7 +8,7 @@ use Tomaj\Hermes\Restart\RestartInterface;
 
 class StopRestart implements RestartInterface
 {
-    static private $eventsStop;
+    private static $eventsStop;
 
     public function shouldRestart(DateTime $startTime): bool
     {

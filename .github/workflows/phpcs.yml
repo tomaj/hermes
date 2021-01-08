@@ -1,0 +1,17 @@
+name: PHPCS check
+
+on: [push, pull_request]
+
+jobs:
+  phpcs:
+      name: PHPCS
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v2
+
+        - name: Composer update
+          run: composer install --dev --prefer-dist --no-progress --no-suggest
+
+        - name: phpcs
+          run: vendor/bin/phpcs --standard=PSR2 src tests -n
