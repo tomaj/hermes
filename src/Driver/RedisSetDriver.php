@@ -5,6 +5,8 @@ namespace Tomaj\Hermes\Driver;
 
 use Closure;
 use InvalidArgumentException;
+use Predis\Client;
+use Redis;
 use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
 use Tomaj\Hermes\Restart\RestartException;
@@ -26,7 +28,7 @@ class RedisSetDriver implements DriverInterface
     private $scheduleKey;
 
     /**
-     * @var Redis|Predis\Client
+     * @var Redis|Client
      */
     private $redis;
 
@@ -47,14 +49,14 @@ class RedisSetDriver implements DriverInterface
      *
      * @see examples/redis
      *
-     * @param Redis\Predis\Client    $redis
+     * @param Redis|Client    $redis
      * @param string                 $key
      * @param integer                $refreshInterval
      * @param string                 $scheduleKey
      */
     public function __construct($redis, string $key = 'hermes', int $refreshInterval = 1, string $scheduleKey = 'hermes_schedule')
     {
-        if (!(($redis instanceof \Predis\Client) || ($redis instanceof \Redis))) {
+        if (!(($redis instanceof Client) || ($redis instanceof Redis))) {
             throw new InvalidArgumentException('Predis\Client or Redis instance required');
         }
 
@@ -71,7 +73,7 @@ class RedisSetDriver implements DriverInterface
     public function send(MessageInterface $message): bool
     {
         if ($message->getExecuteAt() && $message->getExecuteAt() > microtime(true)) {
-            $this->redis->zadd($this->scheduleKey, $message->getExecuteAt(), $this->serializer->serialize($message));
+            $this->redis->zadd($this->scheduleKey, [$message->getExecuteAt(), $this->serializer->serialize($message)]);
         } else {
             $this->redis->sadd($this->key, $this->serializer->serialize($message));
         }
@@ -93,15 +95,15 @@ class RedisSetDriver implements DriverInterface
 
             // check schedule
             $messagesString = [];
-            if ($this->redis instanceof \Predis\Client) {
-                $messagesString = $this->redis->zrangebyscore($this->scheduleKey, '-inf', microtime(true), 'LIMIT', 0, 1);
+            if ($this->redis instanceof Client) {
+                $messagesString = $this->redis->zrangebyscore($this->scheduleKey, '-inf', microtime(true), ['LIMIT' => ['OFFSET' => 0, 'COUNT' => 1]]);
                 if (count($messagesString)) {
                     foreach ($messagesString as $messageString) {
                         $this->redis->zrem($this->scheduleKey, $messageString);
                     }
                 }
             }
-            if ($this->redis instanceof \Redis) {
+            if ($this->redis instanceof Redis) {
                 $messagesString = $this->redis->zRangeByScore($this->scheduleKey, '-inf', microtime(true), ['limit' => [0, 1]]);
                 if (count($messagesString)) {
                     foreach ($messagesString as $messageString) {
@@ -117,10 +119,10 @@ class RedisSetDriver implements DriverInterface
 
             $messageString = false;
 
-            if ($this->redis instanceof \Predis\Client) {
+            if ($this->redis instanceof Client) {
                 $messageString = $this->redis->spop($this->key);
             }
-            if ($this->redis instanceof \Redis) {
+            if ($this->redis instanceof Redis) {
                 $messageString = $this->redis->sPop($this->key);
             }
 

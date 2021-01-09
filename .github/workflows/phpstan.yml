@@ -11,7 +11,7 @@ jobs:
           uses: actions/checkout@v2
 
         - name: Composer update
-          run: composer install --dev --prefer-dist --no-progress --no-suggest
+          run: composer install --prefer-dist --no-progress --no-suggest
 
         - name: phpstan
-          run: vendor/bin/phpstan analyse
+          run: vendor/bin/phpstan analyse --level 3
