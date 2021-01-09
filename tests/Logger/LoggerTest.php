@@ -17,6 +17,7 @@ use Tomaj\Hermes\Dispatcher;
  * @covers \Tomaj\Hermes\Message
  * @covers \Tomaj\Hermes\MessageSerializer
  * @covers \Tomaj\Hermes\Dispatcher
+ * @covers \Tomaj\Hermes\Driver\MaxItemsTrait
  */
 class LoggerTest extends TestCase
 {
@@ -53,8 +54,9 @@ class LoggerTest extends TestCase
         $logs = $testLogger->getLogs();
         $this->assertCount(2, $logs);
 
+        $priority = Dispatcher::PRIORITY_MEDIUM;
         $this->assertEquals('info', $logs[0]['level']);
-        $this->assertEquals("Start handle message #{$message1->getId()} ({$message1->getType()})", $logs[0]['message']);
+        $this->assertEquals("Start handle message #{$message1->getId()} ({$message1->getType()}) priority:{$priority}", $logs[0]['message']);
 
         $this->assertEquals('info', $logs[1]['level']);
         $this->assertEquals("End handle message #{$message1->getId()} ({$message1->getType()})", $logs[1]['message']);

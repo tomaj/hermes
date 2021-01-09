@@ -7,6 +7,7 @@ use Closure;
 use InvalidArgumentException;
 use Predis\Client;
 use Redis;
+use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
 use Tomaj\Hermes\Restart\RestartException;
@@ -17,10 +18,7 @@ class RedisSetDriver implements DriverInterface
     use RestartTrait;
     use SerializerAwareTrait;
 
-    /**
-     * @var string
-     */
-    private $key;
+    private $queues = [];
 
     /**
      * @var string
@@ -60,7 +58,8 @@ class RedisSetDriver implements DriverInterface
             throw new InvalidArgumentException('Predis\Client or Redis instance required');
         }
 
-        $this->key = $key;
+        $this->setupPriorityQueue($key, Dispatcher::PRIORITY_MEDIUM);
+
         $this->scheduleKey = $scheduleKey;
         $this->redis = $redis;
         $this->refreshInterval = $refreshInterval;
@@ -70,23 +69,39 @@ class RedisSetDriver implements DriverInterface
     /**
      * {@inheritdoc}
      */
-    public function send(MessageInterface $message): bool
+    public function send(MessageInterface $message, int $priority = Dispatcher::PRIORITY_MEDIUM): bool
     {
         if ($message->getExecuteAt() && $message->getExecuteAt() > microtime(true)) {
             $this->redis->zadd($this->scheduleKey, [$message->getExecuteAt(), $this->serializer->serialize($message)]);
         } else {
-            $this->redis->sadd($this->key, $this->serializer->serialize($message));
+            $key = $this->getKey($priority);
+            $this->redis->sadd($key, $this->serializer->serialize($message));
         }
         return true;
     }
 
-    /**
+    public function setupPriorityQueue(string $name, int $priority): void
+    {
+        $this->queues[$priority] = $name;
+        ksort($this->queues, SORT_ASC | SORT_NUMERIC);
+    }
+
+    private function getKey(int $priority): string
+    {
+        if (!isset($this->queues[$priority])) {
+            throw new \Exception("Unknown priority {$priority}");
+        }
+        return $this->queues[$priority];
+    }
+
+    /**s
      * {@inheritdoc}
      *
      * @throws RestartException
      */
-    public function wait(Closure $callback): void
+    public function wait(Closure $callback, array $priorities = []): void
     {
+        $queues = array_reverse($this->queues, true);
         while (true) {
             $this->checkRestart();
             if (!$this->shouldProcessNext()) {
@@ -104,7 +119,7 @@ class RedisSetDriver implements DriverInterface
                 }
             }
             if ($this->redis instanceof Redis) {
-                $messagesString = $this->redis->zRangeByScore($this->scheduleKey, '-inf', microtime(true), ['limit' => [0, 1]]);
+                $messagesString = $this->redis->zRangeByScore($this->scheduleKey, '-inf', (string)microtime(true), ['limit' => [0, 1]]);
                 if (count($messagesString)) {
                     foreach ($messagesString as $messageString) {
                         $this->redis->zRem($this->scheduleKey, $messageString);
@@ -118,17 +133,31 @@ class RedisSetDriver implements DriverInterface
             }
 
             $messageString = false;
+            $foundPriority = null;
 
-            if ($this->redis instanceof Client) {
-                $messageString = $this->redis->spop($this->key);
-            }
-            if ($this->redis instanceof Redis) {
-                $messageString = $this->redis->sPop($this->key);
+            foreach ($queues as $priority => $name) {
+                if (count($priorities) > 0 && !in_array($priority, $priorities)) {
+                    continue;
+                }
+                if ($messageString) {
+                    break;
+                }
+
+                $key = $this->getKey($priority);
+
+                if ($this->redis instanceof Client) {
+                    $messageString = $this->redis->spop($key);
+                    $foundPriority = $priority;
+                }
+                if ($this->redis instanceof Redis) {
+                    $messageString = $this->redis->sPop($key);
+                    $foundPriority = $priority;
+                }
             }
 
             if ($messageString) {
                 $message = $this->serializer->unserialize($messageString);
-                $callback($message);
+                $callback($message, $foundPriority);
                 $this->incrementProcessedItems();
             } else {
                 if ($this->refreshInterval) {

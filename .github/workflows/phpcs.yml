@@ -1,6 +1,6 @@
 name: PHPCS check
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   phpcs:

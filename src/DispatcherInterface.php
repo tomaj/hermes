@@ -32,6 +32,8 @@ interface DispatcherInterface
 
     /**
      * Basic method for background job to star listening.
+     *
+     * @param array $priorities
      */
-    public function handle(): void;
+    public function handle(array $priorities = []): void;
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Tomaj\Hermes\Test;
 
 use PHPUnit\Framework\TestCase;
+use Tomaj\Hermes\Emitter;
 use Tomaj\Hermes\Test\Driver\DummyDriver;
 use Tomaj\Hermes\Test\Handler\TestHandler;
 use Tomaj\Hermes\Test\Handler\ExceptionHandler;
@@ -16,6 +17,8 @@ use Tomaj\Hermes\Dispatcher;
  * @covers \Tomaj\Hermes\Dispatcher
  * @covers \Tomaj\Hermes\Message
  * @covers \Tomaj\Hermes\MessageSerializer
+ * @covers \Tomaj\Hermes\Emitter
+ * @covers \Tomaj\Hermes\Driver\MaxItemsTrait
  */
 class HandleTest extends TestCase
 {
@@ -98,5 +101,63 @@ class HandleTest extends TestCase
         $dispatcher->handle();
 
         $this->assertFalse($driver->waitResult());
+    }
+
+    public function testPriorityProcessing()
+    {
+        $message1 = new Message('event1', ['n' => 1]);
+        $message2 = new Message('event1', ['n' => 2]);
+        $message3 = new Message('event1', ['n' => 3]);
+
+        $driver = new DummyDriver();
+        $driver->setupPriorityQueue('high', Dispatcher::PRIORITY_HIGH);
+
+        $emitter = new Emitter($driver);
+        $dispatcher = new Dispatcher($driver);
+
+        $testHandler = new TestHandler();
+
+        $dispatcher->registerHandler('event1', $testHandler);
+
+        $emitter->emit($message1, Dispatcher::PRIORITY_MEDIUM);
+        $emitter->emit($message2, Dispatcher::PRIORITY_HIGH);
+        $emitter->emit($message3, Dispatcher::PRIORITY_MEDIUM);
+
+        $dispatcher->handle();
+
+        $receivedMessages = $testHandler->getReceivedMessages();
+        $this->assertCount(3, $receivedMessages);
+        $this->assertEquals(['n' => 2], $receivedMessages[0]->getPayload());
+        $this->assertEquals(['n' => 1], $receivedMessages[1]->getPayload());
+        $this->assertEquals(['n' => 3], $receivedMessages[2]->getPayload());
+    }
+
+    public function testMaxItemProcess()
+    {
+        $message1 = new Message('event1', ['n' => 1]);
+        $message2 = new Message('event1', ['n' => 2]);
+        $message3 = new Message('event1', ['n' => 3]);
+
+        $driver = new DummyDriver();
+        $driver->setMaxProcessItems(2);
+        $driver->setupPriorityQueue('high', Dispatcher::PRIORITY_HIGH);
+
+        $emitter = new Emitter($driver);
+        $dispatcher = new Dispatcher($driver);
+
+        $testHandler = new TestHandler();
+
+        $dispatcher->registerHandler('event1', $testHandler);
+
+        $emitter->emit($message1, Dispatcher::PRIORITY_MEDIUM);
+        $emitter->emit($message2, Dispatcher::PRIORITY_HIGH);
+        $emitter->emit($message3, Dispatcher::PRIORITY_MEDIUM);
+
+        $dispatcher->handle();
+
+        $receivedMessages = $testHandler->getReceivedMessages();
+        $this->assertCount(2, $receivedMessages);
+        $this->assertEquals(['n' => 2], $receivedMessages[0]->getPayload());
+        $this->assertEquals(['n' => 1], $receivedMessages[1]->getPayload());
     }
 }

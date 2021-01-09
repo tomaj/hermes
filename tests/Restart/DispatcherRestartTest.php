@@ -15,6 +15,7 @@ use Tomaj\Hermes\Dispatcher;
  * @covers \Tomaj\Hermes\Dispatcher
  * @covers \Tomaj\Hermes\Message
  * @covers \Tomaj\Hermes\MessageSerializer
+ * @covers \Tomaj\Hermes\Driver\MaxItemsTrait
  */
 class DispatcherRestartTest extends TestCase
 {

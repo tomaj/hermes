@@ -241,6 +241,34 @@ class EchoHandler implements HandlerInterface
 }
 ```
 
+## Priorities
+
+There is a possibility to declare multiple queues with different priority and ensure that messages in the high priority queue will be processed first.
+
+Example with Redis driver:
+```php
+use Tomaj\Hermes\Driver\RedisSetDriver;
+use Tomaj\Hermes\Emitter;
+use Tomaj\Hermes\Message;
+use Tomaj\Hermes\Dispatcher;
+
+$redis = new Redis();
+$redis->connect('127.0.0.1', 6379);
+$driver = new RedisSetDriver($redis);
+$driver->setupPriorityQueue('hermes_low', Dispatcher::PRIORITY_LOW);
+$driver->setupPriorityQueue('hermes_high', Dispatcher::PRIORITY_HIGH);
+
+$emitter = new Emitter($driver);
+$emitter->emit(new Message('type1', ['a' => 'b'], Dispatcher::PRIORITY_HIGH));
+$emitter->emit(new Message('type1', ['c' => 'd'], Dispatcher::PRIORITY_LOW));
+```
+
+Few details:
+ - you can use priority constants from `Dispatcher` class, but you can also use any number
+ - high number priority queue messages will be handled first
+ - in `Dispatcher::handle()` method you can provide array of queue names and create worker that will handle only one or multiple selected queues
+ - right now only `RedisSetDriver` supports multiple queues
+
 ## Graceful shutdown
 
 Hermes worker can be gracefully stopped.
