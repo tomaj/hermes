@@ -22,7 +22,7 @@ jobs:
         coverage: xdebug
 
     - name: Composer install
-      run: composer install --dev --prefer-dist --no-progress --no-suggest
+      run: composer install --prefer-dist --no-progress --no-suggest
 
     - name: phpunit
       run: vendor/bin/phpunit --coverage-clover build/logs/clover.xml

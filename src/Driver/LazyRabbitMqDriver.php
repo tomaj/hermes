@@ -101,7 +101,7 @@ class LazyRabbitMqDriver implements DriverInterface
     
     private function getChannel(): AMQPChannel
     {
-        if ($this->channel) {
+        if ($this->channel !== null) {
             return $this->channel;
         }
         $this->channel = $this->connection->channel();

@@ -82,7 +82,5 @@ class RedisRestart implements RestartInterface
             /** @var \Predis\Response\Status $response */
             return $response->getPayload() === 'OK';
         }
-
-        return false;
     }
 }

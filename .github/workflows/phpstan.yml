@@ -14,4 +14,4 @@ jobs:
           run: composer install --prefer-dist --no-progress --no-suggest
 
         - name: phpstan
-          run: vendor/bin/phpstan analyse --level 3
+          run: vendor/bin/phpstan analyse

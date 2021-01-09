@@ -108,7 +108,7 @@ class Dispatcher implements DispatcherInterface
 
                 $result = $this->dispatch($message);
 
-                if ($this->restart && $this->restart->shouldRestart($this->startTime)) {
+                if ($this->restart !== null && $this->restart->shouldRestart($this->startTime)) {
                     throw new RestartException('Restart');
                 }
 
@@ -162,7 +162,7 @@ class Dispatcher implements DispatcherInterface
     private function handleMessage(HandlerInterface $handler, MessageInterface $message): bool
     {
         // check if handler implements Psr\Log\LoggerAwareInterface (you can use \Psr\Log\LoggerAwareTrait)
-        if ($this->logger && method_exists($handler, 'setLogger')) {
+        if ($this->logger !== null && method_exists($handler, 'setLogger')) {
             $handler->setLogger($this->logger);
         }
 
@@ -276,7 +276,7 @@ class Dispatcher implements DispatcherInterface
      */
     private function log($level, string $message, array $context = array()): void
     {
-        if ($this->logger) {
+        if ($this->logger !== null) {
             $this->logger->log($level, $message, $context);
         }
     }

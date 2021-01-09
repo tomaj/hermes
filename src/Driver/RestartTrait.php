@@ -23,7 +23,7 @@ trait RestartTrait
 
     private function shouldRestart(): bool
     {
-        return $this->restart && $this->restart->shouldRestart($this->startTime);
+        return $this->restart !== null && $this->restart->shouldRestart($this->startTime);
     }
 
     /**
