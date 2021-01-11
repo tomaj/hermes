@@ -1,10 +1,10 @@
-name: PHPCS check
+name: phpstan
 
 on: [push, pull_request]
 
 jobs:
   phpcs:
-      name: PHPCS
+      name: phpstan
       runs-on: ubuntu-latest
       steps:
         - name: Checkout code
@@ -13,5 +13,5 @@ jobs:
         - name: Composer update
           run: composer install --prefer-dist --no-progress --no-suggest
 
-        - name: phpcs
-          run: vendor/bin/phpcs --standard=PSR2 src tests examples -n
+        - name: phpstan
+          run: vendor/bin/phpstan analyse

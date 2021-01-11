@@ -78,7 +78,7 @@ class Emitter implements EmitterInterface
      */
     private function log($level, string $message, array $context = array()): void
     {
-        if ($this->logger) {
+        if ($this->logger !== null) {
             $this->logger->log($level, $message, $context);
         }
     }

@@ -23,5 +23,6 @@ class CustomRestart implements RestartInterface
     public function restart(DateTime $restartTime = null): bool
     {
         $this->dateTime = $restartTime ?? new DateTime();
+        return true;
     }
 }

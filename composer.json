@@ -30,7 +30,8 @@
         "php-amqplib/php-amqplib": "^2.6.3",
         "scrutinizer/ocular": "1.6.0",
         "predis/predis": "*",
-        "aws/aws-sdk-php": "3.*"
+        "aws/aws-sdk-php": "3.*",
+        "phpstan/phpstan": "^0.12.65"
     },
     "suggest": {
         "monolog/monolog": "Basic logger implements psr/logger",
