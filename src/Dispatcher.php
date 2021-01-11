@@ -8,10 +8,9 @@ use Exception;
 use Psr\Log\LogLevel;
 use Psr\Log\LoggerInterface;
 use Tomaj\Hermes\Driver\DriverInterface;
-use Tomaj\Hermes\Driver\RestartTrait;
 use Tomaj\Hermes\Handler\HandlerInterface;
-use Tomaj\Hermes\Restart\RestartException;
-use Tomaj\Hermes\Restart\RestartInterface;
+use Tomaj\Hermes\Shutdown\ShutdownException;
+use Tomaj\Hermes\Shutdown\ShutdownInterface;
 use Tracy\Debugger;
 
 class Dispatcher implements DispatcherInterface
@@ -35,11 +34,11 @@ class Dispatcher implements DispatcherInterface
     private $logger;
 
     /**
-     * Restart
+     * Shutdown
      *
-     * @var RestartInterface
+     * @var ShutdownInterface
      */
-    private $restart;
+    private $shutdown;
 
     /**
      * All registered handlers
@@ -58,18 +57,18 @@ class Dispatcher implements DispatcherInterface
      *
      * @param DriverInterface $driver
      * @param LoggerInterface|null $logger
-     * @param RestartInterface|null $restart
+     * @param ShutdownInterface|null $shutdown
      */
-    public function __construct(DriverInterface $driver, LoggerInterface $logger = null, RestartInterface $restart = null)
+    public function __construct(DriverInterface $driver, LoggerInterface $logger = null, ShutdownInterface $shutdown = null)
     {
         $this->driver = $driver;
         $this->logger = $logger;
-        $this->restart = $restart;
+        $this->shutdown = $shutdown;
         $this->startTime = new DateTime();
 
-        // check if driver use RestartTrait
-        if ($restart && method_exists($this->driver, 'setRestart')) {
-            $this->driver->setRestart($restart);
+        // check if driver use ShutdownTrait
+        if ($shutdown && method_exists($this->driver, 'setShutdown')) {
+            $this->driver->setShutdown($shutdown);
         }
     }
 
@@ -114,14 +113,14 @@ class Dispatcher implements DispatcherInterface
 
                 $result = $this->dispatch($message);
 
-                if ($this->restart !== null && $this->restart->shouldRestart($this->startTime)) {
-                    throw new RestartException('Restart');
+                if ($this->shutdown !== null && $this->shutdown->shouldShutdown($this->startTime)) {
+                    throw new ShutdownException('Shutdown');
                 }
 
                 return $result;
             }, $priorities);
-        } catch (RestartException $e) {
-            $this->log(LogLevel::NOTICE, 'Exiting hermes dispatcher - restart');
+        } catch (ShutdownException $e) {
+            $this->log(LogLevel::NOTICE, 'Exiting hermes dispatcher - shutdown');
         } catch (Exception $exception) {
             if (Debugger::isEnabled()) {
                 Debugger::log($exception, Debugger::EXCEPTION);

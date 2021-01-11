@@ -1,16 +1,16 @@
 <?php
 declare(strict_types=1);
 
-namespace Tomaj\Hermes\Test\Restart;
+namespace Tomaj\Hermes\Test\Shutdown;
 
 use DateTime;
-use Tomaj\Hermes\Restart\RestartInterface;
+use Tomaj\Hermes\Shutdown\ShutdownInterface;
 
-class StopRestart implements RestartInterface
+class StopShutdown implements ShutdownInterface
 {
     private static $eventsStop;
 
-    public function shouldRestart(DateTime $startTime): bool
+    public function shouldShutdown(DateTime $startTime): bool
     {
         if (self::$eventsStop === 1) {
             return true;
@@ -19,7 +19,7 @@ class StopRestart implements RestartInterface
         return false;
     }
 
-    public function restart(DateTime $restartTime = null): bool
+    public function shutdown(DateTime $shutdownTime = null): bool
     {
         self::$eventsStop = 1;
         return true;

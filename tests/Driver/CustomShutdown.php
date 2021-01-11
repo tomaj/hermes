@@ -4,9 +4,9 @@ declare(strict_types=1);
 namespace Tomaj\Hermes\Test\Driver;
 
 use DateTime;
-use Tomaj\Hermes\Restart\RestartInterface;
+use Tomaj\Hermes\Shutdown\ShutdownInterface;
 
-class CustomRestart implements RestartInterface
+class CustomShutdown implements ShutdownInterface
 {
     private $dateTime;
 
@@ -15,14 +15,14 @@ class CustomRestart implements RestartInterface
         $this->dateTime = $dateTime;
     }
 
-    public function shouldRestart(DateTime $startTime): bool
+    public function shouldShutdown(DateTime $startTime): bool
     {
         return $this->dateTime > $startTime;
     }
 
-    public function restart(DateTime $restartTime = null): bool
+    public function shutdown(DateTime $shutdownTime = null): bool
     {
-        $this->dateTime = $restartTime ?? new DateTime();
+        $this->dateTime = $shutdownTime ?? new DateTime();
         return true;
     }
 }

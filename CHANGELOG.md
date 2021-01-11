@@ -4,6 +4,10 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ## [Unreleased][unreleased]
 
+### Changed
+
+* **BREAKING CHANGE**: Renamed all **Restart to **Shutdown**
+
 ## 3.1.0 - 2020-10-22
 
 ### Changed

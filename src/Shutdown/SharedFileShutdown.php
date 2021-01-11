@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace Tomaj\Hermes\Restart;
+namespace Tomaj\Hermes\Shutdown;
 
 use DateTime;
 
-class SharedFileRestart implements RestartInterface
+class SharedFileShutdown implements ShutdownInterface
 {
     private $filePath;
 
@@ -17,7 +17,7 @@ class SharedFileRestart implements RestartInterface
     /**
      * {@inheritdoc}
      */
-    public function shouldRestart(DateTime $startTime): bool
+    public function shouldShutdown(DateTime $startTime): bool
     {
         if (!file_exists($this->filePath)) {
             return false;
@@ -34,14 +34,14 @@ class SharedFileRestart implements RestartInterface
     /**
      * {@inheritdoc}
      *
-     * Creates file defined in constructor with modification time `$restartTime` (or current DateTime).
+     * Creates file defined in constructor with modification time `$shutdownTime` (or current DateTime).
      */
-    public function restart(DateTime $restartTime = null): bool
+    public function shutdown(DateTime $shutdownTime = null): bool
     {
-        if ($restartTime === null) {
-            $restartTime = new DateTime();
+        if ($shutdownTime === null) {
+            $shutdownTime = new DateTime();
         }
 
-        return touch($this->filePath, (int) $restartTime->format('U'));
+        return touch($this->filePath, (int) $shutdownTime->format('U'));
     }
 }

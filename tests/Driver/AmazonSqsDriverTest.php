@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Tomaj\Hermes\Driver\AmazonSqsDriver;
 use Tomaj\Hermes\Message;
 use Tomaj\Hermes\MessageSerializer;
-use Tomaj\Hermes\Restart\RestartException;
+use Tomaj\Hermes\Shutdown\ShutdownException;
 
 /**
  * Class AmazonSqsDriverTest
@@ -76,14 +76,14 @@ class AmazonSqsDriverTest extends TestCase
         $this->assertEquals($message->getId(), $processed[0]->getId());
     }
 
-    public function testRestartBeforeStart()
+    public function testShutdownBeforeStart()
     {
         $client = $this->prepareClient('mykey1', []);
         $processed = [];
         $driver = new AmazonSqsDriver($client, 'mykey1');
-        $driver->setRestart(new CustomRestart((new \DateTime())->modify("+5 minutes")));
+        $driver->setShutdown(new CustomShutdown((new \DateTime())->modify("+5 minutes")));
 
-        $this->expectException(RestartException::class);
+        $this->expectException(ShutdownException::class);
 
         $driver->wait(function ($message) use (&$processed) {
             $processed[] = $message;
