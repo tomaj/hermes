@@ -4,7 +4,6 @@
 
 **Background job processing PHP library**
 
-[![Build Status](https://travis-ci.org/tomaj/hermes.svg)](https://travis-ci.org/tomaj/hermes)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/tomaj/hermes/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/tomaj/hermes/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/tomaj/hermes/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/tomaj/hermes/?branch=master)
 [![Latest Stable Version](https://img.shields.io/packagist/v/tomaj/hermes.svg)](https://packagist.org/packages/tomaj/hermes)
@@ -384,6 +383,11 @@ class JmsSerializer implements SerializerInterface
 ### Scheduled execution
 
 From version 2.0 you can add 4th parameter to Message as timestamp in future. This message will be processed after this time. This funcionality is supported in RedisDriver right now.
+
+### Upgrade
+
+#### From v3 to v4
+
 
 ## Change log
 

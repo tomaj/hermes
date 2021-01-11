@@ -4,6 +4,8 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ## [Unreleased][unreleased]
 
+## 3.1.0 - 2020-10-22
+
 ### Changed
 
 * Added support for *soft restart* to all drivers

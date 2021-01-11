@@ -1,6 +1,6 @@
 {
     "name": "tomaj/hermes",
-    "description": "Hermes background processing php library",
+    "description": "Simple php background processing library",
     "type": "library",
     "license": "MIT",
     "keywords": ["event", "background", "workers"],
