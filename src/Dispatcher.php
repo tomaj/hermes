@@ -184,17 +184,28 @@ class Dispatcher implements DispatcherInterface
                 Debugger::log($e, Debugger::EXCEPTION);
             }
 
-            if (method_exists($handler, 'canRetry') && method_exists($handler, 'maxRetry')) {
-                if ($message->getRetries() < $handler->maxRetry()) {
-                    $executeAt = $this->nextRetry($message);
-                    $newMessage = new Message($message->getType(), $message->getPayload(), $message->getId(), $message->getCreated(), $executeAt, $message->getRetries() + 1);
-                    $this->driver->send($newMessage);
-                }
-            }
+            $this->retryMessage($message, $handler);
 
             $result = false;
         }
         return $result;
+    }
+
+    /**
+     * Helper function for sending retrying message back to driver
+     *
+     * @param MessageInterface $message
+     * @param HandlerInterface $handler
+     */
+    private function retryMessage(MessageInterface $message, HandlerInterface $handler): void
+    {
+        if (method_exists($handler, 'canRetry') && method_exists($handler, 'maxRetry')) {
+            if ($message->getRetries() < $handler->maxRetry()) {
+                $executeAt = $this->nextRetry($message);
+                $newMessage = new Message($message->getType(), $message->getPayload(), $message->getId(), $message->getCreated(), $executeAt, $message->getRetries() + 1);
+                $this->driver->send($newMessage);
+            }
+        }
     }
 
     /**
