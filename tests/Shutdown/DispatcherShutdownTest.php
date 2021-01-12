@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Tomaj\Hermes\Test\Restart;
+namespace Tomaj\Hermes\Test\Shutdown;
 
 use PHPUnit\Framework\TestCase;
 use Tomaj\Hermes\Test\Driver\DummyDriver;
@@ -10,23 +10,23 @@ use Tomaj\Hermes\Message;
 use Tomaj\Hermes\Dispatcher;
 
 /**
- * Class DispatcherRestartTest
- * @package Tomaj\Hermes\Test\Restart
+ * Class DispatcherShutdownTest
+ * @package Tomaj\Hermes\Test\Shutdown
  * @covers \Tomaj\Hermes\Dispatcher
  * @covers \Tomaj\Hermes\Message
  * @covers \Tomaj\Hermes\MessageSerializer
  * @covers \Tomaj\Hermes\Driver\MaxItemsTrait
  */
-class DispatcherRestartTest extends TestCase
+class DispatcherShutdownTest extends TestCase
 {
-    public function testEmitWithDummyDriverNoRestart()
+    public function testEmitWithDummyDriverNoShutdown()
     {
         $message1 = new Message('event1', ['a' => 'b']);
         $message2 = new Message('event1', ['c' => 'd']);
 
         $driver = new DummyDriver([$message1, $message2]);
-        $stopRestart = new StopRestart();
-        $dispatcher = new Dispatcher($driver, null, $stopRestart);
+        $stopShutdown = new StopShutdown();
+        $dispatcher = new Dispatcher($driver, null, $stopShutdown);
 
         $handler = new TestHandler();
 
@@ -35,19 +35,19 @@ class DispatcherRestartTest extends TestCase
         $dispatcher->handle();
 
         $receivedMessages = $handler->getReceivedMessages();
-        // no restart; we received both messages
+        // no shutdown; we received both messages
         $this->assertEquals(2, count($receivedMessages));
     }
 
-    public function testEmitWithDummyDriverWithRestart()
+    public function testEmitWithDummyDriverWithShutdown()
     {
         $message1 = new Message('event1', ['a' => 'b']);
         $message2 = new Message('event1', ['c' => 'd']);
 
         $driver = new DummyDriver([$message1, $message2]);
-        $stopRestart = new StopRestart();
-        $stopRestart->restart(new \DateTime());
-        $dispatcher = new Dispatcher($driver, null, $stopRestart);
+        $stopShutdown = new StopShutdown();
+        $stopShutdown->shutdown(new \DateTime());
+        $dispatcher = new Dispatcher($driver, null, $stopShutdown);
 
         $handler = new TestHandler();
 

@@ -273,47 +273,47 @@ Few details:
 
 Hermes worker can be gracefully stopped.
 
-If implementation of `Tomaj\Hermes\Restart\RestartInteface` is provided when initiating `Dispatcher`, Hermes will check `RestartInteface::shouldRestart()` after each processed message. If it returns `true`, Hermes will shutdown _(notice is logged)_.
+If implementation of `Tomaj\Hermes\Shutdoown\ShutdownInteface` is provided when initiating `Dispatcher`, Hermes will check `ShutdwnInterface::shouldShutdown()` after each processed message. If it returns `true`, Hermes will shutdown _(notice is logged)_.
 
-> **WARNING:** Relaunch is not provided by this library and it should be handled by process controller you use to keep Hermes running _(eg. launchd, daemontools, supervisord, etc.)_.
+**WARNING:** Relaunch is not provided by this library and it should be handled by process controller you use to keep Hermes running _(eg. launchd, daemontools, supervisord, etc.)_.
 
 Currently two methods are implemented.
 
-### SharedFileRestart
+### SharedFileShutdown
 
 Shutdown initiated by touching predefined file.
 
 ```php
-$restartFile = '/tmp/hermes_restart';
-$restart = Tomaj\Hermes\Restart\SharedFileRestart($restartFile);
+$shutdownFile = '/tmp/hermes_shutdown';
+$shutdown = Tomaj\Hermes\Shutdown\SharedFileShutdown($shutdownFile);
 
 // $log = ...
 // $driver = ....
-$dispatcher = new Dispatcher($driver, $log, $restart);
+$dispatcher = new Dispatcher($driver, $log, $shutdown);
 
 // ...
 
-// restart can be triggered be calling `RestartInteface::restart()`
-$restart->restart();
+// shutdown can be triggered be calling `ShutdownInterface::shutdown()`
+$shutdown->shutdown();
 ```
 
-### RedisRestart
+### RedisShutdown
 
-Shutdown initiated by storing timestamp to Redis to predefined restart key.
+Shutdown initiated by storing timestamp to Redis to predefined shutdown key.
 
 ```php
 $redisClient = new Predis\Client();
-$redisRestartKey = 'hermes_restart'; // can be omitted; default value is `hermes_restart`
-$restart = Tomaj\Hermes\Restart\RedisRestart($redisClient, $redisRestartKey);
+$redisShutdownKey = 'hermes_shutdown'; // can be omitted; default value is `hermes_shutdown`
+$shutdown = Tomaj\Hermes\Shutdown\RedisShutdown($redisClient, $redisShutdownKey);
 
 // $log = ...
 // $driver = ....
-$dispatcher = new Dispatcher($driver, $log, $restart);
+$dispatcher = new Dispatcher($driver, $log, $shutdown);
 
 // ...
 
-// restart can be triggered be calling `RestartInteface::restart()`
-$restart->restart();
+// shutdown can be triggered be calling `ShutdownInteface::shutdown()`
+$shutdown->shutdown();
 ```
 
 ## Scaling Hermes
@@ -416,6 +416,10 @@ From version 2.0 you can add 4th parameter to Message as timestamp in future. Th
 
 #### From v3 to v4
 
+- Renamed Restart to Shutdown
+  * Naming changed to reflect functionality of Hermes. It can gracefully stop own process, but restart (relaunch) of Hermes has to be handled by external process / library. And therefore this is shutdown and not restart.
+  * RestartInterface to ShutdownInterface
+  * also all implementations changed namespace name and class name
 
 ## Change log
 

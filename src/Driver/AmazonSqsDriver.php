@@ -13,7 +13,7 @@ use Aws\Sqs\SqsClient;
 class AmazonSqsDriver implements DriverInterface
 {
     use MaxItemsTrait;
-    use RestartTrait;
+    use ShutdownTrait;
     use SerializerAwareTrait;
 
     /**
@@ -109,7 +109,7 @@ class AmazonSqsDriver implements DriverInterface
     public function wait(Closure $callback, array $priorities = []): void
     {
         while (true) {
-            $this->checkRestart();
+            $this->checkShutdown();
             if (!$this->shouldProcessNext()) {
                 break;
             }
@@ -136,7 +136,7 @@ class AmazonSqsDriver implements DriverInterface
                 }
             } else {
                 if ($this->sleepInterval) {
-                    $this->checkRestart();
+                    $this->checkShutdown();
                     sleep($this->sleepInterval);
                 }
             }

@@ -10,12 +10,13 @@ use PhpAmqpLib\Message\AMQPMessage;
 use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
-use Tomaj\Hermes\Restart\RestartException;
+use Tomaj\Hermes\Shutdown\ShutdownException;
+use Tomaj\Hermes\Shutdown\ShutdownExceptions;
 
 class LazyRabbitMqDriver implements DriverInterface
 {
     use MaxItemsTrait;
-    use RestartTrait;
+    use ShutdownTrait;
     use SerializerAwareTrait;
 
     /** @var AMQPLazyConnection */
@@ -70,7 +71,7 @@ class LazyRabbitMqDriver implements DriverInterface
 
     /**
      * {@inheritdoc}
-     * @throws RestartException
+     * @throws ShutdownException
      * @throws \Exception
      */
     public function wait(Closure $callback, array $priorities = []): void
@@ -91,7 +92,7 @@ class LazyRabbitMqDriver implements DriverInterface
 
             while (count($this->getChannel()->callbacks)) {
                 $this->getChannel()->wait(null, true);
-                $this->checkRestart();
+                $this->checkShutdown();
                 if (!$this->shouldProcessNext()) {
                     break 2;
                 }

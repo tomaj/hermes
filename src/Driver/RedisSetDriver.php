@@ -10,12 +10,12 @@ use Redis;
 use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
-use Tomaj\Hermes\Restart\RestartException;
+use Tomaj\Hermes\Shutdown\ShutdownException;
 
 class RedisSetDriver implements DriverInterface
 {
     use MaxItemsTrait;
-    use RestartTrait;
+    use ShutdownTrait;
     use SerializerAwareTrait;
 
     private $queues = [];
@@ -97,13 +97,13 @@ class RedisSetDriver implements DriverInterface
     /**s
      * {@inheritdoc}
      *
-     * @throws RestartException
+     * @throws ShutdownException
      */
     public function wait(Closure $callback, array $priorities = []): void
     {
         $queues = array_reverse($this->queues, true);
         while (true) {
-            $this->checkRestart();
+            $this->checkShutdown();
             if (!$this->shouldProcessNext()) {
                 break;
             }
@@ -161,7 +161,7 @@ class RedisSetDriver implements DriverInterface
                 $this->incrementProcessedItems();
             } else {
                 if ($this->refreshInterval) {
-                    $this->checkRestart();
+                    $this->checkShutdown();
                     sleep($this->refreshInterval);
                 }
             }
