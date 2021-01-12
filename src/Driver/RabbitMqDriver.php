@@ -5,6 +5,7 @@ namespace Tomaj\Hermes\Driver;
 
 use Closure;
 use Exception;
+use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
 use PhpAmqpLib\Message\AMQPMessage;
@@ -58,17 +59,22 @@ class RabbitMqDriver implements DriverInterface
     /**
      * {@inheritdoc}
      */
-    public function send(MessageInterface $message): bool
+    public function send(MessageInterface $message, int $priority = Dispatcher::PRIORITY_MEDIUM): bool
     {
         $rabbitMessage = new AMQPMessage($this->serializer->serialize($message), $this->amqpMessageProperties);
         $this->channel->basic_publish($rabbitMessage, '', $this->queue);
         return true;
     }
 
+    public function setupPriorityQueue(string $name, int $priority): void
+    {
+        throw new \Exception("AmazonSQS is not supporting priority queues now");
+    }
+
     /**
      * {@inheritdoc}
      */
-    public function wait(Closure $callback): void
+    public function wait(Closure $callback, array $priorities): void
     {
         $this->channel->basic_consume(
             $this->queue,

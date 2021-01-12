@@ -12,6 +12,7 @@ use Tomaj\Hermes\Message;
  * @package Tomaj\Hermes\Test\Driver
  * @covers \Tomaj\Hermes\Message
  * @covers \Tomaj\Hermes\Driver\SerializerAwareTrait
+ * @covers \Tomaj\Hermes\Driver\MaxItemsTrait
  */
 class CustomSerializerTest extends TestCase
 {

@@ -7,6 +7,7 @@ use Closure;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AMQPLazyConnection;
 use PhpAmqpLib\Message\AMQPMessage;
+use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
 use Tomaj\Hermes\Restart\RestartException;
@@ -55,11 +56,16 @@ class LazyRabbitMqDriver implements DriverInterface
     /**
      * {@inheritdoc}
      */
-    public function send(MessageInterface $message): bool
+    public function send(MessageInterface $message, int $priority = Dispatcher::PRIORITY_MEDIUM): bool
     {
         $rabbitMessage = new AMQPMessage($this->serializer->serialize($message), $this->amqpMessageProperties);
         $this->getChannel()->basic_publish($rabbitMessage, '', $this->queue);
         return true;
+    }
+
+    public function setupPriorityQueue(string $name, int $priority): void
+    {
+        throw new \Exception("LazyRabbitMqDriver is not supporting priority queues now");
     }
 
     /**
@@ -67,7 +73,7 @@ class LazyRabbitMqDriver implements DriverInterface
      * @throws RestartException
      * @throws \Exception
      */
-    public function wait(Closure $callback): void
+    public function wait(Closure $callback, array $priorities = []): void
     {
         while (true) {
             $this->getChannel()->basic_consume(

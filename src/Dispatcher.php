@@ -16,6 +16,10 @@ use Tracy\Debugger;
 
 class Dispatcher implements DispatcherInterface
 {
+    const PRIORITY_LOW = 100;
+    const PRIORITY_MEDIUM = 200;
+    const PRIORITY_HIGH = 300;
+
     /**
      * Dispatcher driver
      *
@@ -63,7 +67,6 @@ class Dispatcher implements DispatcherInterface
         $this->restart = $restart;
         $this->startTime = new DateTime();
 
-
         // check if driver use RestartTrait
         if ($restart && method_exists($this->driver, 'setRestart')) {
             $this->driver->setRestart($restart);
@@ -72,16 +75,17 @@ class Dispatcher implements DispatcherInterface
 
     /**
      * @param MessageInterface $message
+     * @param int $priority
      * @return DispatcherInterface
      * @deprecated - use Emitter::emit method instead
      */
-    public function emit(MessageInterface $message): DispatcherInterface
+    public function emit(MessageInterface $message, int $priority = self::PRIORITY_MEDIUM): DispatcherInterface
     {
-        $this->driver->send($message);
+        $this->driver->send($message, $priority);
 
         $this->log(
             LogLevel::INFO,
-            "Dispatcher send message #{$message->getId()} to driver " . get_class($this->driver),
+            "Dispatcher send message #{$message->getId()} with priority {$priority} to driver " . get_class($this->driver),
             $this->messageLoggerContext($message)
         );
         return $this;
@@ -94,15 +98,17 @@ class Dispatcher implements DispatcherInterface
      * Method is blocking, so when you call it all processing will stop.
      * WARNING! Don't use it on web server calls. Run it only with cli.
      *
+     * @param array $priorities
+     *
      * @return void
      */
-    public function handle(): void
+    public function handle(array $priorities = []): void
     {
         try {
-            $this->driver->wait(function (MessageInterface $message) {
+            $this->driver->wait(function (MessageInterface $message, int $priority = Dispatcher::PRIORITY_MEDIUM) {
                 $this->log(
                     LogLevel::INFO,
-                    "Start handle message #{$message->getId()} ({$message->getType()})",
+                    "Start handle message #{$message->getId()} ({$message->getType()}) priority:{$priority}",
                     $this->messageLoggerContext($message)
                 );
 
@@ -113,7 +119,7 @@ class Dispatcher implements DispatcherInterface
                 }
 
                 return $result;
-            });
+            }, $priorities);
         } catch (RestartException $e) {
             $this->log(LogLevel::NOTICE, 'Exiting hermes dispatcher - restart');
         } catch (Exception $exception) {

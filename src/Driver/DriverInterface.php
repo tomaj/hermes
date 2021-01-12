@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes\Driver;
 
+use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\MessageInterface;
 use Closure;
 
@@ -16,10 +17,22 @@ interface DriverInterface
      * web server threads.
      *
      * @param MessageInterface   $message
+     * @param int $priority
      *
      * @return bool
      */
-    public function send(MessageInterface $message): bool;
+    public function send(MessageInterface $message, int $priority = Dispatcher::PRIORITY_MEDIUM): bool;
+
+    /**
+     * Setup new queue with priority.
+     * Each message can be directed to specific queue.
+     * In general you messages will be processed based on queue (higher priority will be processed first)
+     * Or you can define dispatcher that will handle only specific priority (queue)s
+     *
+     * @param string $name
+     * @param int $priority
+     */
+    public function setupPriorityQueue(string $name, int $priority): void;
 
     /**
      * Processing wait method.
@@ -30,8 +43,9 @@ interface DriverInterface
      * When driver receive new message, you have to call $callback with this message like $callback($message)
      *
      * @param Closure  $callback
+     * @param array    $priorities
      *
      * @return void
      */
-    public function wait(Closure $callback): void;
+    public function wait(Closure $callback, array $priorities): void;
 }

@@ -38,9 +38,9 @@ class Emitter implements EmitterInterface
     /**
      * {@inheritdoc}
      */
-    public function emit(MessageInterface $message): EmitterInterface
+    public function emit(MessageInterface $message, int $priority = Dispatcher::PRIORITY_MEDIUM): EmitterInterface
     {
-        $this->driver->send($message);
+        $this->driver->send($message, $priority);
 
         $this->log(
             LogLevel::INFO,
