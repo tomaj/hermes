@@ -42,31 +42,24 @@ Library works without logger but maintener recommends installing [monolog][] for
 [psr/log]: https://github.com/php-fig/log
 [monolog]: https://github.com/Seldaek/monolog
 
-
-## Framework integrations
-
- * Laravel provider (not yet implemented)
- * Nette provider (not yet implemented)
- * Simple CLI example (not yet implemented)
-
 ## Supported drivers
 
 Right now Hermes library is distributed with 3 drivers and one driver in separate package:
 
- * [Redis][] driver ([phpredis][] or [Predis][])
- * [Amazon SQS][] driver
+ * [Redis][] driver (two different implementations [phpredis][] or [Predis][])
+ * [Amazon SQS][] driverDispatcherRestartTest.php
  * [RabbitMQ][] driver
  * [ZeroMQ][] drivver (via [php-zmq][] extension) availabe as [tomaj/hermes-zmq-driver](https://github.com/tomaj/hermes-zmq-driver) 
 
 Note: You have to install all 3rd party libraries for initializing connections to this drivers. For example you have to add `nrk/predis` to your *composer.json* and create connection to your redis instance.
 
 [Amazon SQS]: https://aws.amazon.com/sqs/
-[php-zmq]: http://zeromq.org/bindings:php
+[php-zmq]: https://zeromq.org/
 [phpredis]: https://github.com/phpredis/phpredis
-[Redis]: http://redis.io/
+[Redis]: https://redis.io/
 [RabbitMQ]: https://www.rabbitmq.com/
 [Predis]: https://github.com/nrk/predis
-[ZeroMQ]: http://zeromq.org/
+[ZeroMQ]: https://zeromq.org/
 
 
 ## Concept - How hermes works?
@@ -410,7 +403,7 @@ class JmsSerializer implements SerializerInterface
 
 ### Scheduled execution
 
-From version 2.0 you can add 4th parameter to Message as timestamp in future. This message will be processed after this time. This funcionality is supported in RedisDriver right now.
+From version 2.0 you can add a 4th parameter to Message as timestamp in the future. This message will be processed after this time. This functionality is supported in RedisSetDriver and PredisSetDriver right now.
 
 ### Upgrade
 

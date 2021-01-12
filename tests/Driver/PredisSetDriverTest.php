@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Tomaj\Hermes\Test\Driver;
 
 use PHPUnit\Framework\TestCase;
-use Tomaj\Hermes\Driver\RedisSetDriver;
+use Tomaj\Hermes\Driver\PredisSetDriver;
 use Tomaj\Hermes\Message;
 use Tomaj\Hermes\MessageSerializer;
 use Tomaj\Hermes\Shutdown\ShutdownException;
@@ -13,40 +13,45 @@ use Tomaj\Hermes\Shutdown\ShutdownException;
  * Class RedisSetDriverTest
  *
  * @package Tomaj\Hermes\Test\Driver
- * @covers \Tomaj\Hermes\Driver\RedisSetDriver
+ * @covers \Tomaj\Hermes\Driver\PredisSetDriver
  * @covers \Tomaj\Hermes\Message
  * @covers \Tomaj\Hermes\MessageSerializer
  */
-class RedisSetDriverTest extends TestCase
+class PredisSetDriverTest extends TestCase
 {
-    public function testRedisSendMessage()
+    public function testPredisSendMessage()
     {
-        $message = new Message('message2key', ['c' => 'd']);
+        $message = new Message('message1key', ['a' => 'b']);
 
-        $redis = $this->createMock(\Redis::class);
+        $redis = $this->getMockBuilder(\Predis\Client::class)
+            ->addMethods(['sadd'])
+            ->getMock();
         $redis->expects($this->once())
             ->method('sadd')
-            ->with('mykey2', (new MessageSerializer)->serialize($message));
-        $driver = new RedisSetDriver($redis, 'mykey2');
+            ->with('mykey1', (new MessageSerializer)->serialize($message));
+        $driver = new PredisSetDriver($redis, 'mykey1');
         $driver->send($message);
     }
 
-    public function testRedisWaitForMessage()
+    public function testPredisWaitForMessage()
     {
         $message = new Message('message1', ['test' => 'value']);
 
-        $redis = $this->getMockBuilder(\Redis::class)
+        $redis = $this->getMockBuilder(\Predis\Client::class)
+            ->disableOriginalConstructor()
+            ->addMethods(['spop', 'zrangebyscore'])
             ->getMock();
+
         $redis->expects($this->once())
-            ->method('zRangeByScore')
+            ->method('zrangebyscore')
             ->will($this->returnValue([]));
         $redis->expects($this->once())
-            ->method('sPop')
+            ->method('spop')
             ->with('mykey1')
             ->will($this->returnValue((new MessageSerializer)->serialize($message)));
 
         $processed = [];
-        $driver = new RedisSetDriver($redis, 'mykey1', 0);
+        $driver = new PredisSetDriver($redis, 'mykey1', 0);
         $driver->setMaxProcessItems(1);
         $driver->wait(function ($message) use (&$processed) {
             $processed[] = $message;
@@ -56,13 +61,13 @@ class RedisSetDriverTest extends TestCase
         $this->assertEquals($message->getId(), $processed[0]->getId());
     }
 
-    public function testShutdownBeforeStart()
+    public function testRestartBeforeStart()
     {
-        $redis = $this->getMockBuilder(\Redis::class)
+        $redis = $this->getMockBuilder(\Predis\Client::class)
             ->getMock();
 
         $processed = [];
-        $driver = new RedisSetDriver($redis, 'mykey1', 0);
+        $driver = new PredisSetDriver($redis, 'mykey1', 0);
         $driver->setShutdown(new CustomShutdown((new \DateTime())->modify("+5 minutes")));
 
         $this->expectException(ShutdownException::class);

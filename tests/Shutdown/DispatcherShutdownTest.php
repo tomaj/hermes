@@ -35,6 +35,7 @@ class DispatcherShutdownTest extends TestCase
         $dispatcher->handle();
 
         $receivedMessages = $handler->getReceivedMessages();
+
         // no shutdown; we received both messages
         $this->assertEquals(2, count($receivedMessages));
     }
