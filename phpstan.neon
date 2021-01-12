@@ -1,8 +1,13 @@
 parameters:
-	level: 3
+	level: 4
 	paths:
 		- src
 		- examples
 		- tests
 
 	treatPhpDocTypesAsCertain: false
+
+	ignoreErrors:
+		-
+			message: '#Unreachable statement - code above always terminates.#'
+			path: 'src/Driver/LazyRabbitMqDriver.php'
