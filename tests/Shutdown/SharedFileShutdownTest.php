@@ -23,13 +23,21 @@ class SharedFileShutdownTest extends TestCase
 
     public function testShouldShutdownWithNewFile(): void
     {
-        $sharedFileShutdown = new SharedFileShutdown(tempnam(sys_get_temp_dir(), 'hermestest'));
+        $file = tempnam(sys_get_temp_dir(), 'hermestest');
+        if (!$file) {
+            $this->markTestIncomplete("Cannot create tmp file");
+        }
+        $sharedFileShutdown = new SharedFileShutdown($file);
         $this->assertTrue($sharedFileShutdown->shouldShutdown(new DateTime('-3 minutes')));
     }
 
     public function testShouldShutdownWithOldFile(): void
     {
-        $sharedFileShutdown = new SharedFileShutdown(tempnam(sys_get_temp_dir(), 'hermestest'));
+        $file = tempnam(sys_get_temp_dir(), 'hermestest');
+        if (!$file) {
+            $this->markTestIncomplete("Cannot create tmp file");
+        }
+        $sharedFileShutdown = new SharedFileShutdown($file);
         $this->assertFalse($sharedFileShutdown->shouldShutdown(new DateTime('+3 minutes')));
     }
 

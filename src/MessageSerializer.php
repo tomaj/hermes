@@ -10,7 +10,7 @@ class MessageSerializer implements SerializerInterface
      */
     public function serialize(MessageInterface $message): string
     {
-        return json_encode([
+        $result =  json_encode([
             'message' => [
                 'id' => $message->getId(),
                 'type' => $message->getType(),
@@ -20,6 +20,10 @@ class MessageSerializer implements SerializerInterface
                 'retries' => $message->getRetries(),
             ]
         ], JSON_INVALID_UTF8_IGNORE);
+        if ($result === false) {
+            throw new SerializeException("Cannot serialize message {$message->getId()}");
+        }
+        return $result;
     }
 
     /**
@@ -28,6 +32,9 @@ class MessageSerializer implements SerializerInterface
     public function unserialize(string $string): MessageInterface
     {
         $data = json_decode($string, true);
+        if ($data === null || $data === false) {
+            throw new SerializeException("Cannot unserialize message from '{$string}'");
+        }
         $message = $data['message'];
         $executeAt = null;
         if (isset($message['execute_at'])) {

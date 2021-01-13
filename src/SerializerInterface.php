@@ -13,6 +13,7 @@ interface SerializerInterface
      *
      * @param MessageInterface $message
      *
+     * @throws SerializeException
      * @return string
      */
     public function serialize(MessageInterface $message): string;
@@ -25,6 +26,7 @@ interface SerializerInterface
      *
      * @param string $string
      *
+     * @throws SerializeException
      * @return MessageInterface
      */
     public function unserialize(string $string): MessageInterface;
