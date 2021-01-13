@@ -8,6 +8,7 @@ use Tomaj\Hermes\Shutdown\ShutdownInterface;
 
 class CustomShutdown implements ShutdownInterface
 {
+    /** @var DateTime */
     private $dateTime;
 
     public function __construct(DateTime $dateTime)

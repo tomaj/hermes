@@ -13,6 +13,7 @@ use Tomaj\Hermes\Dispatcher;
 
 /**
  * Class HandleTest
+ *
  * @package Tomaj\Hermes\Test
  * @covers \Tomaj\Hermes\Dispatcher
  * @covers \Tomaj\Hermes\Message
@@ -22,7 +23,7 @@ use Tomaj\Hermes\Dispatcher;
  */
 class HandleTest extends TestCase
 {
-    public function testEmitWithDummyDriver()
+    public function testEmitWithDummyDriver(): void
     {
         $message1 = new Message('event1', ['a' => 'b']);
         $message2 = new Message('event2', ['c' => 'd']);
@@ -43,7 +44,7 @@ class HandleTest extends TestCase
         $this->assertTrue($driver->waitResult());
     }
 
-    public function testMuplitpleHandlersOnOneEvent()
+    public function testMultipleHandlersOnOneEvent(): void
     {
         $message1 = new Message('eventx', ['a' => 'x']);
 
@@ -71,7 +72,7 @@ class HandleTest extends TestCase
         $this->assertFalse($driver->waitResult());
     }
 
-    public function testOtherEvent()
+    public function testOtherEvent(): void
     {
         $message1 = new Message('eventx', ['a' => 'x']);
         $message2 = new Message('eventy', ['a' => 'x']);
@@ -90,7 +91,7 @@ class HandleTest extends TestCase
         $this->assertTrue($driver->waitResult());
     }
 
-    public function testHandlerWithException()
+    public function testHandlerWithException(): void
     {
         $message1 = new Message('eventx', ['a' => 'x']);
 
@@ -103,7 +104,7 @@ class HandleTest extends TestCase
         $this->assertFalse($driver->waitResult());
     }
 
-    public function testPriorityProcessing()
+    public function testPriorityProcessing(): void
     {
         $message1 = new Message('event1', ['n' => 1]);
         $message2 = new Message('event1', ['n' => 2]);
@@ -132,7 +133,7 @@ class HandleTest extends TestCase
         $this->assertEquals(['n' => 3], $receivedMessages[2]->getPayload());
     }
 
-    public function testMaxItemProcess()
+    public function testMaxItemProcess(): void
     {
         $message1 = new Message('event1', ['n' => 1]);
         $message2 = new Message('event1', ['n' => 2]);

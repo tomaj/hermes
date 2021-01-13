@@ -8,6 +8,7 @@ use Tomaj\Hermes\Shutdown\ShutdownInterface;
 
 class StopShutdown implements ShutdownInterface
 {
+    /** @var int */
     private static $eventsStop;
 
     public function shouldShutdown(DateTime $startTime): bool

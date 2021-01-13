@@ -10,6 +10,7 @@ use Tomaj\Hermes\Message;
 
 /**
  * Class EmitTest
+ *
  * @package Tomaj\Hermes\Test
  * @covers \Tomaj\Hermes\Emitter
  * @covers \Tomaj\Hermes\Message
@@ -17,7 +18,7 @@ use Tomaj\Hermes\Message;
  */
 class EmitTest extends TestCase
 {
-    public function testEmitWithDummyDriver()
+    public function testEmitWithDummyDriver(): void
     {
         $driver = new DummyDriver();
         $emitter = new Emitter($driver);

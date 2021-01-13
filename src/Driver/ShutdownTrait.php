@@ -15,7 +15,7 @@ trait ShutdownTrait
     /** @var DateTime */
     private $startTime;
 
-    public function setShutdown(ShutdownInterface $shutdown)
+    public function setShutdown(ShutdownInterface $shutdown): void
     {
         $this->shutdown = $shutdown;
         $this->startTime = new DateTime();

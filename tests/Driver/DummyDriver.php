@@ -6,6 +6,7 @@ namespace Tomaj\Hermes\Test\Driver;
 use Closure;
 use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\Driver\MaxItemsTrait;
+use Tomaj\Hermes\Driver\UnknownPriorityException;
 use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
 use Tomaj\Hermes\Driver\DriverInterface;
@@ -16,29 +17,41 @@ class DummyDriver implements DriverInterface
     use SerializerAwareTrait;
     use MaxItemsTrait;
 
+    /** @var array<int, array<string>> */
     private $events = [];
 
+    /** @var string[] */
     private $queues = [];
 
+    /** @var bool */
     private $waitResult = null;
 
-    public function __construct($events = null)
+    /**
+     * DummyDriver constructor.
+     * @param MessageInterface[] $events
+     *
+     * @throws UnknownPriorityException
+     */
+    public function __construct(array $events = [])
     {
         $this->serializer = new MessageSerializer();
         $this->setupPriorityQueue('medium', Dispatcher::PRIORITY_MEDIUM);
 
-        if (!$events) {
-            $events = [];
-        }
         foreach ($events as $event) {
             $this->addEvent($this->serializer->serialize($event), Dispatcher::PRIORITY_MEDIUM);
         }
     }
 
-    private function addEvent(string $event, int $priority)
+    /**
+     * @param string $event
+     * @param int $priority
+     *
+     * @throws UnknownPriorityException
+     */
+    private function addEvent(string $event, int $priority): void
     {
         if (!isset($this->events[$priority])) {
-            throw new \Exception("Unknown priority {$priority} - you have to setupPriorityQueue before");
+            throw new UnknownPriorityException("Unknown priority {$priority} - you have to setupPriorityQueue before");
         }
         $this->events[$priority][] = $event;
     }
@@ -59,7 +72,7 @@ class DummyDriver implements DriverInterface
         }
     }
 
-    public function getMessage()
+    public function getMessage(): ?MessageInterface
     {
         $message = null;
         $queues = array_reverse($this->queues, true);
@@ -76,6 +89,10 @@ class DummyDriver implements DriverInterface
         return $this->serializer->unserialize($message);
     }
 
+    /**
+     * @param Closure $callback
+     * @param int[] $priorities
+     */
     public function wait(Closure $callback, array $priorities = []): void
     {
         $queues = array_reverse($this->queues, true);
@@ -92,7 +109,7 @@ class DummyDriver implements DriverInterface
         }
     }
 
-    public function waitResult()
+    public function waitResult(): bool
     {
         return $this->waitResult;
     }

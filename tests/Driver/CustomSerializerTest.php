@@ -9,6 +9,7 @@ use Tomaj\Hermes\Message;
 
 /**
  * Class CustomSerializerTest
+ *
  * @package Tomaj\Hermes\Test\Driver
  * @covers \Tomaj\Hermes\Message
  * @covers \Tomaj\Hermes\Driver\SerializerAwareTrait
@@ -16,7 +17,7 @@ use Tomaj\Hermes\Message;
  */
 class CustomSerializerTest extends TestCase
 {
-    public function testCustomSerializerTest()
+    public function testCustomSerializerTest(): void
     {
         $message = new Message('eventx', ['a' => 'x']);
         $dummyDriver = new DummyDriver();

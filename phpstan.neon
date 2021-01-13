@@ -1,5 +1,5 @@
 parameters:
-	level: 5
+	level: 6
 	paths:
 		- src
 		- examples
@@ -11,3 +11,25 @@ parameters:
 		-
 			message: '#Unreachable statement - code above always terminates.#'
 			path: 'src/Driver/LazyRabbitMqDriver.php'
+
+		-
+			message: '#has parameter \$redis with no value type specified in iterable type#'
+			path: 'src/Driver/PredisSetDriver.php'
+
+		-
+			message: '#type has no value type specified in iterable type#'
+			path: 'src/Driver/PredisSetDriver.php'
+
+		-
+			message: '#has parameter \$redis with no value type specified in iterable type#'
+			path: 'src/Shutdown/PredisShutdown.php'
+
+		-
+			message: '#type has no value type specified in iterable type#'
+			path: 'src/Shutdown/PredisShutdown.php'
+
+		-
+			message: '#constructor expects Aws\\Sqs\\SqsClient, PHPUnit\\Framework\\MockObject\\MockObject given#'
+			path: 'tests/Driver/AmazonSqsDriverTest.php'
+
+

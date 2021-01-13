@@ -25,7 +25,7 @@ interface DispatcherInterface
      * Register multiple handlers for same type.
      *
      * @param string $type
-     * @param array $handler
+     * @param HandlerInterface[] $handler
      * @return DispatcherInterface
      */
     public function registerHandlers(string $type, array $handler): DispatcherInterface;
@@ -33,7 +33,7 @@ interface DispatcherInterface
     /**
      * Basic method for background job to star listening.
      *
-     * @param array $priorities
+     * @param int[] $priorities
      */
     public function handle(array $priorities = []): void;
 }

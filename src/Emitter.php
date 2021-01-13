@@ -37,6 +37,8 @@ class Emitter implements EmitterInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @throws Driver\UnknownPriorityException
      */
     public function emit(MessageInterface $message, int $priority = Dispatcher::PRIORITY_MEDIUM): EmitterInterface
     {
@@ -55,7 +57,7 @@ class Emitter implements EmitterInterface
      *
      * @param MessageInterface $message
      *
-     * @return array
+     * @return array<mixed>
      */
     private function messageLoggerContext(MessageInterface $message): array
     {
@@ -68,15 +70,15 @@ class Emitter implements EmitterInterface
     }
 
     /**
-     * Interal log method wrapper
+     * Internal log method wrapper
      *
      * @param mixed $level
      * @param string $message
-     * @param array $context
+     * @param array<mixed> $context
      *
      * @return void
      */
-    private function log($level, string $message, array $context = array()): void
+    private function log($level, string $message, array $context = []): void
     {
         if ($this->logger !== null) {
             $this->logger->log($level, $message, $context);

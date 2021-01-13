@@ -20,7 +20,7 @@ use Tomaj\Hermes\Shutdown\ShutdownException;
  */
 class PredisSetDriverTest extends TestCase
 {
-    public function testPredisSendMessage()
+    public function testPredisSendMessage(): void
     {
         $message = new Message('message1key', ['a' => 'b']);
 
@@ -34,7 +34,7 @@ class PredisSetDriverTest extends TestCase
         $driver->send($message);
     }
 
-    public function testPredisWaitForMessage()
+    public function testPredisWaitForMessage(): void
     {
         $message = new Message('message1', ['test' => 'value']);
 
@@ -62,7 +62,7 @@ class PredisSetDriverTest extends TestCase
         $this->assertEquals($message->getId(), $processed[0]->getId());
     }
 
-    public function testRestartBeforeStart()
+    public function testRestartBeforeStart(): void
     {
         $redis = $this->getMockBuilder(\Predis\Client::class)
             ->getMock();
@@ -78,7 +78,7 @@ class PredisSetDriverTest extends TestCase
         });
     }
 
-    public function testPublishToUnknownQueue()
+    public function testPublishToUnknownQueue(): void
     {
         $redis = $this->getMockBuilder(\Predis\Client::class)
             ->getMock();

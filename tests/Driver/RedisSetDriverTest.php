@@ -20,7 +20,7 @@ use Tomaj\Hermes\Shutdown\ShutdownException;
  */
 class RedisSetDriverTest extends TestCase
 {
-    public function testRedisSendMessage()
+    public function testRedisSendMessage(): void
     {
         $message = new Message('message2key', ['c' => 'd']);
 
@@ -32,7 +32,7 @@ class RedisSetDriverTest extends TestCase
         $driver->send($message);
     }
 
-    public function testRedisWaitForMessage()
+    public function testRedisWaitForMessage(): void
     {
         $message = new Message('message1', ['test' => 'value']);
 
@@ -57,7 +57,7 @@ class RedisSetDriverTest extends TestCase
         $this->assertEquals($message->getId(), $processed[0]->getId());
     }
 
-    public function testShutdownBeforeStart()
+    public function testShutdownBeforeStart(): void
     {
         $redis = $this->getMockBuilder(\Redis::class)
             ->getMock();
@@ -73,7 +73,7 @@ class RedisSetDriverTest extends TestCase
         });
     }
 
-    public function testPublishToUnknownQueue()
+    public function testPublishToUnknownQueue(): void
     {
         $redis = $this->getMockBuilder(\Redis::class)
             ->getMock();

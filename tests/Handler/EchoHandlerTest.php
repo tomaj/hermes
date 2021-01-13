@@ -9,13 +9,14 @@ use Tomaj\Hermes\Handler\EchoHandler;
 
 /**
  * Class EchoHandlerTest
+ *
  * @package Tomaj\Hermes\Test\Handler
  * @covers \Tomaj\Hermes\Handler\EchoHandler
  * @covers \Tomaj\Hermes\Message
  */
 class EchoHandlerTest extends TestCase
 {
-    public function testEchoHandler()
+    public function testEchoHandler(): void
     {
         $message = new Message('message1key', ['a' => 'b']);
         $output = "Received message: #{$message->getId()} (type message1key)\n";

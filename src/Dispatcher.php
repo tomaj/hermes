@@ -97,7 +97,7 @@ class Dispatcher implements DispatcherInterface
      * Method is blocking, so when you call it all processing will stop.
      * WARNING! Don't use it on web server calls. Run it only with cli.
      *
-     * @param array $priorities
+     * @param int[] $priorities
      *
      * @return void
      */
@@ -267,7 +267,7 @@ class Dispatcher implements DispatcherInterface
      *
      * @param MessageInterface $message
      *
-     * @return array
+     * @return array<string, mixed>
      */
     private function messageLoggerContext(MessageInterface $message): array
     {
@@ -286,11 +286,11 @@ class Dispatcher implements DispatcherInterface
      *
      * @param mixed $level
      * @param string $message
-     * @param array $context
+     * @param array<mixed> $context
      *
      * @return void
      */
-    private function log($level, string $message, array $context = array()): void
+    private function log($level, string $message, array $context = []): void
     {
         if ($this->logger !== null) {
             $this->logger->log($level, $message, $context);

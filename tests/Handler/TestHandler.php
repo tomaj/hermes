@@ -8,11 +8,13 @@ use Tomaj\Hermes\Handler\HandlerInterface;
 
 class TestHandler implements HandlerInterface
 {
+    /** @var MessageInterface[] */
     private $receivedMessages = [];
 
+    /** @var bool  */
     private $result;
 
-    public function __construct($result = true)
+    public function __construct(bool $result = true)
     {
         $this->result = $result;
     }
@@ -23,6 +25,9 @@ class TestHandler implements HandlerInterface
         return $this->result;
     }
 
+    /**
+     * @return MessageInterface[]
+     */
     public function getReceivedMessages(): array
     {
         return $this->receivedMessages;

@@ -16,7 +16,7 @@ use Tomaj\Hermes\Shutdown\PredisShutdown;
  */
 class PredisShutdownTest extends TestCase
 {
-    public function testShouldShutdownWithoutPredisEntry()
+    public function testShouldShutdownWithoutPredisEntry(): void
     {
         $redis = $this->getMockBuilder(Client::class)
             ->addMethods(['get'])
@@ -29,7 +29,7 @@ class PredisShutdownTest extends TestCase
         $this->assertFalse($redisShutdown->shouldShutdown(new \DateTime()));
     }
 
-    public function testShouldShutdownWithFutureEntry()
+    public function testShouldShutdownWithFutureEntry(): void
     {
         $futureTime = (new \DateTime())->modify('+1 month')->format('U');
         $redis = $this->getMockBuilder(Client::class)
@@ -44,7 +44,7 @@ class PredisShutdownTest extends TestCase
         $this->assertFalse($redisShutdown->shouldShutdown(new \DateTime()));
     }
 
-    public function testShouldShutdownWithEntryAfterStartTime()
+    public function testShouldShutdownWithEntryAfterStartTime(): void
     {
         $pastTime = (new \DateTime())->modify('-1 month')->format('U');
         $redis = $this->getMockBuilder(Client::class)
@@ -59,7 +59,7 @@ class PredisShutdownTest extends TestCase
         $this->assertFalse($redisShutdown->shouldShutdown(new \DateTime()));
     }
 
-    public function testShouldShutdownSuccess()
+    public function testShouldShutdownSuccess(): void
     {
         $startTime = (new \DateTime())->modify('-1 hour');
         $shutdownTime = (new \DateTime())->modify('-5 minutes')->format('U');
@@ -76,7 +76,7 @@ class PredisShutdownTest extends TestCase
         $this->assertTrue($redisShutdown->shouldShutdown($startTime));
     }
 
-    public function testShutdownStoredCorrectValueToRedis()
+    public function testShutdownStoredCorrectValueToRedis(): void
     {
         $shutdownTime = (new \DateTime())->modify('-5 minutes');
         $redis = $this->getMockBuilder(Client::class)
@@ -91,7 +91,7 @@ class PredisShutdownTest extends TestCase
         $this->assertTrue($redisShutdown->shutdown($shutdownTime));
     }
 
-    public function testShutdownStoredCorrectValueToRedisPredis()
+    public function testShutdownStoredCorrectValueToRedisPredis(): void
     {
         $shutdownTime = (new \DateTime())->modify('-5 minutes');
         $redis = $this->getMockBuilder(\Predis\Client::class)

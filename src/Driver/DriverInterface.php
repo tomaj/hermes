@@ -45,7 +45,7 @@ interface DriverInterface
      * When driver receive new message, you have to call $callback with this message like $callback($message)
      *
      * @param Closure  $callback
-     * @param array    $priorities
+     * @param int[]    $priorities
      *
      * @throws UnknownPriorityException
      * @throws ShutdownException

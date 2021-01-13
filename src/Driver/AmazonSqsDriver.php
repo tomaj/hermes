@@ -26,12 +26,12 @@ class AmazonSqsDriver implements DriverInterface
     private $queueName;
 
     /**
-     * string
+     * @var string
      */
     private $queueUrl;
 
     /**
-     * integer
+     * @var integer
      */
     private $sleepInterval = 0;
 
@@ -69,7 +69,7 @@ class AmazonSqsDriver implements DriverInterface
      *
      * @param SqsClient     $client
      * @param string        $queueName
-     * @param array         $queueAttributes
+     * @param array<mixed>  $queueAttributes
      */
     public function __construct(SqsClient $client, string $queueName, array $queueAttributes = [])
     {

@@ -12,6 +12,7 @@ use Tomaj\Hermes\Dispatcher;
 
 /**
  * Class LoggerTest
+ *
  * @package Tomaj\Hermes\Test\Logger
  * @covers \Tomaj\Hermes\Emitter
  * @covers \Tomaj\Hermes\Message
@@ -21,7 +22,7 @@ use Tomaj\Hermes\Dispatcher;
  */
 class LoggerTest extends TestCase
 {
-    public function testLoggerWithEmit()
+    public function testLoggerWithEmit(): void
     {
         $driver = new DummyDriver();
         $testLogger = new TestLogger();
@@ -38,7 +39,7 @@ class LoggerTest extends TestCase
         $this->assertStringContainsString($message->getId(), $log['message']);
     }
 
-    public function testHandlerLogger()
+    public function testHandlerLogger(): void
     {
         $message1 = new Message('event1', ['a' => 'b']);
 

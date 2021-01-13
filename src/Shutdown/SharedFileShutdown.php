@@ -7,6 +7,7 @@ use DateTime;
 
 class SharedFileShutdown implements ShutdownInterface
 {
+    /** @var string  */
     private $filePath;
 
     public function __construct(string $filePath)

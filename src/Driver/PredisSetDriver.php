@@ -16,6 +16,7 @@ class PredisSetDriver implements DriverInterface
     use ShutdownTrait;
     use SerializerAwareTrait;
 
+    /** @var array<int, string>  */
     private $queues = [];
 
     /**

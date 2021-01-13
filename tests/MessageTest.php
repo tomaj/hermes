@@ -8,26 +8,27 @@ use Tomaj\Hermes\Message;
 
 /**
  * Class MessageTest
+ *
  * @package Tomaj\Hermes\Test
  * @covers \Tomaj\Hermes\Message
  */
 class MessageTest extends TestCase
 {
-    public function testSimpleMessage()
+    public function testSimpleMessage(): void
     {
         $message = new Message('new-user', ['hello' => 'kitty']);
         $this->assertEquals('new-user', $message->getType());
         $this->assertEquals(['hello' => 'kitty'], $message->getPayload());
     }
 
-    public function testMessageWithoutPayload()
+    public function testMessageWithoutPayload(): void
     {
         $message = new Message('asdssd');
         $this->assertEquals('asdssd', $message->getType());
         $this->assertEquals(null, $message->getPayload());
     }
 
-    public function testMessageWithScheduleAt()
+    public function testMessageWithScheduleAt(): void
     {
         $created = microtime(true);
         $executeAt = microtime(true);

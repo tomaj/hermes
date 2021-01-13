@@ -13,7 +13,7 @@ class Message implements MessageInterface
     private $type;
 
     /**
-     * @var array|null
+     * @var array<mixed>|null
      */
     private $payload;
 
@@ -41,7 +41,7 @@ class Message implements MessageInterface
      * Native implementation of message.
      *
      * @param string $type
-     * @param array|null $payload
+     * @param array<mixed>|null $payload
      * @param string|null $messageId
      * @param float|null $created timestamp (microtime(true))
      * @param float|null $executeAt timestamp (microtime(true))

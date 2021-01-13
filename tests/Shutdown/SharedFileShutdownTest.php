@@ -9,30 +9,31 @@ use DateTime;
 
 /**
  * Class SharedFileShutdownTest
+ *
  * @package Tomaj\Hermes\Test\Shutdown
  * @covers \Tomaj\Hermes\Shutdown\SharedFileShutdown
  */
 class SharedFileShutdownTest extends TestCase
 {
-    public function testShouldShutdownWithNotExistsingFile()
+    public function testShouldShutdownWithNotExistsingFile(): void
     {
         $sharedFileShutdown = new SharedFileShutdown('unknownfilepath.txt');
         $this->assertFalse($sharedFileShutdown->shouldShutdown(new DateTime()));
     }
 
-    public function testShouldShutdownWithNewFile()
+    public function testShouldShutdownWithNewFile(): void
     {
         $sharedFileShutdown = new SharedFileShutdown(tempnam(sys_get_temp_dir(), 'hermestest'));
         $this->assertTrue($sharedFileShutdown->shouldShutdown(new DateTime('-3 minutes')));
     }
 
-    public function testShouldShutdownWithOldFile()
+    public function testShouldShutdownWithOldFile(): void
     {
         $sharedFileShutdown = new SharedFileShutdown(tempnam(sys_get_temp_dir(), 'hermestest'));
         $this->assertFalse($sharedFileShutdown->shouldShutdown(new DateTime('+3 minutes')));
     }
 
-    public function testShutdownCreatedCorrectFile()
+    public function testShutdownCreatedCorrectFile(): void
     {
         $fileName = sys_get_temp_dir() . '/hermestest_shutdown_' . time();
         $sharedFileShutdown = new SharedFileShutdown($fileName);

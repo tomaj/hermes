@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Tomaj\Hermes\Test\Driver;
 
 use Aws\Sqs\SqsClient;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Tomaj\Hermes\Driver\AmazonSqsDriver;
 use Tomaj\Hermes\Message;
@@ -20,7 +21,11 @@ use Tomaj\Hermes\Shutdown\ShutdownException;
  */
 class AmazonSqsDriverTest extends TestCase
 {
-    private function prepareClient($queue, array $methods = [])
+    /**
+     * @param string[] $methods
+     * @return MockObject
+     */
+    private function prepareClient(array $methods = []): MockObject
     {
         if (!in_array('createQueue', $methods)) {
             $methods[] = 'createQueue';
@@ -32,7 +37,7 @@ class AmazonSqsDriverTest extends TestCase
         $client->expects($this->once())
             ->method('createQueue')
             ->with(['QueueName' => 'mykey1', 'Attributes' => []])->will($this->returnValue(new class {
-                public function get($string)
+                public function get(string $string): string
                 {
                     return 'mykey1';
                 }
@@ -40,10 +45,10 @@ class AmazonSqsDriverTest extends TestCase
         return $client;
     }
 
-    public function testPredisSendMessage()
+    public function testPredisSendMessage(): void
     {
         $message = new Message('message1key', ['a' => 'b']);
-        $client = $this->prepareClient('xx', ['sendMessage']);
+        $client = $this->prepareClient(['sendMessage']);
         $client->expects($this->once())
             ->method('sendMessage')
             ->with([
@@ -55,11 +60,11 @@ class AmazonSqsDriverTest extends TestCase
         $driver->send($message);
     }
 
-    public function testWaitForMessage()
+    public function testWaitForMessage(): void
     {
         $message = new Message('message1', ['test' => 'value']);
 
-        $client = $this->prepareClient('mykey1', ['receiveMessage', 'deleteMessage']);
+        $client = $this->prepareClient(['receiveMessage', 'deleteMessage']);
         $client->expects($this->once())
             ->method('receiveMessage')
             ->will($this->returnValue(['Messages' => [['ReceiptHandle' => '123x', 'Body' => (new MessageSerializer)->serialize($message)]]]));
@@ -77,9 +82,9 @@ class AmazonSqsDriverTest extends TestCase
         $this->assertEquals($message->getId(), $processed[0]->getId());
     }
 
-    public function testShutdownBeforeStart()
+    public function testShutdownBeforeStart(): void
     {
-        $client = $this->prepareClient('mykey1', []);
+        $client = $this->prepareClient();
         $processed = [];
         $driver = new AmazonSqsDriver($client, 'mykey1');
         $driver->setShutdown(new CustomShutdown((new \DateTime())->modify("+5 minutes")));

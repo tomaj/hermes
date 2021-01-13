@@ -27,7 +27,7 @@ class LazyRabbitMqDriver implements DriverInterface
     /** @var string */
     private $queue;
 
-    /** @var array */
+    /** @var array<string, mixed> */
     private $amqpMessageProperties = [];
 
     /** @var integer */
@@ -39,7 +39,7 @@ class LazyRabbitMqDriver implements DriverInterface
     /**
      * @param AMQPLazyConnection $connection
      * @param string $queue
-     * @param array $amqpMessageProperties
+     * @param array<string, mixed> $amqpMessageProperties
      * @param int $refreshInterval
      * @param string $consumerTag
      */

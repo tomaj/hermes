@@ -11,6 +11,7 @@ use Tomaj\Hermes\Dispatcher;
 
 /**
  * Class DispatcherShutdownTest
+ *
  * @package Tomaj\Hermes\Test\Shutdown
  * @covers \Tomaj\Hermes\Dispatcher
  * @covers \Tomaj\Hermes\Message
@@ -19,7 +20,7 @@ use Tomaj\Hermes\Dispatcher;
  */
 class DispatcherShutdownTest extends TestCase
 {
-    public function testEmitWithDummyDriverNoShutdown()
+    public function testEmitWithDummyDriverNoShutdown(): void
     {
         $message1 = new Message('event1', ['a' => 'b']);
         $message2 = new Message('event1', ['c' => 'd']);
@@ -40,7 +41,7 @@ class DispatcherShutdownTest extends TestCase
         $this->assertEquals(2, count($receivedMessages));
     }
 
-    public function testEmitWithDummyDriverWithShutdown()
+    public function testEmitWithDummyDriverWithShutdown(): void
     {
         $message1 = new Message('event1', ['a' => 'b']);
         $message2 = new Message('event1', ['c' => 'd']);

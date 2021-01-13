@@ -11,6 +11,7 @@ use Tomaj\Hermes\Message;
 
 /**
  * Class LazyRabbitMqDriverTest
+ *
  * @package Tomaj\Hermes\Test\Driver
  * @covers \Tomaj\Hermes\Driver\LazyRabbitMqDriver
  * @covers \Tomaj\Hermes\Message
@@ -18,7 +19,7 @@ use Tomaj\Hermes\Message;
  */
 class LazyRabbitMqDriverTest extends TestCase
 {
-    public function testDriverPublishToChannel()
+    public function testDriverPublishToChannel(): void
     {
         if (!class_exists('PhpAmqpLib\Connection\AMQPConnection')) {
             $this->markTestSkipped("amqp-php not installed");
