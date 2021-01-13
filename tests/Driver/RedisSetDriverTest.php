@@ -5,6 +5,7 @@ namespace Tomaj\Hermes\Test\Driver;
 
 use PHPUnit\Framework\TestCase;
 use Tomaj\Hermes\Driver\RedisSetDriver;
+use Tomaj\Hermes\Driver\UnknownPriorityException;
 use Tomaj\Hermes\Message;
 use Tomaj\Hermes\MessageSerializer;
 use Tomaj\Hermes\Shutdown\ShutdownException;
@@ -70,5 +71,16 @@ class RedisSetDriverTest extends TestCase
         $driver->wait(function ($message) use (&$processed) {
             $processed[] = $message;
         });
+    }
+
+    public function testPublishToUnknownQueue()
+    {
+        $redis = $this->getMockBuilder(\Redis::class)
+            ->getMock();
+
+        $driver = new RedisSetDriver($redis);
+
+        $this->expectException(UnknownPriorityException::class);
+        $driver->send(new Message('test', ['a' => 'b']), 1000);
     }
 }

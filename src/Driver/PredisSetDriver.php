@@ -62,6 +62,8 @@ class PredisSetDriver implements DriverInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @throws UnknownPriorityException
      */
     public function send(MessageInterface $message, int $priority = Dispatcher::PRIORITY_MEDIUM): bool
     {
@@ -80,10 +82,16 @@ class PredisSetDriver implements DriverInterface
         ksort($this->queues, SORT_ASC | SORT_NUMERIC);
     }
 
+    /**
+     * @param int $priority
+     * @return string
+     *
+     * @throws UnknownPriorityException
+     */
     private function getKey(int $priority): string
     {
         if (!isset($this->queues[$priority])) {
-            throw new \Exception("Unknown priority {$priority}");
+            throw new UnknownPriorityException("Unknown priority {$priority}");
         }
         return $this->queues[$priority];
     }
@@ -92,6 +100,7 @@ class PredisSetDriver implements DriverInterface
      * {@inheritdoc}
      *
      * @throws ShutdownException
+     * @throws UnknownPriorityException
      */
     public function wait(Closure $callback, array $priorities = []): void
     {

@@ -16,6 +16,7 @@ use Tomaj\Hermes\Shutdown\ShutdownException;
  * @covers \Tomaj\Hermes\Driver\AmazonSqsDriver
  * @covers \Tomaj\Hermes\Message
  * @covers \Tomaj\Hermes\MessageSerializer
+ * @covers \Tomaj\Hermes\HermesException
  */
 class AmazonSqsDriverTest extends TestCase
 {

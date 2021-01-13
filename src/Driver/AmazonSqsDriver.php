@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Tomaj\Hermes\Driver;
 
 use Closure;
-use Exception;
 use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
@@ -98,9 +97,15 @@ class AmazonSqsDriver implements DriverInterface
         return true;
     }
 
+    /**
+     * @param string $name
+     * @param int $priority
+     *
+     * @throws NotSupportedException
+     */
     public function setupPriorityQueue(string $name, int $priority): void
     {
-        throw new \Exception("AmazonSQS is not supporting priority queues now");
+        throw new NotSupportedException("AmazonSQS is not supporting priority queues now");
     }
 
     /**

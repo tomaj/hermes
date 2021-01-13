@@ -6,6 +6,7 @@ namespace Tomaj\Hermes\Driver;
 use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\MessageInterface;
 use Closure;
+use Tomaj\Hermes\Shutdown\ShutdownException;
 
 interface DriverInterface
 {
@@ -19,6 +20,7 @@ interface DriverInterface
      * @param MessageInterface   $message
      * @param int $priority
      *
+     * @throws UnknownPriorityException
      * @return bool
      */
     public function send(MessageInterface $message, int $priority = Dispatcher::PRIORITY_MEDIUM): bool;
@@ -44,6 +46,9 @@ interface DriverInterface
      *
      * @param Closure  $callback
      * @param array    $priorities
+     *
+     * @throws UnknownPriorityException
+     * @throws ShutdownException
      *
      * @return void
      */

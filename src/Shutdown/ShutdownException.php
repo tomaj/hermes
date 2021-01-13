@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes\Shutdown;
 
-use Exception;
+use Tomaj\Hermes\HermesException;
 
-class ShutdownException extends Exception
+class ShutdownException extends HermesException
 {
 }

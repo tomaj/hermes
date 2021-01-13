@@ -11,7 +11,6 @@ use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
 use Tomaj\Hermes\Shutdown\ShutdownException;
-use Tomaj\Hermes\Shutdown\ShutdownExceptions;
 
 class LazyRabbitMqDriver implements DriverInterface
 {
@@ -64,15 +63,21 @@ class LazyRabbitMqDriver implements DriverInterface
         return true;
     }
 
+    /**
+     * @param string $name
+     * @param int $priority
+     *
+     * @throws NotSupportedException
+     */
     public function setupPriorityQueue(string $name, int $priority): void
     {
-        throw new \Exception("LazyRabbitMqDriver is not supporting priority queues now");
+        throw new NotSupportedException("LazyRabbitMqDriver is not supporting priority queues now");
     }
 
     /**
      * {@inheritdoc}
+     *
      * @throws ShutdownException
-     * @throws \Exception
      */
     public function wait(Closure $callback, array $priorities = []): void
     {
