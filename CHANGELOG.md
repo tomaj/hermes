@@ -7,6 +7,7 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 ### Changed
 
 * **BREAKING CHANGE**: Renamed all **Restart to **Shutdown**
+* **BREAKING CHANGE**: Removed deprecated *RabbitMqDriver**. You can use LazyRabbitMqDriver 
 
 ## 3.1.0 - 2020-10-22
 
