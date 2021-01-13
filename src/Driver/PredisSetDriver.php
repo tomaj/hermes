@@ -3,14 +3,14 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes\Driver;
 
-use Redis;
 use Closure;
+use Predis\Client;
 use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
 use Tomaj\Hermes\Shutdown\ShutdownException;
 
-class RedisSetDriver implements DriverInterface
+class PredisSetDriver implements DriverInterface
 {
     use MaxItemsTrait;
     use ShutdownTrait;
@@ -24,7 +24,7 @@ class RedisSetDriver implements DriverInterface
     private $scheduleKey;
 
     /**
-     * @var Redis
+     * @var Client
      */
     private $redis;
 
@@ -34,23 +34,23 @@ class RedisSetDriver implements DriverInterface
     private $refreshInterval;
 
     /**
-     * Create new RedisSetDriver
+     * Create new PredisSetDriver
      *
      * This driver is using redis set. With send message it add new item to set
      * and in wait() command it is reading new items in this set.
      * This driver doesn't use redis pubsub functionality, only redis sets.
      *
      * Managing connection to redis is up to you and you have to create it outsite
-     * of this class. You have to have enabled native Redis php extension.
+     * of this class. You will need to install predis php package.
      *
      * @see examples/redis
      *
-     * @param Redis                  $redis
+     * @param Client                 $redis
      * @param string                 $key
      * @param integer                $refreshInterval
      * @param string                 $scheduleKey
      */
-    public function __construct(Redis $redis, string $key = 'hermes', int $refreshInterval = 1, string $scheduleKey = 'hermes_schedule')
+    public function __construct(Client $redis, string $key = 'hermes', int $refreshInterval = 1, string $scheduleKey = 'hermes_schedule')
     {
         $this->setupPriorityQueue($key, Dispatcher::PRIORITY_MEDIUM);
 
@@ -66,10 +66,10 @@ class RedisSetDriver implements DriverInterface
     public function send(MessageInterface $message, int $priority = Dispatcher::PRIORITY_MEDIUM): bool
     {
         if ($message->getExecuteAt() && $message->getExecuteAt() > microtime(true)) {
-            $this->redis->zAdd($this->scheduleKey, $message->getExecuteAt(), $this->serializer->serialize($message));
+            $this->redis->zadd($this->scheduleKey, [$message->getExecuteAt(), $this->serializer->serialize($message)]);
         } else {
             $key = $this->getKey($priority);
-            $this->redis->sAdd($key, $this->serializer->serialize($message));
+            $this->redis->sadd($key, $this->serializer->serialize($message));
         }
         return true;
     }
@@ -103,10 +103,10 @@ class RedisSetDriver implements DriverInterface
             }
 
             // check schedule
-            $messagesString = $this->redis->zRangeByScore($this->scheduleKey, '-inf', (string)microtime(true), ['limit' => [0, 1]]);
+            $messagesString = $this->redis->zrangebyscore($this->scheduleKey, '-inf', microtime(true), ['LIMIT' => ['OFFSET' => 0, 'COUNT' => 1]]);
             if (count($messagesString)) {
                 foreach ($messagesString as $messageString) {
-                    $this->redis->zRem($this->scheduleKey, $messageString);
+                    $this->redis->zrem($this->scheduleKey, $messageString);
                     $this->send($this->serializer->unserialize($messageString));
                 }
             }
@@ -122,7 +122,9 @@ class RedisSetDriver implements DriverInterface
                     break;
                 }
 
-                $messageString = $this->pop($this->getKey($priority));
+                $key = $this->getKey($priority);
+
+                $messageString = $this->redis->spop($key);
                 $foundPriority = $priority;
             }
 
@@ -137,15 +139,5 @@ class RedisSetDriver implements DriverInterface
                 }
             }
         }
-    }
-
-    private function pop(string $key): ?string
-    {
-        $messageString = $this->redis->sPop($key);
-        if (is_string($messageString) && $messageString !== "") {
-            return $messageString;
-        }
-
-        return null;
     }
 }

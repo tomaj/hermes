@@ -3,23 +3,23 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes\Shutdown;
 
-use Redis;
 use DateTime;
+use Predis\Client;
 
 /**
- * Class RedisShutdown provides redis implementation of Tomaj\Hermes\Shutdown\ShutdownInterface
+ * Class PredisShutdown provides predis implementation of Tomaj\Hermes\Shutdown\ShutdownInterface
  *
  * Set UNIX timestamp (as `string`) to key `$key` (default `hermes_shutdown`) to shutdown Hermes worker.
  */
-class RedisShutdown implements ShutdownInterface
+class PredisShutdown implements ShutdownInterface
 {
     /** @var string */
     private $key;
 
-    /** @var Redis */
+    /** @var Client */
     private $redis;
 
-    public function __construct(Redis $redis, string $key = 'hermes_shutdown')
+    public function __construct(Client $redis, string $key = 'hermes_shutdown')
     {
         $this->redis = $redis;
         $this->key = $key;
@@ -29,6 +29,7 @@ class RedisShutdown implements ShutdownInterface
      * {@inheritdoc}
      *
      * Returns true:
+     *
      * - if shutdown timestamp is set,
      * - and timestamp is not in future,
      * - and hermes was started ($startTime) before timestamp
@@ -37,7 +38,7 @@ class RedisShutdown implements ShutdownInterface
     {
         // load UNIX timestamp from redis
         $shutdownTime = $this->redis->get($this->key);
-        if ($shutdownTime == null) {
+        if ($shutdownTime === null) {
             return false;
         }
         $shutdownTime = (int) $shutdownTime;
@@ -66,6 +67,9 @@ class RedisShutdown implements ShutdownInterface
             $shutdownTime = new DateTime();
         }
 
-        return $this->redis->set($this->key, $shutdownTime->format('U'));
+        /** @var \Predis\Response\Status $response */
+        $response = $this->redis->set($this->key, $shutdownTime->format('U'));
+
+        return $response->getPayload() === 'OK';
     }
 }
