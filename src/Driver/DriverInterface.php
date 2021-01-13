@@ -33,6 +33,8 @@ interface DriverInterface
      *
      * @param string $name
      * @param int $priority
+     *
+     * @throws NotSupportedException
      */
     public function setupPriorityQueue(string $name, int $priority): void;
 

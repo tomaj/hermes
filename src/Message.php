@@ -50,11 +50,7 @@ class Message implements MessageInterface
     public function __construct(string $type, array $payload = null, string $messageId = null, float $created = null, float $executeAt = null, int $retries = 0)
     {
         if ($messageId === null || $messageId == "") {
-            try {
-                $messageId = Uuid::uuid4()->toString();
-            } catch (\Exception $e) {
-                $messageId = (string) rand(10000, 99999999);
-            }
+            $messageId = Uuid::uuid4()->toString();
         }
         $this->messageId = $messageId;
 

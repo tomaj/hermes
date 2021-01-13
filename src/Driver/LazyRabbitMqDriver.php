@@ -55,6 +55,11 @@ class LazyRabbitMqDriver implements DriverInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @throws \PhpAmqpLib\Exception\AMQPChannelClosedException
+     * @throws \PhpAmqpLib\Exception\AMQPConnectionBlockedException
+     * @throws \PhpAmqpLib\Exception\AMQPConnectionClosedException
+     * @throws \PhpAmqpLib\Exception\AMQPTimeoutException
      */
     public function send(MessageInterface $message, int $priority = Dispatcher::PRIORITY_MEDIUM): bool
     {
@@ -78,6 +83,10 @@ class LazyRabbitMqDriver implements DriverInterface
      * {@inheritdoc}
      *
      * @throws ShutdownException
+     * @throws \PhpAmqpLib\Exception\AMQPOutOfBoundsException
+     * @throws \PhpAmqpLib\Exception\AMQPRuntimeException
+     * @throws \PhpAmqpLib\Exception\AMQPTimeoutException
+     * @throws \ErrorException
      */
     public function wait(Closure $callback, array $priorities = []): void
     {
@@ -110,7 +119,11 @@ class LazyRabbitMqDriver implements DriverInterface
         $this->getChannel()->close();
         $this->connection->close();
     }
-    
+
+    /**
+     * @throws \PhpAmqpLib\Exception\AMQPTimeoutException
+     * @return AMQPChannel
+     */
     private function getChannel(): AMQPChannel
     {
         if ($this->channel !== null) {

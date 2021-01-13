@@ -1,9 +1,20 @@
+includes:
+	- vendor/pepakriz/phpstan-exception-rules/extension.neon
+
 parameters:
 	level: max
 	paths:
 		- src
 		- examples
-		- tests
+#		- tests
+
+
+	exceptionRules:
+		reportUnusedCatchesOfUncheckedExceptions: true
+		reportUnusedCheckedThrowsInSubtypes: false
+		reportCheckedThrowsInGlobalScope: true
+		checkedExceptions:
+			- RuntimeException
 
 	treatPhpDocTypesAsCertain: false
 
@@ -31,5 +42,10 @@ parameters:
 		-
 			message: '#constructor expects Aws\\Sqs\\SqsClient, PHPUnit\\Framework\\MockObject\\MockObject given#'
 			path: 'tests/Driver/AmazonSqsDriverTest.php'
+
+		-
+			message: '#Exception is never thrown in the corresponding try block#'
+			path: 'src/Dispatcher.php'
+
 
 
