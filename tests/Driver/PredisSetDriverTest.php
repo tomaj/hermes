@@ -29,7 +29,7 @@ class PredisSetDriverTest extends TestCase
             ->getMock();
         $redis->expects($this->once())
             ->method('sadd')
-            ->with('mykey1', (new MessageSerializer)->serialize($message));
+            ->with('mykey1', [(new MessageSerializer)->serialize($message)]);
         $driver = new PredisSetDriver($redis, 'mykey1');
         $driver->send($message);
     }

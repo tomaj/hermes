@@ -10,7 +10,7 @@ use Tomaj\Hermes\Message;
 require_once __DIR__.'/../../vendor/autoload.php';
 
 $queueName = 'hermes_queue';
-$connection = new AMQPLazyConnection('localhost', 5672, 'guest', 'guest', '/');
+$connection = new AMQPLazyConnection('localhost', '5672', 'guest', 'guest', '/');
 $driver = new LazyRabbitMqDriver($connection, $queueName);
 
 $emitter = new Emitter($driver);

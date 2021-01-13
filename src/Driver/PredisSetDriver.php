@@ -71,7 +71,7 @@ class PredisSetDriver implements DriverInterface
             $this->redis->zadd($this->scheduleKey, [$message->getExecuteAt(), $this->serializer->serialize($message)]);
         } else {
             $key = $this->getKey($priority);
-            $this->redis->sadd($key, $this->serializer->serialize($message));
+            $this->redis->sadd($key, [$this->serializer->serialize($message)]);
         }
         return true;
     }

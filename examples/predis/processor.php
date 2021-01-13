@@ -5,7 +5,7 @@ use Predis\Client;
 use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\Driver\PredisSetDriver;
 use Tomaj\Hermes\Handler\EchoHandler;
-use Tomaj\Hermes\Shutdown\RedisShutdown;
+use Tomaj\Hermes\Shutdown\PredisShutdown;
 
 require_once __DIR__.'/../../vendor/autoload.php';
 
@@ -15,7 +15,7 @@ $redis = new Client([
     'port'   => 6379,
 ]);
 $driver = new PredisSetDriver($redis, 'hermes', 1);
-$driver->setShutdown(new RedisShutdown($redis));
+$driver->setShutdown(new PredisShutdown($redis));
 $driver->setupPriorityQueue('hermes_low', \Tomaj\Hermes\Dispatcher::PRIORITY_LOW);
 $driver->setupPriorityQueue('hermes_high', \Tomaj\Hermes\Dispatcher::PRIORITY_HIGH);
 
