@@ -29,14 +29,14 @@ class Dispatcher implements DispatcherInterface
     /**
      * Logger
      *
-     * @var LoggerInterface
+     * @var LoggerInterface|null
      */
     private $logger;
 
     /**
      * Shutdown
      *
-     * @var ShutdownInterface
+     * @var ShutdownInterface|null
      */
     private $shutdown;
 

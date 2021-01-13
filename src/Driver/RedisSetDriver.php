@@ -68,7 +68,7 @@ class RedisSetDriver implements DriverInterface
      */
     public function send(MessageInterface $message, int $priority = Dispatcher::PRIORITY_MEDIUM): bool
     {
-        if ($message->getExecuteAt() && $message->getExecuteAt() > microtime(true)) {
+        if ($message->getExecuteAt() !== null && $message->getExecuteAt() > microtime(true)) {
             $this->redis->zAdd($this->scheduleKey, $message->getExecuteAt(), $this->serializer->serialize($message));
         } else {
             $key = $this->getKey($priority);

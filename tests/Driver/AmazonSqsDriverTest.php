@@ -74,6 +74,7 @@ class AmazonSqsDriverTest extends TestCase
 
         $driver = new AmazonSqsDriver($client, 'mykey1');
         $driver->setMaxProcessItems(1);
+        $processed = [];
         $driver->wait(function ($message) use (&$processed) {
             $processed[] = $message;
         });

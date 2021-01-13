@@ -19,7 +19,7 @@ class Emitter implements EmitterInterface
     /**
      * Logger
      *
-     * @var LoggerInterface
+     * @var LoggerInterface|null
      */
     private $logger;
 

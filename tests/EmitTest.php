@@ -28,7 +28,10 @@ class EmitTest extends TestCase
         $emitter->emit(new Message('event-type', ['content']));
 
         $message = $driver->getMessage();
-        $this->assertEquals('event-type', $message->getType());
-        $this->assertEquals(['content'], $message->getPayload());
+        $this->assertNotNull($message);
+        if ($message !== null) {
+            $this->assertEquals('event-type', $message->getType());
+            $this->assertEquals(['content'], $message->getPayload());
+        }
     }
 }
