@@ -88,7 +88,7 @@ class AmazonSqsDriver implements DriverInterface
     /**
      * {@inheritdoc}
      */
-    public function send(MessageInterface $message, int $priority = Dispatcher::PRIORITY_MEDIUM): bool
+    public function send(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): bool
     {
         $this->client->sendMessage([
             'QueueUrl' => $this->queueUrl,

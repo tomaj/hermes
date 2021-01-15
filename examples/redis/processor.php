@@ -12,8 +12,8 @@ $redis = new Redis();
 $redis->connect('127.0.0.1', 6379);
 $driver = new RedisSetDriver($redis, 'hermes', 1);
 $driver->setShutdown(new RedisShutdown($redis));
-$driver->setupPriorityQueue('hermes_low', \Tomaj\Hermes\Dispatcher::PRIORITY_LOW);
-$driver->setupPriorityQueue('hermes_high', \Tomaj\Hermes\Dispatcher::PRIORITY_HIGH);
+$driver->setupPriorityQueue('hermes_low', \Tomaj\Hermes\Dispatcher::DEFAULT_PRIORITY - 10);
+$driver->setupPriorityQueue('hermes_high', \Tomaj\Hermes\Dispatcher::DEFAULT_PRIORITY + 10);
 
 $dispatcher = new Dispatcher($driver);
 

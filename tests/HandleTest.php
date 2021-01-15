@@ -109,9 +109,10 @@ class HandleTest extends TestCase
         $message1 = new Message('event1', ['n' => 1]);
         $message2 = new Message('event1', ['n' => 2]);
         $message3 = new Message('event1', ['n' => 3]);
+        $message4 = new Message('event1', ['n' => 4]);
 
         $driver = new DummyDriver();
-        $driver->setupPriorityQueue('high', Dispatcher::PRIORITY_HIGH);
+        $driver->setupPriorityQueue('high', Dispatcher::DEFAULT_PRIORITY + 10);
 
         $emitter = new Emitter($driver);
         $dispatcher = new Dispatcher($driver);
@@ -120,17 +121,19 @@ class HandleTest extends TestCase
 
         $dispatcher->registerHandler('event1', $testHandler);
 
-        $emitter->emit($message1, Dispatcher::PRIORITY_MEDIUM);
-        $emitter->emit($message2, Dispatcher::PRIORITY_HIGH);
-        $emitter->emit($message3, Dispatcher::PRIORITY_MEDIUM);
+        $emitter->emit($message1, Dispatcher::DEFAULT_PRIORITY);
+        $emitter->emit($message2, Dispatcher::DEFAULT_PRIORITY + 10);
+        $emitter->emit($message3, Dispatcher::DEFAULT_PRIORITY);
+        $emitter->emit($message4, Dispatcher::DEFAULT_PRIORITY + 10);
 
         $dispatcher->handle();
 
         $receivedMessages = $testHandler->getReceivedMessages();
-        $this->assertCount(3, $receivedMessages);
+        $this->assertCount(4, $receivedMessages);
         $this->assertEquals(['n' => 2], $receivedMessages[0]->getPayload());
-        $this->assertEquals(['n' => 1], $receivedMessages[1]->getPayload());
-        $this->assertEquals(['n' => 3], $receivedMessages[2]->getPayload());
+        $this->assertEquals(['n' => 4], $receivedMessages[1]->getPayload());
+        $this->assertEquals(['n' => 1], $receivedMessages[2]->getPayload());
+        $this->assertEquals(['n' => 3], $receivedMessages[3]->getPayload());
     }
 
     public function testMaxItemProcess(): void
@@ -141,7 +144,7 @@ class HandleTest extends TestCase
 
         $driver = new DummyDriver();
         $driver->setMaxProcessItems(2);
-        $driver->setupPriorityQueue('high', Dispatcher::PRIORITY_HIGH);
+        $driver->setupPriorityQueue('high', Dispatcher::DEFAULT_PRIORITY + 10);
 
         $emitter = new Emitter($driver);
         $dispatcher = new Dispatcher($driver);
@@ -150,9 +153,9 @@ class HandleTest extends TestCase
 
         $dispatcher->registerHandler('event1', $testHandler);
 
-        $emitter->emit($message1, Dispatcher::PRIORITY_MEDIUM);
-        $emitter->emit($message2, Dispatcher::PRIORITY_HIGH);
-        $emitter->emit($message3, Dispatcher::PRIORITY_MEDIUM);
+        $emitter->emit($message1, Dispatcher::DEFAULT_PRIORITY);
+        $emitter->emit($message2, Dispatcher::DEFAULT_PRIORITY + 10);
+        $emitter->emit($message3, Dispatcher::DEFAULT_PRIORITY);
 
         $dispatcher->handle();
 

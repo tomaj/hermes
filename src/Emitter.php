@@ -40,7 +40,7 @@ class Emitter implements EmitterInterface
      *
      * @throws Driver\UnknownPriorityException
      */
-    public function emit(MessageInterface $message, int $priority = Dispatcher::PRIORITY_MEDIUM): EmitterInterface
+    public function emit(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): EmitterInterface
     {
         $this->driver->send($message, $priority);
 

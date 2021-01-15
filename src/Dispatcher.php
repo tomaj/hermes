@@ -15,9 +15,7 @@ use Tracy\Debugger;
 
 class Dispatcher implements DispatcherInterface
 {
-    const PRIORITY_LOW = 100;
-    const PRIORITY_MEDIUM = 200;
-    const PRIORITY_HIGH = 300;
+    const DEFAULT_PRIORITY = 100;
 
     /**
      * Dispatcher driver
@@ -78,7 +76,7 @@ class Dispatcher implements DispatcherInterface
      * @return DispatcherInterface
      * @deprecated - use Emitter::emit method instead
      */
-    public function emit(MessageInterface $message, int $priority = self::PRIORITY_MEDIUM): DispatcherInterface
+    public function emit(MessageInterface $message, int $priority = self::DEFAULT_PRIORITY): DispatcherInterface
     {
         $this->driver->send($message, $priority);
 
@@ -104,7 +102,7 @@ class Dispatcher implements DispatcherInterface
     public function handle(array $priorities = []): void
     {
         try {
-            $this->driver->wait(function (MessageInterface $message, int $priority = Dispatcher::PRIORITY_MEDIUM) {
+            $this->driver->wait(function (MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY) {
                 $this->log(
                     LogLevel::INFO,
                     "Start handle message #{$message->getId()} ({$message->getType()}) priority:{$priority}",

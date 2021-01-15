@@ -9,6 +9,7 @@ use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
 use Tomaj\Hermes\Shutdown\ShutdownException;
+use Tomaj\Hermes\SerializeException;
 
 class RedisSetDriver implements DriverInterface
 {
@@ -53,7 +54,7 @@ class RedisSetDriver implements DriverInterface
      */
     public function __construct(Redis $redis, string $key = 'hermes', int $refreshInterval = 1, string $scheduleKey = 'hermes_schedule')
     {
-        $this->setupPriorityQueue($key, Dispatcher::PRIORITY_MEDIUM);
+        $this->setupPriorityQueue($key, Dispatcher::DEFAULT_PRIORITY);
 
         $this->scheduleKey = $scheduleKey;
         $this->redis = $redis;
@@ -66,7 +67,7 @@ class RedisSetDriver implements DriverInterface
      *
      * @throws UnknownPriorityException
      */
-    public function send(MessageInterface $message, int $priority = Dispatcher::PRIORITY_MEDIUM): bool
+    public function send(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): bool
     {
         if ($message->getExecuteAt() !== null && $message->getExecuteAt() > microtime(true)) {
             $this->redis->zAdd($this->scheduleKey, $message->getExecuteAt(), $this->serializer->serialize($message));
@@ -106,6 +107,7 @@ class RedisSetDriver implements DriverInterface
      *
      * @throws ShutdownException
      * @throws UnknownPriorityException
+     * @throws SerializeException
      */
     public function wait(Closure $callback, array $priorities = []): void
     {

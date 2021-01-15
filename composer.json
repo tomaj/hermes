@@ -52,7 +52,7 @@
         }
     },
     "scripts": {
-        "test": "phpunit",
+        "phpunit": "phpunit",
         "phpstan": "phpstan analyse",
         "phpcs": "phpcs --standard=PSR2 src tests examples -n"
     }

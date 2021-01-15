@@ -55,7 +55,7 @@ class LoggerTest extends TestCase
         $logs = $testLogger->getLogs();
         $this->assertCount(2, $logs);
 
-        $priority = Dispatcher::PRIORITY_MEDIUM;
+        $priority = Dispatcher::DEFAULT_PRIORITY;
         $this->assertEquals('info', $logs[0]['level']);
         $this->assertEquals("Start handle message #{$message1->getId()} ({$message1->getType()}) priority:{$priority}", $logs[0]['message']);
 

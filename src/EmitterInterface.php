@@ -16,5 +16,5 @@ interface EmitterInterface
      * @throws UnknownPriorityException
      * @return $this
      */
-    public function emit(MessageInterface $message, int $priority = Dispatcher::PRIORITY_MEDIUM): EmitterInterface;
+    public function emit(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): EmitterInterface;
 }

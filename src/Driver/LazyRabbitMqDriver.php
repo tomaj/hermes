@@ -61,7 +61,7 @@ class LazyRabbitMqDriver implements DriverInterface
      * @throws \PhpAmqpLib\Exception\AMQPConnectionClosedException
      * @throws \PhpAmqpLib\Exception\AMQPTimeoutException
      */
-    public function send(MessageInterface $message, int $priority = Dispatcher::PRIORITY_MEDIUM): bool
+    public function send(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): bool
     {
         $rabbitMessage = new AMQPMessage($this->serializer->serialize($message), $this->amqpMessageProperties);
         $this->getChannel()->basic_publish($rabbitMessage, '', $this->queue);

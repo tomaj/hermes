@@ -248,12 +248,12 @@ use Tomaj\Hermes\Dispatcher;
 $redis = new Redis();
 $redis->connect('127.0.0.1', 6379);
 $driver = new RedisSetDriver($redis);
-$driver->setupPriorityQueue('hermes_low', Dispatcher::PRIORITY_LOW);
-$driver->setupPriorityQueue('hermes_high', Dispatcher::PRIORITY_HIGH);
+$driver->setupPriorityQueue('hermes_low', Dispatcher::DEFAULT_PRIORITY - 10);
+$driver->setupPriorityQueue('hermes_high', Dispatcher::DEFAULT_PRIORITY + 10);
 
 $emitter = new Emitter($driver);
-$emitter->emit(new Message('type1', ['a' => 'b'], Dispatcher::PRIORITY_HIGH));
-$emitter->emit(new Message('type1', ['c' => 'd'], Dispatcher::PRIORITY_LOW));
+$emitter->emit(new Message('type1', ['a' => 'b'], Dispatcher::DEFAULT_PRIORITY - 10));
+$emitter->emit(new Message('type1', ['c' => 'd'], Dispatcher::DEFAULT_PRIORITY + 10));
 ```
 
 Few details:

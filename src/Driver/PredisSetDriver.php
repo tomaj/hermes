@@ -9,6 +9,7 @@ use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
 use Tomaj\Hermes\Shutdown\ShutdownException;
+use Tomaj\Hermes\SerializeException;
 
 class PredisSetDriver implements DriverInterface
 {
@@ -44,16 +45,17 @@ class PredisSetDriver implements DriverInterface
      * Managing connection to redis is up to you and you have to create it outsite
      * of this class. You will need to install predis php package.
      *
+     * @param Client $redis
+     * @param string $key
+     * @param integer $refreshInterval
+     * @param string $scheduleKey
      * @see examples/redis
      *
-     * @param Client                 $redis
-     * @param string                 $key
-     * @param integer                $refreshInterval
-     * @param string                 $scheduleKey
+     * @throws NotSupportedException
      */
     public function __construct(Client $redis, string $key = 'hermes', int $refreshInterval = 1, string $scheduleKey = 'hermes_schedule')
     {
-        $this->setupPriorityQueue($key, Dispatcher::PRIORITY_MEDIUM);
+        $this->setupPriorityQueue($key, Dispatcher::DEFAULT_PRIORITY);
 
         $this->scheduleKey = $scheduleKey;
         $this->redis = $redis;
@@ -65,8 +67,9 @@ class PredisSetDriver implements DriverInterface
      * {@inheritdoc}
      *
      * @throws UnknownPriorityException
+     * @throws SerializeException
      */
-    public function send(MessageInterface $message, int $priority = Dispatcher::PRIORITY_MEDIUM): bool
+    public function send(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): bool
     {
         if ($message->getExecuteAt() && $message->getExecuteAt() > microtime(true)) {
             $this->redis->zadd($this->scheduleKey, [$message->getExecuteAt(), $this->serializer->serialize($message)]);

@@ -6,6 +6,7 @@ namespace Tomaj\Hermes\Driver;
 use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\MessageInterface;
 use Closure;
+use Tomaj\Hermes\SerializeException;
 use Tomaj\Hermes\Shutdown\ShutdownException;
 
 interface DriverInterface
@@ -20,10 +21,12 @@ interface DriverInterface
      * @param MessageInterface   $message
      * @param int $priority
      *
+     * @throws SerializeException
      * @throws UnknownPriorityException
+     *
      * @return bool
      */
-    public function send(MessageInterface $message, int $priority = Dispatcher::PRIORITY_MEDIUM): bool;
+    public function send(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): bool;
 
     /**
      * Setup new queue with priority.

@@ -11,6 +11,7 @@ use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
 use Tomaj\Hermes\Driver\DriverInterface;
 use Tomaj\Hermes\Driver\SerializerAwareTrait;
+use Tomaj\Hermes\Driver\NotSupportedException;
 
 class DummyDriver implements DriverInterface
 {
@@ -31,14 +32,15 @@ class DummyDriver implements DriverInterface
      * @param MessageInterface[] $events
      *
      * @throws UnknownPriorityException
+     * @throws NotSupportedException
      */
     public function __construct(array $events = [])
     {
         $this->serializer = new MessageSerializer();
-        $this->setupPriorityQueue('medium', Dispatcher::PRIORITY_MEDIUM);
+        $this->setupPriorityQueue('medium', Dispatcher::DEFAULT_PRIORITY);
 
         foreach ($events as $event) {
-            $this->addEvent($this->serializer->serialize($event), Dispatcher::PRIORITY_MEDIUM);
+            $this->addEvent($this->serializer->serialize($event), Dispatcher::DEFAULT_PRIORITY);
         }
     }
 
@@ -56,7 +58,7 @@ class DummyDriver implements DriverInterface
         $this->events[$priority][] = $event;
     }
 
-    public function send(MessageInterface $message, int $priority = Dispatcher::PRIORITY_MEDIUM): bool
+    public function send(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): bool
     {
         $this->addEvent($this->serializer->serialize($message), $priority);
         return true;
