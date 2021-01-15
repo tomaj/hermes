@@ -35,7 +35,7 @@ interface DriverInterface
      * Or you can define dispatcher that will handle only specific priority (queue)s
      *
      * @param string $name
-     * @param int $priority
+     * @param int $priority higher priority will be processed first
      *
      * @throws NotSupportedException
      */

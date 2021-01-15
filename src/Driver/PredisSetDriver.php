@@ -80,6 +80,9 @@ class PredisSetDriver implements DriverInterface
         return true;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function setupPriorityQueue(string $name, int $priority): void
     {
         $this->queues[$priority] = $name;
@@ -105,6 +108,7 @@ class PredisSetDriver implements DriverInterface
      *
      * @throws ShutdownException
      * @throws UnknownPriorityException
+     * @throws SerializeException
      */
     public function wait(Closure $callback, array $priorities = []): void
     {

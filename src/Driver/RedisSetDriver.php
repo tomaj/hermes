@@ -79,8 +79,7 @@ class RedisSetDriver implements DriverInterface
     }
 
     /**
-     * @param string $name
-     * @param int $priority
+     * {@inheritdoc}
      */
     public function setupPriorityQueue(string $name, int $priority): void
     {
