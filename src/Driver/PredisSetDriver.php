@@ -86,7 +86,6 @@ class PredisSetDriver implements DriverInterface
     public function setupPriorityQueue(string $name, int $priority): void
     {
         $this->queues[$priority] = $name;
-        ksort($this->queues, SORT_ASC | SORT_NUMERIC);
     }
 
     /**
