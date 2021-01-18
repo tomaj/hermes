@@ -18,12 +18,12 @@ class RedisSetDriver implements DriverInterface
     use SerializerAwareTrait;
 
     /** @var array<int, string>  */
-    private $queues = [];
+    private array $queues = [];
 
     /**
      * @var string
      */
-    private $scheduleKey;
+    private string $scheduleKey;
 
     /**
      * @var Redis
