@@ -1,6 +1,10 @@
 name: PHP linter
 
-on: [push]
+on:
+  push:
+  pull_request:
+    branches:
+      - '**:**'
 
 jobs:
   phpcs:
