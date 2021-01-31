@@ -19,6 +19,8 @@ class SharedFileRestart implements RestartInterface
      */
     public function shouldRestart(DateTime $startTime): bool
     {
+        clearstatcache(false, $this->filePath);
+
         if (!file_exists($this->filePath)) {
             return false;
         }
