@@ -9,6 +9,7 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 * **BREAKING CHANGE**: Renamed all **Restart** to **Shutdown**
 * **BREAKING CHANGE**: Removed deprecated *RabbitMqDriver**. You can use LazyRabbitMqDriver
 * **BREAKING CHANGE**: Splitted **RedisSetDriver** to two implementations based on how it is interacting with redis. For using Redis php extension you can use old **RedisSetDriver**, for using predis package you have to use **PredisSetDriver**
+* Added clearstatcache() into SharedFileShutdown 
 
 ## 3.1.0 - 2020-10-22
 

@@ -20,6 +20,8 @@ class SharedFileShutdown implements ShutdownInterface
      */
     public function shouldShutdown(DateTime $startTime): bool
     {
+        clearstatcache(false, $this->filePath);
+
         if (!file_exists($this->filePath)) {
             return false;
         }
