@@ -10,16 +10,16 @@
 
 ## What is Hermes?
 
-If you need to process some task outside of http request in your web app, you can utilize Hermes. Hermes provides message broker for sending messages from http thread to offline processing jobs. Recommended use for sending emails, call other API or other time consuming operations.
+If you need to process some task outside of HTTP request in your web app, you can utilize Hermes. Hermes provides message broker for sending messages from HTTP thread to offline processing jobs. Recommended use for sending emails, call other API or other time-consuming operations.
 
-Other goal for Hermes is variability to use various message brokers like redis, rabbit, database and ability to easy create new drivers for other messaging solutions. And also simple creation of workers to perform tasks on specified events.
+Another goal for Hermes is variability to use various message brokers like Redis, rabbit, database, and ability to easily create new drivers for other messaging solutions. And also the simple creation of workers to perform tasks on specified events.
 
 
 ## Installation
 
 This library requires PHP 7.2 or later.
 
-Recommended installation method is via Composer:
+The recommended installation method is via Composer:
 
 ```bash
 $ composer require tomaj/hermes
@@ -35,23 +35,23 @@ Library is compliant with [PSR-1][], [PSR-2][], [PSR-3][] and [PSR-4][].
 
 ## Optional dependencies
 
-Hermes is able to log activity with logger that is compatible with `psr/log` interface. For more information take a look at [psr/log][].
+Hermes is able to log activity with a logger that is compatible with `psr/log` interface. For more information take a look at [psr/log][].
 
-Library works without logger but maintener recommends installing [monolog][] for logging.
+The library works without logger, but maintainer recommends installing [monolog][] for logging.
 
 [psr/log]: https://github.com/php-fig/log
 [monolog]: https://github.com/Seldaek/monolog
 
 ## Supported drivers
 
-Right now Hermes library is distributed with 3 drivers and one driver in separate package:
+Right now Hermes library is distributed with 3 drivers and one driver in a separate package:
 
  * [Redis][] driver (two different implementations [phpredis][] or [Predis][])
  * [Amazon SQS][] driverDispatcherRestartTest.php
  * [RabbitMQ][] driver
  * [ZeroMQ][] drivver (via [php-zmq][] extension) availabe as [tomaj/hermes-zmq-driver](https://github.com/tomaj/hermes-zmq-driver) 
 
-Note: You have to install all 3rd party libraries for initializing connections to this drivers. For example you have to add `nrk/predis` to your *composer.json* and create connection to your redis instance.
+**Note:** You have to install all 3rd party libraries for initializing connections to these drivers. For example, you have to add `nrk/predis` to your *composer.json* and create a connection to your Redis instance.
 
 [Amazon SQS]: https://aws.amazon.com/sqs/
 [php-zmq]: https://zeromq.org/
@@ -62,35 +62,35 @@ Note: You have to install all 3rd party libraries for initializing connections t
 [ZeroMQ]: https://zeromq.org/
 
 
-## Concept - How hermes works?
+## Concept - How Hermes works?
 
-Hermes works as a emitter and dispatcher for events from your php requests on webserver to particular handler running on cli. Basicaly like this:
+Hermes works as an emitter and Dispatcher for events from your PHP requests on the webserver to particular handler running on CLI. Basically like this:
 
 ```
---> http request to /file.php -> emit(Message) -> Hermes Emitter
+--> HTTP request to /file.php -> emit(Message) -> Hermes Emitter
                                                              \  
-                                                 Queue (redis, rabbit etc...)
+                                                 Queue (Redis, rabbit etc.)
                                                              /
---> running php cli file waiting for new Message-s from Queue
-        when received new message it calls registered handler to process it.
+--> running PHP CLI file waiting for new Message-s from Queue
+        when received a new message it calls registered handler to process it.
 ```
 
 You have to implement these four steps in your application:
 
 1. select driver that you would like to use and register it to Dispatcher and Emitter
 2. emit events when you need to process something in the background
-3. write handler class that will process your message from 2.
-4. create php file that will run on your server "forever" and run Dispatcher there
+3. write a handler class that will process your message from 2.
+4. create a PHP file that will run on your server "forever" and run Dispatcher there
 
 
 ## How to use
 
-This simple example demonstrates using Redis driver and is an example how to send email in the background.
+This simple example demonstrates using Redis driver and is an example of how to send email in the background.
 
 
 ### Emitting event
 
-Emitting messages (anywhere in application, easy and quick).
+Emitting messages (anywhere in the application, easy and quick).
 
 ```php
 use Redis;
@@ -114,7 +114,7 @@ $emitter->emit($message);
 
 ### Processing event
 
-For processing an event we need to create some php file that will be running in CLI. We can create this simple implementation and register this simple handler.
+For processing an event, we need to create some PHP file that will be running in CLI. We can make this simple implementation and register this simple handler.
 
 
 ```php
@@ -206,9 +206,9 @@ class SendEmailHandlerWithLogger implements HandlerInterface
 
 ## Retry
 
-If you need to retry you handle() method when they fail for some reason you can add `RetryTrait` to handler.
-If you want you can override `maxRetry()` method from this trait to specify how many times hermes will try to run your handle().
-**Warning:** if you want to use retry you have to use driver that support delayed execution (`$executeAt` message parameter) 
+If you need to retry, you handle() method when they fail for some reason you can add `RetryTrait` to the handler.
+If you want, you can override the `maxRetry()` method from this trait to specify how many times Hermes will try to run your handle().
+**Warning:** if you want to use retry you have to use a driver that supports delayed execution (`$executeAt` message parameter) 
 
 ```php
 declare(strict_types=1);
@@ -259,7 +259,7 @@ $emitter->emit(new Message('type1', ['c' => 'd'], Dispatcher::DEFAULT_PRIORITY +
 Few details:
  - you can use priority constants from `Dispatcher` class, but you can also use any number
  - high number priority queue messages will be handled first
- - in `Dispatcher::handle()` method you can provide array of queue names and create worker that will handle only one or multiple selected queues
+ - in `Dispatcher::handle()` method you can provide an array of queue names and create a worker that will handle only one or multiple selected queues
  - right now only `RedisSetDriver` supports multiple queues
 
 ## Graceful shutdown
@@ -268,9 +268,9 @@ Hermes worker can be gracefully stopped.
 
 If implementation of `Tomaj\Hermes\Shutdoown\ShutdownInteface` is provided when initiating `Dispatcher`, Hermes will check `ShutdwnInterface::shouldShutdown()` after each processed message. If it returns `true`, Hermes will shutdown _(notice is logged)_.
 
-**WARNING:** Relaunch is not provided by this library and it should be handled by process controller you use to keep Hermes running _(eg. launchd, daemontools, supervisord, etc.)_.
+**WARNING:** relaunch is not provided by this library, and it should be handled by process controller you use to keep Hermes running _(e.g. launchd, daemontools, supervisord, etc.)_.
 
-Currently two methods are implemented.
+Currently, two methods are implemented.
 
 ### SharedFileShutdown
 
@@ -311,22 +311,22 @@ $shutdown->shutdown();
 
 ## Scaling Hermes
 
-If you have a lot of messages that you need to process, you can scale your Hermes workers very easily. You just run multiple instances of handlers - cli files that will register handlers to dispatcher and then run `$dispatcher->handle()`. You can also put your source codes to multiple machines and scale it out to as many nodes as you want. But you need a driver that supports these 2 things:
+If you have many messages that you need to process, you can scale your Hermes workers very quickly. You just run multiple instances of handlers - CLI files that will register handlers to Dispatcher and then run `$dispatcher->handle()`. You can also put your source codes to multiple machines and scale it out to as many nodes as you want. But it would help if you had a driver that supports these 2 things:
 
- 1. driver needs to be able to work over network
+ 1. driver needs to be able to work over the network
  2. one message must be delivered to only one worker
 
-If you ensure this, Hermes will work perfectly. Rabbit driver or Redis driver can handle this stuff and these products are made for big loads, too.
+If you ensure this, Hermes will work correctly. Rabbit driver or Redis driver can handle this stuff, and these products are made for big loads, too.
 
 ## Extending Hermes
 
-Hermes is written as separated classes that depend on each other via interfaces. You can easily change implementation of classes. For example you can create new driver, use other logger. Or if you really want, you can create your own messages format that will be send to your driver serialized via your custom serializer.
+Hermes is written as separate classes that depend on each other via interfaces. You can easily change the implementation of classes. For example, you can create a new driver, use another logger. Or if you really want, you can create the format of your messages that will be sent to your driver serialized via your custom serializer.
 
-### How to write your own driver
+### How to write your driver
 
-Each driver has to implement `Tomaj\Hermes\Driver\DriverInterface` with 2 methods (**send** and **wait**). Simple driver that will use [Gearman][] as a driver
+Each driver has to implement `Tomaj\Hermes\Driver\DriverInterface` with 2 methods (**send** and **wait**). A simple driver that will use [Gearman][] as a driver
 
-```php
+```PHP
 namespace My\Custom\Driver;
 
 use Tomaj\Hermes\Driver\DriverInterface;
@@ -371,7 +371,7 @@ class GearmanDriver implements DriverInterface
 
 ### How to write your own serializer
 
-If you want o use your own serializer in your drivers, you have to create a new class that implements `Tomaj\Hermes\MessageSerializer` and you need a driver that will support it. You can add trait `Tomaj\Hermes\Driver\SerializerAwareTrait` to your driver that will add method `setSerializer` to your driver.
+If you want o use your own serializer in your drivers, you have to create a new class that implements `Tomaj\Hermes\MessageSerializer`, and you need a driver that will support it. You can add the trait `Tomaj\Hermes\Driver\SerializerAwareTrait` to your driver that will add method `setSerializer` to your driver.
 
 Simple serializer that will use library [jms/serializer][]:
 
@@ -403,18 +403,18 @@ class JmsSerializer implements SerializerInterface
 
 ### Scheduled execution
 
-From version 2.0 you can add a 4th parameter to Message as timestamp in the future. This message will be processed after this time. This functionality is supported in RedisSetDriver and PredisSetDriver right now.
+From version 2.0 you can add the 4th parameter to Message as a timestamp in the future. This message will be processed after this time. This functionality is supported in RedisSetDriver and PredisSetDriver right now.
 
 ### Upgrade
 
 #### From v3 to v4
 
 - Renamed Restart to Shutdown
-  * Naming changed to reflect functionality of Hermes. It can gracefully stop own process, but restart (relaunch) of Hermes has to be handled by external process / library. And therefore this is shutdown and not restart.
+  * Naming changed to reflect the functionality of Hermes. It can gracefully stop own process, but restart (relaunch) of Hermes has to be handled by external process/library. And therefore this is shutdown and not restart.
   * RestartInterface to ShutdownInterface
   * also all implementations changed namespace name and class name
 
-## Change log
+## Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
 
@@ -430,7 +430,7 @@ Please see [CONTRIBUTING](CONTRIBUTING.md) and [CONDUCT](CONDUCT.md) for details
 
 ## Security
 
-If you discover any security related issues, please email tomasmajer@gmail.com instead of using the issue tracker.
+If you discover any security-related issues, please email tomasmajer@gmail.com instead of using the issue tracker.
 
 ## License
 
