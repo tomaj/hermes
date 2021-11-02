@@ -260,7 +260,6 @@ Few details:
  - you can use priority constants from `Dispatcher` class, but you can also use any number
  - high number priority queue messages will be handled first
  - in `Dispatcher::handle()` method you can provide an array of queue names and create a worker that will handle only one or multiple selected queues
- - right now only `RedisSetDriver` supports multiple queues
 
 ## Graceful shutdown
 
