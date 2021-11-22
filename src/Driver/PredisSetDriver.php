@@ -72,7 +72,7 @@ class PredisSetDriver implements DriverInterface
     public function send(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): bool
     {
         if ($message->getExecuteAt() && $message->getExecuteAt() > microtime(true)) {
-            $this->redis->zadd($this->scheduleKey, [$message->getExecuteAt(), $this->serializer->serialize($message)]);
+            $this->redis->zadd($this->scheduleKey, [$this->serializer->serialize($message) => $message->getExecuteAt()]);
         } else {
             $key = $this->getKey($priority);
             $this->redis->sadd($key, [$this->serializer->serialize($message)]);
