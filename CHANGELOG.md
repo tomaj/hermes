@@ -5,6 +5,11 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 ## [Unreleased][unreleased]
 
 
+## 4.0.1 - 2021-11-23
+
+* Fixed Predis driver when retry is being scheduled [#48](https://github.com/tomaj/hermes/issues/48)
+
+
 ## 4.0.0 - 2021-02-02
 
 ### Changed
