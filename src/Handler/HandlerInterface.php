@@ -16,10 +16,9 @@ interface HandlerInterface
      * You have to register all your handlers to Dispatcher for specified types.
      *
      * @param MessageInterface $message
+     * @throws \Exception
      *
      * @return bool
-     * 
-     * @throws \Exception
      */
     public function handle(MessageInterface $message): bool;
 }
