@@ -18,6 +18,8 @@ interface HandlerInterface
      * @param MessageInterface $message
      *
      * @return bool
+     * 
+     * @throws \Exception
      */
     public function handle(MessageInterface $message): bool;
 }
