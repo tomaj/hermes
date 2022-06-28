@@ -4,6 +4,9 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ## [Unreleased][unreleased]
 
+#### Fixed
+- RedisSetDriver - add atomicity to scheduled set
+
 
 ## 4.0.1 - 2021-11-23
 

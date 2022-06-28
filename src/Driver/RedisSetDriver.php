@@ -117,11 +117,18 @@ class RedisSetDriver implements DriverInterface
             }
 
             // check schedule
-            $messagesString = $this->redis->zRangeByScore($this->scheduleKey, '-inf', (string)microtime(true), ['limit' => [0, 1]]);
-            if (count($messagesString)) {
-                foreach ($messagesString as $messageString) {
-                    $this->redis->zRem($this->scheduleKey, $messageString);
-                    $this->send($this->serializer->unserialize($messageString));
+            $microTime = microtime(true);
+            $messageStrings = $this->redis->zRangeByScore($this->scheduleKey, '-inf', (string) $microTime, ['limit' => [0, 1]]);
+            for ($i = 1; $i <= count($messageStrings); $i++) {
+                $messageString = $this->pop($this->scheduleKey);
+                if (!$messageString) {
+                    break;
+                }
+                $scheduledMessage = $this->serializer->unserialize($messageString);
+                $this->send($scheduledMessage);
+
+                if ($scheduledMessage->getExecuteAt() > $microTime) {
+                    break;
                 }
             }
 
