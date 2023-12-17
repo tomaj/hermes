@@ -13,6 +13,9 @@ class StopShutdown implements ShutdownInterface
 
     public function shouldShutdown(DateTime $startTime): bool
     {
+        if (!isset(self::$eventsStop)) {
+            return false;
+        }
         if (self::$eventsStop === 1) {
             return true;
         }
