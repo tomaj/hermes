@@ -31,6 +31,13 @@ interface DispatcherInterface
     public function registerHandlers(string $type, array $handler): DispatcherInterface;
 
     /**
+     * Will unregister all handlers. This method is useful for testing.
+     *
+     * @return DispatcherInterface
+     */
+    public function unregisterAllHandlers(): DispatcherInterface;
+
+    /**
      * Basic method for background job to star listening.
      *
      * @param int[] $priorities
