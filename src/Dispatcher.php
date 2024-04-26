@@ -261,6 +261,15 @@ class Dispatcher implements DispatcherInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function unregisterAllHandlers(): DispatcherInterface
+    {
+        $this->handlers = [];
+        return $this;
+    }
+
+    /**
      * Serialize message to logger context
      *
      * @param MessageInterface $message
