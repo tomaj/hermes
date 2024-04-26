@@ -270,6 +270,22 @@ class Dispatcher implements DispatcherInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function unregisterHandler(string $type, HandlerInterface $handler): DispatcherInterface
+    {
+        if (!isset($this->handlers[$type])) {
+            return $this;
+        }
+        $this->handlers[$type] = array_filter(
+            $this->handlers[$type],
+            fn ($registeredHandler) => $registeredHandler !== $handler
+        );
+
+        return $this;
+    }
+
+    /**
      * Serialize message to logger context
      *
      * @param MessageInterface $message

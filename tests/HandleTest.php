@@ -184,4 +184,29 @@ class HandleTest extends TestCase
         $receivedMessages = $handler->getReceivedMessages();
         $this->assertCount(1, $receivedMessages);
     }
+
+    public function testUnregisterHandler(): void
+    {
+        $message1 = new Message('event1', ['a' => 'b']);
+        $message2 = new Message('event2', ['c' => 'd']);
+
+        $driver = new DummyDriver([$message1, $message2]);
+        $dispatcher = new Dispatcher($driver);
+
+        $firstHandler = new TestHandler();
+        $secondHandler = new TestHandler();
+
+        $dispatcher->registerHandler('event1', $firstHandler);
+        $dispatcher->registerHandler('event2', $secondHandler);
+        $dispatcher->handle();
+
+        $dispatcher->unregisterHandler('event2', $secondHandler);
+        $dispatcher->handle();
+
+        $firstHandlerReceivedMessages = $firstHandler->getReceivedMessages();
+        $this->assertCount(2, $firstHandlerReceivedMessages);
+
+        $secondHandlerReceivedMessages = $secondHandler->getReceivedMessages();
+        $this->assertCount(1, $secondHandlerReceivedMessages);
+    }
 }
