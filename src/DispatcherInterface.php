@@ -38,6 +38,16 @@ interface DispatcherInterface
     public function unregisterAllHandlers(): DispatcherInterface;
 
     /**
+     * Will unregister a specific handler.
+     *
+     * @param string $type
+     * @param HandlerInterface $handler
+     *
+     * @return DispatcherInterface
+     */
+    public function unregisterHandler(string $type, HandlerInterface $handler): DispatcherInterface;
+
+    /**
      * Basic method for background job to star listening.
      *
      * @param int[] $priorities
