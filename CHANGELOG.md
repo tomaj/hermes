@@ -4,11 +4,24 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ## [Unreleased][unreleased]
 
-#### Fixed
+
+## 4.2.0
+
+### Added
+
+* **BREAKING CHANGE**: changed interface for Dispatcher - added ability to unregister handlers
+
+
+## 4.1.0 - 2023-12-17
+
+### Changed
+
 - RedisSetDriver - add atomicity to scheduled set
 
 
 ## 4.0.1 - 2021-11-23
+
+### Changed
 
 * Fixed Predis driver when retry is being scheduled [#48](https://github.com/tomaj/hermes/issues/48)
 
