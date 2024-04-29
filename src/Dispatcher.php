@@ -279,7 +279,9 @@ class Dispatcher implements DispatcherInterface
         }
         $this->handlers[$type] = array_filter(
             $this->handlers[$type],
-            fn ($registeredHandler) => $registeredHandler !== $handler
+            function (HandlerInterface $registeredHandler) use ($handler) {
+                return $registeredHandler !== $handler;
+            }
         );
 
         return $this;
