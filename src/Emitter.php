@@ -29,7 +29,7 @@ class Emitter implements EmitterInterface
      * @param DriverInterface $driver
      * @param LoggerInterface|null $logger
      */
-    public function __construct(DriverInterface $driver, LoggerInterface $logger = null)
+    public function __construct(DriverInterface $driver, ?LoggerInterface $logger = null)
     {
         $this->driver = $driver;
         $this->logger = $logger;

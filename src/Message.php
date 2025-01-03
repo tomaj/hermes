@@ -47,7 +47,7 @@ class Message implements MessageInterface
      * @param float|null $executeAt timestamp (microtime(true))
      * @param int $retries
      */
-    public function __construct(string $type, array $payload = null, string $messageId = null, float $created = null, float $executeAt = null, int $retries = 0)
+    public function __construct(string $type, ?array $payload = null, ?string $messageId = null, ?float $created = null, ?float $executeAt = null, int $retries = 0)
     {
         if ($messageId === null || $messageId == "") {
             $messageId = Uuid::uuid4()->toString();
