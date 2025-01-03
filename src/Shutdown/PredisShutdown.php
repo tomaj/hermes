@@ -61,7 +61,7 @@ class PredisShutdown implements ShutdownInterface
      *
      * Sets to Redis value `$shutdownTime` (or current DateTime) to `$key` defined in constructor.
      */
-    public function shutdown(DateTime $shutdownTime = null): bool
+    public function shutdown(?DateTime $shutdownTime = null): bool
     {
         if ($shutdownTime === null) {
             $shutdownTime = new DateTime();

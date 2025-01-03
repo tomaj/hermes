@@ -57,7 +57,7 @@ class Dispatcher implements DispatcherInterface
      * @param LoggerInterface|null $logger
      * @param ShutdownInterface|null $shutdown
      */
-    public function __construct(DriverInterface $driver, LoggerInterface $logger = null, ShutdownInterface $shutdown = null)
+    public function __construct(DriverInterface $driver, ?LoggerInterface $logger = null, ?ShutdownInterface $shutdown = null)
     {
         $this->driver = $driver;
         $this->logger = $logger;

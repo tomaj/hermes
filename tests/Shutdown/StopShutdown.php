@@ -23,7 +23,7 @@ class StopShutdown implements ShutdownInterface
         return false;
     }
 
-    public function shutdown(DateTime $shutdownTime = null): bool
+    public function shutdown(?DateTime $shutdownTime = null): bool
     {
         self::$eventsStop = 1;
         return true;

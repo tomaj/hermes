@@ -39,7 +39,7 @@ class SharedFileShutdown implements ShutdownInterface
      *
      * Creates file defined in constructor with modification time `$shutdownTime` (or current DateTime).
      */
-    public function shutdown(DateTime $shutdownTime = null): bool
+    public function shutdown(?DateTime $shutdownTime = null): bool
     {
         if ($shutdownTime === null) {
             $shutdownTime = new DateTime();

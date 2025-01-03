@@ -26,5 +26,5 @@ interface ShutdownInterface
      * @param DateTime|null $shutdownTime (Optional) DateTime when should be Hermes shutdown. If null, current datetime should be used.
      * @return bool
      */
-    public function shutdown(DateTime $shutdownTime = null): bool;
+    public function shutdown(?DateTime $shutdownTime = null): bool;
 }

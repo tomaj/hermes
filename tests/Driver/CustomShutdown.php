@@ -21,7 +21,7 @@ class CustomShutdown implements ShutdownInterface
         return $this->dateTime > $startTime;
     }
 
-    public function shutdown(DateTime $shutdownTime = null): bool
+    public function shutdown(?DateTime $shutdownTime = null): bool
     {
         $this->dateTime = $shutdownTime ?? new DateTime();
         return true;
