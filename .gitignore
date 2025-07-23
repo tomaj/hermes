@@ -7,3 +7,10 @@ coverage.clover
 .phpunit.cache
 exception.log
 exception--*
+
+# Coverage artifacts
+coverage.xml
+coverage_html/
+junit.xml
+.composer-cache/
+public/
