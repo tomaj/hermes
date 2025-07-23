@@ -5,3 +5,5 @@ build
 coverage.clover
 .idea
 .phpunit.cache
+exception.log
+exception--*
