@@ -1,0 +1,66 @@
+name: Deploy Coverage to GitHub Pages
+
+on:
+  workflow_run:
+    workflows: ["PHPUnit"]
+    types:
+      - completed
+    branches: [main, master]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Download coverage artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
+          path: ./coverage
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create index page
+        run: |
+          cat > ./coverage/README.md << 'EOF'
+          # Code Coverage Report
+          
+          This page contains the code coverage report for the project.
+          
+          - [Coverage Report](./index.html) - Interactive HTML coverage report
+          - Generated from commit: `${{ github.event.workflow_run.head_sha }}`
+          - Branch: `${{ github.event.workflow_run.head_branch }}`
+          - Workflow run: [${{ github.event.workflow_run.id }}](${{ github.event.workflow_run.html_url }})
+          
+          ## How to read the coverage report
+          
+          - **Green lines**: Covered by tests
+          - **Red lines**: Not covered by tests  
+          - **Yellow lines**: Partially covered
+          
+          Click on any file in the coverage report to see line-by-line coverage details.
+          EOF
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./coverage
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
