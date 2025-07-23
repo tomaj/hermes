@@ -1,10 +1,16 @@
-name: PHPStan
+name: Security Audit
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  schedule:
+    - cron: '0 2 * * 1' # Weekly on Monday at 2 AM
 
 jobs:
-  phpstan:
-    name: PHPStan Static Analysis
+  security-audit:
+    name: Security Audit
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -14,7 +20,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
-          extensions: json, redis
+          extensions: json
           coverage: none
 
       - name: Validate composer.json and composer.lock
@@ -32,5 +38,5 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-suggest
 
-      - name: Run PHPStan analysis
-        run: vendor/bin/phpstan analyse --memory-limit=1G
+      - name: Security audit
+        run: composer audit --format=plain

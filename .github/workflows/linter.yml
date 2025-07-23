@@ -1,14 +1,24 @@
-name: PHP linter
+name: PHP Syntax Check
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
-  phpcs:
-      name: Linter
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v2
+  lint:
+    name: PHP Syntax Check
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-versions: ['7.4', '8.0', '8.1', '8.2', '8.3']
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-        - name: lint
-          run: php -l src tests examples
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          coverage: none
+
+      - name: PHP Syntax Check
+        run: |
+          find src tests examples -name "*.php" -print0 | xargs -0 -n1 -P8 php -l

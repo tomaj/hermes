@@ -1,6 +1,6 @@
-name: Phpunit
+name: PHPUnit
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   run:
@@ -8,11 +8,11 @@ jobs:
     strategy:
       matrix:
         operating-system: [ubuntu-latest]
-        php-versions: ['7.2', '7.3', '7.4', '8.0']
+        php-versions: ['7.4', '8.0', '8.1', '8.2', '8.3']
     name: PHP ${{ matrix.php-versions }} Test on ${{ matrix.operating-system }}
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -20,15 +20,28 @@ jobs:
         php-version: ${{ matrix.php-versions }}
         ini-values: post_max_size=256M, max_execution_time=180
         coverage: xdebug
+        extensions: json, redis
 
-    - name: Composer install
+    - name: Validate composer.json and composer.lock
+      run: composer validate --strict
+
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ matrix.php-versions }}-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-${{ matrix.php-versions }}-
+
+    - name: Install dependencies
       run: composer install --prefer-dist --no-progress --no-suggest
 
-    - name: phpunit
+    - name: Run PHPUnit tests
       run: vendor/bin/phpunit --coverage-clover build/logs/clover.xml
 
     - if: |
-        matrix.php-versions == '7.4' &&
+        matrix.php-versions == '8.1' &&
         matrix.operating-system == 'ubuntu-latest'
       name: Check test coverage
       uses: johanvanhelden/gha-clover-test-coverage-check@v1
@@ -37,10 +50,10 @@ jobs:
         filename: "build/logs/clover.xml"
 
     - if: |
-        matrix.php-versions == '7.4' &&
+        matrix.php-versions == '8.1' &&
         matrix.operating-system == 'ubuntu-latest'
-      name: Codeclimate
-      uses: paambaati/codeclimate-action@v2.7.4
+      name: Upload coverage to Codeclimate
+      uses: paambaati/codeclimate-action@v5.0.0
       env:
         CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
       with:
