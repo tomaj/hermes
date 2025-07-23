@@ -10,7 +10,7 @@ class MessageSerializer implements SerializerInterface
      */
     public function serialize(MessageInterface $message): string
     {
-        $result =  json_encode([
+        $result = json_encode([
             'message' => [
                 'id' => $message->getId(),
                 'type' => $message->getType(),
@@ -32,18 +32,29 @@ class MessageSerializer implements SerializerInterface
     public function unserialize(string $string): MessageInterface
     {
         $data = json_decode($string, true);
-        if ($data === null || $data === false) {
+        if (!is_array($data) || !isset($data['message'])) {
             throw new SerializeException("Cannot unserialize message from '{$string}'");
         }
         $message = $data['message'];
+        if (!is_array($message) || !isset($message['type'], $message['id'], $message['created'])) {
+            throw new SerializeException("Invalid message format in '{$string}'");
+        }
+        
         $executeAt = null;
-        if (isset($message['execute_at'])) {
-            $executeAt = floatval($message['execute_at']);
+        if (isset($message['execute_at']) && is_numeric($message['execute_at'])) {
+            $executeAt = (float) $message['execute_at'];
         }
+        
         $retries = 0;
-        if (isset($message['retries'])) {
-            $retries = intval($message['retries']);
+        if (isset($message['retries']) && is_numeric($message['retries'])) {
+            $retries = (int) $message['retries'];
         }
-        return new Message($message['type'], $message['payload'], $message['id'], $message['created'], $executeAt, $retries);
+        
+        $payload = null;
+        if (isset($message['payload']) && is_array($message['payload'])) {
+            $payload = $message['payload'];
+        }
+        
+        return new Message($message['type'], $payload, $message['id'], (float) $message['created'], $executeAt, $retries);
     }
 }
