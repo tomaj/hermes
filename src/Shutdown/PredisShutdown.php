@@ -13,11 +13,9 @@ use Predis\Client;
  */
 class PredisShutdown implements ShutdownInterface
 {
-    /** @var string */
-    private $key;
+    private string $key;
 
-    /** @var Client */
-    private $redis;
+    private Client $redis;
 
     public function __construct(Client $redis, string $key = 'hermes_shutdown')
     {

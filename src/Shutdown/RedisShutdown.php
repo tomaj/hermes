@@ -13,11 +13,9 @@ use DateTime;
  */
 class RedisShutdown implements ShutdownInterface
 {
-    /** @var string */
-    private $key;
+    private string $key;
 
-    /** @var Redis */
-    private $redis;
+    private Redis $redis;
 
     public function __construct(Redis $redis, string $key = 'hermes_shutdown')
     {
@@ -37,7 +35,7 @@ class RedisShutdown implements ShutdownInterface
     {
         // load UNIX timestamp from redis
         $shutdownTime = $this->redis->get($this->key);
-        if ($shutdownTime == null) {
+        if ($shutdownTime === false) {
             return false;
         }
         $shutdownTime = (int) $shutdownTime;

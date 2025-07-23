@@ -5,15 +5,9 @@ namespace Tomaj\Hermes\Driver;
 
 trait MaxItemsTrait
 {
-    /**
-     * @var integer
-     */
-    private $processed = 0;
+    private int $processed = 0;
 
-    /**
-     * @var integer
-     */
-    private $maxProcessItems = 0;
+    private int $maxProcessItems = 0;
 
     public function setMaxProcessItems(int $count): void
     {
@@ -33,7 +27,7 @@ trait MaxItemsTrait
 
     public function shouldProcessNext(): bool
     {
-        if ($this->maxProcessItems == 0) {
+        if ($this->maxProcessItems === 0) {
             return true;
         }
         if ($this->processed >= $this->maxProcessItems) {

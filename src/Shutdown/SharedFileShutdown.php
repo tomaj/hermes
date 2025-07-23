@@ -7,8 +7,7 @@ use DateTime;
 
 class SharedFileShutdown implements ShutdownInterface
 {
-    /** @var string  */
-    private $filePath;
+    private string $filePath;
 
     public function __construct(string $filePath)
     {
@@ -27,7 +26,7 @@ class SharedFileShutdown implements ShutdownInterface
         }
 
         $time = filemtime($this->filePath);
-        if ($time >= $startTime->getTimestamp()) {
+        if ($time !== false && $time >= $startTime->getTimestamp()) {
             return true;
         }
 
