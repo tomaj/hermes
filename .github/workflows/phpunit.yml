@@ -38,10 +38,10 @@ jobs:
       run: composer install --prefer-dist --no-progress --no-suggest
 
     - name: Create build directories
-      run: mkdir -p build/logs
+      run: mkdir -p build/logs build/coverage
 
     - name: Run PHPUnit tests
-      run: vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+      run: vendor/bin/phpunit --coverage-clover build/logs/clover.xml --coverage-html build/coverage
 
     - if: |
         matrix.php-versions == '8.1' &&
@@ -55,20 +55,10 @@ jobs:
     - if: |
         matrix.php-versions == '8.1' &&
         matrix.operating-system == 'ubuntu-latest'
-      name: Debug coverage file
-      run: |
-        ls -la build/logs/
-        head -20 build/logs/clover.xml || echo "Coverage file not found or empty"
-
-    - if: |
-        matrix.php-versions == '8.1' &&
-        matrix.operating-system == 'ubuntu-latest'
-      name: Upload coverage to Codeclimate
-      continue-on-error: true
-      uses: paambaati/codeclimate-action@v5.0.0
-      env:
-        CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
+      name: Upload coverage reports
+      uses: actions/upload-artifact@v4
       with:
-        coverageLocations: ${{github.workspace}}/build/logs/clover.xml:clover
-        debug: true
+        name: coverage-report
+        path: build/coverage/
+        retention-days: 30
 

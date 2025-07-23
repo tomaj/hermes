@@ -421,6 +421,23 @@ Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recen
 $ composer test
 ```
 
+### Code Coverage
+
+To generate code coverage reports:
+
+``` bash
+# Generate coverage reports locally
+$ composer coverage
+# or use the helper script
+$ ./coverage.sh
+```
+
+The coverage reports will be generated in:
+- **HTML report**: `build/coverage/index.html` (open in browser to see line-by-line coverage)
+- **Clover XML**: `build/logs/clover.xml` (for CI/CD integration)
+
+**Online Coverage Reports**: Coverage reports are automatically published to GitHub Pages after each successful test run on the main branch. You can view them at: `https://[username].github.io/[repository-name]/`
+
 ## Contributing
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) and [CONDUCT](CONDUCT.md) for details.

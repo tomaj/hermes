@@ -9,3 +9,7 @@ sniff_fix: vendor/autoload.php
 
 test: vendor/autoload.php
 	vendor/bin/phpunit
+
+coverage: vendor/autoload.php
+	mkdir -p build/logs build/coverage
+	XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-clover build/logs/clover.xml --coverage-html build/coverage

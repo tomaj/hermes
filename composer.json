@@ -55,6 +55,7 @@
     "scripts": {
         "phpunit": "phpunit",
         "phpstan": "phpstan analyse",
-        "phpcs": "phpcs --standard=PSR2 src tests examples -n"
+        "phpcs": "phpcs --standard=PSR2 src tests examples -n",
+        "coverage": "XDEBUG_MODE=coverage phpunit --coverage-clover build/logs/clover.xml --coverage-html build/coverage"
     }
 }
