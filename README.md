@@ -5,6 +5,8 @@
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/tomaj/hermes/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/tomaj/hermes/?branch=master)
 [![Latest Stable Version](https://img.shields.io/packagist/v/tomaj/hermes.svg)](https://packagist.org/packages/tomaj/hermes)
 [![Phpstan](https://img.shields.io/badge/PHPStan-level%208-brightgreen.svg)](https://phpstan.org/)
+[![codecov](https://codecov.io/gh/tomaj/hermes/branch/master/graph/badge.svg)](https://codecov.io/gh/tomaj/hermes)
+[![Coverage Report](https://img.shields.io/badge/Coverage-HTML%20Report-blue.svg)](https://tomaj.github.io/hermes/coverage/)
 
 ## What is Hermes?
 

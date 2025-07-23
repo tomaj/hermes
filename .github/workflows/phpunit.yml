@@ -1,48 +1,106 @@
-name: Phpunit
+name: PHPUnit Tests & Coverage
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
-  run:
+  test:
     runs-on: ${{ matrix.operating-system }}
     strategy:
       matrix:
         operating-system: [ubuntu-latest]
-        php-versions: ['7.2', '7.3', '7.4', '8.0']
+        php-versions: ['7.2', '7.3', '7.4', '8.0', '8.1']
     name: PHP ${{ matrix.php-versions }} Test on ${{ matrix.operating-system }}
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php-versions }}
+        extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
         ini-values: post_max_size=256M, max_execution_time=180
         coverage: xdebug
 
-    - name: Composer install
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ matrix.php-versions }}-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-${{ matrix.php-versions }}-
+
+    - name: Install dependencies
       run: composer install --prefer-dist --no-progress --no-suggest
 
-    - name: phpunit
-      run: vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+    - name: Create build directory
+      run: mkdir -p build/logs
 
-    - if: |
-        matrix.php-versions == '7.4' &&
-        matrix.operating-system == 'ubuntu-latest'
-      name: Check test coverage
+    - name: Run PHPUnit tests with coverage
+      run: vendor/bin/phpunit --coverage-clover build/logs/clover.xml --coverage-html build/coverage-html --coverage-text
+
+    - name: Check test coverage
+      if: matrix.php-versions == '8.1' && matrix.operating-system == 'ubuntu-latest'
       uses: johanvanhelden/gha-clover-test-coverage-check@v1
       with:
         percentage: "70"
         filename: "build/logs/clover.xml"
 
-    - if: |
-        matrix.php-versions == '7.4' &&
-        matrix.operating-system == 'ubuntu-latest'
-      name: Codeclimate
-      uses: paambaati/codeclimate-action@v2.7.4
-      env:
-        CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
+    - name: Upload coverage to Codecov
+      if: matrix.php-versions == '8.1' && matrix.operating-system == 'ubuntu-latest'
+      uses: codecov/codecov-action@v3
       with:
-        coverageLocations: ${{github.workspace}}/build/logs/clover.xml:clover
+        file: ./build/logs/clover.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+    - name: Coverage comment
+      if: matrix.php-versions == '8.1' && matrix.operating-system == 'ubuntu-latest' && github.event_name == 'pull_request'
+      uses: 5monkeys/cobertura-action@master
+      with:
+        path: build/logs/clover.xml
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        minimum_coverage: 70
+        fail_below_threshold: false
+        show_missing: true
+
+    - name: Upload coverage HTML report
+      if: matrix.php-versions == '8.1' && matrix.operating-system == 'ubuntu-latest'
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-html-report
+        path: build/coverage-html
+        retention-days: 30
+
+  coverage-report:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+        extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+        coverage: xdebug
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress --no-suggest
+
+    - name: Generate coverage report
+      run: |
+        mkdir -p build/logs
+        vendor/bin/phpunit --coverage-clover build/logs/clover.xml --coverage-html build/coverage-html
+
+    - name: Deploy coverage to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./build/coverage-html
+        destination_dir: coverage
 

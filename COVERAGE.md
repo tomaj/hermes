@@ -1,167 +1,126 @@
-# Code Coverage
+# Code Coverage - GitHub Integration
 
-This project is configured with comprehensive code coverage reporting for both local development and GitLab CI/CD pipelines.
+Tento projekt má nakonfigurovaný komplexný systém pre sledovanie code coverage s GitHub Actions a rozličnými nástrojmi pre vizualizáciu.
 
-## GitLab CI/CD Coverage
+## 🎯 Čo získate
 
-### Automatic Coverage Reporting
-When you push changes to GitLab, the CI pipeline will automatically:
+### Automatické coverage reporty
+- **Percentuálne pokrytie** v každom pull requeste
+- **Detailné HTML reporty** s vizualizáciou pokrytých/nepokrytých riadkov
+- **Codecov integrácia** pre sledovanie trendov coverage
+- **GitHub Pages deployment** s interaktívnymi reportmi
 
-1. **Run all PHPUnit tests** with coverage collection
-2. **Generate coverage reports** in multiple formats
-3. **Display coverage percentage** in the merge request and pipeline views
-4. **Create detailed HTML coverage reports** showing line-by-line coverage
-5. **Publish coverage reports** to GitLab Pages (for main/master/develop branches)
+### Kde nájdete coverage informácie
 
-### Viewing Coverage in GitLab
+#### 1. Pull Request komentáre
+Pri každom PR automaticky dostanete komentár s:
+- Aktuálne percentuálne pokrytie
+- Zmeny oproti predchádzajúcej verzii
+- Zoznam súborov s nízkym pokrytím
+- Odkazy na detailné reporty
 
-#### Pipeline Coverage Badge
-- Coverage percentage is displayed in the pipeline view
-- Coverage percentage is extracted from PHPUnit output using regex pattern
-- Visible in merge requests showing coverage changes
+#### 2. GitHub Actions výstup
+V "Actions" tabe uvidíte:
+- Coverage percentage v názve jobu
+- Textový output s pokrytím po súboroch
+- Chybové hlášky ak coverage klesne pod minimum (70%)
 
-#### Coverage Reports
-- **Cobertura XML**: Used by GitLab for diff coverage in merge requests
-- **HTML Report**: Detailed line-by-line coverage available as pipeline artifacts
-- **JUnit XML**: Test results for GitLab test reporting
+#### 3. Codecov dashboard
+Na https://codecov.io/{username}/{repo}:
+- Grafy trendov coverage v čase
+- Pokrytie jednotlivých súborov a funkcií
+- Porovnanie medzi branchmi
+- Coverage sunburst vizualizácie
 
-#### GitLab Pages Coverage Report
-For main branches, detailed HTML coverage reports are published to GitLab Pages:
-- URL: `https://[username].gitlab.io/[project-name]/`
-- Shows detailed file-by-file coverage with line highlighting
-- Color-coded: Green (covered), Red (not covered), Orange (partially covered)
+#### 4. GitHub Pages reporty
+Na https://{username}.github.io/{repo}/coverage/:
+- Interaktívne HTML reporty
+- Klik na súbor = detail pokrytia po riadkoch
+- Farebné označenie pokrytých/nepokrytých riadkov
+- Aktualizuje sa automaticky pri push do main/master
 
-### Accessing Coverage Artifacts
-1. Go to your GitLab project
-2. Navigate to **CI/CD > Pipelines**
-3. Click on a specific pipeline
-4. In the right sidebar, click **"Coverage Report"** to download or browse
-5. Download the artifacts to view the HTML coverage report locally
+## 🚀 Lokálne testovanie coverage
 
-## Local Development Coverage
-
-### Prerequisites
-Ensure you have Xdebug installed and enabled:
-
+### Základný coverage report
 ```bash
-# Check if Xdebug is installed
-php -m | grep xdebug
-
-# Install Xdebug (if not already installed)
-# On Ubuntu/Debian:
-sudo apt-get install php-xdebug
-
-# On macOS with Homebrew:
-brew install php@8.1 # or your PHP version
-pecl install xdebug
-
-# On Windows:
-# Download appropriate Xdebug DLL and add to php.ini
-```
-
-### Running Coverage Locally
-
-#### Basic Coverage Report (Console)
-```bash
-# Run tests with coverage summary in console
 vendor/bin/phpunit --coverage-text
 ```
 
-#### HTML Coverage Report
+### Generovanie HTML reportov
 ```bash
-# Generate detailed HTML coverage report
-vendor/bin/phpunit --coverage-html coverage_html
+# Vytvorí interaktívny HTML report v build/coverage-html/
+vendor/bin/phpunit --coverage-html build/coverage-html
 
-# Open the report in your browser
-open coverage_html/index.html  # macOS
-xdg-open coverage_html/index.html  # Linux
-start coverage_html/index.html  # Windows
+# Otvorenie v prehliadači
+open build/coverage-html/index.html  # macOS
+xdg-open build/coverage-html/index.html  # Linux
 ```
 
-#### XML Coverage Reports
+### XML coverage pre nástroje
 ```bash
-# Generate Cobertura XML (for IDE integration)
-vendor/bin/phpunit --coverage-cobertura coverage.xml
-
-# Generate Clover XML (alternative format)
-vendor/bin/phpunit --coverage-clover coverage.xml
+# Clover format pre Codecov, PHPStorm, atď.
+vendor/bin/phpunit --coverage-clover build/logs/clover.xml
 ```
 
-#### Combined Coverage Report
+### Všetko naraz
 ```bash
-# Generate all coverage formats at once
 vendor/bin/phpunit \
   --coverage-text \
-  --coverage-html coverage_html \
-  --coverage-cobertura coverage.xml \
-  --log-junit junit.xml
+  --coverage-html build/coverage-html \
+  --coverage-clover build/logs/clover.xml
 ```
 
-### IDE Integration
+## 📊 Nastavenie minimálneho coverage
 
-#### PhpStorm/IntelliJ IDEA
-1. Go to **Run > Show Coverage Data**
-2. Import the generated `coverage.xml` file
-3. View coverage highlighting directly in the editor
+Aktuálne minimum je nastavené na **70%**. Pre zmenu editujte:
 
-#### VS Code
-1. Install the "Coverage Gutters" extension
-2. Use Command Palette: "Coverage Gutters: Display Coverage"
-3. Point to the generated coverage files
+1. **GitHub Actions** (`.github/workflows/phpunit.yml`):
+   ```yaml
+   percentage: "70"
+   minimum_coverage: 70
+   ```
 
-## Understanding Coverage Metrics
+2. **Lokálne testovanie**:
+   ```bash
+   vendor/bin/phpunit --coverage-text --coverage-clover=coverage.xml
+   # Skontrolovať v coverage.xml alebo textovom výstupe
+   ```
 
-### Coverage Types
-- **Line Coverage**: Percentage of executable lines covered by tests
-- **Function Coverage**: Percentage of functions/methods covered by tests
-- **Branch Coverage**: Percentage of conditional branches covered by tests
+## 🔧 Riešenie problémov
 
-### Coverage Thresholds
-The project is configured to:
-- Report coverage percentage in GitLab pipelines
-- Generate detailed reports for manual review
-- *Note: No minimum coverage enforcement is currently configured*
-
-### Improving Coverage
-1. **Identify uncovered lines**: Use HTML report to see specific uncovered lines
-2. **Write targeted tests**: Focus on red/uncovered lines in the reports
-3. **Review branch coverage**: Ensure all conditional paths are tested
-4. **Test edge cases**: Don't forget error conditions and boundary cases
-
-## Troubleshooting
-
-### Common Issues
-
-#### "No code coverage driver available"
-**Solution**: Install and enable Xdebug
+### Coverage sa negeneruje
+Skontrolujte, či máte nainštalované Xdebug:
 ```bash
-# Check Xdebug status
-php -i | grep xdebug
-
-# Ensure Xdebug mode includes coverage
-export XDEBUG_MODE=coverage
+php -m | grep xdebug
 ```
 
-#### "Permission denied" for coverage files
-**Solution**: Ensure write permissions for coverage directories
-```bash
-chmod -R 755 coverage_html/
-```
+### Nízke coverage hodnoty
+1. Pozrite si HTML report pre detaily
+2. Skontrolujte `@covers` annotations v testoch
+3. Uistite sa, že testy skutočně volajú váš kód
 
-#### GitLab CI coverage not showing
-**Solution**: Check that:
-1. Xdebug is properly installed in CI environment
-2. Coverage regex pattern matches PHPUnit output
-3. Artifacts are properly configured
+### GitHub Pages nefungujú
+1. Povoľte GitHub Pages v Settings > Pages
+2. Nastavte source na "GitHub Actions"
+3. Skontrolujte, či máte správne permissions
 
-### Configuration Files
-- **PHPUnit**: `phpunit.xml` - Test and coverage configuration
-- **GitLab CI**: `.gitlab-ci.yml` - CI/CD pipeline with coverage jobs
-- **Composer**: `composer.json` - Dependencies and scripts
+## 📈 Coverage metriky
 
-### Getting Help
-If you encounter issues with coverage reporting:
-1. Check the GitLab CI logs for detailed error messages
-2. Run coverage locally to isolate CI-specific issues
-3. Verify Xdebug configuration and version compatibility
-4. Review PHPUnit documentation for coverage options
+### Čo sa meria
+- **Line Coverage**: Aké % riadkov kódu je vykonané testmi
+- **Function Coverage**: Aké % funkcií/metód je testovaných
+- **Branch Coverage**: Aké % podmienok (if/else) je testovaných
+
+### Ideálne hodnoty
+- **90%+**: Výborné pokrytie
+- **70-89%**: Dobré pokrytie
+- **50-69%**: Potrebuje zlepšenie
+- **<50%**: Kriticky nízke
+
+## 🎨 Interpretácia farebného kódovania
+
+V HTML reportoch:
+- 🟢 **Zelená**: Riadok je pokrytý testmi
+- 🔴 **Červená**: Riadok nie je pokrytý
+- 🟡 **Žltá**: Riadok je čiastočne pokrytý (napr. iba jedna vetva if/else)
+- ⚪ **Biela**: Nepočíta sa do coverage (komentáre, prázdne riadky)

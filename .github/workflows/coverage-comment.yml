@@ -1,0 +1,110 @@
+name: Coverage Comment
+
+on:
+  workflow_run:
+    workflows: ["PHPUnit Tests & Coverage"]
+    types:
+      - completed
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  coverage-comment:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Download coverage reports
+        uses: actions/github-script@v6
+        with:
+          script: |
+            let allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               run_id: context.payload.workflow_run.id,
+            });
+            let matchArtifact = allArtifacts.data.artifacts.filter((artifact) => {
+              return artifact.name == "coverage-html-report"
+            })[0];
+            if (matchArtifact) {
+              let download = await github.rest.actions.downloadArtifact({
+                 owner: context.repo.owner,
+                 repo: context.repo.repo,
+                 artifact_id: matchArtifact.id,
+                 archive_format: 'zip',
+              });
+              let fs = require('fs');
+              fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/coverage.zip`, Buffer.from(download.data));
+            }
+
+      - name: Extract coverage
+        run: |
+          if [ -f coverage.zip ]; then
+            unzip -q coverage.zip
+            echo "Coverage artifact found and extracted"
+          else
+            echo "No coverage artifact found"
+          fi
+
+      - name: Find coverage percentage
+        id: coverage
+        run: |
+          if [ -f dashboard.html ]; then
+            # Extract coverage percentage from dashboard
+            COVERAGE=$(grep -o "Lines:.*%" dashboard.html | head -1 | grep -o "[0-9.]*%" || echo "N/A")
+            echo "percentage=$COVERAGE" >> $GITHUB_OUTPUT
+            echo "Coverage found: $COVERAGE"
+          else
+            echo "percentage=N/A" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment PR
+        if: github.event.workflow_run.event == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const coverage = '${{ steps.coverage.outputs.percentage }}';
+            
+            const comment = `## 📊 Code Coverage Report
+            
+            **Current Coverage: ${coverage}**
+            
+            ${coverage !== 'N/A' ? 
+              `🎯 **Coverage Target: 70%**
+            
+            ${parseFloat(coverage) >= 70 ? '✅ Coverage target met!' : '⚠️ Coverage below target'}
+            
+            📋 **Detailed Reports:**
+            - [HTML Coverage Report](https://tomaj.github.io/hermes/coverage/) (after merge to main)
+            - [Codecov Dashboard](https://codecov.io/gh/tomaj/hermes)
+            
+            > 💡 **Tip:** Click on files in the HTML report to see line-by-line coverage details!` 
+              : '❌ Coverage data not available'}`;
+            
+            // Find existing coverage comment
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.workflow_run.pull_requests[0].number
+            });
+            
+            const existingComment = comments.data.find(comment => 
+              comment.body.includes('📊 Code Coverage Report')
+            );
+            
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: comment
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.workflow_run.pull_requests[0].number,
+                body: comment
+              });
+            }
