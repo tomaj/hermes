@@ -6,8 +6,8 @@ echo "Generating code coverage report..."
 # Create build directories
 mkdir -p build/logs build/coverage
 
-# Run PHPUnit with coverage
-vendor/bin/phpunit --coverage-clover build/logs/clover.xml --coverage-html build/coverage
+# Run PHPUnit with coverage (with Xdebug coverage mode)
+XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-clover build/logs/clover.xml --coverage-html build/coverage
 
 if [ $? -eq 0 ]; then
     echo ""
