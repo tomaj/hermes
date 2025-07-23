@@ -9,15 +9,22 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 * Enhanced PHPStan configuration with strict rules and additional type checking
 * Added `phpstan/phpstan-strict-rules` extension for improved code quality analysis
 * Improved type safety with PHP 7.4+ typed properties in core classes
+* Added comprehensive GitHub Actions workflows with PHP 7.4+ support
+* Added security audit workflow with weekly vulnerability scanning
+* Added composer validation and dependency caching in CI
 
 ### Changed
 
 * **BREAKING CHANGE**: Updated minimum PHP version requirement to PHP 7.4+ with full PHP 8.0+ support
+* **BREAKING CHANGE**: Removed PHP 7.2 and 7.3 support from CI/CD workflows
 * Enhanced `Message` class with strict typing and improved type annotations
 * Enhanced `Dispatcher` class with typed properties and better type safety
 * Enhanced `MessageSerializer` class with stricter validation and error handling
 * Improved PHPStan analysis with strict comparison checks and function type hints
 * Updated composer dependencies to support PHP 8.0+ while maintaining backward compatibility
+* Modernized codebase with PHP 7.4+ features (typed properties, arrow functions, null coalescing)
+* Updated GitHub Actions to latest versions for better security and performance
+* Expanded CI test matrix to include PHP 8.1, 8.2, and 8.3
 
 ### Fixed
 
