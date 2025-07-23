@@ -1,0 +1,48 @@
+name: Phpunit
+
+on: [push]
+
+jobs:
+  run:
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      matrix:
+        operating-system: [ubuntu-latest]
+        php-versions: ['7.2', '7.3', '7.4', '8.0']
+    name: PHP ${{ matrix.php-versions }} Test on ${{ matrix.operating-system }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-versions }}
+        ini-values: post_max_size=256M, max_execution_time=180
+        coverage: xdebug
+
+    - name: Composer install
+      run: composer install --prefer-dist --no-progress --no-suggest
+
+    - name: phpunit
+      run: vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+
+    - if: |
+        matrix.php-versions == '7.4' &&
+        matrix.operating-system == 'ubuntu-latest'
+      name: Check test coverage
+      uses: johanvanhelden/gha-clover-test-coverage-check@v1
+      with:
+        percentage: "70"
+        filename: "build/logs/clover.xml"
+
+    - if: |
+        matrix.php-versions == '7.4' &&
+        matrix.operating-system == 'ubuntu-latest'
+      name: Codeclimate
+      uses: paambaati/codeclimate-action@v2.7.4
+      env:
+        CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
+      with:
+        coverageLocations: ${{github.workspace}}/build/logs/clover.xml:clover
+

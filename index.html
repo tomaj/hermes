@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hermes - Code Coverage Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .coverage-info { background: #f5f5f5; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .btn { 
+            display: inline-block; 
+            padding: 10px 20px; 
+            background: #007cba; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 4px; 
+            margin: 10px 5px;
+        }
+        .btn:hover { background: #005a87; }
+        .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .metric { background: white; padding: 15px; border-radius: 4px; border-left: 4px solid #007cba; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Hermes - Code Coverage Report</h1>
+        <img src="coverage-badge.svg" alt="Coverage Badge" />
+        <p>Generated on Wed Jul 23 06:54:00 PM UTC 2025</p>
+    </div>
+    
+    <div class="coverage-info">
+        <h2>Coverage Summary</h2>
+        <div class="metrics">
+            <div class="metric">
+                <h3>Statement Coverage</h3>
+                <p><strong>77.86%</strong> (292/375)</p>
+            </div>
+            <div class="metric">
+                <h3>Threshold</h3>
+                <p><strong>70%</strong> minimum required</p>
+            </div>
+            <div class="metric">
+                <h3>PHP Version</h3>
+                <p><strong>7.4+ / 8.0+</strong> compatible</p>
+            </div>
+            <div class="metric">
+                <h3>Tests</h3>
+                <p><strong>45</strong> tests passing</p>
+            </div>
+        </div>
+    </div>
+    
+    <div style="text-align: center;">
+        <a href="dashboard.html" class="btn">View Detailed Coverage Report</a>
+        <a href="https://github.com/tomaj/hermes" class="btn">View Source Code</a>
+    </div>
+</body>
+</html>

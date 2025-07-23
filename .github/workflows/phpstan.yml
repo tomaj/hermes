@@ -1,0 +1,17 @@
+name: phpstan
+
+on: [push]
+
+jobs:
+  phpcs:
+      name: phpstan
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v2
+
+        - name: Composer update
+          run: composer install --prefer-dist --no-progress --no-suggest
+
+        - name: phpstan
+          run: vendor/bin/phpstan analyse
