@@ -1,7 +1,0 @@
-[2025-07-23 17-29-25] RuntimeException: Error in handler in /workspace/tests/Handler/ExceptionHandler.php:16  @  CLI (PID: 12062): vendor/bin/phpunit --testdox  @@  exception--2025-07-23--17-29--29d60145dd.html
-[2025-07-23 17-37-16] RuntimeException: Error in handler in /workspace/tests/Handler/ExceptionHandler.php:16  @  CLI (PID: 13289): vendor/bin/phpunit --testdox  @@  exception--2025-07-23--17-37--c884f00971.html
-[2025-07-23 17-37-43] RuntimeException: Error in handler in /workspace/tests/Handler/ExceptionHandler.php:16  @  CLI (PID: 13376): vendor/bin/phpunit --testdox  @@  exception--2025-07-23--17-37--c884f00971.html
-[2025-07-23 17-39-35] RuntimeException: Error in handler in /workspace/tests/Handler/ExceptionHandler.php:16  @  CLI (PID: 13704): vendor/bin/phpunit --testdox  @@  exception--2025-07-23--17-37--c884f00971.html
-[2025-07-23 17-43-55] RuntimeException: Error in handler in /workspace/tests/Handler/ExceptionHandler.php:16  @  CLI (PID: 14224): vendor/bin/phpunit --testdox  @@  exception--2025-07-23--17-37--c884f00971.html
-[2025-07-23 17-49-12] RuntimeException: Error in handler in /workspace/tests/Handler/ExceptionHandler.php:16  @  CLI (PID: 15063): vendor/bin/phpunit --testdox  @@  exception--2025-07-23--17-37--c884f00971.html
-[2025-07-23 17-50-22] RuntimeException: Error in handler in /workspace/tests/Handler/ExceptionHandler.php:16  @  CLI (PID: 15218): vendor/bin/phpunit --testdox  @@  exception--2025-07-23--17-37--c884f00971.html
