@@ -7,35 +7,20 @@ use Ramsey\Uuid\Uuid;
 
 class Message implements MessageInterface
 {
-    /**
-     * @var string
-     */
-    private $type;
+    private string $type;
 
     /**
      * @var array<mixed>|null
      */
-    private $payload;
+    private ?array $payload;
 
-    /**
-     * @var string
-     */
-    private $messageId;
+    private string $messageId;
 
-    /**
-     * @var float
-     */
-    private $created;
+    private float $created;
 
-    /**
-     * @var float|null
-     */
-    private $executeAt;
+    private ?float $executeAt;
 
-    /**
-     * @var int
-     */
-    private $retries;
+    private int $retries;
 
     /**
      * Native implementation of message.
@@ -49,15 +34,11 @@ class Message implements MessageInterface
      */
     public function __construct(string $type, ?array $payload = null, ?string $messageId = null, ?float $created = null, ?float $executeAt = null, int $retries = 0)
     {
-        if ($messageId === null || $messageId == "") {
-            $messageId = Uuid::uuid4()->toString();
-        }
-        $this->messageId = $messageId;
+        $this->messageId = ($messageId === null || $messageId === '')
+            ? Uuid::uuid4()->toString()
+            : $messageId;
 
-        if (!$created) {
-            $created = microtime(true);
-        }
-        $this->created = $created;
+        $this->created = $created ?? microtime(true);
 
         $this->type = $type;
         $this->payload = $payload;

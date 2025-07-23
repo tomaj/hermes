@@ -9,19 +9,9 @@ use Tomaj\Hermes\Driver\DriverInterface;
 
 class Emitter implements EmitterInterface
 {
-    /**
-     * Dispatcher driver
-     *
-     * @var DriverInterface
-     */
-    private $driver;
+    private DriverInterface $driver;
 
-    /**
-     * Logger
-     *
-     * @var LoggerInterface|null
-     */
-    private $logger;
+    private ?LoggerInterface $logger;
 
     /**
      * Create new Dispatcher

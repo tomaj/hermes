@@ -1,17 +1,36 @@
-name: PHPCS check
+name: Code Style Check
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   phpcs:
-      name: PHPCS
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v2
+    name: PHP CodeSniffer
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-        - name: Composer update
-          run: composer install --prefer-dist --no-progress --no-suggest
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: json
+          coverage: none
 
-        - name: phpcs
-          run: vendor/bin/phpcs --standard=PSR2 src tests examples -n
+      - name: Validate composer.json and composer.lock
+        run: composer validate --strict
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-8.1-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-8.1-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Run PHP CodeSniffer
+        run: vendor/bin/phpcs --standard=PSR2 src tests examples -n

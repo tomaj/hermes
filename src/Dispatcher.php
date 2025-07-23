@@ -15,40 +15,22 @@ use Tracy\Debugger;
 
 class Dispatcher implements DispatcherInterface
 {
-    const DEFAULT_PRIORITY = 100;
+    public const DEFAULT_PRIORITY = 100;
 
-    /**
-     * Dispatcher driver
-     *
-     * @var DriverInterface
-     */
-    private $driver;
+    private DriverInterface $driver;
 
-    /**
-     * Logger
-     *
-     * @var LoggerInterface|null
-     */
-    private $logger;
+    private ?LoggerInterface $logger;
 
-    /**
-     * Shutdown
-     *
-     * @var ShutdownInterface|null
-     */
-    private $shutdown;
+    private ?ShutdownInterface $shutdown;
 
     /**
      * All registered handlers
      *
      * @var HandlerInterface[][]
      */
-    private $handlers = [];
+    private array $handlers = [];
 
-    /**
-     * @var DateTime
-     */
-    private $startTime;
+    private DateTime $startTime;
 
     /**
      * Create new Dispatcher
@@ -65,7 +47,7 @@ class Dispatcher implements DispatcherInterface
         $this->startTime = new DateTime();
 
         // check if driver use ShutdownTrait
-        if ($shutdown && method_exists($this->driver, 'setShutdown')) {
+        if ($shutdown !== null && method_exists($this->driver, 'setShutdown')) {
             $this->driver->setShutdown($shutdown);
         }
     }
@@ -102,7 +84,7 @@ class Dispatcher implements DispatcherInterface
     public function handle(array $priorities = []): void
     {
         try {
-            $this->driver->wait(function (MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY) {
+            $this->driver->wait(function (MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): bool {
                 $this->log(
                     LogLevel::INFO,
                     "Start handle message #{$message->getId()} ({$message->getType()}) priority:{$priority}",
@@ -279,9 +261,7 @@ class Dispatcher implements DispatcherInterface
         }
         $this->handlers[$type] = array_filter(
             $this->handlers[$type],
-            function (HandlerInterface $registeredHandler) use ($handler) {
-                return $registeredHandler !== $handler;
-            }
+            fn(HandlerInterface $registeredHandler): bool => $registeredHandler !== $handler
         );
 
         return $this;

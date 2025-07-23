@@ -7,10 +7,7 @@ use Tomaj\Hermes\SerializerInterface;
 
 trait SerializerAwareTrait
 {
-    /**
-     * @var SerializerInterface
-     */
-    private $serializer;
+    private SerializerInterface $serializer;
 
     /**
      * Set serializer to driver

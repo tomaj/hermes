@@ -1,5 +1,6 @@
 includes:
 	- vendor/pepakriz/phpstan-exception-rules/extension.neon
+	- vendor/phpstan/phpstan-strict-rules/rules.neon
 
 parameters:
 	level: max
@@ -8,15 +9,32 @@ parameters:
 		- examples
 #		- tests
 
-
+	treatPhpDocTypesAsCertain: false
+	checkMissingIterableValueType: true
+	checkGenericClassInNonGenericObjectType: false
+	reportUnmatchedIgnoredErrors: false
+	
+	# Better type checking (compatible with PHPStan 0.12)
+	checkAlwaysTrueCheckTypeFunctionCall: true
+	checkAlwaysTrueInstanceof: true
+	checkAlwaysTrueStrictComparison: true
+	checkExplicitMixedMissingReturn: true
+	checkFunctionNameCase: true
+	checkInternalClassCaseSensitivity: true
+	
+	# Exception rules
 	exceptionRules:
 		reportUnusedCatchesOfUncheckedExceptions: true
 		reportUnusedCheckedThrowsInSubtypes: false
 		reportCheckedThrowsInGlobalScope: true
 		checkedExceptions:
 			- RuntimeException
-
-	treatPhpDocTypesAsCertain: false
+			
+	# Ignore some legacy driver issues for now
+	ignoreErrors:
+		- '#Only booleans are allowed in#'
+		- '#Call to function in_array\(\) requires parameter \#3 to be set#'
+		- '#Anonymous function should have native return typehint#'
 
 
 

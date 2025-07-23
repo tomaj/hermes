@@ -17,7 +17,7 @@
         "source": "https://github.com/tomaj/hermes"
     },
     "require": {
-        "php": ">= 7.2.0",
+        "php": "^7.4 || ^8.0",
         "ext-json": "*",
         "ramsey/uuid": "^3 || ^4",
         "psr/log": "^1 || ^2 || ^3",
@@ -32,7 +32,8 @@
         "scrutinizer/ocular": "^1.6.0",
         "aws/aws-sdk-php": "3.*",
         "phpstan/phpstan": "^0.12.65",
-        "pepakriz/phpstan-exception-rules": "^0.11.3"
+        "pepakriz/phpstan-exception-rules": "^0.11.3",
+        "phpstan/phpstan-strict-rules": "^0.12"
     },
     "suggest": {
         "monolog/monolog": "Basic logger implements psr/logger",
