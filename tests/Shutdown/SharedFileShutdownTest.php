@@ -8,58 +8,110 @@ use Tomaj\Hermes\Shutdown\SharedFileShutdown;
 use DateTime;
 
 /**
- * Class SharedFileShutdownTest
- *
- * @package Tomaj\Hermes\Test\Shutdown
  * @covers \Tomaj\Hermes\Shutdown\SharedFileShutdown
  */
 class SharedFileShutdownTest extends TestCase
 {
-    public function testShouldShutdownWithNotExistsingFile(): void
+    private string $tempFile;
+    
+    protected function setUp(): void
     {
-        $sharedFileShutdown = new SharedFileShutdown('unknownfilepath.txt');
-        $this->assertFalse($sharedFileShutdown->shouldShutdown(new DateTime()));
+        $this->tempFile = tempnam(sys_get_temp_dir(), 'hermes_test_shutdown_');
     }
-
-    public function testShouldShutdownWithNewFile(): void
+    
+    protected function tearDown(): void
     {
-        $file = tempnam(sys_get_temp_dir(), 'hermestest');
-        if (!$file) {
-            $this->markTestIncomplete("Cannot create tmp file");
+        if (file_exists($this->tempFile)) {
+            unlink($this->tempFile);
         }
-        $sharedFileShutdown = new SharedFileShutdown($file);
-        $this->assertTrue($sharedFileShutdown->shouldShutdown(new DateTime('-3 minutes')));
     }
-
-    public function testShouldShutdownWithOldFile(): void
+    
+    public function testConstructor(): void
     {
-        $file = tempnam(sys_get_temp_dir(), 'hermestest');
-        if (!$file) {
-            $this->markTestIncomplete("Cannot create tmp file");
+        $shutdown = new SharedFileShutdown($this->tempFile);
+        $this->assertInstanceOf(SharedFileShutdown::class, $shutdown);
+    }
+    
+    public function testShouldShutdownWhenFileDoesNotExist(): void
+    {
+        if (file_exists($this->tempFile)) {
+            unlink($this->tempFile);
         }
-        $sharedFileShutdown = new SharedFileShutdown($file);
-        $this->assertFalse($sharedFileShutdown->shouldShutdown(new DateTime('+3 minutes')));
+        
+        $shutdown = new SharedFileShutdown($this->tempFile);
+        $startTime = new DateTime();
+        
+        $this->assertFalse($shutdown->shouldShutdown($startTime));
     }
-
-    public function testShutdownCreatedCorrectFile(): void
+    
+    public function testShouldShutdownWhenFileIsOlder(): void
     {
-        $fileName = sys_get_temp_dir() . '/hermestest_shutdown_' . time();
-        $sharedFileShutdown = new SharedFileShutdown($fileName);
-
-        $this->assertFalse(file_exists($fileName));
-
-        // try to initiate shutdown Hermes
-        $shutdownTime = new DateTime();
-        $this->assertTrue($sharedFileShutdown->shutdown($shutdownTime));
-
-        $this->assertTrue(file_exists($fileName));
-
-        $fileModificationTime = filemtime($fileName);
-        $this->assertNotFalse($fileModificationTime);
-
-        $this->assertEquals($shutdownTime->format('U'), $fileModificationTime);
-
-        // clean after test
-        unlink($fileName);
+        // Create file first
+        touch($this->tempFile, time() - 3600); // 1 hour ago
+        
+        $shutdown = new SharedFileShutdown($this->tempFile);
+        $startTime = new DateTime(); // now
+        
+        $this->assertFalse($shutdown->shouldShutdown($startTime));
+    }
+    
+    public function testShouldShutdownWhenFileIsNewer(): void
+    {
+        $startTime = new DateTime();
+        sleep(1); // Wait a bit to ensure file is newer
+        
+        // Create file after start time
+        touch($this->tempFile);
+        
+        $shutdown = new SharedFileShutdown($this->tempFile);
+        
+        $this->assertTrue($shutdown->shouldShutdown($startTime));
+    }
+    
+    public function testShutdownCreatesFile(): void
+    {
+        if (file_exists($this->tempFile)) {
+            unlink($this->tempFile);
+        }
+        
+        $shutdown = new SharedFileShutdown($this->tempFile);
+        $result = $shutdown->shutdown();
+        
+        $this->assertTrue($result);
+        $this->assertTrue(file_exists($this->tempFile));
+    }
+    
+    public function testShutdownWithSpecificTime(): void
+    {
+        if (file_exists($this->tempFile)) {
+            unlink($this->tempFile);
+        }
+        
+        $shutdown = new SharedFileShutdown($this->tempFile);
+        $shutdownTime = new DateTime('2023-01-01 12:00:00');
+        $result = $shutdown->shutdown($shutdownTime);
+        
+        $this->assertTrue($result);
+        $this->assertTrue(file_exists($this->tempFile));
+        $this->assertEquals($shutdownTime->getTimestamp(), filemtime($this->tempFile));
+    }
+    
+    public function testShutdownWithNullTime(): void
+    {
+        if (file_exists($this->tempFile)) {
+            unlink($this->tempFile);
+        }
+        
+        $shutdown = new SharedFileShutdown($this->tempFile);
+        $beforeTime = time();
+        $result = $shutdown->shutdown(null);
+        $afterTime = time();
+        
+        $this->assertTrue($result);
+        $this->assertTrue(file_exists($this->tempFile));
+        
+        $fileTime = filemtime($this->tempFile);
+        $this->assertGreaterThanOrEqual($beforeTime, $fileTime);
+        $this->assertLessThanOrEqual($afterTime, $fileTime);
     }
 }
