@@ -17,7 +17,7 @@
         "source": "https://github.com/tomaj/hermes"
     },
     "require": {
-        "php": ">= 7.2.0",
+        "php": "^7.4 || ^8.0",
         "ext-json": "*",
         "ramsey/uuid": "^3 || ^4",
         "psr/log": "^1 || ^2 || ^3",

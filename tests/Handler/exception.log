@@ -1,0 +1,1 @@
+[2025-07-23 17-29-25] RuntimeException: Error in handler in /workspace/tests/Handler/ExceptionHandler.php:16  @  CLI (PID: 12062): vendor/bin/phpunit --testdox  @@  exception--2025-07-23--17-29--29d60145dd.html
