@@ -1,9 +1,8 @@
-build
-vendor
+build/
+vendor/
 composer.lock
-build
 coverage.clover
-.idea
-.phpunit.cache
+.idea/
+.phpunit.cache/
 exception.log
 exception--*
