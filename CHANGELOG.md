@@ -4,6 +4,28 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ## [Unreleased][unreleased]
 
+### Added
+
+* Enhanced PHPStan configuration with strict rules and additional type checking
+* Added `phpstan/phpstan-strict-rules` extension for improved code quality analysis
+* Improved type safety with PHP 7.4+ typed properties in core classes
+
+### Changed
+
+* **BREAKING CHANGE**: Updated minimum PHP version requirement to PHP 7.4+ with full PHP 8.0+ support
+* Enhanced `Message` class with strict typing and improved type annotations
+* Enhanced `Dispatcher` class with typed properties and better type safety
+* Enhanced `MessageSerializer` class with stricter validation and error handling
+* Improved PHPStan analysis with strict comparison checks and function type hints
+* Updated composer dependencies to support PHP 8.0+ while maintaining backward compatibility
+
+### Fixed
+
+* Fixed strict comparison issues in `Message` constructor
+* Fixed boolean condition checks for better PHP 8+ compatibility
+* Added proper return type hints to anonymous functions
+* Improved JSON serialization error handling in `MessageSerializer`
+
 
 ## 4.2.0
 
