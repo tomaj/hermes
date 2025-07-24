@@ -61,7 +61,7 @@ class SimpleCoverageImprovements extends TestCase
         $redis->method('zRem')
               ->willReturn(1);
         
-        $callback = function(MessageInterface $message) use (&$processedMessages) {
+        $callback = function (MessageInterface $message) use (&$processedMessages) {
             $processedMessages[] = $message;
             return true;
         };
@@ -95,7 +95,7 @@ class SimpleCoverageImprovements extends TestCase
         $predis->method('zrangebyscore')->willReturn([]);
         
         $processedCount = 0;
-        $callback = function(MessageInterface $message) use (&$processedCount) {
+        $callback = function (MessageInterface $message) use (&$processedCount) {
             $processedCount++;
             return true;
         };
@@ -117,7 +117,7 @@ class SimpleCoverageImprovements extends TestCase
         
         $client->expects($this->once())
                ->method('createQueue')
-               ->with($this->callback(function($params) {
+               ->with($this->callback(function ($params) {
                    return isset($params['Attributes']) && $params['Attributes']['VisibilityTimeout'] === 30;
                }))
                ->willReturn($this->createMockAwsResult(['QueueUrl' => 'https://sqs.amazonaws.com/test']));
@@ -164,13 +164,15 @@ class SimpleCoverageImprovements extends TestCase
         $dispatcher = new Dispatcher($driver);
         
         $handler1 = new class implements HandlerInterface {
-            public function handle(MessageInterface $message): bool {
+            public function handle(MessageInterface $message): bool
+            {
                 return true;
             }
         };
         
         $handler2 = new class implements HandlerInterface {
-            public function handle(MessageInterface $message): bool {
+            public function handle(MessageInterface $message): bool
+            {
                 return true;
             }
         };
@@ -203,7 +205,8 @@ class SimpleCoverageImprovements extends TestCase
         $driver->addMessage($message);
         
         $handler = new class implements HandlerInterface {
-            public function handle(MessageInterface $message): bool {
+            public function handle(MessageInterface $message): bool
+            {
                 throw new \Exception('Test exception for logging');
             }
         };

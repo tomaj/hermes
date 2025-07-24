@@ -3,22 +3,17 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes\Test\Handler;
 
-use PHPUnit\Framework\TestCase;
-use Tomaj\Hermes\Handler\RetryTrait;
-use Tomaj\Hermes\Handler\HandlerInterface;
-use Tomaj\Hermes\MessageInterface;
-
 /**
  * @covers \Tomaj\Hermes\Handler\RetryTrait
  */
-class RetryTraitTest extends TestCase
+class RetryTraitTest extends \PHPUnit\Framework\TestCase
 {
     public function testCanRetry(): void
     {
-        $handler = new class implements HandlerInterface {
-            use RetryTrait;
+        $handler = new class implements \Tomaj\Hermes\Handler\HandlerInterface {
+            use \Tomaj\Hermes\Handler\RetryTrait;
             
-            public function handle(MessageInterface $message): bool
+            public function handle(\Tomaj\Hermes\MessageInterface $message): bool
             {
                 return true;
             }
@@ -29,10 +24,10 @@ class RetryTraitTest extends TestCase
     
     public function testMaxRetry(): void
     {
-        $handler = new class implements HandlerInterface {
-            use RetryTrait;
+        $handler = new class implements \Tomaj\Hermes\Handler\HandlerInterface {
+            use \Tomaj\Hermes\Handler\RetryTrait;
             
-            public function handle(MessageInterface $message): bool
+            public function handle(\Tomaj\Hermes\MessageInterface $message): bool
             {
                 return true;
             }
