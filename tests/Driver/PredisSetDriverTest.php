@@ -92,6 +92,4 @@ class PredisSetDriverTest extends TestCase
         
         $this->assertTrue($result);
     }
-    
-
 }

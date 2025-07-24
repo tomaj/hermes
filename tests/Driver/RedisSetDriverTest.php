@@ -89,6 +89,4 @@ class RedisSetDriverTest extends TestCase
         
         $this->assertTrue($result);
     }
-    
-
 }
