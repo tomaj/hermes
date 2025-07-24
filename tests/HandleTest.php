@@ -20,6 +20,7 @@ use Tomaj\Hermes\Dispatcher;
  * @covers \Tomaj\Hermes\MessageSerializer
  * @covers \Tomaj\Hermes\Emitter
  * @covers \Tomaj\Hermes\Driver\MaxItemsTrait
+ * @covers \Tomaj\Hermes\Handler\RetryTrait
  */
 class HandleTest extends TestCase
 {
@@ -208,5 +209,158 @@ class HandleTest extends TestCase
 
         $secondHandlerReceivedMessages = $secondHandler->getReceivedMessages();
         $this->assertCount(1, $secondHandlerReceivedMessages);
+    }
+
+    public function testEmitMethod(): void
+    {
+        $driver = new DummyDriver([]);
+        $driver->setupPriorityQueue('high', 200);
+        $dispatcher = new Dispatcher($driver);
+
+        $message = new Message('test-event', ['test' => 'data']);
+        $result = $dispatcher->emit($message, 200);
+
+        $this->assertSame($dispatcher, $result);
+        
+        // Check that the message was sent via the driver
+        $sentMessage = $driver->getMessage();
+        $this->assertNotNull($sentMessage);
+        $this->assertEquals('test-event', $sentMessage->getType());
+        $this->assertEquals(['test' => 'data'], $sentMessage->getPayload());
+    }
+
+    public function testRegisterHandlers(): void
+    {
+        $handler1 = new TestHandler();
+        $handler2 = new TestHandler();
+        $handlers = [$handler1, $handler2];
+
+        $message = new Message('test-event', ['test' => 'data']);
+        $driver = new DummyDriver([$message]);
+        $dispatcher = new Dispatcher($driver);
+
+        $result = $dispatcher->registerHandlers('test-event', $handlers);
+
+        $this->assertSame($dispatcher, $result);
+
+        // Test that both handlers receive the message
+        $dispatcher->handle();
+
+        $this->assertCount(1, $handler1->getReceivedMessages());
+        $this->assertCount(1, $handler2->getReceivedMessages());
+    }
+
+    public function testRetryMessage(): void
+    {
+        // Create a handler that uses RetryTrait
+        $handler = new class implements \Tomaj\Hermes\Handler\HandlerInterface {
+            use \Tomaj\Hermes\Handler\RetryTrait;
+            
+            public function handle(\Tomaj\Hermes\MessageInterface $message): bool
+            {
+                // Throw exception to trigger retry
+                throw new \Exception('Test exception to trigger retry');
+            }
+        };
+
+        $message = new Message('retry-event', ['test' => 'retry'], 'test-id', microtime(true), null, 5);
+        $driver = new DummyDriver([$message]);
+        $dispatcher = new Dispatcher($driver);
+        $dispatcher->registerHandler('retry-event', $handler);
+
+        $dispatcher->handle();
+
+        // Should have sent a retry message since retries (5) < maxRetry (25)
+        // Need to check both messages that might be in the queue
+        $message1 = $driver->getMessage();
+        $message2 = $driver->getMessage();
+        
+        // One should be the retry message with retries=6
+        $foundRetryMessage = false;
+        if ($message1 && $message1->getRetries() === 6) {
+            $foundRetryMessage = true;
+        }
+        if ($message2 && $message2->getRetries() === 6) {
+            $foundRetryMessage = true;
+        }
+        
+        $this->assertTrue($foundRetryMessage, 'Should have found a retry message with retries=6');
+    }
+
+    public function testRetryMessageMaxRetriesReached(): void
+    {
+        // Create a handler that uses RetryTrait with custom maxRetry
+        $handler = new class implements \Tomaj\Hermes\Handler\HandlerInterface {
+            use \Tomaj\Hermes\Handler\RetryTrait;
+            
+            public function maxRetry(): int
+            {
+                return 5; // Lower max retry for this test
+            }
+            
+            public function handle(\Tomaj\Hermes\MessageInterface $message): bool
+            {
+                // Throw exception to trigger retry check
+                throw new \Exception('Test exception to trigger retry');
+            }
+        };
+
+        $message = new Message('retry-event', ['test' => 'retry'], 'test-id', microtime(true), null, 5);
+        $driver = new DummyDriver([$message]);
+        $dispatcher = new Dispatcher($driver);
+        $dispatcher->registerHandler('retry-event', $handler);
+
+        $dispatcher->handle();
+
+        // Should not have sent a retry message since retries (5) >= maxRetry (5)
+        // But the original message should still be there
+        $message1 = $driver->getMessage();
+        $message2 = $driver->getMessage();
+        
+        // Should not find any message with retries=6 (no retry should have been sent)
+        $foundRetryMessage = false;
+        if ($message1 && $message1->getRetries() === 6) {
+            $foundRetryMessage = true;
+        }
+        if ($message2 && $message2->getRetries() === 6) {
+            $foundRetryMessage = true;
+        }
+        
+        $this->assertFalse($foundRetryMessage, 'Should not have found a retry message with retries=6');
+    }
+
+    public function testHandlerWithoutRetryMethods(): void
+    {
+        // Create a handler that doesn't use RetryTrait
+        $handler = new class implements \Tomaj\Hermes\Handler\HandlerInterface {
+            public function handle(\Tomaj\Hermes\MessageInterface $message): bool
+            {
+                // Throw exception but handler doesn't have retry methods
+                throw new \Exception('Exception in handler without retry methods');
+            }
+        };
+
+        $message = new Message('no-retry-event', ['test' => 'no-retry'], 'test-id', microtime(true), null, 5);
+        $driver = new DummyDriver([$message]);
+        $dispatcher = new Dispatcher($driver);
+        $dispatcher->registerHandler('no-retry-event', $handler);
+
+        $dispatcher->handle();
+
+        // Should not have sent a retry message since handler doesn't have retry methods
+        // But the original message should still be there
+        $message1 = $driver->getMessage();
+        $message2 = $driver->getMessage();
+        
+        // Should not find any message with retries=6 (no retry should have been sent)
+        $foundRetryMessage = false;
+        if ($message1 && $message1->getRetries() === 6) {
+            $foundRetryMessage = true;
+        }
+        if ($message2 && $message2->getRetries() === 6) {
+            $foundRetryMessage = true;
+        }
+        
+        $this->assertFalse($foundRetryMessage, 'Should not have found a retry message with retries=6');
     }
 }
