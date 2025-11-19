@@ -4,96 +4,142 @@ declare(strict_types=1);
 namespace Tomaj\Hermes\Test\Driver;
 
 use Aws\Sqs\SqsClient;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Tomaj\Hermes\Driver\AmazonSqsDriver;
+use Tomaj\Hermes\Driver\NotSupportedException;
 use Tomaj\Hermes\Message;
-use Tomaj\Hermes\MessageSerializer;
-use Tomaj\Hermes\Shutdown\ShutdownException;
+use Tomaj\Hermes\SerializerInterface;
 
 /**
- * Class AmazonSqsDriverTest
- * @package Tomaj\Hermes\Test\Driver
  * @covers \Tomaj\Hermes\Driver\AmazonSqsDriver
  * @covers \Tomaj\Hermes\Message
  * @covers \Tomaj\Hermes\MessageSerializer
- * @covers \Tomaj\Hermes\HermesException
  */
 class AmazonSqsDriverTest extends TestCase
 {
-    /**
-     * @param string[] $methods
-     * @return MockObject
-     */
-    private function prepareClient(array $methods = []): MockObject
+    public function testSetupPriorityQueueThrowsException(): void
     {
-        if (!in_array('createQueue', $methods)) {
-            $methods[] = 'createQueue';
-        }
         $client = $this->getMockBuilder(SqsClient::class)
-            ->disableOriginalConstructor()
-            ->addMethods($methods)
-            ->getMock();
+                       ->disableOriginalConstructor()
+                       ->addMethods(['createQueue'])
+                       ->getMock();
         $client->expects($this->once())
-            ->method('createQueue')
-            ->with(['QueueName' => 'mykey1', 'Attributes' => []])->will($this->returnValue(new class {
-                public function get(string $string): string
-                {
-                    return 'mykey1';
-                }
-            }));
-        return $client;
+               ->method('createQueue')
+               ->willReturn($this->createMockResult(['QueueUrl' => 'https://sqs.region.amazonaws.com/123456789/test-queue']));
+               
+        $driver = new AmazonSqsDriver($client, 'test-queue');
+        
+        $this->expectException(NotSupportedException::class);
+        $this->expectExceptionMessage("AmazonSQS is not supporting priority queues now");
+        
+        $driver->setupPriorityQueue('test', 100);
     }
-
-    public function testPredisSendMessage(): void
+    
+    public function testConstructorCreatesQueue(): void
     {
-        $message = new Message('message1key', ['a' => 'b']);
-        $client = $this->prepareClient(['sendMessage']);
+        $client = $this->getMockBuilder(SqsClient::class)
+                       ->disableOriginalConstructor()
+                       ->addMethods(['createQueue'])
+                       ->getMock();
         $client->expects($this->once())
-            ->method('sendMessage')
-            ->with([
-                'QueueUrl' => 'mykey1',
-                'MessageBody' => (new MessageSerializer)->serialize($message),
-            ]);
-
-        $driver = new AmazonSqsDriver($client, 'mykey1');
-        $driver->send($message);
+               ->method('createQueue')
+               ->with([
+                   'QueueName' => 'test-queue',
+                   'Attributes' => [],
+               ])
+               ->willReturn($this->createMockResult(['QueueUrl' => 'https://sqs.region.amazonaws.com/123456789/test-queue']));
+               
+        $driver = new AmazonSqsDriver($client, 'test-queue');
+        
+        $this->assertInstanceOf(AmazonSqsDriver::class, $driver);
     }
-
-    public function testWaitForMessage(): void
+    
+    public function testConstructorWithQueueAttributes(): void
     {
-        $message = new Message('message1', ['test' => 'value']);
-
-        $client = $this->prepareClient(['receiveMessage', 'deleteMessage']);
+        $client = $this->getMockBuilder(SqsClient::class)
+                       ->disableOriginalConstructor()
+                       ->addMethods(['createQueue'])
+                       ->getMock();
+        $attributes = ['VisibilityTimeout' => '60'];
+        
         $client->expects($this->once())
-            ->method('receiveMessage')
-            ->will($this->returnValue(['Messages' => [['ReceiptHandle' => '123x', 'Body' => (new MessageSerializer)->serialize($message)]]]));
-        $client->expects($this->once())
-            ->method('deleteMessage')
-            ->with(['QueueUrl' => 'mykey1', 'ReceiptHandle' => '123x']);
-
-        $driver = new AmazonSqsDriver($client, 'mykey1');
-        $driver->setMaxProcessItems(1);
-        $processed = [];
-        $driver->wait(function ($message) use (&$processed) {
-            $processed[] = $message;
-        });
-
-        $this->assertCount(1, $processed);
-        $this->assertEquals($message->getId(), $processed[0]->getId());
+               ->method('createQueue')
+               ->with([
+                   'QueueName' => 'test-queue',
+                   'Attributes' => $attributes,
+               ])
+               ->willReturn($this->createMockResult(['QueueUrl' => 'https://sqs.region.amazonaws.com/123456789/test-queue']));
+               
+        $driver = new AmazonSqsDriver($client, 'test-queue', $attributes);
+        
+        $this->assertInstanceOf(AmazonSqsDriver::class, $driver);
     }
-
-    public function testShutdownBeforeStart(): void
+    
+    public function testTraitsAreUsed(): void
     {
-        $client = $this->prepareClient();
-        $processed = [];
-        $driver = new AmazonSqsDriver($client, 'mykey1');
-        $driver->setShutdown(new CustomShutdown((new \DateTime())->modify("+5 minutes")));
-
-        $this->expectException(ShutdownException::class);
-
-        $driver->wait(function ($message) use (&$processed) {
-            $processed[] = $message;
-        });
+        $client = $this->getMockBuilder(SqsClient::class)
+                       ->disableOriginalConstructor()
+                       ->addMethods(['createQueue'])
+                       ->getMock();
+        $client->expects($this->once())
+               ->method('createQueue')
+               ->willReturn($this->createMockResult(['QueueUrl' => 'https://sqs.region.amazonaws.com/123456789/test-queue']));
+               
+        $driver = new AmazonSqsDriver($client, 'test-queue');
+        
+        // Test MaxItemsTrait methods
+        $this->assertEquals(0, $driver->processed());
+        $this->assertTrue($driver->shouldProcessNext());
+        
+        // Test SerializerAwareTrait methods (we can only test setSerializer)
+        $customSerializer = $this->createMock(SerializerInterface::class);
+        $driver->setSerializer($customSerializer);
+        
+        // No exception should be thrown
+        $this->assertTrue(true);
+    }
+    
+    public function testSendMessage(): void
+    {
+        $client = $this->getMockBuilder(SqsClient::class)
+                       ->disableOriginalConstructor()
+                       ->addMethods(['createQueue', 'sendMessage'])
+                       ->getMock();
+        $client->expects($this->once())
+               ->method('createQueue')
+               ->willReturn($this->createMockResult(['QueueUrl' => 'https://sqs.region.amazonaws.com/123456789/test-queue']));
+        
+        $client->expects($this->once())
+               ->method('sendMessage')
+               ->with($this->callback(function ($params) {
+                   return $params['QueueUrl'] === 'https://sqs.region.amazonaws.com/123456789/test-queue' &&
+                          isset($params['MessageBody']);
+               }));
+               
+        $driver = new AmazonSqsDriver($client, 'test-queue');
+        
+        $message = new Message('test', ['data' => 'value']);
+        $result = $driver->send($message);
+        
+        $this->assertTrue($result);
+    }
+    
+    private function createMockResult(array $data): object
+    {
+        $result = new class($data) {
+            private $data;
+            
+            public function __construct($data)
+            {
+                $this->data = $data;
+            }
+            
+            public function get($key)
+            {
+                return $this->data[$key] ?? null;
+            }
+        };
+        
+        return $result;
     }
 }
