@@ -12,6 +12,10 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 * Added comprehensive GitHub Actions workflows with PHP 7.4+ support
 * Added security audit workflow with weekly vulnerability scanning
 * Added composer validation and dependency caching in CI
+* Added local code coverage reporting with HTML and Clover XML output
+* Added GitHub Pages deployment for coverage reports
+* Added `coverage.sh` helper script for generating coverage reports
+* Added Makefile with coverage target
 
 ### Changed
 
@@ -25,6 +29,11 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 * Modernized codebase with PHP 7.4+ features (typed properties, arrow functions, null coalescing)
 * Updated GitHub Actions to latest versions for better security and performance
 * Expanded CI test matrix to include PHP 8.1, 8.2, and 8.3
+* Updated .gitignore to exclude log files and cache directory
+* Removed Scrutinizer Code Coverage integration in favor of local reporting
+* Enabled Xdebug coverage mode in PHPUnit workflow for accurate coverage metrics
+* Updated test coverage check to use `johanvanhelden/gha-clover-test-coverage-check@v1`
+* Coverage reports are now automatically published to GitHub Pages after successful test runs
 
 ### Fixed
 
@@ -32,9 +41,10 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 * Fixed boolean condition checks for better PHP 8+ compatibility
 * Added proper return type hints to anonymous functions
 * Improved JSON serialization error handling in `MessageSerializer`
+* Removed implicitly nullable parameters for better type safety
 
 
-## 4.2.0
+## 4.2.0 - 2024-04-29
 
 ### Added
 
