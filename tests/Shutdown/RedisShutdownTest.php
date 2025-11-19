@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes\Test\Shutdown;
 
-use Redis;
 use PHPUnit\Framework\TestCase;
+use Redis;
 use Tomaj\Hermes\Shutdown\RedisShutdown;
 
 /**
@@ -12,6 +12,7 @@ use Tomaj\Hermes\Shutdown\RedisShutdown;
  *
  * @package Tomaj\Hermes\Test\Shutdown
  * @covers \Tomaj\Hermes\Shutdown\RedisShutdown
+ * @requires extension redis
  */
 class RedisShutdownTest extends TestCase
 {

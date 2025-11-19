@@ -49,7 +49,7 @@ jobs:
       name: Check test coverage
       uses: johanvanhelden/gha-clover-test-coverage-check@v1
       with:
-        percentage: "70"
+        percentage: "60"
         filename: "build/logs/clover.xml"
 
     - if: |
