@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tomaj\Hermes\Test;
@@ -15,17 +16,17 @@ class MessageSerializerTest extends TestCase
     public function testUnserializeWithInvalidJson(): void
     {
         $serializer = new MessageSerializer();
-        
+
         $this->expectException(SerializeException::class);
         $this->expectExceptionMessage("Cannot unserialize message from 'invalid json'");
-        
+
         $serializer->unserialize('invalid json');
     }
-    
+
     public function testSerializeWithNonSerializableData(): void
     {
         $serializer = new MessageSerializer();
-        
+
         // Create a message with non-serializable data (like a resource)
         $resource = fopen('php://memory', 'r');
         $message = $this->createMock(\Tomaj\Hermes\MessageInterface::class);
@@ -35,32 +36,42 @@ class MessageSerializerTest extends TestCase
         $message->method('getCreated')->willReturn(microtime(true));
         $message->method('getExecuteAt')->willReturn(null);
         $message->method('getRetries')->willReturn(0);
-        
+
         $this->expectException(SerializeException::class);
         $this->expectExceptionMessage("Cannot serialize message test-id");
-        
+
         $serializer->serialize($message);
-        
+
         fclose($resource);
     }
-    
+
     public function testUnserializeWithMissingMessageKey(): void
     {
         $serializer = new MessageSerializer();
-        
+
         $this->expectException(SerializeException::class);
         $this->expectExceptionMessage("Cannot unserialize message from '{\"data\":\"test\"}'");
-        
+
         $serializer->unserialize('{"data":"test"}');
     }
-    
+
     public function testUnserializeWithInvalidMessageFormat(): void
     {
         $serializer = new MessageSerializer();
-        
+
         $this->expectException(SerializeException::class);
         $this->expectExceptionMessage("Invalid message format in '{\"message\":{\"type\":\"test\"}}'");
-        
+
         $serializer->unserialize('{"message":{"type":"test"}}');
+    }
+
+    public function testUnserializeWithInvalidTypeFormat(): void
+    {
+        $serializer = new MessageSerializer();
+
+        $this->expectException(SerializeException::class);
+        $this->expectExceptionMessage("Invalid message type in '{\"message\":{\"type\": 123, \"id\":\"test-id\", \"created\":1620000000}}'");
+
+        $serializer->unserialize('{"message":{"type": 123, "id":"test-id", "created":1620000000}}');
     }
 }

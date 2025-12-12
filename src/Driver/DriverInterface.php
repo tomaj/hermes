@@ -18,13 +18,10 @@ interface DriverInterface
      * This method has to be as fast as possible because it will be called in
      * web server threads.
      *
-     * @param MessageInterface   $message
-     * @param int $priority
      *
      * @throws SerializeException
      * @throws UnknownPriorityException
      *
-     * @return bool
      */
     public function send(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): bool;
 
@@ -34,9 +31,7 @@ interface DriverInterface
      * In general you messages will be processed based on queue (higher priority will be processed first)
      * Or you can define dispatcher that will handle only specific priority (queue)s
      *
-     * @param string $name
      * @param int $priority higher priority will be processed first
-     *
      * @throws NotSupportedException
      */
     public function setupPriorityQueue(string $name, int $priority): void;
@@ -49,13 +44,11 @@ interface DriverInterface
      * or can be implemented as callback for driver emit method (like rabbitmq or redis pubsub).
      * When driver receive new message, you have to call $callback with this message like $callback($message)
      *
-     * @param Closure  $callback
      * @param int[]    $priorities
      *
      * @throws UnknownPriorityException
      * @throws ShutdownException
      *
-     * @return void
      */
     public function wait(Closure $callback, array $priorities): void;
 }

@@ -215,13 +215,14 @@ class HandleTest extends TestCase
     {
         $driver = new DummyDriver([]);
         $driver->setupPriorityQueue('high', 200);
+
         $dispatcher = new Dispatcher($driver);
 
         $message = new Message('test-event', ['test' => 'data']);
         $result = $dispatcher->emit($message, 200);
 
         $this->assertSame($dispatcher, $result);
-        
+
         // Check that the message was sent via the driver
         $sentMessage = $driver->getMessage();
         $this->assertNotNull($sentMessage);
@@ -255,7 +256,7 @@ class HandleTest extends TestCase
         // Create a handler that uses RetryTrait
         $handler = new class implements \Tomaj\Hermes\Handler\HandlerInterface {
             use \Tomaj\Hermes\Handler\RetryTrait;
-            
+
             public function handle(\Tomaj\Hermes\MessageInterface $message): bool
             {
                 // Throw exception to trigger retry
@@ -274,16 +275,17 @@ class HandleTest extends TestCase
         // Need to check both messages that might be in the queue
         $message1 = $driver->getMessage();
         $message2 = $driver->getMessage();
-        
+
         // One should be the retry message with retries=6
         $foundRetryMessage = false;
         if ($message1 && $message1->getRetries() === 6) {
             $foundRetryMessage = true;
         }
+
         if ($message2 && $message2->getRetries() === 6) {
             $foundRetryMessage = true;
         }
-        
+
         $this->assertTrue($foundRetryMessage, 'Should have found a retry message with retries=6');
     }
 
@@ -292,12 +294,12 @@ class HandleTest extends TestCase
         // Create a handler that uses RetryTrait with custom maxRetry
         $handler = new class implements \Tomaj\Hermes\Handler\HandlerInterface {
             use \Tomaj\Hermes\Handler\RetryTrait;
-            
+
             public function maxRetry(): int
             {
                 return 5; // Lower max retry for this test
             }
-            
+
             public function handle(\Tomaj\Hermes\MessageInterface $message): bool
             {
                 // Throw exception to trigger retry check
@@ -316,16 +318,17 @@ class HandleTest extends TestCase
         // But the original message should still be there
         $message1 = $driver->getMessage();
         $message2 = $driver->getMessage();
-        
+
         // Should not find any message with retries=6 (no retry should have been sent)
         $foundRetryMessage = false;
         if ($message1 && $message1->getRetries() === 6) {
             $foundRetryMessage = true;
         }
+
         if ($message2 && $message2->getRetries() === 6) {
             $foundRetryMessage = true;
         }
-        
+
         $this->assertFalse($foundRetryMessage, 'Should not have found a retry message with retries=6');
     }
 
@@ -351,16 +354,17 @@ class HandleTest extends TestCase
         // But the original message should still be there
         $message1 = $driver->getMessage();
         $message2 = $driver->getMessage();
-        
+
         // Should not find any message with retries=6 (no retry should have been sent)
         $foundRetryMessage = false;
         if ($message1 && $message1->getRetries() === 6) {
             $foundRetryMessage = true;
         }
+
         if ($message2 && $message2->getRetries() === 6) {
             $foundRetryMessage = true;
         }
-        
+
         $this->assertFalse($foundRetryMessage, 'Should not have found a retry message with retries=6');
     }
 }

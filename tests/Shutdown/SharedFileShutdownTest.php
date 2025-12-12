@@ -104,7 +104,7 @@ class SharedFileShutdownTest extends TestCase
         
         $shutdown = new SharedFileShutdown($this->tempFile);
         $beforeTime = time();
-        $result = $shutdown->shutdown(null);
+        $result = $shutdown->shutdown();
         $afterTime = time();
         
         $this->assertTrue($result);

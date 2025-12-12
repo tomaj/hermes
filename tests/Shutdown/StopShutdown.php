@@ -16,9 +16,11 @@ class StopShutdown implements ShutdownInterface
         if (!isset(self::$eventsStop)) {
             return false;
         }
+
         if (self::$eventsStop === 1) {
             return true;
         }
+
         self::$eventsStop--;
         return false;
     }

@@ -15,9 +15,6 @@ class Emitter implements EmitterInterface
 
     /**
      * Create new Dispatcher
-     *
-     * @param DriverInterface $driver
-     * @param LoggerInterface|null $logger
      */
     public function __construct(DriverInterface $driver, ?LoggerInterface $logger = null)
     {
@@ -36,7 +33,7 @@ class Emitter implements EmitterInterface
 
         $this->log(
             LogLevel::INFO,
-            "Dispatcher send message #{$message->getId()} to driver " . get_class($this->driver),
+            sprintf('Dispatcher send message #%s to driver ', $message->getId()) . get_class($this->driver),
             $this->messageLoggerContext($message)
         );
         return $this;
@@ -45,7 +42,6 @@ class Emitter implements EmitterInterface
     /**
      * Serialize message to logger context
      *
-     * @param MessageInterface $message
      *
      * @return array<mixed>
      */
@@ -63,10 +59,8 @@ class Emitter implements EmitterInterface
      * Internal log method wrapper
      *
      * @param mixed $level
-     * @param string $message
      * @param array<mixed> $context
      *
-     * @return void
      */
     private function log($level, string $message, array $context = []): void
     {

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tomaj\Hermes\Driver;
@@ -20,7 +21,7 @@ class LazyRabbitMqDriver implements DriverInterface
 
     /** @var AMQPLazyConnection */
     private $connection;
-    
+
     /** @var AMQPChannel */
     private $channel;
 
@@ -37,11 +38,7 @@ class LazyRabbitMqDriver implements DriverInterface
     private $consumerTag;
 
     /**
-     * @param AMQPLazyConnection $connection
-     * @param string $queue
      * @param array<string, mixed> $amqpMessageProperties
-     * @param int $refreshInterval
-     * @param string $consumerTag
      */
     public function __construct(AMQPLazyConnection $connection, string $queue, array $amqpMessageProperties = [], int $refreshInterval = 0, string $consumerTag = 'hermes')
     {
@@ -69,8 +66,6 @@ class LazyRabbitMqDriver implements DriverInterface
     }
 
     /**
-     * @param string $name
-     * @param int $priority
      *
      * @throws NotSupportedException
      */
@@ -99,6 +94,7 @@ class LazyRabbitMqDriver implements DriverInterface
                 false,
                 false,
                 function ($rabbitMessage) use ($callback) {
+                    /** @var AMQPMessage $rabbitMessage */
                     $message = $this->serializer->unserialize($rabbitMessage->body);
                     $callback($message);
                 }
@@ -110,6 +106,7 @@ class LazyRabbitMqDriver implements DriverInterface
                 if (!$this->shouldProcessNext()) {
                     break 2;
                 }
+
                 if ($this->refreshInterval) {
                     sleep($this->refreshInterval);
                 }
@@ -122,13 +119,13 @@ class LazyRabbitMqDriver implements DriverInterface
 
     /**
      * @throws \PhpAmqpLib\Exception\AMQPTimeoutException
-     * @return AMQPChannel
      */
     private function getChannel(): AMQPChannel
     {
         if ($this->channel !== null) {
             return $this->channel;
         }
+
         $this->channel = $this->connection->channel();
         $this->channel->queue_declare($this->queue, false, false, false, false);
         return $this->channel;

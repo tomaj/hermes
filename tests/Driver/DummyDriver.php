@@ -45,16 +45,15 @@ class DummyDriver implements DriverInterface
     }
 
     /**
-     * @param string $event
-     * @param int $priority
      *
      * @throws UnknownPriorityException
      */
     private function addEvent(string $event, int $priority): void
     {
         if (!isset($this->events[$priority])) {
-            throw new UnknownPriorityException("Unknown priority {$priority} - you have to setupPriorityQueue before");
+            throw new UnknownPriorityException(sprintf('Unknown priority %d - you have to setupPriorityQueue before', $priority));
         }
+
         $this->events[$priority][] = $event;
     }
 
@@ -88,11 +87,11 @@ class DummyDriver implements DriverInterface
         if ($message === null) {
             return null;
         }
+
         return $this->serializer->unserialize($message);
     }
 
     /**
-     * @param Closure $callback
      * @param int[] $priorities
      */
     public function wait(Closure $callback, array $priorities = []): void
@@ -104,6 +103,7 @@ class DummyDriver implements DriverInterface
                 if (!$this->shouldProcessNext()) {
                     return;
                 }
+
                 $message = $this->serializer->unserialize($event);
                 $this->waitResult = $callback($message);
                 $this->incrementProcessedItems();

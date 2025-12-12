@@ -39,6 +39,7 @@ class PredisShutdown implements ShutdownInterface
         if ($shutdownTime === null) {
             return false;
         }
+
         $shutdownTime = (int) $shutdownTime;
 
         // do not shutdown if shutdown time is in future

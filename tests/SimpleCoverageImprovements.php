@@ -46,38 +46,38 @@ class SimpleCoverageImprovements extends TestCase
                       ->disableOriginalConstructor()
                       ->onlyMethods(['zAdd', 'sAdd', 'zRangeByScore', 'zRem'])
                       ->getMock();
-        
+
         $driver = new RedisSetDriver($redis, 'test_queue');
         $serializer = new MessageSerializer();
         $driver->setSerializer($serializer);
-        
+
         // Test scheduled message (future)
         $futureTime = microtime(true) + 3600;
         $scheduledMessage = new Message('scheduled.task', ['data' => 'future'], 'sched1', microtime(true), $futureTime);
-        
+
         $redis->expects($this->once())
               ->method('zAdd')
               ->with('hermes_schedule', $futureTime, $this->anything())
               ->willReturn(1);
-        
+
         $this->assertTrue($driver->send($scheduledMessage));
-        
+
         // Test scheduled message processing
         $processedMessages = [];
         $redis->method('zRangeByScore')
               ->willReturn(['serialized_message_data']);
-        
+
         $redis->method('zRem')
               ->willReturn(1);
-        
+
         $callback = function (MessageInterface $message) use (&$processedMessages) {
             $processedMessages[] = $message;
             return true;
         };
-        
+
         // This should call wait() which processes scheduled messages
         $driver->wait($callback);
-        
+
         $this->assertTrue(true); // Just verify no exceptions
     }
     
@@ -171,32 +171,32 @@ class SimpleCoverageImprovements extends TestCase
     {
         $driver = new DummyDriver([]);
         $dispatcher = new Dispatcher($driver);
-        
+
         $handler1 = new class implements HandlerInterface {
             public function handle(MessageInterface $message): bool
             {
                 return true;
             }
         };
-        
+
         $handler2 = new class implements HandlerInterface {
             public function handle(MessageInterface $message): bool
             {
                 return true;
             }
         };
-        
+
         // Register handlers
         $dispatcher->registerHandler('test.event', $handler1);
         $dispatcher->registerHandler('test.event', $handler2);
         $dispatcher->registerHandler('other.event', $handler1);
-        
+
         // Test unregisterHandler
         $dispatcher->unregisterHandler('test.event', $handler1);
-        
+
         // Test unregisterAllHandlers
-        $dispatcher->unregisterAllHandlers('test.event');
-        
+        $dispatcher->unregisterAllHandlers();
+
         $this->assertTrue(true); // No exceptions
     }
     

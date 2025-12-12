@@ -34,10 +34,6 @@ class Dispatcher implements DispatcherInterface
 
     /**
      * Create new Dispatcher
-     *
-     * @param DriverInterface $driver
-     * @param LoggerInterface|null $logger
-     * @param ShutdownInterface|null $shutdown
      */
     public function __construct(DriverInterface $driver, ?LoggerInterface $logger = null, ?ShutdownInterface $shutdown = null)
     {
@@ -53,9 +49,6 @@ class Dispatcher implements DispatcherInterface
     }
 
     /**
-     * @param MessageInterface $message
-     * @param int $priority
-     * @return DispatcherInterface
      * @deprecated - use Emitter::emit method instead
      */
     public function emit(MessageInterface $message, int $priority = self::DEFAULT_PRIORITY): DispatcherInterface
@@ -64,7 +57,7 @@ class Dispatcher implements DispatcherInterface
 
         $this->log(
             LogLevel::INFO,
-            "Dispatcher send message #{$message->getId()} with priority {$priority} to driver " . get_class($this->driver),
+            sprintf('Dispatcher send message #%s with priority %d to driver ', $message->getId(), $priority) . get_class($this->driver),
             $this->messageLoggerContext($message)
         );
         return $this;
@@ -78,8 +71,6 @@ class Dispatcher implements DispatcherInterface
      * WARNING! Don't use it on web server calls. Run it only with cli.
      *
      * @param int[] $priorities
-     *
-     * @return void
      */
     public function handle(array $priorities = []): void
     {
@@ -87,7 +78,7 @@ class Dispatcher implements DispatcherInterface
             $this->driver->wait(function (MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): bool {
                 $this->log(
                     LogLevel::INFO,
-                    "Start handle message #{$message->getId()} ({$message->getType()}) priority:{$priority}",
+                    sprintf('Start handle message #%s (%s) priority:%d', $message->getId(), $message->getType(), $priority),
                     $this->messageLoggerContext($message)
                 );
 
@@ -111,9 +102,7 @@ class Dispatcher implements DispatcherInterface
     /**
      * Dispatch message
      *
-     * @param MessageInterface $message
      *
-     * @return bool
      */
     private function dispatch(MessageInterface $message): bool
     {
@@ -139,10 +128,7 @@ class Dispatcher implements DispatcherInterface
     /**
      * Handle given message with given handler
      *
-     * @param HandlerInterface $handler
-     * @param MessageInterface $message
      *
-     * @return bool
      */
     private function handleMessage(HandlerInterface $handler, MessageInterface $message): bool
     {
@@ -156,31 +142,29 @@ class Dispatcher implements DispatcherInterface
 
             $this->log(
                 LogLevel::INFO,
-                "End handle message #{$message->getId()} ({$message->getType()})",
+                sprintf('End handle message #%s (%s)', $message->getId(), $message->getType()),
                 $this->messageLoggerContext($message)
             );
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             $this->log(
                 LogLevel::ERROR,
-                "Handler " . get_class($handler) . " throws exception - {$e->getMessage()}",
-                ['error' => $e, 'message' => $this->messageLoggerContext($message), 'exception' => $e]
+                "Handler " . get_class($handler) . (' throws exception - ' . $exception->getMessage()),
+                ['error' => $exception, 'message' => $this->messageLoggerContext($message), 'exception' => $exception]
             );
             if (Debugger::isEnabled()) {
-                Debugger::log($e, Debugger::EXCEPTION);
+                Debugger::log($exception, Debugger::EXCEPTION);
             }
 
             $this->retryMessage($message, $handler);
 
             $result = false;
         }
+
         return $result;
     }
 
     /**
      * Helper function for sending retrying message back to driver
-     *
-     * @param MessageInterface $message
-     * @param HandlerInterface $handler
      */
     private function retryMessage(MessageInterface $message, HandlerInterface $handler): void
     {
@@ -197,21 +181,16 @@ class Dispatcher implements DispatcherInterface
      * Calculate next retry
      *
      * Inspired by ruby sidekiq (https://github.com/mperham/sidekiq/wiki/Error-Handling#automatic-job-retry)
-     *
-     * @param MessageInterface $message
-     * @return float
      */
     private function nextRetry(MessageInterface $message): float
     {
-        return microtime(true) + pow($message->getRetries(), 4) + 15 + (rand(1, 30) * ($message->getRetries() + 1));
+        return microtime(true) + $message->getRetries() ** 4 + 15 + (random_int(1, 30) * ($message->getRetries() + 1));
     }
 
     /**
      * Check if actual dispatcher has handler for given type
      *
-     * @param string $type
      *
-     * @return bool
      */
     private function hasHandlers(string $type): bool
     {
@@ -239,6 +218,7 @@ class Dispatcher implements DispatcherInterface
         foreach ($handlers as $handler) {
             $this->registerHandler($type, $handler);
         }
+
         return $this;
     }
 
@@ -259,6 +239,7 @@ class Dispatcher implements DispatcherInterface
         if (!isset($this->handlers[$type])) {
             return $this;
         }
+
         $this->handlers[$type] = array_filter(
             $this->handlers[$type],
             fn(HandlerInterface $registeredHandler): bool => $registeredHandler !== $handler
@@ -270,7 +251,6 @@ class Dispatcher implements DispatcherInterface
     /**
      * Serialize message to logger context
      *
-     * @param MessageInterface $message
      *
      * @return array<string, mixed>
      */
@@ -290,10 +270,8 @@ class Dispatcher implements DispatcherInterface
      * Interal log method wrapper
      *
      * @param mixed $level
-     * @param string $message
      * @param array<mixed> $context
      *
-     * @return void
      */
     private function log($level, string $message, array $context = []): void
     {

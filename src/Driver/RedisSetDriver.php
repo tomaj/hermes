@@ -46,11 +46,6 @@ class RedisSetDriver implements DriverInterface
      * of this class. You have to have enabled native Redis php extension.
      *
      * @see examples/redis
-     *
-     * @param Redis                  $redis
-     * @param string                 $key
-     * @param integer                $refreshInterval
-     * @param string                 $scheduleKey
      */
     public function __construct(Redis $redis, string $key = 'hermes', int $refreshInterval = 1, string $scheduleKey = 'hermes_schedule')
     {
@@ -75,6 +70,7 @@ class RedisSetDriver implements DriverInterface
             $key = $this->getKey($priority);
             $this->redis->sAdd($key, $this->serializer->serialize($message));
         }
+
         return true;
     }
 
@@ -87,16 +83,15 @@ class RedisSetDriver implements DriverInterface
     }
 
     /**
-     * @param int $priority
-     * @return string
      *
      * @throws UnknownPriorityException
      */
     private function getKey(int $priority): string
     {
         if (!isset($this->queues[$priority])) {
-            throw new UnknownPriorityException("Unknown priority {$priority}");
+            throw new UnknownPriorityException('Unknown priority ' . $priority);
         }
+
         return $this->queues[$priority];
     }
 
@@ -124,6 +119,7 @@ class RedisSetDriver implements DriverInterface
                 if (!$messageString) {
                     break;
                 }
+
                 $scheduledMessage = $this->serializer->unserialize($messageString);
                 $this->send($scheduledMessage);
 
@@ -136,9 +132,10 @@ class RedisSetDriver implements DriverInterface
             $foundPriority = null;
 
             foreach ($queues as $priority => $name) {
-                if (count($priorities) > 0 && !in_array($priority, $priorities)) {
+                if ($priorities !== [] && !in_array($priority, $priorities)) {
                     continue;
                 }
+
                 if ($messageString !== null) {
                     break;
                 }

@@ -1,10 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tomaj\Hermes\Shutdown;
 
-use Redis;
 use DateTime;
+use Redis;
 
 /**
  * Class RedisShutdown provides redis implementation of Tomaj\Hermes\Shutdown\ShutdownInterface
@@ -35,9 +36,10 @@ class RedisShutdown implements ShutdownInterface
     {
         // load UNIX timestamp from redis
         $shutdownTime = $this->redis->get($this->key);
-        if ($shutdownTime === false) {
+        if ($shutdownTime === false || !is_numeric($shutdownTime)) {
             return false;
         }
+
         $shutdownTime = (int) $shutdownTime;
 
         // do not shutdown if shutdown time is in future

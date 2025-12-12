@@ -1,13 +1,14 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tomaj\Hermes\Driver;
 
+use Aws\Sqs\SqsClient;
 use Closure;
 use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
-use Aws\Sqs\SqsClient;
 
 class AmazonSqsDriver implements DriverInterface
 {
@@ -67,8 +68,6 @@ class AmazonSqsDriver implements DriverInterface
      *
      * @see examples/sqs folder
      *
-     * @param SqsClient     $client
-     * @param string        $queueName
      * @param array<mixed>  $queueAttributes
      */
     public function __construct(SqsClient $client, string $queueName, array $queueAttributes = [])
@@ -78,11 +77,15 @@ class AmazonSqsDriver implements DriverInterface
         $this->serializer = new MessageSerializer();
 
         $result = $client->createQueue([
-            'QueueName' => $queueName,
+            'QueueName' => $this->queueName,
             'Attributes' => $queueAttributes,
         ]);
+        $url = $result->get('QueueUrl');
+        if (is_string($url) === false) {
+            throw new \RuntimeException('Cannot get queue URL for queue ' . $this->queueName);
+        }
 
-        $this->queueUrl = $result->get('QueueUrl');
+        $this->queueUrl = $url;
     }
 
     /**
@@ -98,8 +101,6 @@ class AmazonSqsDriver implements DriverInterface
     }
 
     /**
-     * @param string $name
-     * @param int $priority
      *
      * @throws NotSupportedException
      */
@@ -126,15 +127,16 @@ class AmazonSqsDriver implements DriverInterface
 
             $messages = $result['Messages'];
 
-            if ($messages) {
+            if (is_array($messages) && $messages) {
                 $hermesMessages = [];
                 foreach ($messages as $message) {
                     $this->client->deleteMessage([
                         'QueueUrl' => $this->queueUrl,
                         'ReceiptHandle' => $message['ReceiptHandle'],
                     ]);
-                    $hermesMessages[] = $this->serializer->unserialize($message['Body']);
+                    $hermesMessages[] = $this->serializer->unserialize(is_string($message['Body']) ? $message['Body'] : '');
                 }
+
                 foreach ($hermesMessages as $hermesMessage) {
                     $callback($hermesMessage);
                     $this->incrementProcessedItems();

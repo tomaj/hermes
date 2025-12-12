@@ -15,9 +15,7 @@ trait SerializerAwareTrait
      * You can this trait to set serializer from outsite to your driver
      * if you need your custom serialization for your objects.
      *
-     * @param SerializerInterface   $serializer
      *
-     * @return void
      */
     public function setSerializer(SerializerInterface $serializer): void
     {

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tomaj\Hermes\Driver;
@@ -8,8 +9,8 @@ use Predis\Client;
 use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
-use Tomaj\Hermes\Shutdown\ShutdownException;
 use Tomaj\Hermes\SerializeException;
+use Tomaj\Hermes\Shutdown\ShutdownException;
 
 class PredisSetDriver implements DriverInterface
 {
@@ -18,22 +19,13 @@ class PredisSetDriver implements DriverInterface
     use SerializerAwareTrait;
 
     /** @var array<int, string>  */
-    private $queues = [];
+    private array $queues = [];
 
-    /**
-     * @var string
-     */
-    private $scheduleKey;
+    private string $scheduleKey;
 
-    /**
-     * @var Client
-     */
-    private $redis;
+    private Client $redis;
 
-    /**
-     * @var integer
-     */
-    private $refreshInterval;
+    private int $refreshInterval;
 
     /**
      * Create new PredisSetDriver
@@ -45,10 +37,6 @@ class PredisSetDriver implements DriverInterface
      * Managing connection to redis is up to you and you have to create it outsite
      * of this class. You will need to install predis php package.
      *
-     * @param Client $redis
-     * @param string $key
-     * @param integer $refreshInterval
-     * @param string $scheduleKey
      * @see examples/redis
      *
      * @throws NotSupportedException
@@ -77,6 +65,7 @@ class PredisSetDriver implements DriverInterface
             $key = $this->getKey($priority);
             $this->redis->sadd($key, [$this->serializer->serialize($message)]);
         }
+
         return true;
     }
 
@@ -89,16 +78,15 @@ class PredisSetDriver implements DriverInterface
     }
 
     /**
-     * @param int $priority
-     * @return string
      *
      * @throws UnknownPriorityException
      */
     private function getKey(int $priority): string
     {
         if (!isset($this->queues[$priority])) {
-            throw new UnknownPriorityException("Unknown priority {$priority}");
+            throw new UnknownPriorityException('Unknown priority ' . $priority);
         }
+
         return $this->queues[$priority];
     }
 
@@ -119,10 +107,12 @@ class PredisSetDriver implements DriverInterface
             }
 
             // check schedule
-            $messagesString = $this->redis->zrangebyscore($this->scheduleKey, '-inf', microtime(true), ['LIMIT' => ['OFFSET' => 0, 'COUNT' => 1]]);
+            $messagesString = $this->redis->zrangebyscore($this->scheduleKey, '-inf', microtime(false), ['LIMIT' => ['OFFSET' => 0, 'COUNT' => 1]]);
             if (count($messagesString)) {
                 foreach ($messagesString as $messageString) {
+                    /** @var string $messageString */
                     $this->redis->zrem($this->scheduleKey, $messageString);
+                    /** @var string $messageString */
                     $this->send($this->serializer->unserialize($messageString));
                 }
             }
@@ -131,9 +121,10 @@ class PredisSetDriver implements DriverInterface
             $foundPriority = null;
 
             foreach ($queues as $priority => $name) {
-                if (count($priorities) > 0 && !in_array($priority, $priorities)) {
+                if ($priorities !== [] && !in_array($priority, $priorities)) {
                     continue;
                 }
+
                 if ($messageString !== null) {
                     break;
                 }
@@ -144,7 +135,7 @@ class PredisSetDriver implements DriverInterface
                 $foundPriority = $priority;
             }
 
-            if ($messageString !== null) {
+            if ($messageString !== null && is_string($messageString)) {
                 $message = $this->serializer->unserialize($messageString);
                 $callback($message, $foundPriority);
                 $this->incrementProcessedItems();

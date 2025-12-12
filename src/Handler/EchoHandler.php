@@ -16,7 +16,7 @@ class EchoHandler implements HandlerInterface
     {
         echo "Received message: #{$message->getId()} (type {$message->getType()})\n";
         $payload = json_encode($message->getPayload());
-        echo "Payload: {$payload}\n";
+        echo sprintf('Payload: %s%s', $payload, PHP_EOL);
         return true;
     }
 }

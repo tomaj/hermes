@@ -126,7 +126,7 @@ class AmazonSqsDriverTest extends TestCase
     
     private function createMockResult(array $data): object
     {
-        $result = new class($data) {
+        return new class($data) {
             private $data;
             
             public function __construct($data)
@@ -139,7 +139,5 @@ class AmazonSqsDriverTest extends TestCase
                 return $this->data[$key] ?? null;
             }
         };
-        
-        return $result;
     }
 }

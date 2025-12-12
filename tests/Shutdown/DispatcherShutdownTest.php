@@ -49,6 +49,7 @@ class DispatcherShutdownTest extends TestCase
         $driver = new DummyDriver([$message1, $message2]);
         $stopShutdown = new StopShutdown();
         $stopShutdown->shutdown(new \DateTime());
+
         $dispatcher = new Dispatcher($driver, null, $stopShutdown);
 
         $handler = new TestHandler();
