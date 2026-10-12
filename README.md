@@ -462,11 +462,11 @@ The coverage reports will be generated in:
 
 ## Contributing
 
-Please see [CONTRIBUTING](CONTRIBUTING.md) and [CONDUCT](CONDUCT.md) for details.
+Please see [CONTRIBUTING](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md) for details.
 
 ## Security
 
-If you discover any security-related issues, please email tomasmajer@gmail.com instead of using the issue tracker.
+Please report vulnerabilities privately. See [SECURITY.md](SECURITY.md) for supported versions and how to disclose an issue.
 
 ## License
 

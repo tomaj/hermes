@@ -1,32 +1,37 @@
 # Contributing
 
-Contributions are **welcome** and will be fully **credited**.
+Contributions are welcome and will be credited.
 
-We accept contributions via Pull Requests on [Github](https://github.com/thephpleague/:package_name).
+This project follows the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md). By participating, you agree to uphold it.
 
+Security vulnerabilities are reported in private. See [SECURITY.md](SECURITY.md). Do not open a public issue for a security report.
 
-## Pull Requests
+## Pull requests
 
-- **[PSR-2 Coding Standard](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md)** - The easiest way to apply the conventions is to install [PHP Code Sniffer](http://pear.php.net/package/PHP_CodeSniffer).
+- Follow [PSR-2](https://www.php-fig.org/psr/psr-2/). `composer phpcs` checks `src`, `tests`, and `examples`.
+- Add tests for every behaviour change. A patch without tests will not be accepted.
+- Document behaviour changes in `README.md` and `CHANGELOG.md`.
+- Follow [Semantic Versioning](https://semver.org/). The current stable line is 5.x. Breaking changes belong in the planned 6.0 release.
+- Open one pull request per change, from a feature branch. Do not ask us to pull from your `master` branch.
+- Keep the history coherent. Squash work-in-progress commits before submitting.
 
-- **Add tests!** - Your patch won't be accepted if it doesn't have tests.
+## Development
 
-- **Document any change in behaviour** - Make sure the `README.md` and any other relevant documentation are kept up-to-date.
+Hermes supports PHP 7.4 and 8.x. Continuous integration runs on PHP 7.4, 8.0, 8.1, 8.2, and 8.3.
 
-- **Consider our release cycle** - We try to follow [SemVer v2.0.0](http://semver.org/). Randomly breaking public APIs is not an option.
-
-- **Create feature branches** - Don't ask us to pull from your master branch.
-
-- **One pull request per feature** - If you want to do more than one thing, send multiple pull requests.
-
-- **Send coherent history** - Make sure each individual commit in your pull request is meaningful. If you had to make multiple intermediate commits while developing, please [squash them](http://www.git-scm.com/book/en/v2/Git-Tools-Rewriting-History#Changing-Multiple-Commit-Messages) before submitting.
-
-
-## Running Tests
-
-``` bash
-$ composer test
+```bash
+git clone https://github.com/tomaj/hermes.git
+cd hermes
+composer install
+composer phpunit
+composer phpstan
+composer phpcs
 ```
 
+To generate an HTML and Clover coverage report (requires Xdebug or PCOV):
 
-**Happy coding**!
+```bash
+composer coverage
+```
+
+By contributing, you agree that your contributions are licensed under the MIT License.
