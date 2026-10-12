@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 use Tomaj\Hermes\Dispatcher;
@@ -6,7 +7,7 @@ use Tomaj\Hermes\Driver\RedisSetDriver;
 use Tomaj\Hermes\Handler\EchoHandler;
 use Tomaj\Hermes\Shutdown\RedisShutdown;
 
-require_once __DIR__.'/../../vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 $redis = new Redis();
 $redis->connect('127.0.0.1', 6379);

@@ -17,23 +17,22 @@
         "source": "https://github.com/tomaj/hermes"
     },
     "require": {
-        "php": "^7.4 || ^8.0",
+        "php": "^8.4",
         "ext-json": "*",
-        "ramsey/uuid": "^3 || ^4",
+        "ramsey/uuid": "^4.7",
         "psr/log": "^1 || ^2 || ^3",
-        "tracy/tracy": "^2.0"
+        "tracy/tracy": "^2.10.10"
     },
     "require-dev": {
         "ext-redis": "*",
-        "predis/predis": "^1.1",
-        "phpunit/phpunit": "^8 || ^9",
-        "squizlabs/php_codesniffer": "~3.5",
-        "php-amqplib/php-amqplib": "^2.6.3",
-        "scrutinizer/ocular": "^1.6.0",
-        "aws/aws-sdk-php": "3.*",
-        "phpstan/phpstan": "^0.12.65",
-        "pepakriz/phpstan-exception-rules": "^0.11.3",
-        "phpstan/phpstan-strict-rules": "^0.12"
+        "predis/predis": "^1.1.10",
+        "phpunit/phpunit": "^13.0",
+        "friendsofphp/php-cs-fixer": "^3.64",
+        "php-amqplib/php-amqplib": "^3.7",
+        "aws/aws-sdk-php": "^3.337",
+        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-strict-rules": "^2.0",
+        "infection/infection": "^0.35"
     },
     "suggest": {
         "monolog/monolog": "Basic logger implements psr/logger",
@@ -54,8 +53,17 @@
     },
     "scripts": {
         "phpunit": "phpunit",
-        "phpstan": "phpstan analyse",
-        "phpcs": "phpcs --standard=PSR2 src tests examples -n",
+        "phpstan": "phpstan analyse --memory-limit=1G",
+        "phpcs": "php-cs-fixer fix --dry-run --diff --verbose",
+        "cs": "php-cs-fixer fix --dry-run --diff --verbose",
+        "cs-fix": "php-cs-fixer fix",
+        "infection": "XDEBUG_MODE=coverage infection --threads=max",
         "coverage": "XDEBUG_MODE=coverage phpunit --coverage-clover build/logs/clover.xml --coverage-html build/coverage"
-    }
+    },
+    "config": {
+        "allow-plugins": {
+            "infection/extension-installer": true
+        }
+    },
+    "minimum-stability": "stable"
 }

@@ -3,7 +3,7 @@
 **Background job processing PHP library**
 
 [![Latest Stable Version](https://img.shields.io/packagist/v/tomaj/hermes.svg)](https://packagist.org/packages/tomaj/hermes)
-[![PHPStan](https://img.shields.io/badge/PHPStan-level%208-brightgreen.svg)](https://phpstan.org/)
+[![PHPStan](https://img.shields.io/badge/PHPStan-level%20max-brightgreen.svg)](https://phpstan.org/)
 
 ## What is Hermes?
 
@@ -18,7 +18,7 @@ Key features:
 
 ## Installation
 
-This library requires PHP 7.4 or later.
+This library requires PHP 8.4 or later.
 
 The recommended installation method is via Composer:
 
@@ -26,10 +26,10 @@ The recommended installation method is via Composer:
 $ composer require tomaj/hermes
 ```
 
-Library is compliant with [PSR-1][], [PSR-2][], [PSR-3][] and [PSR-4][].
+Library is compliant with [PSR-1][], [PER Coding Style][], [PSR-3][] and [PSR-4][].
 
 [PSR-1]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-1-basic-coding-standard.md
-[PSR-2]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md
+[PER Coding Style]: https://www.php-fig.org/per/coding-style/
 [PSR-3]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md
 [PSR-4]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-4-autoloader.md
 

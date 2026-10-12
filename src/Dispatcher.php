@@ -1,12 +1,13 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tomaj\Hermes;
 
 use DateTime;
 use Exception;
-use Psr\Log\LogLevel;
 use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 use Tomaj\Hermes\Driver\DriverInterface;
 use Tomaj\Hermes\Handler\HandlerInterface;
 use Tomaj\Hermes\Shutdown\ShutdownException;
@@ -65,7 +66,7 @@ class Dispatcher implements DispatcherInterface
         $this->log(
             LogLevel::INFO,
             "Dispatcher send message #{$message->getId()} with priority {$priority} to driver " . get_class($this->driver),
-            $this->messageLoggerContext($message)
+            $this->messageLoggerContext($message),
         );
         return $this;
     }
@@ -88,7 +89,7 @@ class Dispatcher implements DispatcherInterface
                 $this->log(
                     LogLevel::INFO,
                     "Start handle message #{$message->getId()} ({$message->getType()}) priority:{$priority}",
-                    $this->messageLoggerContext($message)
+                    $this->messageLoggerContext($message),
                 );
 
                 $result = $this->dispatch($message);
@@ -157,13 +158,13 @@ class Dispatcher implements DispatcherInterface
             $this->log(
                 LogLevel::INFO,
                 "End handle message #{$message->getId()} ({$message->getType()})",
-                $this->messageLoggerContext($message)
+                $this->messageLoggerContext($message),
             );
         } catch (Exception $e) {
             $this->log(
                 LogLevel::ERROR,
-                "Handler " . get_class($handler) . " throws exception - {$e->getMessage()}",
-                ['error' => $e, 'message' => $this->messageLoggerContext($message), 'exception' => $e]
+                'Handler ' . get_class($handler) . " throws exception - {$e->getMessage()}",
+                ['error' => $e, 'message' => $this->messageLoggerContext($message), 'exception' => $e],
             );
             if (Debugger::isEnabled()) {
                 Debugger::log($e, Debugger::EXCEPTION);
@@ -261,7 +262,7 @@ class Dispatcher implements DispatcherInterface
         }
         $this->handlers[$type] = array_filter(
             $this->handlers[$type],
-            fn(HandlerInterface $registeredHandler): bool => $registeredHandler !== $handler
+            fn(HandlerInterface $registeredHandler): bool => $registeredHandler !== $handler,
         );
 
         return $this;

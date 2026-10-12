@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tomaj\Hermes\Test\Driver;
@@ -15,6 +16,11 @@ class DummySerializer implements SerializerInterface
 
     public function unserialize(string $string): MessageInterface
     {
-        return unserialize($string);
+        $decoded = unserialize($string);
+        if (!$decoded instanceof MessageInterface) {
+            throw new \RuntimeException('Invalid serialized message');
+        }
+
+        return $decoded;
     }
 }

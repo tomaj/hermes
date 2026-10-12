@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 use Predis\Client;
@@ -6,7 +7,7 @@ use Tomaj\Hermes\Driver\PredisSetDriver;
 use Tomaj\Hermes\Emitter;
 use Tomaj\Hermes\Message;
 
-require_once __DIR__.'/../../vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 $redis = new Client([
     'scheme' => 'tcp',

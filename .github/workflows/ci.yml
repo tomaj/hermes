@@ -1,0 +1,162 @@
+name: CI
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: PHP ${{ matrix.php }} ${{ matrix.dependency-version }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.4', '8.5']
+        dependency-version: ['']
+        include:
+          - php: '8.4'
+            dependency-version: '--prefer-lowest'
+
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+      with:
+        php-version: ${{ matrix.php }}
+        extensions: mbstring, xml, redis
+        coverage: xdebug
+
+    - name: Validate composer.json
+      run: composer validate --strict
+
+    - name: Cache Composer packages
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ matrix.php }}-${{ matrix.dependency-version }}-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-${{ matrix.php }}-${{ matrix.dependency-version }}-
+
+    - name: Install dependencies
+      run: composer update ${{ matrix.dependency-version }} --prefer-dist --no-progress --no-interaction
+
+    - name: Run tests
+      run: XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-clover build/logs/clover.xml --coverage-html build/coverage
+
+    - name: Require 65% statement coverage
+      if: matrix.php == '8.4' && matrix.dependency-version == ''
+      run: |
+        php -r '
+          $xml = simplexml_load_file("build/logs/clover.xml");
+          $metrics = $xml->project->metrics;
+          $statements = (int) $metrics["statements"];
+          $covered = (int) $metrics["coveredstatements"];
+          $percent = $statements === 0 ? 0 : ($covered / $statements) * 100;
+          echo sprintf("Statements: %d/%d (%.2f%%)\n", $covered, $statements, $percent);
+          if ($percent < 65) {
+              fwrite(STDERR, "Statement coverage is below 65%.\n");
+              exit(1);
+          }
+        '
+
+    - name: Upload coverage reports
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+      if: github.event_name == 'push' && github.ref == 'refs/heads/master' && matrix.php == '8.4' && matrix.dependency-version == ''
+      with:
+        name: coverage-report
+        path: build/coverage
+
+  code-style:
+    name: Code Style (PER-CS/PSR-12 + PHP 8.4)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+      with:
+        php-version: '8.4'
+        extensions: mbstring, xml, redis
+
+    - name: Install dependencies
+      run: composer update --prefer-dist --no-progress --no-interaction
+
+    - name: Check code style
+      run: vendor/bin/php-cs-fixer fix --dry-run --diff --verbose
+
+  static-analysis:
+    name: Static Analysis (PHPStan level max)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+      with:
+        php-version: '8.4'
+        extensions: mbstring, xml, redis
+
+    - name: Install dependencies
+      run: composer update --prefer-dist --no-progress --no-interaction
+
+    - name: Run PHPStan
+      run: vendor/bin/phpstan analyse --memory-limit=1G
+
+  security:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+      with:
+        php-version: '8.4'
+        extensions: redis
+
+    - name: Install dependencies
+      run: composer update --prefer-dist --no-progress --no-interaction
+
+    - name: Run security audit
+      run: composer audit
+
+  mutation-testing:
+    name: Mutation Testing (Infection)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+      with:
+        php-version: '8.4'
+        extensions: mbstring, xml, redis
+        coverage: xdebug
+
+    - name: Install dependencies
+      run: composer update --prefer-dist --no-progress --no-interaction
+
+    - name: Run Infection
+      run: XDEBUG_MODE=coverage vendor/bin/infection --min-msi=65 --min-covered-msi=65 --threads=1 --logger-github

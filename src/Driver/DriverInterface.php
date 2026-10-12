@@ -1,11 +1,12 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tomaj\Hermes\Driver;
 
+use Closure;
 use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\MessageInterface;
-use Closure;
 use Tomaj\Hermes\SerializeException;
 use Tomaj\Hermes\Shutdown\ShutdownException;
 

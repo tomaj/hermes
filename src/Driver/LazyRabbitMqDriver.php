@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tomaj\Hermes\Driver;
@@ -20,7 +21,7 @@ class LazyRabbitMqDriver implements DriverInterface
 
     /** @var AMQPLazyConnection */
     private $connection;
-    
+
     /** @var AMQPChannel */
     private $channel;
 
@@ -76,7 +77,7 @@ class LazyRabbitMqDriver implements DriverInterface
      */
     public function setupPriorityQueue(string $name, int $priority): void
     {
-        throw new NotSupportedException("LazyRabbitMqDriver is not supporting priority queues now");
+        throw new NotSupportedException('LazyRabbitMqDriver is not supporting priority queues now');
     }
 
     /**
@@ -98,10 +99,10 @@ class LazyRabbitMqDriver implements DriverInterface
                 true,
                 false,
                 false,
-                function ($rabbitMessage) use ($callback) {
+                function (AMQPMessage $rabbitMessage) use ($callback): void {
                     $message = $this->serializer->unserialize($rabbitMessage->body);
                     $callback($message);
-                }
+                },
             );
 
             while (count($this->getChannel()->callbacks)) {
@@ -110,7 +111,7 @@ class LazyRabbitMqDriver implements DriverInterface
                 if (!$this->shouldProcessNext()) {
                     break 2;
                 }
-                if ($this->refreshInterval) {
+                if ($this->refreshInterval !== 0) {
                     sleep($this->refreshInterval);
                 }
             }

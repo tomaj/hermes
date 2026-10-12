@@ -2,10 +2,10 @@ vendor/autoload.php:
 	composer install
 
 sniff: vendor/autoload.php
-	vendor/bin/phpcs --standard=PSR2 src tests examples -n
+	vendor/bin/php-cs-fixer fix --dry-run --diff
 
 sniff_fix: vendor/autoload.php
-	vendor/bin/phpcbf --standard=PSR2 src tests examples -n
+	vendor/bin/php-cs-fixer fix
 
 test: vendor/autoload.php
 	vendor/bin/phpunit

@@ -1,15 +1,16 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tomaj\Hermes\Driver;
 
-use Redis;
 use Closure;
+use Redis;
 use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
-use Tomaj\Hermes\Shutdown\ShutdownException;
 use Tomaj\Hermes\SerializeException;
+use Tomaj\Hermes\Shutdown\ShutdownException;
 
 class RedisSetDriver implements DriverInterface
 {
@@ -121,7 +122,7 @@ class RedisSetDriver implements DriverInterface
             $messageStrings = $this->redis->zRangeByScore($this->scheduleKey, '-inf', (string) $microTime, ['limit' => [0, 1]]);
             for ($i = 1; $i <= count($messageStrings); $i++) {
                 $messageString = $this->pop($this->scheduleKey);
-                if (!$messageString) {
+                if ($messageString === null) {
                     break;
                 }
                 $scheduledMessage = $this->serializer->unserialize($messageString);
@@ -136,7 +137,7 @@ class RedisSetDriver implements DriverInterface
             $foundPriority = null;
 
             foreach ($queues as $priority => $name) {
-                if (count($priorities) > 0 && !in_array($priority, $priorities)) {
+                if (count($priorities) > 0 && !in_array($priority, $priorities, true)) {
                     continue;
                 }
                 if ($messageString !== null) {
@@ -152,7 +153,7 @@ class RedisSetDriver implements DriverInterface
                 $callback($message, $foundPriority);
                 $this->incrementProcessedItems();
             } else {
-                if ($this->refreshInterval) {
+                if ($this->refreshInterval !== 0) {
                     $this->checkShutdown();
                     sleep($this->refreshInterval);
                 }
@@ -163,7 +164,7 @@ class RedisSetDriver implements DriverInterface
     private function pop(string $key): ?string
     {
         $messageString = $this->redis->sPop($key);
-        if (is_string($messageString) && $messageString !== "") {
+        if (is_string($messageString) && $messageString !== '') {
             return $messageString;
         }
 

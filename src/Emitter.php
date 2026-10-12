@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tomaj\Hermes;
@@ -37,7 +38,7 @@ class Emitter implements EmitterInterface
         $this->log(
             LogLevel::INFO,
             "Dispatcher send message #{$message->getId()} to driver " . get_class($this->driver),
-            $this->messageLoggerContext($message)
+            $this->messageLoggerContext($message),
         );
         return $this;
     }

@@ -8,7 +8,7 @@ Security vulnerabilities are reported in private. See [SECURITY.md](SECURITY.md)
 
 ## Pull requests
 
-- Follow [PSR-2](https://www.php-fig.org/psr/psr-2/). `composer phpcs` checks `src`, `tests`, and `examples`.
+- Follow [PER Coding Style](https://www.php-fig.org/per/coding-style/). `composer phpcs` checks `src`, `tests`, and `examples`.
 - Add tests for every behaviour change. A patch without tests will not be accepted.
 - Document behaviour changes in `README.md` and `CHANGELOG.md`.
 - Follow [Semantic Versioning](https://semver.org/). The current stable line is 5.x. Breaking changes belong in the planned 6.0 release.
@@ -17,7 +17,7 @@ Security vulnerabilities are reported in private. See [SECURITY.md](SECURITY.md)
 
 ## Development
 
-Hermes supports PHP 7.4 and 8.x. Continuous integration runs on PHP 7.4, 8.0, 8.1, 8.2, and 8.3.
+Hermes supports PHP 8.4 and 8.5. Continuous integration runs on PHP 8.4, PHP 8.4 with the lowest dependencies, and PHP 8.5.
 
 ```bash
 git clone https://github.com/tomaj/hermes.git

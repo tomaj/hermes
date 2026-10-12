@@ -1,10 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tomaj\Hermes\Test\Handler;
 
-use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\Handler\HandlerInterface;
+use Tomaj\Hermes\MessageInterface;
 
 class TestHandler implements HandlerInterface
 {
