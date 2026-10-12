@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tomaj\Hermes\Test\Shutdown;
@@ -19,64 +20,64 @@ class RedisShutdownTest extends TestCase
     public function testShouldShutdownWithoutRedisEntry(): void
     {
         $redis = $this->createMock(Redis::class);
-        $redis->expects($this->once())
+        $redis->expects(self::once())
             ->method('get')
             ->willReturn(null);
 
         $redisShutdown = new RedisShutdown($redis);
-        $this->assertFalse($redisShutdown->shouldShutdown(new \DateTime()));
+        self::assertFalse($redisShutdown->shouldShutdown(new \DateTime()));
     }
 
     public function testShouldShutdownWithFutureEntry(): void
     {
-        $futureTime = (new \DateTime())->modify('+1 month')->format('U');
+        $futureTime = new \DateTime()->modify('+1 month')->format('U');
         $redis = $this->createMock(Redis::class);
-        $redis->expects($this->once())
+        $redis->expects(self::once())
             ->method('get')
             ->with('hermes_shutdown')
             ->willReturn($futureTime);
 
         $redisShutdown = new RedisShutdown($redis);
-        $this->assertFalse($redisShutdown->shouldShutdown(new \DateTime()));
+        self::assertFalse($redisShutdown->shouldShutdown(new \DateTime()));
     }
 
     public function testShouldShutdownWithEntryAfterStartTime(): void
     {
-        $pastTime = (new \DateTime())->modify('-1 month')->format('U');
+        $pastTime = new \DateTime()->modify('-1 month')->format('U');
         $redis = $this->createMock(Redis::class);
-        $redis->expects($this->once())
+        $redis->expects(self::once())
             ->method('get')
             ->with('hermes_shutdown')
             ->willReturn($pastTime);
 
         $redisShutdown = new RedisShutdown($redis);
-        $this->assertFalse($redisShutdown->shouldShutdown(new \DateTime()));
+        self::assertFalse($redisShutdown->shouldShutdown(new \DateTime()));
     }
 
     public function testShouldShutdownSuccess(): void
     {
-        $startTime = (new \DateTime())->modify('-1 hour');
-        $shutdownTime = (new \DateTime())->modify('-5 minutes')->format('U');
+        $startTime = new \DateTime()->modify('-1 hour');
+        $shutdownTime = new \DateTime()->modify('-5 minutes')->format('U');
         $redis = $this->createMock(Redis::class);
-        $redis->expects($this->once())
+        $redis->expects(self::once())
             ->method('get')
             ->with('hermes_shutdown')
             ->willReturn($shutdownTime);
 
         $redisShutdown = new RedisShutdown($redis);
-        $this->assertTrue($redisShutdown->shouldShutdown($startTime));
+        self::assertTrue($redisShutdown->shouldShutdown($startTime));
     }
 
     public function testShutdownStoredCorrectValueToRedis(): void
     {
-        $shutdownTime = (new \DateTime())->modify('-5 minutes');
+        $shutdownTime = new \DateTime()->modify('-5 minutes');
         $redis = $this->createMock(Redis::class);
-        $redis->expects($this->once())
+        $redis->expects(self::once())
             ->method('set')
             ->with('hermes_shutdown', $shutdownTime->format('U'))
             ->willReturn(true);
 
         $redisShutdown = new RedisShutdown($redis);
-        $this->assertTrue($redisShutdown->shutdown($shutdownTime));
+        self::assertTrue($redisShutdown->shutdown($shutdownTime));
     }
 }

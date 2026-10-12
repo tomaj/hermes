@@ -1,11 +1,12 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tomaj\Hermes\Test\Handler;
 
 use RuntimeException;
-use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\Handler\HandlerInterface;
+use Tomaj\Hermes\MessageInterface;
 use Tracy\Debugger;
 
 class ExceptionHandler implements HandlerInterface

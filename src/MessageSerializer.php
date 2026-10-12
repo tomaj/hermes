@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tomaj\Hermes;
@@ -18,7 +19,7 @@ class MessageSerializer implements SerializerInterface
                 'payload' => $message->getPayload(),
                 'execute_at' => $message->getExecuteAt(),
                 'retries' => $message->getRetries(),
-            ]
+            ],
         ], JSON_INVALID_UTF8_IGNORE);
         if ($result === false) {
             throw new SerializeException("Cannot serialize message {$message->getId()}");
@@ -39,22 +40,29 @@ class MessageSerializer implements SerializerInterface
         if (!is_array($message) || !isset($message['type'], $message['id'], $message['created'])) {
             throw new SerializeException("Invalid message format in '{$string}'");
         }
-        
+
+        $type = $message['type'];
+        $id = $message['id'];
+        $created = $message['created'];
+        if (!is_string($type) || !is_string($id) || !is_numeric($created)) {
+            throw new SerializeException("Invalid message format in '{$string}'");
+        }
+
         $executeAt = null;
         if (isset($message['execute_at']) && is_numeric($message['execute_at'])) {
             $executeAt = (float) $message['execute_at'];
         }
-        
+
         $retries = 0;
         if (isset($message['retries']) && is_numeric($message['retries'])) {
             $retries = (int) $message['retries'];
         }
-        
+
         $payload = null;
         if (isset($message['payload']) && is_array($message['payload'])) {
             $payload = $message['payload'];
         }
-        
-        return new Message($message['type'], $payload, $message['id'], (float) $message['created'], $executeAt, $retries);
+
+        return new Message($type, $payload, $id, (float) $created, $executeAt, $retries);
     }
 }

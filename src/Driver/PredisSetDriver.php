@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tomaj\Hermes\Driver;
@@ -8,8 +9,8 @@ use Predis\Client;
 use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
-use Tomaj\Hermes\Shutdown\ShutdownException;
 use Tomaj\Hermes\SerializeException;
+use Tomaj\Hermes\Shutdown\ShutdownException;
 
 class PredisSetDriver implements DriverInterface
 {
@@ -71,8 +72,9 @@ class PredisSetDriver implements DriverInterface
      */
     public function send(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): bool
     {
-        if ($message->getExecuteAt() && $message->getExecuteAt() > microtime(true)) {
-            $this->redis->zadd($this->scheduleKey, [$this->serializer->serialize($message) => $message->getExecuteAt()]);
+        $executeAt = $message->getExecuteAt();
+        if ($executeAt !== null && $executeAt > microtime(true)) {
+            $this->redis->zadd($this->scheduleKey, [$this->serializer->serialize($message) => $executeAt]);
         } else {
             $key = $this->getKey($priority);
             $this->redis->sadd($key, [$this->serializer->serialize($message)]);
@@ -120,8 +122,11 @@ class PredisSetDriver implements DriverInterface
 
             // check schedule
             $messagesString = $this->redis->zrangebyscore($this->scheduleKey, '-inf', microtime(true), ['LIMIT' => ['OFFSET' => 0, 'COUNT' => 1]]);
-            if (count($messagesString)) {
+            if ($messagesString !== []) {
                 foreach ($messagesString as $messageString) {
+                    if (!is_string($messageString)) {
+                        continue;
+                    }
                     $this->redis->zrem($this->scheduleKey, $messageString);
                     $this->send($this->serializer->unserialize($messageString));
                 }
@@ -131,7 +136,7 @@ class PredisSetDriver implements DriverInterface
             $foundPriority = null;
 
             foreach ($queues as $priority => $name) {
-                if (count($priorities) > 0 && !in_array($priority, $priorities)) {
+                if (count($priorities) > 0 && !in_array($priority, $priorities, true)) {
                     continue;
                 }
                 if ($messageString !== null) {
@@ -140,16 +145,19 @@ class PredisSetDriver implements DriverInterface
 
                 $key = $this->getKey($priority);
 
-                $messageString = $this->redis->spop($key);
-                $foundPriority = $priority;
+                $popped = $this->redis->spop($key);
+                if (is_string($popped)) {
+                    $messageString = $popped;
+                    $foundPriority = $priority;
+                }
             }
 
-            if ($messageString !== null) {
+            if (is_string($messageString)) {
                 $message = $this->serializer->unserialize($messageString);
                 $callback($message, $foundPriority);
                 $this->incrementProcessedItems();
             } else {
-                if ($this->refreshInterval) {
+                if ($this->refreshInterval !== 0) {
                     $this->checkShutdown();
                     sleep($this->refreshInterval);
                 }

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tomaj\Hermes\Test\Shutdown;
@@ -8,12 +9,11 @@ use Tomaj\Hermes\Shutdown\ShutdownInterface;
 
 class StopShutdown implements ShutdownInterface
 {
-    /** @var int */
-    private static $eventsStop;
+    private static ?int $eventsStop = null;
 
     public function shouldShutdown(DateTime $startTime): bool
     {
-        if (!isset(self::$eventsStop)) {
+        if (self::$eventsStop === null) {
             return false;
         }
         if (self::$eventsStop === 1) {

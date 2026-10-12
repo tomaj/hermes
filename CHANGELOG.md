@@ -19,6 +19,8 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ### Changed
 
+* **BREAKING CHANGE**: Raised the minimum PHP version to 8.4. PHP 7.4 and 8.0 through 8.3 are no longer supported.
+* `ramsey/uuid` now requires `^4.7` and `tracy/tracy` now requires `^2.10.10`, so both install on PHP 8.4 and 8.5.
 * **BREAKING CHANGE**: Updated minimum PHP version requirement to PHP 7.4+ with full PHP 8.0+ support
 * **BREAKING CHANGE**: Removed PHP 7.2 and 7.3 support from CI/CD workflows
 * Enhanced `Message` class with strict typing and improved type annotations

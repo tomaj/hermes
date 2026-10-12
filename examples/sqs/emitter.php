@@ -1,12 +1,12 @@
 <?php
+
 declare(strict_types=1);
 
 use Tomaj\Hermes\Driver\AmazonSqsDriver;
 use Tomaj\Hermes\Emitter;
 use Tomaj\Hermes\Message;
-use Aws\Sqs\SqsClient;
 
-require_once __DIR__.'/../../vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 $client = new Aws\Sqs\SqsClient([
     'version' => 'latest',
@@ -14,7 +14,7 @@ $client = new Aws\Sqs\SqsClient([
     'credentials' => [
         'key' => '*key*',
         'secret' => '*secret*',
-    ]
+    ],
 ]);
 
 $driver = new AmazonSqsDriver($client, '*queueName*');

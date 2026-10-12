@@ -1,11 +1,12 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tomaj\Hermes\Test\Driver;
 
 use PHPUnit\Framework\TestCase;
-use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\Message;
+use Tomaj\Hermes\MessageInterface;
 
 /**
  * Class CustomSerializerTest
@@ -28,6 +29,6 @@ class CustomSerializerTest extends TestCase
         $dummyDriver->wait(function (MessageInterface $message) use (&$receivedMessage) {
             $receivedMessage = $message;
         });
-        $this->assertEquals($message, $receivedMessage);
+        self::assertEquals($message, $receivedMessage);
     }
 }

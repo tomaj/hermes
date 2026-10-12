@@ -1,13 +1,14 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tomaj\Hermes\Test\Shutdown;
 
 use PHPUnit\Framework\TestCase;
+use Tomaj\Hermes\Dispatcher;
+use Tomaj\Hermes\Message;
 use Tomaj\Hermes\Test\Driver\DummyDriver;
 use Tomaj\Hermes\Test\Handler\TestHandler;
-use Tomaj\Hermes\Message;
-use Tomaj\Hermes\Dispatcher;
 
 /**
  * Class DispatcherShutdownTest
@@ -38,7 +39,7 @@ class DispatcherShutdownTest extends TestCase
         $receivedMessages = $handler->getReceivedMessages();
 
         // no shutdown; we received both messages
-        $this->assertEquals(2, count($receivedMessages));
+        self::assertEquals(2, count($receivedMessages));
     }
 
     public function testEmitWithDummyDriverWithShutdown(): void
@@ -58,6 +59,6 @@ class DispatcherShutdownTest extends TestCase
         $dispatcher->handle();
 
         $receivedMessages = $handler->getReceivedMessages();
-        $this->assertEquals(1, count($receivedMessages));
+        self::assertEquals(1, count($receivedMessages));
     }
 }

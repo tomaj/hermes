@@ -1,15 +1,16 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tomaj\Hermes\Test;
 
 use PHPUnit\Framework\TestCase;
-use Tomaj\Hermes\Emitter;
-use Tomaj\Hermes\Test\Driver\DummyDriver;
-use Tomaj\Hermes\Test\Handler\TestHandler;
-use Tomaj\Hermes\Test\Handler\ExceptionHandler;
-use Tomaj\Hermes\Message;
 use Tomaj\Hermes\Dispatcher;
+use Tomaj\Hermes\Emitter;
+use Tomaj\Hermes\Message;
+use Tomaj\Hermes\Test\Driver\DummyDriver;
+use Tomaj\Hermes\Test\Handler\ExceptionHandler;
+use Tomaj\Hermes\Test\Handler\TestHandler;
 
 /**
  * Class HandleTest
@@ -39,10 +40,10 @@ class HandleTest extends TestCase
         $dispatcher->handle();
 
         $receivedMessages = $handler->getReceivedMessages();
-        $this->assertEquals(1, count($receivedMessages));
-        $this->assertEquals('event2', $receivedMessages[0]->getType());
-        $this->assertEquals(['c' => 'd'], $receivedMessages[0]->getPayload());
-        $this->assertTrue($driver->waitResult());
+        self::assertEquals(1, count($receivedMessages));
+        self::assertEquals('event2', $receivedMessages[0]->getType());
+        self::assertEquals(['c' => 'd'], $receivedMessages[0]->getPayload());
+        self::assertTrue($driver->waitResult());
     }
 
     public function testMultipleHandlersOnOneEvent(): void
@@ -61,16 +62,16 @@ class HandleTest extends TestCase
         $dispatcher->handle();
 
         $receivedMessages = $handler1->getReceivedMessages();
-        $this->assertEquals(1, count($receivedMessages));
-        $this->assertEquals('eventx', $receivedMessages[0]->getType());
-        $this->assertEquals(['a' => 'x'], $receivedMessages[0]->getPayload());
+        self::assertEquals(1, count($receivedMessages));
+        self::assertEquals('eventx', $receivedMessages[0]->getType());
+        self::assertEquals(['a' => 'x'], $receivedMessages[0]->getPayload());
 
         $receivedMessages = $handler2->getReceivedMessages();
-        $this->assertEquals(1, count($receivedMessages));
-        $this->assertEquals('eventx', $receivedMessages[0]->getType());
-        $this->assertEquals(['a' => 'x'], $receivedMessages[0]->getPayload());
+        self::assertEquals(1, count($receivedMessages));
+        self::assertEquals('eventx', $receivedMessages[0]->getType());
+        self::assertEquals(['a' => 'x'], $receivedMessages[0]->getPayload());
 
-        $this->assertFalse($driver->waitResult());
+        self::assertFalse($driver->waitResult());
     }
 
     public function testOtherEvent(): void
@@ -88,8 +89,8 @@ class HandleTest extends TestCase
         $dispatcher->handle();
 
         $receivedMessages = $handler->getReceivedMessages();
-        $this->assertEquals(0, count($receivedMessages));
-        $this->assertTrue($driver->waitResult());
+        self::assertEquals(0, count($receivedMessages));
+        self::assertTrue($driver->waitResult());
     }
 
     public function testHandlerWithException(): void
@@ -100,9 +101,13 @@ class HandleTest extends TestCase
         $dispatcher = new Dispatcher($driver);
 
         $dispatcher->registerHandler('eventx', new ExceptionHandler());
-        $dispatcher->handle();
-
-        $this->assertFalse($driver->waitResult());
+        try {
+            $dispatcher->handle();
+            self::assertFalse($driver->waitResult());
+        } finally {
+            restore_error_handler();
+            restore_exception_handler();
+        }
     }
 
     public function testPriorityProcessing(): void
@@ -130,11 +135,11 @@ class HandleTest extends TestCase
         $dispatcher->handle();
 
         $receivedMessages = $testHandler->getReceivedMessages();
-        $this->assertCount(4, $receivedMessages);
-        $this->assertEquals(['n' => 2], $receivedMessages[0]->getPayload());
-        $this->assertEquals(['n' => 4], $receivedMessages[1]->getPayload());
-        $this->assertEquals(['n' => 1], $receivedMessages[2]->getPayload());
-        $this->assertEquals(['n' => 3], $receivedMessages[3]->getPayload());
+        self::assertCount(4, $receivedMessages);
+        self::assertEquals(['n' => 2], $receivedMessages[0]->getPayload());
+        self::assertEquals(['n' => 4], $receivedMessages[1]->getPayload());
+        self::assertEquals(['n' => 1], $receivedMessages[2]->getPayload());
+        self::assertEquals(['n' => 3], $receivedMessages[3]->getPayload());
     }
 
     public function testMaxItemProcess(): void
@@ -161,9 +166,9 @@ class HandleTest extends TestCase
         $dispatcher->handle();
 
         $receivedMessages = $testHandler->getReceivedMessages();
-        $this->assertCount(2, $receivedMessages);
-        $this->assertEquals(['n' => 2], $receivedMessages[0]->getPayload());
-        $this->assertEquals(['n' => 1], $receivedMessages[1]->getPayload());
+        self::assertCount(2, $receivedMessages);
+        self::assertEquals(['n' => 2], $receivedMessages[0]->getPayload());
+        self::assertEquals(['n' => 1], $receivedMessages[1]->getPayload());
     }
 
     public function testUnregisterAllHandlers(): void
@@ -183,7 +188,7 @@ class HandleTest extends TestCase
         $dispatcher->handle();
 
         $receivedMessages = $handler->getReceivedMessages();
-        $this->assertCount(1, $receivedMessages);
+        self::assertCount(1, $receivedMessages);
     }
 
     public function testUnregisterHandler(): void
@@ -205,10 +210,10 @@ class HandleTest extends TestCase
         $dispatcher->handle();
 
         $firstHandlerReceivedMessages = $firstHandler->getReceivedMessages();
-        $this->assertCount(2, $firstHandlerReceivedMessages);
+        self::assertCount(2, $firstHandlerReceivedMessages);
 
         $secondHandlerReceivedMessages = $secondHandler->getReceivedMessages();
-        $this->assertCount(1, $secondHandlerReceivedMessages);
+        self::assertCount(1, $secondHandlerReceivedMessages);
     }
 
     public function testEmitMethod(): void
@@ -220,13 +225,13 @@ class HandleTest extends TestCase
         $message = new Message('test-event', ['test' => 'data']);
         $result = $dispatcher->emit($message, 200);
 
-        $this->assertSame($dispatcher, $result);
-        
+        self::assertSame($dispatcher, $result);
+
         // Check that the message was sent via the driver
         $sentMessage = $driver->getMessage();
-        $this->assertNotNull($sentMessage);
-        $this->assertEquals('test-event', $sentMessage->getType());
-        $this->assertEquals(['test' => 'data'], $sentMessage->getPayload());
+        self::assertNotNull($sentMessage);
+        self::assertEquals('test-event', $sentMessage->getType());
+        self::assertEquals(['test' => 'data'], $sentMessage->getPayload());
     }
 
     public function testRegisterHandlers(): void
@@ -241,13 +246,13 @@ class HandleTest extends TestCase
 
         $result = $dispatcher->registerHandlers('test-event', $handlers);
 
-        $this->assertSame($dispatcher, $result);
+        self::assertSame($dispatcher, $result);
 
         // Test that both handlers receive the message
         $dispatcher->handle();
 
-        $this->assertCount(1, $handler1->getReceivedMessages());
-        $this->assertCount(1, $handler2->getReceivedMessages());
+        self::assertCount(1, $handler1->getReceivedMessages());
+        self::assertCount(1, $handler2->getReceivedMessages());
     }
 
     public function testRetryMessage(): void
@@ -255,7 +260,7 @@ class HandleTest extends TestCase
         // Create a handler that uses RetryTrait
         $handler = new class implements \Tomaj\Hermes\Handler\HandlerInterface {
             use \Tomaj\Hermes\Handler\RetryTrait;
-            
+
             public function handle(\Tomaj\Hermes\MessageInterface $message): bool
             {
                 // Throw exception to trigger retry
@@ -274,17 +279,17 @@ class HandleTest extends TestCase
         // Need to check both messages that might be in the queue
         $message1 = $driver->getMessage();
         $message2 = $driver->getMessage();
-        
+
         // One should be the retry message with retries=6
         $foundRetryMessage = false;
-        if ($message1 && $message1->getRetries() === 6) {
+        if ($message1 !== null && $message1->getRetries() === 6) {
             $foundRetryMessage = true;
         }
-        if ($message2 && $message2->getRetries() === 6) {
+        if ($message2 !== null && $message2->getRetries() === 6) {
             $foundRetryMessage = true;
         }
-        
-        $this->assertTrue($foundRetryMessage, 'Should have found a retry message with retries=6');
+
+        self::assertTrue($foundRetryMessage, 'Should have found a retry message with retries=6');
     }
 
     public function testRetryMessageMaxRetriesReached(): void
@@ -292,12 +297,12 @@ class HandleTest extends TestCase
         // Create a handler that uses RetryTrait with custom maxRetry
         $handler = new class implements \Tomaj\Hermes\Handler\HandlerInterface {
             use \Tomaj\Hermes\Handler\RetryTrait;
-            
+
             public function maxRetry(): int
             {
                 return 5; // Lower max retry for this test
             }
-            
+
             public function handle(\Tomaj\Hermes\MessageInterface $message): bool
             {
                 // Throw exception to trigger retry check
@@ -316,17 +321,17 @@ class HandleTest extends TestCase
         // But the original message should still be there
         $message1 = $driver->getMessage();
         $message2 = $driver->getMessage();
-        
+
         // Should not find any message with retries=6 (no retry should have been sent)
         $foundRetryMessage = false;
-        if ($message1 && $message1->getRetries() === 6) {
+        if ($message1 !== null && $message1->getRetries() === 6) {
             $foundRetryMessage = true;
         }
-        if ($message2 && $message2->getRetries() === 6) {
+        if ($message2 !== null && $message2->getRetries() === 6) {
             $foundRetryMessage = true;
         }
-        
-        $this->assertFalse($foundRetryMessage, 'Should not have found a retry message with retries=6');
+
+        self::assertFalse($foundRetryMessage, 'Should not have found a retry message with retries=6');
     }
 
     public function testHandlerWithoutRetryMethods(): void
@@ -351,16 +356,16 @@ class HandleTest extends TestCase
         // But the original message should still be there
         $message1 = $driver->getMessage();
         $message2 = $driver->getMessage();
-        
+
         // Should not find any message with retries=6 (no retry should have been sent)
         $foundRetryMessage = false;
-        if ($message1 && $message1->getRetries() === 6) {
+        if ($message1 !== null && $message1->getRetries() === 6) {
             $foundRetryMessage = true;
         }
-        if ($message2 && $message2->getRetries() === 6) {
+        if ($message2 !== null && $message2->getRetries() === 6) {
             $foundRetryMessage = true;
         }
-        
-        $this->assertFalse($foundRetryMessage, 'Should not have found a retry message with retries=6');
+
+        self::assertFalse($foundRetryMessage, 'Should not have found a retry message with retries=6');
     }
 }

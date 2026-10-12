@@ -1,17 +1,18 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tomaj\Hermes\Test\Driver;
 
 use Closure;
 use Tomaj\Hermes\Dispatcher;
+use Tomaj\Hermes\Driver\DriverInterface;
 use Tomaj\Hermes\Driver\MaxItemsTrait;
+use Tomaj\Hermes\Driver\NotSupportedException;
+use Tomaj\Hermes\Driver\SerializerAwareTrait;
 use Tomaj\Hermes\Driver\UnknownPriorityException;
 use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
-use Tomaj\Hermes\Driver\DriverInterface;
-use Tomaj\Hermes\Driver\SerializerAwareTrait;
-use Tomaj\Hermes\Driver\NotSupportedException;
 
 class DummyDriver implements DriverInterface
 {
@@ -67,7 +68,7 @@ class DummyDriver implements DriverInterface
     public function setupPriorityQueue(string $name, int $priority): void
     {
         $this->queues[$priority] = $name;
-        ksort($this->queues, SORT_ASC | SORT_NUMERIC);
+        ksort($this->queues, SORT_NUMERIC);
 
         if (!isset($this->events[$priority])) {
             $this->events[$priority] = [];
@@ -105,7 +106,7 @@ class DummyDriver implements DriverInterface
                     return;
                 }
                 $message = $this->serializer->unserialize($event);
-                $this->waitResult = $callback($message);
+                $this->waitResult = (bool) $callback($message);
                 $this->incrementProcessedItems();
             }
         }

@@ -6,6 +6,4 @@ namespace Tomaj\Hermes\Driver;
 
 use Tomaj\Hermes\HermesException;
 
-class UnknownPriorityException extends HermesException
-{
-}
+class UnknownPriorityException extends HermesException {}

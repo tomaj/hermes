@@ -1,13 +1,14 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tomaj\Hermes\Driver;
 
+use Aws\Sqs\SqsClient;
 use Closure;
 use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
-use Aws\Sqs\SqsClient;
 
 class AmazonSqsDriver implements DriverInterface
 {
@@ -67,9 +68,9 @@ class AmazonSqsDriver implements DriverInterface
      *
      * @see examples/sqs folder
      *
-     * @param SqsClient     $client
-     * @param string        $queueName
-     * @param array<mixed>  $queueAttributes
+     * @param SqsClient $client
+     * @param string $queueName
+     * @param array<string, scalar|null> $queueAttributes
      */
     public function __construct(SqsClient $client, string $queueName, array $queueAttributes = [])
     {
@@ -77,12 +78,21 @@ class AmazonSqsDriver implements DriverInterface
         $this->queueName = $queueName;
         $this->serializer = new MessageSerializer();
 
+        $attributes = [];
+        foreach ($queueAttributes as $attributeName => $attributeValue) {
+            $attributes[$attributeName] = is_scalar($attributeValue) ? (string) $attributeValue : '';
+        }
+
         $result = $client->createQueue([
-            'QueueName' => $queueName,
-            'Attributes' => $queueAttributes,
+            'QueueName' => $this->queueName,
+            'Attributes' => $attributes,
         ]);
 
-        $this->queueUrl = $result->get('QueueUrl');
+        $queueUrl = $result->get('QueueUrl');
+        if (!is_string($queueUrl)) {
+            throw new \RuntimeException('Amazon SQS createQueue response did not include a queue URL');
+        }
+        $this->queueUrl = $queueUrl;
     }
 
     /**
@@ -105,7 +115,7 @@ class AmazonSqsDriver implements DriverInterface
      */
     public function setupPriorityQueue(string $name, int $priority): void
     {
-        throw new NotSupportedException("AmazonSQS is not supporting priority queues now");
+        throw new NotSupportedException('AmazonSQS is not supporting priority queues now');
     }
 
     /**
@@ -124,26 +134,32 @@ class AmazonSqsDriver implements DriverInterface
                 'WaitTimeSeconds' => 1,
             ]);
 
-            $messages = $result['Messages'];
+            $messages = $result['Messages'] ?? null;
 
-            if ($messages) {
+            if (is_array($messages) && $messages !== []) {
                 $hermesMessages = [];
                 foreach ($messages as $message) {
+                    if (!is_array($message)) {
+                        continue;
+                    }
+                    $receiptHandle = $message['ReceiptHandle'] ?? null;
+                    $body = $message['Body'] ?? null;
+                    if (!is_string($receiptHandle) || !is_string($body)) {
+                        continue;
+                    }
                     $this->client->deleteMessage([
                         'QueueUrl' => $this->queueUrl,
-                        'ReceiptHandle' => $message['ReceiptHandle'],
+                        'ReceiptHandle' => $receiptHandle,
                     ]);
-                    $hermesMessages[] = $this->serializer->unserialize($message['Body']);
+                    $hermesMessages[] = $this->serializer->unserialize($body);
                 }
                 foreach ($hermesMessages as $hermesMessage) {
                     $callback($hermesMessage);
                     $this->incrementProcessedItems();
                 }
-            } else {
-                if ($this->sleepInterval) {
-                    $this->checkShutdown();
-                    sleep($this->sleepInterval);
-                }
+            } elseif ($this->sleepInterval !== 0) {
+                $this->checkShutdown();
+                sleep($this->sleepInterval);
             }
         }
     }

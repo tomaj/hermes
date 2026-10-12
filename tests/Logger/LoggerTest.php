@@ -1,14 +1,15 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tomaj\Hermes\Test\Logger;
 
 use PHPUnit\Framework\TestCase;
+use Tomaj\Hermes\Dispatcher;
+use Tomaj\Hermes\Emitter;
+use Tomaj\Hermes\Message;
 use Tomaj\Hermes\Test\Driver\DummyDriver;
 use Tomaj\Hermes\Test\Handler\TestHandler;
-use Tomaj\Hermes\Message;
-use Tomaj\Hermes\Emitter;
-use Tomaj\Hermes\Dispatcher;
 
 /**
  * Class LoggerTest
@@ -31,12 +32,12 @@ class LoggerTest extends TestCase
         $emitter->emit($message);
 
         $logData = $testLogger->getLogs();
-        $this->assertCount(1, $logData);
+        self::assertCount(1, $logData);
 
         $log = $logData[0];
-        $this->assertEquals('test', $log['context']['type']);
-        $this->assertEquals(['asdsd' => 'asdsd'], $log['context']['payload']);
-        $this->assertStringContainsString($message->getId(), $log['message']);
+        self::assertEquals('test', $log['context']['type']);
+        self::assertEquals(['asdsd' => 'asdsd'], $log['context']['payload']);
+        self::assertStringContainsString($message->getId(), (string) $log['message']);
     }
 
     public function testHandlerLogger(): void
@@ -53,13 +54,13 @@ class LoggerTest extends TestCase
         $dispatcher->handle();
 
         $logs = $testLogger->getLogs();
-        $this->assertCount(2, $logs);
+        self::assertCount(2, $logs);
 
         $priority = Dispatcher::DEFAULT_PRIORITY;
-        $this->assertEquals('info', $logs[0]['level']);
-        $this->assertEquals("Start handle message #{$message1->getId()} ({$message1->getType()}) priority:{$priority}", $logs[0]['message']);
+        self::assertEquals('info', $logs[0]['level']);
+        self::assertEquals("Start handle message #{$message1->getId()} ({$message1->getType()}) priority:{$priority}", $logs[0]['message']);
 
-        $this->assertEquals('info', $logs[1]['level']);
-        $this->assertEquals("End handle message #{$message1->getId()} ({$message1->getType()})", $logs[1]['message']);
+        self::assertEquals('info', $logs[1]['level']);
+        self::assertEquals("End handle message #{$message1->getId()} ({$message1->getType()})", $logs[1]['message']);
     }
 }

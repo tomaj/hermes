@@ -1,12 +1,13 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tomaj\Hermes\Test;
 
 use PHPUnit\Framework\TestCase;
-use Tomaj\Hermes\Test\Driver\DummyDriver;
 use Tomaj\Hermes\Emitter;
 use Tomaj\Hermes\Message;
+use Tomaj\Hermes\Test\Driver\DummyDriver;
 
 /**
  * Class EmitTest
@@ -23,15 +24,13 @@ class EmitTest extends TestCase
         $driver = new DummyDriver();
         $emitter = new Emitter($driver);
 
-        $this->assertNull($driver->getMessage());
+        self::assertNull($driver->getMessage());
 
         $emitter->emit(new Message('event-type', ['content']));
 
         $message = $driver->getMessage();
-        $this->assertNotNull($message);
-        if ($message !== null) {
-            $this->assertEquals('event-type', $message->getType());
-            $this->assertEquals(['content'], $message->getPayload());
-        }
+        self::assertInstanceOf(Message::class, $message);
+        self::assertEquals('event-type', $message->getType());
+        self::assertEquals(['content'], $message->getPayload());
     }
 }
