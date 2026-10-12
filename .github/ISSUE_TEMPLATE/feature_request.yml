@@ -1,0 +1,89 @@
+name: Feature request
+description: Suggest an improvement to Hermes
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the suggestion. Hermes is a background job library. The next planned major release is 6.0; breaking ideas can be proposed with that in mind.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is difficult or missing today?
+      placeholder: I cannot shut down a worker cleanly when...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: How should Hermes behave?
+      placeholder: Add a method that...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: What else did you consider, including doing this outside the library?
+    validations:
+      required: false
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Example usage
+      description: Show how calling code would use the change.
+      render: php
+      placeholder: |
+        $dispatcher = new Dispatcher($driver);
+        $dispatcher->registerHandler('event', $handler);
+    validations:
+      required: false
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Which part of the library does this affect?
+      options:
+        - Emitter
+        - Dispatcher
+        - Driver
+        - Serializer
+        - Shutdown
+        - Other
+    validations:
+      required: false
+
+  - type: dropdown
+    id: compatibility
+    attributes:
+      label: Compatibility
+      description: Can this land without a breaking change?
+      options:
+        - Yes, it can ship in 5.x
+        - No, it needs 6.0
+        - Not sure
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues and this is not a duplicate
+          required: true
