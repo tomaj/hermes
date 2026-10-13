@@ -17,25 +17,9 @@ class AmazonSqsDriver implements DriverInterface
     use ShutdownTrait;
     use SerializerAwareTrait;
 
-    /**
-     * @var SqsClient
-     */
-    private $client;
+    private readonly string $queueUrl;
 
-    /**
-     * @var string
-     */
-    private $queueName;
-
-    /**
-     * @var string
-     */
-    private $queueUrl;
-
-    /**
-     * @var integer
-     */
-    private $sleepInterval = 0;
+    private int $sleepInterval = 0;
 
     /**
      * Create new Amazon SQS driver.
@@ -66,17 +50,15 @@ class AmazonSqsDriver implements DriverInterface
      *
      * More examples see: https://docs.aws.amazon.com/aws-sdk-php/v2/guide/service-sqs.html
      *
-     *
      * @see examples/sqs folder
      *
-     * @param SqsClient $client
-     * @param string $queueName
      * @param array<string, scalar|null> $queueAttributes
      */
-    public function __construct(SqsClient $client, string $queueName, array $queueAttributes = [])
-    {
-        $this->client = $client;
-        $this->queueName = $queueName;
+    public function __construct(
+        private readonly SqsClient $client,
+        private readonly string $queueName,
+        array $queueAttributes = [],
+    ) {
         $this->serializer = new MessageSerializer();
 
         $attributes = [];
@@ -84,7 +66,7 @@ class AmazonSqsDriver implements DriverInterface
             $attributes[$attributeName] = is_scalar($attributeValue) ? (string) $attributeValue : '';
         }
 
-        $result = $client->createQueue([
+        $result = $this->client->createQueue([
             'QueueName' => $this->queueName,
             'Attributes' => $attributes,
         ]);
@@ -96,9 +78,6 @@ class AmazonSqsDriver implements DriverInterface
         $this->queueUrl = $queueUrl;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function send(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): bool
     {
         $this->client->sendMessage([
@@ -109,9 +88,6 @@ class AmazonSqsDriver implements DriverInterface
     }
 
     /**
-     * @param string $name
-     * @param int $priority
-     *
      * @throws NotSupportedException
      */
     public function setupPriorityQueue(string $name, int $priority): void
@@ -119,9 +95,6 @@ class AmazonSqsDriver implements DriverInterface
         throw new NotSupportedException('AmazonSQS is not supporting priority queues now');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function wait(Closure $callback, array $priorities = []): void
     {
         while (true) {

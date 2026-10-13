@@ -14,19 +14,12 @@ use Redis;
  */
 class RedisShutdown implements ShutdownInterface
 {
-    private string $key;
-
-    private Redis $redis;
-
-    public function __construct(Redis $redis, string $key = 'hermes_shutdown')
-    {
-        $this->redis = $redis;
-        $this->key = $key;
-    }
+    public function __construct(
+        private readonly Redis $redis,
+        private readonly string $key = 'hermes_shutdown',
+    ) {}
 
     /**
-     * {@inheritdoc}
-     *
      * Returns true:
      * - if shutdown timestamp is set,
      * - and timestamp is not in future,
@@ -55,8 +48,6 @@ class RedisShutdown implements ShutdownInterface
     }
 
     /**
-     * {@inheritdoc}
-     *
      * Sets to Redis value `$shutdownTime` (or current DateTime) to `$key` defined in constructor.
      */
     public function shutdown(?DateTime $shutdownTime = null): bool

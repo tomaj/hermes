@@ -18,23 +18,8 @@ class PredisSetDriver implements DriverInterface
     use ShutdownTrait;
     use SerializerAwareTrait;
 
-    /** @var array<int, string>  */
-    private $queues = [];
-
-    /**
-     * @var string
-     */
-    private $scheduleKey;
-
-    /**
-     * @var Client
-     */
-    private $redis;
-
-    /**
-     * @var integer
-     */
-    private $refreshInterval;
+    /** @var array<int, string> */
+    private array $queues = [];
 
     /**
      * Create new PredisSetDriver
@@ -46,27 +31,19 @@ class PredisSetDriver implements DriverInterface
      * Managing connection to redis is up to you and you have to create it outsite
      * of this class. You will need to install predis php package.
      *
-     * @param Client $redis
-     * @param string $key
-     * @param integer $refreshInterval
-     * @param string $scheduleKey
      * @see examples/redis
-     *
-     * @throws NotSupportedException
      */
-    public function __construct(Client $redis, string $key = 'hermes', int $refreshInterval = 1, string $scheduleKey = 'hermes_schedule')
-    {
+    public function __construct(
+        private readonly Client $redis,
+        string $key = 'hermes',
+        private readonly int $refreshInterval = 1,
+        private readonly string $scheduleKey = 'hermes_schedule',
+    ) {
         $this->setupPriorityQueue($key, Dispatcher::DEFAULT_PRIORITY);
-
-        $this->scheduleKey = $scheduleKey;
-        $this->redis = $redis;
-        $this->refreshInterval = $refreshInterval;
         $this->serializer = new MessageSerializer();
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @throws UnknownPriorityException
      * @throws SerializeException
      */
@@ -82,18 +59,12 @@ class PredisSetDriver implements DriverInterface
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function setupPriorityQueue(string $name, int $priority): void
     {
         $this->queues[$priority] = $name;
     }
 
     /**
-     * @param int $priority
-     * @return string
-     *
      * @throws UnknownPriorityException
      */
     private function getKey(int $priority): string
@@ -105,8 +76,6 @@ class PredisSetDriver implements DriverInterface
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @throws ShutdownException
      * @throws UnknownPriorityException
      * @throws SerializeException

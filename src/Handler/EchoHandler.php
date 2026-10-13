@@ -10,9 +10,6 @@ class EchoHandler implements HandlerInterface
 {
     use RetryTrait;
 
-    /**
-     * {@inheritdoc}
-     */
     public function handle(MessageInterface $message): bool
     {
         echo "Received message: #{$message->getId()} (type {$message->getType()})\n";

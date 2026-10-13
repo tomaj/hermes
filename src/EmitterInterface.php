@@ -11,9 +11,6 @@ interface EmitterInterface
     /**
      * Emit new message
      *
-     * @param MessageInterface  $message
-     * @param int $priority
-     *
      * @throws UnknownPriorityException
      * @return $this
      */
