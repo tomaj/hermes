@@ -1,9 +1,0 @@
-flowchart TD
-  taken["Driver takes the message"] --> typed{"A handler is registered for the type?"}
-  typed -->|no| dropped["dispatch returns true"]
-  typed -->|yes| work["handler.handle"]
-  work --> good{"Thrown?"}
-  good -->|no| bool["true or false is the result"]
-  good -->|yes| again{"RetryTrait methods exist and retries is below maxRetry"}
-  again -->|yes| copy["send a copy with executeAt set, back to Driver.send"]
-  again -->|no| failed["result is false"]

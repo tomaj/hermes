@@ -1,9 +1,0 @@
-sequenceDiagram
-  participant Worker
-  participant SQS
-  participant Handler
-  Note over Worker: createQueue during construct
-  Worker->>SQS: receiveMessage WaitTimeSeconds 1
-  SQS-->>Worker: Messages
-  Worker->>SQS: deleteMessage ReceiptHandle
-  Worker->>Handler: unserialize Body, then callback

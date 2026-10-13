@@ -1,6 +1,0 @@
-flowchart TD
-  app["Emitter"] --> pub["basic_publish"]
-  pub --> ex["default exchange"]
-  ex --> queue["queue, durable false"]
-  queue --> consume["basic_consume no_ack true"]
-  consume --> handler["Handler"]

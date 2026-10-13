@@ -2,6 +2,8 @@ import DefaultTheme from 'vitepress/theme'
 import { inBrowser } from 'vitepress'
 import Layout from './Layout.vue'
 import Diagram from './Diagram.vue'
+import WorkerDemo from './WorkerDemo.vue'
+import CompareTable from './CompareTable.vue'
 import './custom.css'
 
 function versionLabel(path: string): string {
@@ -26,6 +28,8 @@ export default {
   Layout,
   enhanceApp({ app, router }) {
     app.component('Diagram', Diagram)
+    app.component('WorkerDemo', WorkerDemo)
+    app.component('CompareTable', CompareTable)
     if (!inBrowser) {
       return
     }

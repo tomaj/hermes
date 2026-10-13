@@ -63,13 +63,6 @@ features:
 
 <div class="home-more">
 
-## Watch a worker
-
-`EchoHandler` writes these two lines to stdout. The [Redis example processor](https://github.com/tomaj/hermes/blob/master/examples/redis/processor.php) registers that handler and then blocks in `Dispatcher::handle()`.
-
-<img class="theme-img only-light" src="/illustrations/terminal-light.svg" alt="Terminal showing EchoHandler lines for two type1 messages" />
-<img class="theme-img only-dark" src="/illustrations/terminal-dark.svg" alt="" />
-
 ## Where to go next
 
 - [Getting started](/guide/getting-started) installs 5.x and runs one worker.

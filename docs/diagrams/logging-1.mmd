@@ -1,7 +1,0 @@
-flowchart LR
-  emit["Emitter.emit"] --> info1["info, send line"]
-  wait["Dispatcher receives a message"] --> info2["info, start line"]
-  info2 --> handler["handler.handle"]
-  handler --> ok["info, end line"]
-  handler --> err["error line, then maybe retry"]
-  stop["ShutdownException"] --> notice["notice, exiting"]

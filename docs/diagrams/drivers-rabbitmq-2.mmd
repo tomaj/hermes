@@ -1,9 +1,0 @@
-sequenceDiagram
-  participant Worker
-  participant Broker
-  participant Handler
-  Worker->>Broker: queue_declare non-durable
-  Worker->>Broker: basic_consume no_ack true
-  Broker-->>Worker: body, already acknowledged
-  Worker->>Handler: unserialize and callback
-  Worker->>Worker: checkShutdown and max items

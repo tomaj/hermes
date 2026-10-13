@@ -1,0 +1,418 @@
+{
+ "padding": 0,
+ "elements": [
+  {
+   "t": "rect",
+   "x": 0,
+   "y": 0,
+   "w": 700,
+   "h": 400,
+   "opacity": 0,
+   "round": false
+  },
+  {
+   "t": "text",
+   "x": 150,
+   "y": 4,
+   "text": "web app",
+   "size": 22
+  },
+  {
+   "t": "text",
+   "x": 150,
+   "y": 30,
+   "text": "answers the request right away",
+   "size": 14,
+   "color": "muted"
+  },
+  {
+   "t": "rect",
+   "x": 20,
+   "y": 56,
+   "w": 260,
+   "h": 160
+  },
+  {
+   "t": "line",
+   "points": [
+    [
+     20,
+     86
+    ],
+    [
+     280,
+     86
+    ]
+   ]
+  },
+  {
+   "t": "ellipse",
+   "x": 32,
+   "y": 66,
+   "w": 10,
+   "h": 10
+  },
+  {
+   "t": "ellipse",
+   "x": 48,
+   "y": 66,
+   "w": 10,
+   "h": 10
+  },
+  {
+   "t": "ellipse",
+   "x": 64,
+   "y": 66,
+   "w": 10,
+   "h": 10
+  },
+  {
+   "t": "rect",
+   "x": 92,
+   "y": 64,
+   "w": 176,
+   "h": 16,
+   "color": "muted",
+   "width": 1
+  },
+  {
+   "t": "text",
+   "x": 180,
+   "y": 64,
+   "text": "shop.example.com",
+   "size": 12,
+   "color": "muted"
+  },
+  {
+   "t": "text",
+   "x": 40,
+   "y": 98,
+   "text": "Checkout",
+   "size": 18,
+   "align": "left"
+  },
+  {
+   "t": "line",
+   "points": [
+    [
+     40,
+     130
+    ],
+    [
+     210,
+     130
+    ]
+   ],
+   "color": "muted",
+   "width": 1
+  },
+  {
+   "t": "line",
+   "points": [
+    [
+     40,
+     146
+    ],
+    [
+     180,
+     146
+    ]
+   ],
+   "color": "muted",
+   "width": 1
+  },
+  {
+   "t": "rect",
+   "x": 40,
+   "y": 164,
+   "w": 140,
+   "h": 36
+  },
+  {
+   "t": "text",
+   "x": 110,
+   "y": 171,
+   "text": "Send invoice",
+   "size": 18
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     150,
+     220
+    ],
+    [
+     150,
+     262
+    ]
+   ]
+  },
+  {
+   "t": "rect",
+   "x": 40,
+   "y": 266,
+   "w": 220,
+   "h": 110
+  },
+  {
+   "t": "rect",
+   "x": 56,
+   "y": 282,
+   "w": 188,
+   "h": 22,
+   "color": "muted",
+   "width": 1
+  },
+  {
+   "t": "rect",
+   "x": 56,
+   "y": 312,
+   "w": 188,
+   "h": 22,
+   "color": "muted",
+   "width": 1
+  },
+  {
+   "t": "ellipse",
+   "x": 226,
+   "y": 289,
+   "w": 8,
+   "h": 8
+  },
+  {
+   "t": "ellipse",
+   "x": 226,
+   "y": 319,
+   "w": 8,
+   "h": 8
+  },
+  {
+   "t": "text",
+   "x": 150,
+   "y": 344,
+   "text": "web server, PHP-FPM",
+   "size": 16
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     264,
+     320
+    ],
+    [
+     318,
+     320
+    ]
+   ]
+  },
+  {
+   "t": "text",
+   "x": 291,
+   "y": 284,
+   "text": "emit()",
+   "size": 16
+  },
+  {
+   "t": "text",
+   "x": 380,
+   "y": 248,
+   "text": "queue",
+   "size": 20
+  },
+  {
+   "t": "rect",
+   "x": 320,
+   "y": 280,
+   "w": 120,
+   "h": 80
+  },
+  {
+   "t": "rect",
+   "x": 334,
+   "y": 296,
+   "w": 40,
+   "h": 26,
+   "width": 1.5
+  },
+  {
+   "t": "line",
+   "points": [
+    [
+     334,
+     296
+    ],
+    [
+     354,
+     312
+    ],
+    [
+     374,
+     296
+    ]
+   ],
+   "width": 1.5
+  },
+  {
+   "t": "rect",
+   "x": 386,
+   "y": 296,
+   "w": 40,
+   "h": 26,
+   "width": 1.5
+  },
+  {
+   "t": "line",
+   "points": [
+    [
+     386,
+     296
+    ],
+    [
+     406,
+     312
+    ],
+    [
+     426,
+     296
+    ]
+   ],
+   "width": 1.5
+  },
+  {
+   "t": "rect",
+   "x": 360,
+   "y": 328,
+   "w": 40,
+   "h": 26,
+   "width": 1.5
+  },
+  {
+   "t": "line",
+   "points": [
+    [
+     360,
+     328
+    ],
+    [
+     380,
+     344
+    ],
+    [
+     400,
+     328
+    ]
+   ],
+   "width": 1.5
+  },
+  {
+   "t": "text",
+   "x": 380,
+   "y": 368,
+   "text": "Redis, RabbitMQ, or SQS",
+   "size": 13,
+   "color": "muted"
+  },
+  {
+   "t": "line",
+   "points": [
+    [
+     470,
+     10
+    ],
+    [
+     470,
+     390
+    ]
+   ],
+   "dashed": true,
+   "color": "muted",
+   "width": 1.5
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     442,
+     320
+    ],
+    [
+     498,
+     320
+    ]
+   ]
+  },
+  {
+   "t": "text",
+   "x": 484,
+   "y": 284,
+   "text": "wait()",
+   "size": 16
+  },
+  {
+   "t": "text",
+   "x": 585,
+   "y": 120,
+   "text": "background worker",
+   "size": 22
+  },
+  {
+   "t": "text",
+   "x": 585,
+   "y": 148,
+   "text": "own process, nobody waits",
+   "size": 13,
+   "color": "muted"
+  },
+  {
+   "t": "rect",
+   "x": 500,
+   "y": 180,
+   "w": 170,
+   "h": 180
+  },
+  {
+   "t": "line",
+   "points": [
+    [
+     500,
+     206
+    ],
+    [
+     670,
+     206
+    ]
+   ]
+  },
+  {
+   "t": "ellipse",
+   "x": 510,
+   "y": 189,
+   "w": 8,
+   "h": 8
+  },
+  {
+   "t": "ellipse",
+   "x": 522,
+   "y": 189,
+   "w": 8,
+   "h": 8
+  },
+  {
+   "t": "ellipse",
+   "x": 534,
+   "y": 189,
+   "w": 8,
+   "h": 8
+  },
+  {
+   "t": "text",
+   "x": 512,
+   "y": 214,
+   "text": "$ php worker.php",
+   "size": 14,
+   "align": "left"
+  }
+ ]
+}

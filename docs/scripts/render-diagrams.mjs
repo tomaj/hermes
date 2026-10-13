@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Renders docs/diagrams/*.mmd into hand-drawn Excalidraw scenes and SVGs.
+// Renders docs/diagrams/*.mmd (Mermaid) and *.json (hand-placed drawings) into hand-drawn Excalidraw scenes and SVGs.
 //
 //   npm run diagrams          write docs/diagrams/*.excalidraw and docs/public/diagrams/*.svg
 //   npm run diagrams:check    fail when the committed files are out of date
@@ -52,11 +52,12 @@ await tab.goto(`http://127.0.0.1:${server.address().port}/`)
 await tab.waitForFunction('window.renderDiagram', { timeout: 60000 })
 
 mkdirSync(outDir, { recursive: true })
-const names = readdirSync(srcDir).filter((f) => f.endsWith('.mmd')).map((f) => f.slice(0, -4)).sort()
-  .filter((n) => only.length === 0 || only.includes(n))
+const names = readdirSync(srcDir).filter((f) => /\.(mmd|json)$/.test(f)).sort()
+  .filter((f) => only.length === 0 || only.includes(f.replace(/\.(mmd|json)$/, '')))
 const stale = []
-for (const name of names) {
-  const source = readFileSync(join(srcDir, `${name}.mmd`), 'utf8')
+for (const file of names) {
+  const name = file.replace(/\.(mmd|json)$/, '')
+  const source = readFileSync(join(srcDir, file), 'utf8')
   const out = await tab.evaluate((n, s) => window.renderDiagram(n, s), name, source)
   const files = {
     [join(srcDir, `${name}.excalidraw`)]: JSON.stringify(out.scene, null, 2) + '\n',

@@ -1,9 +1,0 @@
-flowchart TD
-  send["send"] --> when{"executeAt in the future?"}
-  when -->|yes| zset["ZSET hermes_schedule score is executeAt"]
-  when -->|no| which{"priority integer"}
-  which -->|110| high["SET hermes_high"]
-  which -->|100| normal["SET hermes"]
-  which -->|90| low["SET hermes_low"]
-  zset --> promote["later send with default priority"]
-  promote --> normal

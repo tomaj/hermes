@@ -40,7 +40,9 @@ function clean(text) {
 
 export async function render(name, source) {
   await document.fonts.load('20px Excalifont')
-  const { elements: skeleton } = await parseMermaidToExcalidraw(source, {
+  // A .json source is a hand-placed illustration instead of Mermaid.
+  const drawing = source.trim().startsWith('{') ? JSON.parse(source) : null
+  const { elements: skeleton } = drawing ? { elements: [] } : await parseMermaidToExcalidraw(source, {
     themeVariables: { fontSize: '20px' },
     flowchart: { curve: 'basis', nodeSpacing: 55, rankSpacing: 70, padding: 14, wrappingWidth: 160 },
     sequence: { actorMargin: 30, width: 120, messageMargin: 30, boxMargin: 8, noteMargin: 8 },
@@ -161,6 +163,40 @@ export async function render(name, source) {
     }
   }
 
+  if (drawing) {
+    const pick = (d) => ({
+      strokeColor: d.color === 'muted' ? MUTED : d.color || INK,
+      strokeStyle: d.dashed ? 'dashed' : d.dotted ? 'dotted' : 'solid',
+      strokeWidth: d.width ?? 2,
+      opacity: d.opacity ?? 100,
+      ...(d.fill ? { backgroundColor: d.fill, fillStyle: d.hachure ? 'hachure' : 'solid' } : {}),
+      ...(d.roughness !== undefined ? { roughness: d.roughness } : {}),
+    })
+    for (const d of drawing.elements) {
+      if (d.t === 'rect' || d.t === 'ellipse' || d.t === 'diamond') {
+        base(d.t === 'rect' ? 'rectangle' : d.t, d.x, d.y, d.w, d.h, {
+          ...pick(d), roundness: d.t === 'rect' && d.round !== false ? { type: 3 } : null,
+        })
+      } else if (d.t === 'text') {
+        const size = d.size ?? 20
+        const m = measure(d.text, size)
+        const x = d.align === 'left' ? d.x : d.align === 'right' ? d.x - m.width : d.x - m.width / 2
+        text(x, d.y, d.text, size, { ...pick(d), strokeWidth: 1, textAlign: d.align ?? 'center', fontFamily: d.mono ? 3 : FONT })
+      } else if (d.t === 'line' || d.t === 'arrow') {
+        const pts = d.points.map(([px, py]) => [px - d.points[0][0], py - d.points[0][1]])
+        const xs = pts.map((q) => q[0]); const ys = pts.map((q) => q[1])
+        base(d.t, d.points[0][0], d.points[0][1], Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys), {
+          ...pick(d), points: pts, roundness: d.curve ? { type: 2 } : null,
+          lastCommittedPoint: null, startBinding: null, endBinding: null,
+          startArrowhead: null, endArrowhead: d.t === 'arrow' ? 'arrow' : null,
+        })
+      } else {
+        throw new Error(`${name}: unsupported drawing element ${d.t}`)
+      }
+    }
+  }
+  const padding = drawing ? (drawing.padding ?? 0) : 16
+
   const scene = {
     type: 'excalidraw', version: 2, source: 'https://tomaj.github.io/hermes/',
     elements, appState: { viewBackgroundColor: '#ffffff', gridSize: null }, files: {},
@@ -168,7 +204,7 @@ export async function render(name, source) {
   const svg = async (dark) => {
     const node = await exportToSvg({
       data: { elements, appState: { exportBackground: false, exportWithDarkMode: dark, viewBackgroundColor: '#ffffff' }, files: {} },
-      config: { padding: 16 },
+      config: { padding },
     })
     node.setAttribute('role', 'img')
     return new XMLSerializer().serializeToString(node)
