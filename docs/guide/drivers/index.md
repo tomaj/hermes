@@ -29,7 +29,7 @@ The four classes in `src/Driver` all implement `DriverInterface`. Pick one for t
 ### Redis `ext-redis` notes
 
 - **Priority.** Each integer priority is a separate Redis set. The poll order is reverse insertion order, not numeric order. See [issue #50](https://github.com/tomaj/hermes/issues/50).
-- **Delay.** A future `executeAt` goes into a sorted set with `ZADD`. Promotion then calls `SPOP` on that key.
+- **Delay.** A future `executeAt` goes into a sorted set with `ZADD`. Promotion uses `ZREM` on the member it just read. In 5.x it called `SPOP` and never promoted ([#95](https://github.com/tomaj/hermes/issues/95)).
 - **Persistence.** Whatever Redis is configured to do (RDB or AOF). Hermes does not set it. Values live in sets plus one sorted set.
 - **Ack.** There is no ack API. `SPOP` deletes the member, then the handler runs. A `true` or `false` return is ignored.
 
@@ -71,7 +71,7 @@ Shutdown helpers are not drivers. `SharedFileShutdown` works with any driver. `R
 
 ### Which driver is the safest default?
 
-`PredisSetDriver`. It needs no extension, supports priorities, and is the only driver that promotes delayed messages and retries reliably in 5.x.
+`PredisSetDriver`. It needs no extension, supports priorities, and promotes delayed messages and retries. On 5.x it is the only driver that does.
 
 ### Which driver keeps messages if a worker crashes?
 

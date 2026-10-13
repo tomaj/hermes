@@ -224,7 +224,7 @@ sudo systemctl enable --now hermes-worker@1 hermes-worker@2
 - **Returning `false` does not retry.** Only an exception does. Throw when a later attempt could succeed.
 - **The emitter and the worker must agree.** Same driver class, same queue key, same schedule key. `src/Hermes.php` exists so they cannot drift apart.
 - **Long-running PHP keeps state.** The worker builds the mailer once. A stale SMTP connection, a cached config value, or a slow memory leak stays until the process exits, which is why `setMaxProcessItems` and Supervisor's restart are worth having.
-- **Retries need Predis.** With `RedisSetDriver` (ext-redis) in 5.x, delayed messages and retries are written to the sorted set but never moved back to the queue. See [Delayed execution](/guide/delayed).
+- **On 5.x retries need Predis.** With `RedisSetDriver` (ext-redis) in 5.x, delayed messages and retries are written to the sorted set but never moved back to the queue. See [Delayed execution](/guide/delayed).
 - **Restart after a deploy.** A worker started before the deploy still runs the old code. Run `php bin/restart.php` as the last deploy step.
 
 ## Full source

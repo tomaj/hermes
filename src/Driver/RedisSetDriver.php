@@ -119,17 +119,12 @@ class RedisSetDriver implements DriverInterface
 
             // check schedule
             $microTime = microtime(true);
-            $messageStrings = $this->redis->zRangeByScore($this->scheduleKey, '-inf', (string) $microTime, ['limit' => [0, 1]]);
-            for ($i = 1; $i <= count($messageStrings); $i++) {
-                $messageString = $this->pop($this->scheduleKey);
-                if ($messageString === null) {
-                    break;
-                }
-                $scheduledMessage = $this->serializer->unserialize($messageString);
-                $this->send($scheduledMessage);
-
-                if ($scheduledMessage->getExecuteAt() > $microTime) {
-                    break;
+            /** @var list<string> $messageStrings */
+            $messageStrings = $this->redis->zRangeByScore($this->scheduleKey, '-inf', (string) microtime(true), ['limit' => [0, 1]]);
+            foreach ($messageStrings as $messageString) {
+                // ZREM is atomic: only the worker that actually removed the entry re-sends it
+                if ($this->redis->zRem($this->scheduleKey, $messageString) === 1) {
+                    $this->send($this->serializer->unserialize($messageString));
                 }
             }
 

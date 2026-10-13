@@ -86,7 +86,7 @@ if ($message->getExecuteAt() !== null && $message->getExecuteAt() > microtime(tr
 
 On an empty pass, and when `$refreshInterval` is not `0`, the driver sleeps that many seconds. It checks shutdown before the sleep as well as at the top of the loop.
 
-The schedule read and the schedule delete are different commands. `zRangeByScore` asks for one due member. The private `pop()` method then calls `sPop()` on the schedule key. `SPOP` is a set command, and the schedule key is a sorted set. Predis does this step with `ZREM` instead. See [Delayed execution](/guide/delayed).
+`zRangeByScore` asks for one due member. `zRem()` then removes it, and only the worker whose `ZREM` returned `1` re-sends it, so parallel workers do not duplicate it. In 5.x this step called `sPop()` on the sorted set and due messages never left it ([issue #95](https://github.com/tomaj/hermes/issues/95)). See [Delayed execution](/guide/delayed).
 
 Priority polling uses `array_reverse($this->queues, true)`. That reverses insertion order. It does not sort by the priority integer. [Priority](/guide/priority) walks through issue 50 with the keys from the example above.
 
@@ -104,7 +104,7 @@ No. Create the `Redis` object, call `connect()`, and pass it to the constructor.
 
 ### Why do my delayed messages never run?
 
-In 5.x the promotion step calls `SPOP` on the sorted schedule key, so due messages stay there. Use `PredisSetDriver` for delays and retries. See [Delayed execution](/guide/delayed).
+In 5.x the promotion step calls `SPOP` on the sorted schedule key, so due messages stay there. Upgrade to 6.0, or use `PredisSetDriver` on 5.x. See [Delayed execution](/guide/delayed).
 
 ### Are messages processed in order?
 

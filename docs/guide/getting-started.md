@@ -148,7 +148,7 @@ No. Hermes is a PHP library. Your web code emits messages, and a PHP CLI script 
 
 ### Which driver should I start with?
 
-Use `PredisSetDriver` if you cannot install a PHP extension, or `RedisSetDriver` if you already have phpredis. Both support priorities. Only Predis moves delayed messages and retries back to the queue reliably in 5.x. See the [driver comparison](/guide/drivers/).
+Use `PredisSetDriver` if you cannot install a PHP extension, or `RedisSetDriver` if you already have phpredis. Both support priorities. On 5.x only Predis moves delayed messages and retries back to the queue; `RedisSetDriver` does too from 6.0. See the [driver comparison](/guide/drivers/).
 
 ### Can I call `handle()` from a web request?
 

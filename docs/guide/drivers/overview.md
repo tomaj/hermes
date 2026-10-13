@@ -6,7 +6,7 @@ description: "What a Hermes driver does between Emitter and Dispatcher: send, wa
 <script setup>
 const cards = [
   { title: 'Comparison', text: 'Priority, delay, persistence, and ack for all four drivers in one table.', link: '/guide/drivers/' },
-  { title: 'Redis (ext-redis)', text: 'RedisSetDriver on the phpredis extension. Priorities, but see the delay caveat.', link: '/guide/drivers/redis' },
+  { title: 'Redis (ext-redis)', text: 'RedisSetDriver on the phpredis extension. Priorities and delayed messages.', link: '/guide/drivers/redis' },
   { title: 'Predis', text: 'PredisSetDriver, plain PHP. Priorities, delayed messages, and retries.', link: '/guide/drivers/predis' },
   { title: 'RabbitMQ', text: 'LazyRabbitMqDriver on php-amqplib. One queue, no priorities, no delay.', link: '/guide/drivers/rabbitmq' },
   { title: 'Amazon SQS', text: 'AmazonSqsDriver on the AWS SDK. Managed storage, no priorities, no delay.', link: '/guide/drivers/sqs' },
@@ -47,12 +47,12 @@ The priority is not part of the JSON. It only decides which queue `send()` write
 The drivers differ in what they do with these:
 
 - **Priority.** `RedisSetDriver` and `PredisSetDriver` keep one Redis set per priority. `LazyRabbitMqDriver` and `AmazonSqsDriver` throw `NotSupportedException` from `setupPriorityQueue()`. See [Priority](/guide/priority).
-- **Delay.** The Redis drivers put a message with a future `executeAt` in a sorted set and move it to the queue when it is due. Only `PredisSetDriver` does that move correctly in 5.x. RabbitMQ and SQS deliver at once. See [Delayed execution](/guide/delayed).
+- **Delay.** The Redis drivers put a message with a future `executeAt` in a sorted set and move it to the queue when it is due. On 5.x only `PredisSetDriver` does that move correctly ([#95](https://github.com/tomaj/hermes/issues/95)). RabbitMQ and SQS deliver at once. See [Delayed execution](/guide/delayed).
 - **Shutdown and max items.** All four drivers use `ShutdownTrait` and `MaxItemsTrait`. `wait()` checks the shutdown signal and the processed count, and stops the worker cleanly. See [Shutdown and max items](/guide/shutdown).
 
 ## How to choose
 
-- **You already run Redis:** use `PredisSetDriver`. It needs no PHP extension and is the one driver with working delayed messages and retries in 5.x.
+- **You already run Redis:** use `PredisSetDriver`. It needs no PHP extension and works with delayed messages and retries on every version.
 - **You need priorities:** use `PredisSetDriver` or `RedisSetDriver`. The other two have one queue.
 - **You already run RabbitMQ:** use `LazyRabbitMqDriver`. Delay and retry need your own design.
 - **You are on AWS and want managed storage:** use `AmazonSqsDriver`. It deletes the message before the handler runs, so a crash loses it.
@@ -70,7 +70,7 @@ No. They must use the same driver class with the same queue names and priority q
 
 ### Which driver supports delayed messages and retries?
 
-`PredisSetDriver`. `RedisSetDriver` writes delayed messages to the sorted set but does not move them back to the queue in 5.x. RabbitMQ and SQS deliver at once. See [Delayed execution](/guide/delayed).
+`PredisSetDriver` and, from 6.0, `RedisSetDriver`. In 5.x `RedisSetDriver` writes delayed messages to the sorted set but does not move them back to the queue. RabbitMQ and SQS deliver at once. See [Delayed execution](/guide/delayed).
 
 ### Does the driver acknowledge a message after the handler succeeds?
 
