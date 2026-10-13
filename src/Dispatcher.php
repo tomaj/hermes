@@ -8,6 +8,7 @@ use DateTime;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
+use Random\Randomizer;
 use Tomaj\Hermes\Driver\DriverInterface;
 use Tomaj\Hermes\Handler\HandlerInterface;
 use Tomaj\Hermes\Shutdown\ShutdownException;
@@ -27,14 +28,21 @@ class Dispatcher implements DispatcherInterface
 
     private readonly DateTime $startTime;
 
+    private readonly Randomizer $randomizer;
+
     /**
      * Create new Dispatcher
+     *
+     * @param Randomizer|null $randomizer Source of the retry jitter. Pass one with a seeded engine
+     *                                    (e.g. new Randomizer(new Mt19937(42))) for reproducible retry times.
      */
     public function __construct(
         private readonly DriverInterface $driver,
         private readonly ?LoggerInterface $logger = null,
         private readonly ?ShutdownInterface $shutdown = null,
+        ?Randomizer $randomizer = null,
     ) {
+        $this->randomizer = $randomizer ?? new Randomizer();
         $this->startTime = new DateTime();
 
         // check if driver use ShutdownTrait
@@ -176,7 +184,8 @@ class Dispatcher implements DispatcherInterface
      */
     private function nextRetry(MessageInterface $message): float
     {
-        return microtime(true) + pow($message->getRetries(), 4) + 15 + (rand(1, 30) * ($message->getRetries() + 1));
+        $retries = $message->getRetries();
+        return microtime(true) + $retries ** 4 + 15 + $this->randomizer->getInt(1, 30) * ($retries + 1);
     }
 
     /**

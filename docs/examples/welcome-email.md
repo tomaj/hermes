@@ -137,7 +137,7 @@ docker compose start mailpit
 
 Within a minute the worker logs a second `Start handle message` with the same id and `"retries":1`, and the email to bob@example.com appears in Mailpit. Mailpit keeps messages in memory, so the earlier email is gone after the restart.
 
-The delay grows with each attempt: `retries⁴ + 15 + rand(1, 30) × (retries + 1)` seconds. Five retries cover roughly ten minutes of SMTP downtime. Raise `maxRetry()` for longer outages. See [Retry](/guide/retry).
+The delay grows with each attempt: `retries⁴ + 15 + jitter × (retries + 1)` seconds, with a random jitter from 1 to 30. Five retries cover roughly ten minutes of SMTP downtime. Raise `maxRetry()` for longer outages. See [Retry](/guide/retry).
 
 ## 9. Test the handler
 
