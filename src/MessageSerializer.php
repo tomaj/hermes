@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes;
 
-class MessageSerializer implements SerializerInterface
+final class MessageSerializer implements SerializerInterface
 {
+    #[\Override]
     public function serialize(MessageInterface $message): string
     {
         $result = json_encode([
@@ -24,6 +25,7 @@ class MessageSerializer implements SerializerInterface
         return $result;
     }
 
+    #[\Override]
     public function unserialize(string $string): MessageInterface
     {
         $data = json_decode($string, true);

@@ -15,7 +15,7 @@ use Tomaj\Hermes\Shutdown\ShutdownException;
 use Tomaj\Hermes\Shutdown\ShutdownInterface;
 use Tracy\Debugger;
 
-class Dispatcher implements DispatcherInterface
+final class Dispatcher implements DispatcherInterface
 {
     public const int DEFAULT_PRIORITY = 100;
 
@@ -77,6 +77,7 @@ class Dispatcher implements DispatcherInterface
      *
      * @param int[] $priorities
      */
+    #[\Override]
     public function handle(array $priorities = []): void
     {
         try {
@@ -196,6 +197,7 @@ class Dispatcher implements DispatcherInterface
         return isset($this->handlers[$type]) && count($this->handlers[$type]) > 0;
     }
 
+    #[\Override]
     public function registerHandler(string $type, HandlerInterface $handler): DispatcherInterface
     {
         if (!isset($this->handlers[$type])) {
@@ -206,6 +208,7 @@ class Dispatcher implements DispatcherInterface
         return $this;
     }
 
+    #[\Override]
     public function registerHandlers(string $type, array $handlers): DispatcherInterface
     {
         foreach ($handlers as $handler) {
@@ -214,12 +217,14 @@ class Dispatcher implements DispatcherInterface
         return $this;
     }
 
+    #[\Override]
     public function unregisterAllHandlers(): DispatcherInterface
     {
         $this->handlers = [];
         return $this;
     }
 
+    #[\Override]
     public function unregisterHandler(string $type, HandlerInterface $handler): DispatcherInterface
     {
         if (!isset($this->handlers[$type])) {

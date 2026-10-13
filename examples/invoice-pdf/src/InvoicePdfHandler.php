@@ -16,6 +16,7 @@ final class InvoicePdfHandler implements HandlerInterface
 
     public function __construct(private string $directory) {}
 
+    #[\Override]
     public function handle(MessageInterface $message): bool
     {
         $orderId = (int) ($message->getPayload()['order_id'] ?? 0);

@@ -12,7 +12,7 @@ use Tomaj\Hermes\MessageSerializer;
 use Tomaj\Hermes\SerializeException;
 use Tomaj\Hermes\Shutdown\ShutdownException;
 
-class PredisSetDriver implements DriverInterface
+final class PredisSetDriver implements DriverInterface
 {
     use MaxItemsTrait;
     use ShutdownTrait;
@@ -47,6 +47,7 @@ class PredisSetDriver implements DriverInterface
      * @throws UnknownPriorityException
      * @throws SerializeException
      */
+    #[\Override]
     public function send(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): bool
     {
         $executeAt = $message->getExecuteAt();
@@ -59,6 +60,7 @@ class PredisSetDriver implements DriverInterface
         return true;
     }
 
+    #[\Override]
     public function setupPriorityQueue(string $name, int $priority): void
     {
         $this->queues[$priority] = $name;
@@ -80,6 +82,7 @@ class PredisSetDriver implements DriverInterface
      * @throws UnknownPriorityException
      * @throws SerializeException
      */
+    #[\Override]
     public function wait(Closure $callback, array $priorities = []): void
     {
         // Highest priority first, regardless of the order the queues were set up in

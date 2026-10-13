@@ -25,16 +25,19 @@ class DispatcherConstructorTest extends TestCase
 
             private bool $shutdownSet = false;
 
+            #[\Override]
             public function send(MessageInterface $message, int $priority = 100): bool
             {
                 return true;
             }
 
+            #[\Override]
             public function setupPriorityQueue(string $name, int $priority): void
             {
                 // no-op
             }
 
+            #[\Override]
             public function wait(Closure $callback, array $priorities = []): void
             {
                 // no-op
@@ -53,11 +56,13 @@ class DispatcherConstructorTest extends TestCase
         };
 
         $shutdown = new class implements ShutdownInterface {
+            #[\Override]
             public function shouldShutdown(\DateTime $startTime): bool
             {
                 return false;
             }
 
+            #[\Override]
             public function shutdown(?\DateTime $shutdownTime = null): bool
             {
                 return true;

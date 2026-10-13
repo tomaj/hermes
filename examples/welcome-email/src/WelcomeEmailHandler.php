@@ -16,6 +16,7 @@ final class WelcomeEmailHandler implements HandlerInterface
 
     public function __construct(private MailerInterface $mailer) {}
 
+    #[\Override]
     public function handle(MessageInterface $message): bool
     {
         $payload = $message->getPayload() ?? [];

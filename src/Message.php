@@ -6,7 +6,7 @@ namespace Tomaj\Hermes;
 
 use Ramsey\Uuid\Uuid;
 
-class Message implements MessageInterface
+final class Message implements MessageInterface
 {
     private readonly string $messageId;
 
@@ -34,31 +34,37 @@ class Message implements MessageInterface
         $this->created = $created ?? microtime(true);
     }
 
+    #[\Override]
     public function getId(): string
     {
         return $this->messageId;
     }
 
+    #[\Override]
     public function getCreated(): float
     {
         return $this->created;
     }
 
+    #[\Override]
     public function getExecuteAt(): ?float
     {
         return $this->executeAt;
     }
 
+    #[\Override]
     public function getType(): string
     {
         return $this->type;
     }
 
+    #[\Override]
     public function getPayload(): ?array
     {
         return $this->payload;
     }
 
+    #[\Override]
     public function getRetries(): int
     {
         return $this->retries;

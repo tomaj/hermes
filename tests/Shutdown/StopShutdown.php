@@ -11,6 +11,7 @@ class StopShutdown implements ShutdownInterface
 {
     private static ?int $eventsStop = null;
 
+    #[\Override]
     public function shouldShutdown(DateTime $startTime): bool
     {
         if (self::$eventsStop === null) {
@@ -23,6 +24,7 @@ class StopShutdown implements ShutdownInterface
         return false;
     }
 
+    #[\Override]
     public function shutdown(?DateTime $shutdownTime = null): bool
     {
         self::$eventsStop = 1;

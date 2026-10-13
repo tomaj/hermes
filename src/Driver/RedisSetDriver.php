@@ -12,7 +12,7 @@ use Tomaj\Hermes\MessageSerializer;
 use Tomaj\Hermes\SerializeException;
 use Tomaj\Hermes\Shutdown\ShutdownException;
 
-class RedisSetDriver implements DriverInterface
+final class RedisSetDriver implements DriverInterface
 {
     use MaxItemsTrait;
     use ShutdownTrait;
@@ -46,6 +46,7 @@ class RedisSetDriver implements DriverInterface
     /**
      * @throws UnknownPriorityException
      */
+    #[\Override]
     public function send(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): bool
     {
         if ($message->getExecuteAt() !== null && $message->getExecuteAt() > microtime(true)) {
@@ -57,6 +58,7 @@ class RedisSetDriver implements DriverInterface
         return true;
     }
 
+    #[\Override]
     public function setupPriorityQueue(string $name, int $priority): void
     {
         $this->queues[$priority] = $name;
@@ -78,6 +80,7 @@ class RedisSetDriver implements DriverInterface
      * @throws UnknownPriorityException
      * @throws SerializeException
      */
+    #[\Override]
     public function wait(Closure $callback, array $priorities = []): void
     {
         // Highest priority first, regardless of the order the queues were set up in

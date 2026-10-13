@@ -23,6 +23,7 @@ class LazyRabbitMqDriverIntegrationTest extends TestCase
 
     private string $queue;
 
+    #[\Override]
     protected function setUp(): void
     {
         $host = getenv('HERMES_TEST_RABBITMQ');
@@ -33,6 +34,7 @@ class LazyRabbitMqDriverIntegrationTest extends TestCase
         $this->queue = 'hermes-it-' . bin2hex(random_bytes(4));
     }
 
+    #[\Override]
     protected function tearDown(): void
     {
         if (isset($this->host)) {

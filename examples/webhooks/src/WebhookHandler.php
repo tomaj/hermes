@@ -16,6 +16,7 @@ final class WebhookHandler implements HandlerInterface
 
     public function __construct(private HttpClientInterface $http) {}
 
+    #[\Override]
     public function handle(MessageInterface $message): bool
     {
         $payload = $message->getPayload() ?? [];

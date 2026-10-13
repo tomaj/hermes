@@ -6,4 +6,4 @@ namespace Tomaj\Hermes\Driver;
 
 use Tomaj\Hermes\HermesException;
 
-class NotSupportedException extends HermesException {}
+final class NotSupportedException extends HermesException {}

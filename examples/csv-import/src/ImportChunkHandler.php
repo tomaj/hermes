@@ -17,6 +17,7 @@ final class ImportChunkHandler implements HandlerInterface
 
     public function __construct(private PDO $db) {}
 
+    #[\Override]
     public function handle(MessageInterface $message): bool
     {
         ['path' => $path, 'offset' => $offset, 'limit' => $limit] = $message->getPayload();

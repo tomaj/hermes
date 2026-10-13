@@ -8,7 +8,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Tomaj\Hermes\Driver\DriverInterface;
 
-class Emitter implements EmitterInterface
+final class Emitter implements EmitterInterface
 {
     /**
      * Create new Emitter
@@ -21,6 +21,7 @@ class Emitter implements EmitterInterface
     /**
      * @throws Driver\UnknownPriorityException
      */
+    #[\Override]
     public function emit(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): EmitterInterface
     {
         $this->driver->send($message, $priority);

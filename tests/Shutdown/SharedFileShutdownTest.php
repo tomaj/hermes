@@ -15,11 +15,13 @@ class SharedFileShutdownTest extends TestCase
 {
     private string $tempFile;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->tempFile = tempnam(sys_get_temp_dir(), 'hermes_test_shutdown_');
     }
 
+    #[\Override]
     protected function tearDown(): void
     {
         if (file_exists($this->tempFile)) {

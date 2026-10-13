@@ -261,6 +261,7 @@ class HandleTest extends TestCase
         $handler = new class implements \Tomaj\Hermes\Handler\HandlerInterface {
             use \Tomaj\Hermes\Handler\RetryTrait;
 
+            #[\Override]
             public function handle(\Tomaj\Hermes\MessageInterface $message): bool
             {
                 // Throw exception to trigger retry
@@ -303,6 +304,7 @@ class HandleTest extends TestCase
                 return 5; // Lower max retry for this test
             }
 
+            #[\Override]
             public function handle(\Tomaj\Hermes\MessageInterface $message): bool
             {
                 // Throw exception to trigger retry check
@@ -338,6 +340,7 @@ class HandleTest extends TestCase
     {
         // Create a handler that doesn't use RetryTrait
         $handler = new class implements \Tomaj\Hermes\Handler\HandlerInterface {
+            #[\Override]
             public function handle(\Tomaj\Hermes\MessageInterface $message): bool
             {
                 // Throw exception but handler doesn't have retry methods

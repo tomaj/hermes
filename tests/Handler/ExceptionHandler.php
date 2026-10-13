@@ -11,6 +11,7 @@ use Tracy\Debugger;
 
 class ExceptionHandler implements HandlerInterface
 {
+    #[\Override]
     public function handle(MessageInterface $message): bool
     {
         Debugger::enable(Debugger::DETECT, __DIR__);

@@ -24,6 +24,7 @@ class RedisSetDriverIntegrationTest extends TestCase
 
     private string $prefix;
 
+    #[\Override]
     protected function setUp(): void
     {
         $url = getenv('HERMES_TEST_REDIS');
@@ -36,6 +37,7 @@ class RedisSetDriverIntegrationTest extends TestCase
         $this->prefix = 'hermes_test_' . bin2hex(random_bytes(4));
     }
 
+    #[\Override]
     protected function tearDown(): void
     {
         if (isset($this->prefix)) {

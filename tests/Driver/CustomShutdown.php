@@ -17,11 +17,13 @@ class CustomShutdown implements ShutdownInterface
         $this->dateTime = $dateTime;
     }
 
+    #[\Override]
     public function shouldShutdown(DateTime $startTime): bool
     {
         return $this->dateTime > $startTime;
     }
 
+    #[\Override]
     public function shutdown(?DateTime $shutdownTime = null): bool
     {
         $this->dateTime = $shutdownTime ?? new DateTime();

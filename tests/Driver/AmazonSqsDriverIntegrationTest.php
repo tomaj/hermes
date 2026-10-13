@@ -23,6 +23,7 @@ class AmazonSqsDriverIntegrationTest extends TestCase
 
     private string $queueName;
 
+    #[\Override]
     protected function setUp(): void
     {
         $endpoint = getenv('HERMES_TEST_SQS');

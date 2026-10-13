@@ -55,10 +55,12 @@ class RedisSetDriverScheduleTest extends TestCase
         $driver = new RedisSetDriver($redis, 'q', 0, 'sched');
         $driver->setMaxProcessItems(1);
         $driver->setSerializer(new class implements \Tomaj\Hermes\SerializerInterface {
+            #[\Override]
             public function serialize(MessageInterface $message): string
             {
                 return 'x';
             }
+            #[\Override]
             public function unserialize(string $string): MessageInterface
             {
                 return new Message('fallback', [], 'fallback');
