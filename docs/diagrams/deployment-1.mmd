@@ -1,8 +1,0 @@
-flowchart TB
-  web["Web replicas call emit"] --> queue["one broker"]
-  queue --> sup["Supervisor numprocs"]
-  queue --> sys["systemd template units"]
-  queue --> k8s["Kubernetes replicas"]
-  sup --> stop["shutdown signal, then the manager starts the new process"]
-  sys --> stop
-  k8s --> stop

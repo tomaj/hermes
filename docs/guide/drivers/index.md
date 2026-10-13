@@ -1,3 +1,14 @@
+<script setup>
+const drivers = ['Redis <code>ext-redis</code>', 'Predis', 'RabbitMQ lazy', 'Amazon SQS']
+const comparison = [
+  { label: 'Class', cells: ['<code>RedisSetDriver</code>', '<code>PredisSetDriver</code>', '<code>LazyRabbitMqDriver</code>', '<code>AmazonSqsDriver</code>'] },
+  { label: 'Priority', cells: ['~ set per priority, order caveat', '~ same as Redis', '✗ throws <code>NotSupportedException</code>', '✗ throws <code>NotSupportedException</code>'] },
+  { label: 'Delay', cells: ['✓ sorted set', '✓ sorted set', '✗ published at once', '✗ sent at once'] },
+  { label: 'Persistence', cells: ['~ Redis RDB or AOF config', '~ Redis RDB or AOF config', '~ non-durable queue', '✓ stored by SQS'] },
+  { label: 'Ack', cells: ['✗ removed before the handler', '✗ removed before the handler', '✗ <code>no_ack = true</code>', '✗ deleted before the handler'] },
+]
+</script>
+
 # Drivers
 
 The four classes in `src/Driver` all implement `DriverInterface`. Pick one for the emitter and the same one for the dispatcher. They must agree on the queue name, the priority keys, and the schedule key, because those strings are the queue.
@@ -6,13 +17,37 @@ The four classes in `src/Driver` all implement `DriverInterface`. Pick one for t
 
 ## Comparison
 
-| | Redis `ext-redis` | Predis | RabbitMQ lazy | Amazon SQS |
-| --- | --- | --- | --- | --- |
-| Class | `RedisSetDriver` | `PredisSetDriver` | `LazyRabbitMqDriver` | `AmazonSqsDriver` |
-| Priority | Separate Redis set per integer. Poll order is reverse insertion order, not numeric order. [Issue #50](https://github.com/tomaj/hermes/issues/50). | Same as Redis. | `setupPriorityQueue()` throws `NotSupportedException`. `send()` ignores `$priority`. | Same as RabbitMQ. The exception text says `AmazonSQS`. |
-| Delay | Future `executeAt` is a sorted set (`ZADD`). Promotion then calls `SPOP` on that key. | Future `executeAt` is a sorted set. Promotion uses `ZREM` on the member it just read. | `executeAt` stays in the JSON. `basic_publish` happens immediately. | `executeAt` stays in the JSON. `sendMessage` happens immediately. |
-| Persistence | Whatever Redis is configured to do (RDB or AOF). Hermes does not set it. Values live in sets plus one sorted set. | Same. | `queue_declare` uses `durable = false`. Messages are persistent only when you pass `delivery_mode` in the properties array. A non-durable queue is still dropped with the broker. | SQS stores the body until this driver deletes it. The driver deletes on receive, before `handle()`. |
-| Ack | No ack API. `SPOP` deletes the member, then the handler runs. `true` / `false` is ignored. | Same `SPOP` on the live set. | `basic_consume` is called with `no_ack = true`. There is no `basic_ack` or `basic_nack`. | `deleteMessage` runs before unserialize and before the handler. |
+<CompareTable :columns="drivers" :rows="comparison" />
+
+✓ supported, ✗ not supported, ~ supported with a caveat. The notes below explain each cell.
+
+### Redis `ext-redis` notes
+
+- **Priority.** Each integer priority is a separate Redis set. The poll order is reverse insertion order, not numeric order. See [issue #50](https://github.com/tomaj/hermes/issues/50).
+- **Delay.** A future `executeAt` goes into a sorted set with `ZADD`. Promotion then calls `SPOP` on that key.
+- **Persistence.** Whatever Redis is configured to do (RDB or AOF). Hermes does not set it. Values live in sets plus one sorted set.
+- **Ack.** There is no ack API. `SPOP` deletes the member, then the handler runs. A `true` or `false` return is ignored.
+
+### Predis notes
+
+- **Priority.** Same as Redis.
+- **Delay.** A future `executeAt` goes into a sorted set. Promotion uses `ZREM` on the member it just read.
+- **Persistence.** Same as Redis.
+- **Ack.** The same `SPOP` on the live set.
+
+### RabbitMQ lazy notes
+
+- **Priority.** `setupPriorityQueue()` throws `NotSupportedException`. `send()` ignores `$priority`.
+- **Delay.** `executeAt` stays in the JSON. `basic_publish` happens immediately.
+- **Persistence.** `queue_declare` uses `durable = false`. Messages are persistent only when you pass `delivery_mode` in the properties array. A non-durable queue is still dropped with the broker.
+- **Ack.** `basic_consume` is called with `no_ack = true`. There is no `basic_ack` or `basic_nack`.
+
+### Amazon SQS notes
+
+- **Priority.** Same as RabbitMQ. The exception text says `AmazonSQS`.
+- **Delay.** `executeAt` stays in the JSON. `sendMessage` happens immediately.
+- **Persistence.** SQS stores the body until this driver deletes it. The driver deletes on receive, before `handle()`.
+- **Ack.** `deleteMessage` runs before unserialize and before the handler.
 
 Within one Redis or Predis priority, order is not FIFO. A set has no order, and `SPOP` returns one random member.
 

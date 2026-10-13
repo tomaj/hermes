@@ -1,6 +1,0 @@
-flowchart LR
-  web1["web replica"] --> queue["Redis, RabbitMQ, or SQS"]
-  web2["web replica"] --> queue
-  queue --> w1["worker replica"]
-  queue --> w2["worker replica"]
-  queue --> w3["worker replica"]

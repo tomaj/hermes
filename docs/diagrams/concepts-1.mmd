@@ -1,7 +1,0 @@
-flowchart TD
-  app["Web request"] --> message["Message"]
-  message --> emitter["Emitter"]
-  emitter --> driver["Driver"]
-  driver --> queue["Queue"]
-  queue --> dispatcher["Dispatcher"]
-  dispatcher --> handler["Handler"]

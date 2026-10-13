@@ -1,0 +1,149 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "https://tomaj.github.io/hermes/",
+  "elements": [
+    {
+      "id": "icon-thumbnails-1",
+      "type": "rectangle",
+      "x": 0,
+      "y": 0,
+      "width": 56,
+      "height": 56,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 0,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1343674880,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false
+    },
+    {
+      "id": "icon-thumbnails-2",
+      "type": "rectangle",
+      "x": 4,
+      "y": 8,
+      "width": 48,
+      "height": 40,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 740753921,
+      "version": 1,
+      "versionNonce": 2,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false
+    },
+    {
+      "id": "icon-thumbnails-3",
+      "type": "line",
+      "x": 8,
+      "y": 42,
+      "width": 40,
+      "height": 20,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 993528321,
+      "version": 1,
+      "versionNonce": 3,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          12,
+          -16
+        ],
+        [
+          20,
+          -8
+        ],
+        [
+          30,
+          -20
+        ],
+        [
+          40,
+          0
+        ]
+      ],
+      "lastCommittedPoint": null,
+      "startBinding": null,
+      "endBinding": null,
+      "startArrowhead": null,
+      "endArrowhead": null
+    },
+    {
+      "id": "icon-thumbnails-4",
+      "type": "ellipse",
+      "x": 36,
+      "y": 12,
+      "width": 9,
+      "height": 9,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 99119617,
+      "version": 1,
+      "versionNonce": 4,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false
+    }
+  ],
+  "appState": {
+    "viewBackgroundColor": "#ffffff",
+    "gridSize": null
+  },
+  "files": {}
+}

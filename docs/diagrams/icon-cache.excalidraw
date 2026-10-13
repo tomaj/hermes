@@ -1,0 +1,105 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "https://tomaj.github.io/hermes/",
+  "elements": [
+    {
+      "id": "icon-cache-1",
+      "type": "rectangle",
+      "x": 0,
+      "y": 0,
+      "width": 56,
+      "height": 56,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 0,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 2121800704,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false
+    },
+    {
+      "id": "icon-cache-2",
+      "type": "line",
+      "x": 32,
+      "y": 4,
+      "width": 26,
+      "height": 48,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 430709760,
+      "version": 1,
+      "versionNonce": 2,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -16,
+          26
+        ],
+        [
+          -4,
+          26
+        ],
+        [
+          -10,
+          48
+        ],
+        [
+          10,
+          18
+        ],
+        [
+          -2,
+          18
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "lastCommittedPoint": null,
+      "startBinding": null,
+      "endBinding": null,
+      "startArrowhead": null,
+      "endArrowhead": null
+    }
+  ],
+  "appState": {
+    "viewBackgroundColor": "#ffffff",
+    "gridSize": null
+  },
+  "files": {}
+}

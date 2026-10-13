@@ -1,3 +1,9 @@
+@font-face {
+  font-family: 'Excalifont';
+  src: url('/hermes/fonts/excalifont-latin.woff2') format('woff2');
+  font-display: swap;
+}
+
 /**
  * Customize default theme styling by overriding CSS variables:
  * https://github.com/vuejs/vitepress/blob/main/src/client/theme-default/styles/vars.css
@@ -21,7 +27,7 @@
 
   --vp-home-hero-name-color: transparent;
   --vp-home-hero-name-background: linear-gradient(120deg, #4f46e5 0%, #0891b2 100%);
-  --vp-home-hero-image-background-image: linear-gradient(135deg, #4f46e580 0%, #06b6d480 100%);
+  --vp-home-hero-image-background-image: radial-gradient(closest-side, #6366f11f, transparent);
   --vp-home-hero-image-filter: blur(44px);
 }
 
@@ -67,34 +73,6 @@
   border: 1px solid var(--vp-c-divider);
 }
 
-.hero-flow {
-  --hf-bg: #f4f7ff;
-  --hf-card: #ffffff;
-  --hf-line: #c7d2fe;
-  --hf-ink: #0f172a;
-  --hf-muted: #64748b;
-  --hf-high: #4f46e5;
-  --hf-def: #0891b2;
-  --hf-sched: #d97706;
-  --hf-ok: #059669;
-  --hf-bad: #e11d48;
-  --hf-paper: #ffffff;
-}
-
-html.dark .hero-flow {
-  --hf-bg: #0f172a;
-  --hf-card: #111827;
-  --hf-line: #4338ca;
-  --hf-ink: #e2e8f0;
-  --hf-muted: #94a3b8;
-  --hf-high: #a5b4fc;
-  --hf-def: #67e8f9;
-  --hf-sched: #fbbf24;
-  --hf-ok: #6ee7b7;
-  --hf-bad: #fb7185;
-  --hf-paper: #0f172a;
-}
-
 .dark .VPHero img.image-src {
   content: url("/hermes/illustrations/hero-dark.svg");
 }
@@ -109,22 +87,142 @@ html.dark .hero-flow {
 /* Hand-drawn diagrams. Sources live in docs/diagrams, see contributing. */
 .hand-diagram {
   margin: 1.5rem 0;
-  overflow-x: auto;
   text-align: center;
+}
+
+.hand-diagram-zoom {
+  display: inline-block;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  cursor: zoom-in;
+}
+
+.hand-diagram-zoom:focus-visible {
+  outline: 2px solid var(--vp-c-brand-1);
+  outline-offset: 4px;
 }
 
 .hand-diagram img {
   display: inline-block;
   max-width: 100%;
+  max-height: 420px;
   width: auto;
   height: auto;
 }
 
-.hand-diagram .hand-diagram-dark { display: none; }
-.dark .hand-diagram .hand-diagram-light { display: none; }
-.dark .hand-diagram .hand-diagram-dark { display: inline-block; }
+.hand-diagram-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem 1.5rem;
+  background: var(--vp-c-bg);
+  cursor: zoom-out;
+}
+
+.hand-diagram-lightbox img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+}
+
+.hand-diagram-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 1rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 50%;
+  background: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-1);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+img.hand-diagram-dark { display: none; }
+.dark img.hand-diagram-light { display: none; }
+.dark img.hand-diagram-dark { display: inline-block; }
 
 .VPFeature .icon {
   background: transparent;
   border-radius: 12px;
+}
+
+/* Light and dark variants of the home page drawings. */
+figure.hero-sketch img.hero-sketch-dark,
+.use-cases .icon img.dark { display: none; }
+html.dark figure.hero-sketch img.hero-sketch-light,
+html.dark .use-cases .icon img.light { display: none; }
+html.dark figure.hero-sketch img.hero-sketch-dark,
+html.dark .use-cases .icon img.dark { display: block; }
+
+/* Comparison tables: a table on wide screens, one card per column below 768px. */
+.compare { margin: 16px 0; container-type: inline-size; }
+.compare-wide { overflow-x: auto; }
+.compare-wide table { margin: 0; }
+.compare-wide th[scope='row'] {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--vp-c-bg-soft);
+  white-space: nowrap;
+  text-align: left;
+}
+.compare .mark {
+  display: inline-block;
+  min-width: 1.4em;
+  font-weight: 700;
+}
+.compare .mark.yes { color: var(--vp-c-green-1, #16a34a); }
+.compare .mark.no { color: var(--vp-c-red-1, #dc2626); }
+.compare .mark.partly { color: var(--vp-c-yellow-1, #ca8a04); }
+.compare-cards { display: none; }
+.compare-card {
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin: 12px 0;
+  background: var(--vp-c-bg-soft);
+}
+.vp-doc .compare-card h4 { margin: 0 0 8px; }
+.compare-card dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 12px;
+  margin: 0;
+}
+.compare-card dt { font-weight: 600; color: var(--vp-c-text-2); }
+.compare-card dd { margin: 0; }
+/* Cards whenever the full table does not fit the content column, whatever the viewport. */
+@container (max-width: 859px) {
+  .compare-wide { display: none; }
+  .compare-cards { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  .compare-card { margin: 0; }
+}
+@container (min-width: 560px) and (max-width: 859px) {
+  .compare-cards { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 767px) {
+  /* Plain Markdown tables keep the label column visible while they scroll. */
+  .vp-doc table th:first-child,
+  .vp-doc table td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--vp-c-bg);
+    min-width: 7.5rem;
+    max-width: 9rem;
+    box-shadow: 1px 0 0 var(--vp-c-divider);
+  }
+  .vp-doc table td:first-child code { word-break: break-all; }
+  .vp-doc table td:not(:first-child) code { white-space: nowrap; }
+  .vp-doc table tr:nth-child(2n) td:first-child { background: var(--vp-c-bg-soft); }
 }
