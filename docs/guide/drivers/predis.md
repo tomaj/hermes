@@ -5,7 +5,7 @@ description: "PredisSetDriver for Hermes: Redis without a PHP extension, delayed
 
 # Predis
 
-`Tomaj\Hermes\Driver\PredisSetDriver` is the same Redis layout as `RedisSetDriver`, with a `Predis\Client` and Predis method names. Use this class when you cannot load `ext-redis`. Do not pass a Predis client to `RedisSetDriver`. The 4.0.0 split made those two types separate.
+`Tomaj\Hermes\Driver\PredisSetDriver` is the same Redis layout as `RedisSetDriver`, with a `Predis\Client` and Predis method names. Use this class when you cannot load `ext-redis`. It is tested with Predis 2.3 and later and with Predis 3 (`predis/predis: ^2.3 || ^3.0`). Do not pass a Predis client to `RedisSetDriver`. The 4.0.0 split made those two types separate.
 
 ```php
 public function __construct(
@@ -66,7 +66,7 @@ $this->redis->zadd($this->scheduleKey, [
 ]);
 ```
 
-That member-to-score map is the Predis 1.1 shape. It is the fix for [issue #48](https://github.com/tomaj/hermes/issues/48), where a retry was scheduled with the arguments the other way around.
+That member-to-score map is the shape Predis expects. It is the fix for [issue #48](https://github.com/tomaj/hermes/issues/48), where a retry was scheduled with the arguments the other way around.
 
 `send()` treats `executeAt` as "delay this" only when the value is truthy **and** greater than `microtime(true)`. A `null` execute-at is not delayed.
 
@@ -74,7 +74,7 @@ That member-to-score map is the Predis 1.1 shape. It is the fix for [issue #48](
 
 <Diagram name="drivers-predis-1" alt="Predis wait loop: ZRANGEBYSCORE and ZREM promote due messages, then SPOP takes one from the priority sets" />
 
-`zrangebyscore` uses `LIMIT OFFSET 0 COUNT 1`. Each returned member is removed with `zrem` and passed back through `send()`. If it is still in the future it returns to the sorted set. If it is due, `send()` `sadd`s it onto the **default** priority key, because `send()` is called with no priority argument.
+`zrangebyscore` reads from `-inf` to the current time, passed as a string with microseconds (`sprintf('%.6F', microtime(true))`) because Predis 2 and 3 type the bound as `int|string`. It uses `LIMIT OFFSET 0 COUNT 1`. Each returned member is removed with `zrem` and passed back through `send()`. If it is still in the future it returns to the sorted set. If it is due, `send()` `sadd`s it onto the **default** priority key, because `send()` is called with no priority argument.
 
 The live queue is still a set. `spop` is not FIFO. Empty loops sleep `$refreshInterval` seconds when that value is not `0`.
 
@@ -91,6 +91,10 @@ When you cannot install the phpredis extension, or when you need delayed message
 ### Is the Redis data layout the same?
 
 Yes. Sets per priority and one sorted set for the schedule, so the key names and behaviour match `RedisSetDriver`.
+
+### Which Predis versions are supported?
+
+Predis 2.3 and later, and Predis 3. The tests run against both the lowest (2.3.0) and the newest release. Predis 1.x and 2.0 to 2.2 emit PHP 8.4 deprecations and are no longer tested.
 
 ### Which shutdown class goes with it?
 

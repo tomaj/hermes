@@ -2,7 +2,7 @@
     "require": {
         "php": ">=8.2",
         "tomaj/hermes": "^5.0",
-        "predis/predis": "^2.2"
+        "predis/predis": "^2.3 || ^3.0"
     },
     "autoload": {
         "psr-4": {
