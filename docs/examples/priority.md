@@ -55,7 +55,7 @@ It handles the password reset and leaves the other four in Redis for a normal wo
 
 ## Pitfalls
 
-- **Register queues in ascending order.** The worker polls queues in reverse registration order, not by number. The driver always registers the default priority 100 first. This recipe therefore uses 100 as the lowest priority and adds 150 and 200 in that order. A priority below 100 would be polled before 100. See [Priority](/guide/priority) and issue [#50](https://github.com/tomaj/hermes/issues/50).
+- **On 5.x, register queues in ascending order.** The 5.x worker polls queues in reverse registration order, not by number. Hermes 6.0 sorts them by number, so the order no longer matters. The driver always registers the default priority 100 first. This recipe therefore uses 100 as the lowest priority and adds 150 and 200 in that order. A priority below 100 would be polled before 100. See [Priority](/guide/priority) and issue [#50](https://github.com/tomaj/hermes/issues/50).
 - **Emitter and worker need the same queues.** Emitting with a priority that the driver did not register throws `UnknownPriorityException`.
 - **No order inside one priority.** The three newsletters come out in random order, because a Redis set has none.
 - **Retries go to the default priority.** The dispatcher sends a retry copy without a priority, so a failed password reset is retried at 100, behind receipts.
@@ -70,7 +70,7 @@ Every file of this recipe, with its `README.md`, `Makefile` and the `e2e.sh` che
 
 ### Why is the lowest priority 100?
 
-The driver always registers 100 first and polls in reverse registration order, so a priority below 100 would run before it.
+On 5.x the driver always registers 100 first and polls in reverse registration order, so a priority below 100 would run before it. From 6.0 the queues are polled by number ([#50](https://github.com/tomaj/hermes/issues/50)) and lower priorities work as expected.
 
 ### Why do newsletters come out in random order?
 

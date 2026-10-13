@@ -88,7 +88,7 @@ On an empty pass, and when `$refreshInterval` is not `0`, the driver sleeps that
 
 `zRangeByScore` asks for one due member. `zRem()` then removes it, and only the worker whose `ZREM` returned `1` re-sends it, so parallel workers do not duplicate it. In 5.x this step called `sPop()` on the sorted set and due messages never left it ([issue #95](https://github.com/tomaj/hermes/issues/95)). See [Delayed execution](/guide/delayed).
 
-Priority polling uses `array_reverse($this->queues, true)`. That reverses insertion order. It does not sort by the priority integer. [Priority](/guide/priority) walks through issue 50 with the keys from the example above.
+Priority polling sorts the queues with `krsort($queues, SORT_NUMERIC)`, so the highest priority integer is polled first whatever order you registered them in. 5.x reversed insertion order instead ([issue #50](https://github.com/tomaj/hermes/issues/50)). See [Priority](/guide/priority).
 
 `wait()` passes the priority it popped into the dispatcher callback. The callback's boolean is ignored. `incrementProcessedItems()` runs after the callback returns. A `ShutdownException` thrown from inside the callback skips that increment and ends `handle()`.
 

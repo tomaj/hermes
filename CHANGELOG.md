@@ -51,6 +51,7 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 * Added proper return type hints to anonymous functions
 * Improved JSON serialization error handling in `MessageSerializer`
 * Removed implicitly nullable parameters for better type safety
+* **BREAKING CHANGE**: `RedisSetDriver` and `PredisSetDriver` poll priority queues by priority number, highest first. They polled in reverse registration order, so the default priority 100 (registered in the constructor) always came last ([#50](https://github.com/tomaj/hermes/issues/50)). Workers that relied on the old order now process queues in a different order.
 
 
 ## 4.2.0 - 2024-04-29

@@ -15,7 +15,7 @@ The supported extension points are `DriverInterface`, `HandlerInterface`, `Seria
 
 `send()` must be safe to call from a web request. `wait()` may block. Throw `UnknownPriorityException` for a priority you did not register. Throw `NotSupportedException` from `setupPriorityQueue()` if you only have one queue, the way RabbitMQ and SQS do.
 
-This driver sorts priorities with `krsort` so a larger integer is popped first. The built-in Redis drivers do not. Doing it here avoids [issue #50](https://github.com/tomaj/hermes/issues/50) in your own backend.
+This driver sorts priorities with `krsort` so a larger integer is popped first. The built-in Redis drivers do the same from 6.0 ([issue #50](https://github.com/tomaj/hermes/issues/50)).
 
 ```php
 <?php
@@ -210,4 +210,4 @@ Ignore signals older than the worker's start time, like the built-in ones, so a 
 
 ### Can I sort priorities numerically in my driver?
 
-Yes. Sort the queue map with `krsort` before polling, as in the example on this page, to avoid issue [#50](https://github.com/tomaj/hermes/issues/50).
+Yes. Sort the queue map with `krsort` before polling, as in the example on this page and in the built-in Redis drivers.

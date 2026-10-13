@@ -17,7 +17,7 @@ What the handler does with a failure is decided entirely in `Dispatcher`. The br
 
 ## Why did a high priority run after a low one?
 
-`RedisSetDriver` and `PredisSetDriver` poll with `array_reverse` of the insertion order. They do not sort the integers. The default priority `100` is inserted in the constructor, so it is polled last. [Issue #50](https://github.com/tomaj/hermes/issues/50) describes this. [Priority](/guide/priority) shows a `handle([110])` worker as the way to pin one integer.
+From 6.0 `RedisSetDriver` and `PredisSetDriver` poll queues by priority number, highest first. Up to 5.x they polled in reverse registration order, so the default priority `100`, registered in the constructor, was polled last ([issue #50](https://github.com/tomaj/hermes/issues/50)). On 5.x, [Priority](/guide/priority) shows a `handle([110])` worker as the way to pin one integer.
 
 RabbitMQ and SQS do not implement priority. `setupPriorityQueue()` throws `NotSupportedException`.
 
@@ -91,7 +91,7 @@ Hermes stores the handler objects and a processed-item counter. It does not pool
 
 ## Are messages FIFO?
 
-No. Live Redis and Predis queues are sets. `SPOP` returns one random member. Two messages with the same priority have no order. Across priorities, `wait()` walks queues in reverse insertion order, not numeric order. [Issue #50](https://github.com/tomaj/hermes/issues/50) is that behavior. RabbitMQ and SQS order is whatever those brokers do with a single queue. Hermes does not set a FIFO queue or a message group.
+No. Live Redis and Predis queues are sets. `SPOP` returns one random member. Two messages with the same priority have no order. Across priorities, `wait()` walks queues from the highest number down (5.x used reverse insertion order, [issue #50](https://github.com/tomaj/hermes/issues/50)). RabbitMQ and SQS order is whatever those brokers do with a single queue. Hermes does not set a FIFO queue or a message group.
 
 ## Can the same work run twice?
 
