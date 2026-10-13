@@ -26,4 +26,20 @@ class SqsClientDouble extends SqsClient
     {
         return null;
     }
+
+    /**
+     * @param array<string, mixed> $args
+     */
+    public function receiveMessage(array $args = []): mixed
+    {
+        return null;
+    }
+
+    /**
+     * @param array<string, mixed> $args
+     */
+    public function deleteMessage(array $args = []): mixed
+    {
+        return null;
+    }
 }

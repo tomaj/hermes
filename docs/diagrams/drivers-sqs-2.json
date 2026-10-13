@@ -359,8 +359,8 @@
   {
    "t": "text",
    "x": 245.65750000000003,
-   "y": 216.75,
-   "text": "deleteMessage(ReceiptHandle)",
+   "y": 266.75,
+   "text": "deleteMessage after success",
    "size": 16,
    "color": "muted"
   },
@@ -369,19 +369,19 @@
    "points": [
     [
      77.22,
-     244.75
+     294.75
     ],
     [
      414.095,
-     244.75
+     294.75
     ]
    ]
   },
   {
    "t": "text",
    "x": 321.96062500000005,
-   "y": 266.75,
-   "text": "unserialize Body, then callback",
+   "y": 216.75,
+   "text": "unserialize Body, callback",
    "size": 16,
    "color": "muted"
   },
@@ -390,11 +390,11 @@
    "points": [
     [
      77.22,
-     294.75
+     244.75
     ],
     [
      566.7012500000001,
-     294.75
+     244.75
     ]
    ]
   },

@@ -27,7 +27,7 @@ Every built-in driver removes the message **before** the handler returns.
 | --- | --- |
 | `RedisSetDriver`, `PredisSetDriver` | `SPOP` on the set, then the callback |
 | `LazyRabbitMqDriver` | `basic_consume` with `no_ack = true` |
-| `AmazonSqsDriver` | `deleteMessage`, then unserialize, then the callback |
+| `AmazonSqsDriver` | unserialize, the callback, then `deleteMessage` (6.0+) |
 
 A handler that returns `false` cannot put that delivery back. A thrown exception can publish a **new** copy when [retry](/guide/retry) is enabled. If the process dies after the pop and before `handle()` finishes, that delivery is gone.
 
@@ -62,7 +62,7 @@ Only the serialized message JSON: id, type, created, payload, execute_at, and re
 
 ### When is a message removed from the broker?
 
-Before the handler finishes, on every built-in driver: `SPOP` on Redis, `no_ack` on RabbitMQ, `deleteMessage` on SQS. A crash during `handle()` loses that delivery.
+On Redis (`SPOP`) and RabbitMQ (`no_ack`), before the handler runs, so a crash during `handle()` loses that delivery. On SQS, from 6.0, only after the callback returns; a crash leaves the message for the visibility timeout ([#69](https://github.com/tomaj/hermes/issues/69)).
 
 ### Is delivery at-least-once or at-most-once?
 

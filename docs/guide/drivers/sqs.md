@@ -61,17 +61,17 @@ $dispatcher->handle();
 
 There is no public sleep setting. `$sleepInterval` is a private `0` and nothing assigns it, so the empty-queue branch never sleeps. Waiting is `WaitTimeSeconds => 1` on `receiveMessage`.
 
-`WaitTimeSeconds` is `1`. The constructor can pass `VisibilityTimeout` through to `createQueue`, as a string attribute. The worker never calls `ChangeMessageVisibility`. It deletes the message before `handle()`, so the visibility window does not cover handler runtime. Once `deleteMessage` succeeds, a crash inside the handler does not put that SQS message back.
+`WaitTimeSeconds` is `1`. The constructor can pass `VisibilityTimeout` through to `createQueue`, as a string attribute. The worker never calls `ChangeMessageVisibility`. It deletes the message only after the callback returns, so the visibility timeout has to be longer than your slowest handler. If the handler crashes the worker, or the callback throws, the message is not deleted and SQS delivers it again when the visibility timeout expires (or moves it to a dead-letter queue when you configure a redrive policy). Delivery is at least once, so handlers must be idempotent. Up to 5.x the driver deleted the message before the handler ([issue #69](https://github.com/tomaj/hermes/issues/69)).
 
-<Diagram name="drivers-sqs-1" alt="Sequence: the worker creates the queue, receives a message, deletes it, then runs the handler" />
+<Diagram name="drivers-sqs-1" alt="Sequence: the worker creates the queue, receives a message, runs the handler, then deletes it" />
 
 ## Receive and delete
 
-<Diagram name="drivers-sqs-2" alt="Sequence of the SQS receive loop: receiveMessage, deleteMessage, then unserialize and callback" />
+<Diagram name="drivers-sqs-2" alt="Sequence of the SQS receive loop: receiveMessage, unserialize and callback, then deleteMessage" />
 
-`wait()` reads `$result['Messages']`. For each entry it deletes by `ReceiptHandle`, unserializes `Body`, and only then calls the dispatcher callback. `incrementProcessedItems()` runs after the callback.
+`wait()` reads `$result['Messages']`. For each entry it unserializes `Body`, calls the dispatcher callback, and only then deletes by `ReceiptHandle`. `incrementProcessedItems()` runs after the delete. If unserializing fails, the message is not deleted either.
 
-If the handler throws, the SQS message is already deleted. [Retry](/guide/retry) can `sendMessage` a new body. That new body is visible immediately, because this driver does not honor `executeAt`.
+The dispatcher catches handler exceptions, so a handler that throws still counts as handled and its message is deleted. [Retry](/guide/retry) can `sendMessage` a new body. That new body is visible immediately, because this driver does not honor `executeAt`.
 
 `$priorities` is unused.
 
@@ -89,7 +89,7 @@ The constructor calls `createQueue` on every construction, in the web process an
 
 ### Does the visibility timeout protect a slow handler?
 
-No. The driver deletes the message before calling the handler.
+Yes, from 6.0. The message is deleted only after the handler returns, so set `VisibilityTimeout` above your slowest handler. Otherwise SQS hands the message to another worker while the first one still runs it.
 
 ### Do delays or retries wait?
 
