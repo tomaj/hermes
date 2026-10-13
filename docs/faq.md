@@ -67,7 +67,7 @@ The HTML report is now published at [https://tomaj.github.io/hermes/coverage/](h
 
 ## How do I stop a message from disappearing?
 
-You cannot, with the built-in drivers, keep the broker copy until `handle()` returns. Redis and Predis `SPOP` first. RabbitMQ consumes with `no_ack` true. SQS is the exception: from 6.0 it calls `deleteMessage` only after the callback returns, so a failed or crashed handler leaves the message for the visibility timeout ([#69](https://github.com/tomaj/hermes/issues/69)). On the other drivers, a crash after the removal and before the handler finishes drops that delivery. A retry copy is published only when the handler throws and still has retries. The practical controls are a short handler, `setMaxProcessItems()` so the process restarts cleanly, and a handler that can run twice safely.
+You cannot, with the Redis drivers, keep the broker copy until `handle()` returns: Redis and Predis `SPOP` first, so a crash after that removal and before the handler finishes drops that delivery. From 6.0 RabbitMQ acknowledges only after the callback ([#70](https://github.com/tomaj/hermes/issues/70)) and SQS calls `deleteMessage` only after the callback returns ([#69](https://github.com/tomaj/hermes/issues/69)), so a failed or crashed handler leaves the message to be redelivered. A retry copy is published only when the handler throws and still has retries. The practical controls are a short handler, `setMaxProcessItems()` so the process restarts cleanly, and a handler that can run twice safely.
 
 ## What happens when the handler throws?
 

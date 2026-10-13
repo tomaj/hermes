@@ -9,8 +9,8 @@ const comparison = [
   { label: 'Class', cells: ['<code>RedisSetDriver</code>', '<code>PredisSetDriver</code>', '<code>LazyRabbitMqDriver</code>', '<code>AmazonSqsDriver</code>'] },
   { label: 'Priority', cells: ['~ set per priority, order caveat', '~ same as Redis', '✗ throws <code>NotSupportedException</code>', '✗ throws <code>NotSupportedException</code>'] },
   { label: 'Delay', cells: ['✓ sorted set', '✓ sorted set', '✗ published at once', '✗ sent at once'] },
-  { label: 'Persistence', cells: ['~ Redis RDB or AOF config', '~ Redis RDB or AOF config', '~ non-durable queue', '✓ stored by SQS'] },
-  { label: 'Ack', cells: ['✗ removed before the handler', '✗ removed before the handler', '✗ <code>no_ack = true</code>', '✓ deleted after the handler'] },
+  { label: 'Persistence', cells: ['~ Redis RDB or AOF config', '~ Redis RDB or AOF config', '✓ durable queue', '✓ stored by SQS'] },
+  { label: 'Ack', cells: ['✗ removed before the handler', '✗ removed before the handler', '✓ ack after the handler', '✓ deleted after the handler'] },
 ]
 </script>
 
@@ -44,8 +44,8 @@ The four classes in `src/Driver` all implement `DriverInterface`. Pick one for t
 
 - **Priority.** `setupPriorityQueue()` throws `NotSupportedException`. `send()` ignores `$priority`.
 - **Delay.** `executeAt` stays in the JSON. `basic_publish` happens immediately.
-- **Persistence.** `queue_declare` uses `durable = false`. Messages are persistent only when you pass `delivery_mode` in the properties array. A non-durable queue is still dropped with the broker.
-- **Ack.** `basic_consume` is called with `no_ack = true`. There is no `basic_ack` or `basic_nack`.
+- **Persistence.** The queue is declared durable and messages are persistent (`delivery_mode` 2). Pass `durable: false` to keep a queue created by 5.x.
+- **Ack.** Manual. `basic_ack` after the handler, `basic_nack` with requeue when the callback fails, prefetch 1. 5.x used `no_ack = true` ([#70](https://github.com/tomaj/hermes/issues/70)).
 
 ### Amazon SQS notes
 
@@ -75,7 +75,7 @@ Shutdown helpers are not drivers. `SharedFileShutdown` works with any driver. `R
 
 ### Which driver keeps messages if a worker crashes?
 
-None of them. Every built-in driver removes the message before the handler finishes. See [Architecture](/guide/architecture).
+From 6.0, `LazyRabbitMqDriver` and `AmazonSqsDriver`: they remove the message only after the handler finished. The Redis drivers pop it first. On 5.x none of them did. See [Architecture](/guide/architecture).
 
 ### Can the emitter and the worker use different drivers?
 
@@ -83,7 +83,7 @@ No. They must use the same driver class with the same keys, because the keys are
 
 ### Does any driver support acknowledgements?
 
-No. RabbitMQ consumes with `no_ack`, SQS deletes on receive, and Redis pops the member.
+From 6.0, RabbitMQ acknowledges after the handler and SQS deletes after the handler. Redis pops the member first.
 
 ### Is there a ZeroMQ driver?
 

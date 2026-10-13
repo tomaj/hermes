@@ -1,6 +1,6 @@
 ---
 title: "RabbitMQ driver"
-description: "LazyRabbitMqDriver for Hermes: queue declaration, publishing, no_ack consumption, and its limits."
+description: "LazyRabbitMqDriver for Hermes: durable queue, persistent publishing, manual acknowledgements, and its limits."
 ---
 
 # RabbitMQ
@@ -13,7 +13,8 @@ public function __construct(
     string $queue,
     array $amqpMessageProperties = [],
     int $refreshInterval = 0,
-    string $consumerTag = 'hermes'
+    string $consumerTag = 'hermes',
+    bool $durable = true
 )
 ```
 
@@ -41,19 +42,19 @@ $dispatcher->registerHandler('type1', new EchoHandler());
 $dispatcher->handle();
 ```
 
-There is one queue and the default exchange. Hermes does not declare an exchange of its own. `basic_publish` uses an empty exchange name and the queue name as the routing key, which is the broker's default exchange. `basic_consume` is called with `no_ack` true, so the delivery is settled before your handler runs. There is no `basic_ack` and no `basic_nack`.
+There is one queue and the default exchange. Hermes does not declare an exchange of its own. `basic_publish` uses an empty exchange name and the queue name as the routing key, which is the broker's default exchange. `basic_consume` uses manual acknowledgements: the worker sends `basic_ack` only after your handler finished, so a crashed worker's message goes back to the queue.
 
-<Diagram name="drivers-rabbitmq-1" alt="RabbitMQ publish path: Emitter, basic_publish, default exchange, non-durable queue, basic_consume with no_ack, Handler" />
+<Diagram name="drivers-rabbitmq-1" alt="RabbitMQ publish path: Emitter, basic_publish, default exchange, durable queue, basic_consume with manual ack, Handler" />
 
 ## Queue and publish
 
 `getChannel()` declares the queue on first use:
 
 ```php
-$this->channel->queue_declare($this->queue, false, false, false, false);
+$this->channel->queue_declare($this->queue, false, $this->durable, false, false);
 ```
 
-Those flags are passive `false`, durable `false`, exclusive `false`, auto-delete `false`. The queue is not durable.
+Those flags are passive `false`, durable `$durable` (default `true`), exclusive `false`, auto-delete `false`. From 6.0 the queue survives a broker restart ([issue #70](https://github.com/tomaj/hermes/issues/70)).
 
 `send()` builds an `AMQPMessage` with `$amqpMessageProperties` and publishes it to the default exchange, with the queue name as the routing key:
 
@@ -63,23 +64,35 @@ $this->getChannel()->basic_publish($rabbitMessage, '', $this->queue);
 
 `$priority` is accepted and not used. `setupPriorityQueue()` always throws `NotSupportedException`.
 
-To ask RabbitMQ for persistent **messages**, pass the property the library already forwards:
+With `$durable = true` the driver also publishes persistent messages (`delivery_mode` 2), unless you set `delivery_mode` yourself in `$amqpMessageProperties`.
+
+### Upgrading a 5.x queue
+
+Hermes 5.x declared the queue non-durable. RabbitMQ refuses to redeclare an existing queue with different flags and closes the channel with `PRECONDITION_FAILED`. You have two options:
+
+- Drain the old queue, delete it (`rabbitmqctl delete_queue hermes_queue`), and let 6.0 declare it durable.
+- Keep the old queue and opt out:
 
 ```php
-$driver = new LazyRabbitMqDriver($connection, 'hermes_queue', [
-    'delivery_mode' => 2,
-]);
+$driver = new LazyRabbitMqDriver($connection, 'hermes_queue', [], 0, 'hermes', durable: false);
 ```
 
-The queue declaration is still non-durable. A broker restart drops the queue even if a message was marked persistent. Declare a durable queue yourself if you need it. This driver will not.
+With `durable: false` the queue is non-durable and messages are not marked persistent, as in 5.x. Acknowledgements stay manual.
 
 `executeAt` is serialized and then ignored. The publish happens immediately. [Retry](/guide/retry) on this driver republishes immediately too.
 
 ## Consume
 
-<Diagram name="drivers-rabbitmq-2" alt="Sequence: the worker declares the queue, consumes with no_ack, and passes each body to the callback" />
+<Diagram name="drivers-rabbitmq-2" alt="Sequence: the worker declares a durable queue, consumes with prefetch 1, passes each body to the callback, then acknowledges it" />
 
-The `basic_consume` arguments are the queue, `$consumerTag` (default `hermes`), `no_local` false, `no_ack` true, exclusive false, nowait false, and the callback. `no_ack` true means the broker settles the delivery when it is sent to the client. The callback unserializes `$rabbitMessage->body` and calls the dispatcher. There is no `basic_ack` and no `basic_nack` in this class.
+`wait()` first sets `basic_qos` with a prefetch count of `1`, so the broker hands each worker one unacknowledged message at a time. The `basic_consume` arguments are the queue, `$consumerTag` (default `hermes`), `no_local` false, `no_ack` false, exclusive false, nowait false, and the callback. For each delivery:
+
+- The body is unserialized and passed to the dispatcher callback. When it returns, the driver calls `basic_ack` and counts the message for max items.
+- If the callback throws, the driver calls `basic_nack` with requeue, so the message goes back to the queue, and rethrows.
+- If the body cannot be unserialized, the driver calls `basic_nack` without requeue, so a broken message is not redelivered forever. Configure a dead-letter exchange on the queue to keep it.
+- If the worker dies before the ack, RabbitMQ redelivers the message when the connection closes.
+
+Delivery is at least once, so handlers should be idempotent. The dispatcher catches handler exceptions itself, so a handler that throws is still acknowledged. [Retry](/guide/retry) publishes a new copy for those.
 
 The consume loop calls `AMQPChannel::wait(null, true)` (non-blocking). When `$refreshInterval` is greater than `0`, it sleeps that many seconds after each wait. The default is `0`, so the loop does not sleep. The example passes `0`. For a quiet queue, pass `1` if you do not want a tight loop:
 
@@ -97,11 +110,11 @@ When max items is reached, both loops break, then the driver closes the channel 
 
 ### Are messages persistent?
 
-Only if you pass `delivery_mode` in the message properties, and even then the queue itself is non-durable, so a broker restart drops it. Declare a durable queue yourself if you need one.
+Yes, from 6.0. The queue is durable and messages are published with `delivery_mode` 2. Pass `durable: false` to keep a 5.x non-durable queue. On 5.x the queue was non-durable ([issue #70](https://github.com/tomaj/hermes/issues/70)).
 
 ### Does the driver acknowledge messages?
 
-No. It consumes with `no_ack = true`, so the broker settles a delivery when it is sent to the worker.
+Yes, from 6.0. It sends `basic_ack` after the handler finished and `basic_nack` when the callback fails. 5.x consumed with `no_ack = true`.
 
 ### Do retries wait?
 

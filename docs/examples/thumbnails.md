@@ -1,13 +1,13 @@
 ---
 title: "Image thumbnails with RabbitMQ"
-description: "Create image thumbnails in a Hermes worker on RabbitMQ, and what no_ack and a non-durable queue mean."
+description: "Create image thumbnails in a Hermes worker on RabbitMQ, and what no_ack and a non-durable queue mean on 5.x."
 ---
 
 # Image thumbnails with RabbitMQ
 
 **Goal:** after an upload, make thumbnails in three sizes in a worker. This recipe uses RabbitMQ through `LazyRabbitMqDriver`, so you can see how the broker changes the guarantees.
 
-<Diagram name="examples-thumbnails-1" alt="An uploaded photo is emitted into the RabbitMQ queue thumbnails. ThumbnailHandler receives it with no_ack and writes 160, 640 and 1280 pixel thumbnails with GD." />
+<Diagram name="examples-thumbnails-1" alt="An uploaded photo is emitted into the RabbitMQ queue thumbnails. ThumbnailHandler receives it, writes 160, 640 and 1280 pixel thumbnails with GD." />
 
 <ProjectSource name="thumbnails" :files="['src/ThumbnailHandler.php', 'bin/worker.php', 'public/index.php', 'docker-compose.yml']" />
 
@@ -46,9 +46,9 @@ touch /tmp/hermes-thumbnails-shutdown
 
 ## Pitfalls
 
-- **Messages are acknowledged on receive.** The driver consumes with `no_ack = true`. If the worker dies while resizing, that upload gets no thumbnails. Keep a way to rebuild them, for example a command that re-emits every image without thumbnails.
+- **On 5.x messages are acknowledged on receive.** The 5.x driver consumes with `no_ack = true`. If the worker dies while resizing, that upload gets no thumbnails. Hermes 6.0 acknowledges after the handler instead, so the upload is delivered again ([#70](https://github.com/tomaj/hermes/issues/70)).
 - **No delay, so no real retry.** `RetryTrait` works, but the copy is published at once and all attempts happen within seconds. The handler does not use it. A broken file returns `false`, and a full disk throws.
-- **The queue is not durable.** `queue_declare` uses `durable = false`, so a RabbitMQ restart drops the queue and its messages. See [RabbitMQ](/guide/drivers/rabbitmq).
+- **On 5.x the queue is not durable.** A RabbitMQ restart drops the queue and its messages. Hermes 6.0 declares it durable. See [RabbitMQ](/guide/drivers/rabbitmq).
 - **No priorities.** `setupPriorityQueue()` throws `NotSupportedException` on this driver.
 - **GD needs memory for the full image.** A 6000 × 4000 photo needs about 100 MB. Set `memory_limit` for the worker, not for the web app.
 
@@ -60,7 +60,7 @@ Every file of this recipe, with its `README.md`, `Makefile` and the `e2e.sh` che
 
 ### What happens if the worker dies while resizing?
 
-That upload gets no thumbnails. RabbitMQ settled the delivery on receive (`no_ack`). Keep a command that re-emits images without thumbnails.
+On 5.x that upload gets no thumbnails, because RabbitMQ settled the delivery on receive (`no_ack`). Keep a command that re-emits images without thumbnails. On 6.0 RabbitMQ delivers it again.
 
 ### Why is there no retry?
 
@@ -68,7 +68,7 @@ RabbitMQ ignores `executeAt`, so a retry would run at once. A broken image retur
 
 ### Are messages kept when RabbitMQ restarts?
 
-No. The driver declares a non-durable queue. See [RabbitMQ](/guide/drivers/rabbitmq).
+Not on 5.x, which declares a non-durable queue. From 6.0 the queue is durable and messages are persistent. See [RabbitMQ](/guide/drivers/rabbitmq).
 
 ### How do I stop the worker?
 

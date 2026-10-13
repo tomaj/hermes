@@ -65,7 +65,7 @@ class LazyRabbitMqDriverTest extends TestCase
 
         $channel->expects(self::once())
                 ->method('queue_declare')
-                ->with('test_queue', false, false, false, false);
+                ->with('test_queue', false, true, false, false);
 
         $driver = new LazyRabbitMqDriver($connection, 'test_queue');
 
