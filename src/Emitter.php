@@ -10,25 +10,15 @@ use Tomaj\Hermes\Driver\DriverInterface;
 
 class Emitter implements EmitterInterface
 {
-    private DriverInterface $driver;
-
-    private ?LoggerInterface $logger;
-
     /**
-     * Create new Dispatcher
-     *
-     * @param DriverInterface $driver
-     * @param LoggerInterface|null $logger
+     * Create new Emitter
      */
-    public function __construct(DriverInterface $driver, ?LoggerInterface $logger = null)
-    {
-        $this->driver = $driver;
-        $this->logger = $logger;
-    }
+    public function __construct(
+        private readonly DriverInterface $driver,
+        private readonly ?LoggerInterface $logger = null,
+    ) {}
 
     /**
-     * {@inheritdoc}
-     *
      * @throws Driver\UnknownPriorityException
      */
     public function emit(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): EmitterInterface
@@ -46,9 +36,7 @@ class Emitter implements EmitterInterface
     /**
      * Serialize message to logger context
      *
-     * @param MessageInterface $message
-     *
-     * @return array<mixed>
+     * @return array<string, mixed>
      */
     private function messageLoggerContext(MessageInterface $message): array
     {
@@ -63,13 +51,9 @@ class Emitter implements EmitterInterface
     /**
      * Internal log method wrapper
      *
-     * @param mixed $level
-     * @param string $message
      * @param array<mixed> $context
-     *
-     * @return void
      */
-    private function log($level, string $message, array $context = []): void
+    private function log(string $level, string $message, array $context = []): void
     {
         if ($this->logger !== null) {
             $this->logger->log($level, $message, $context);

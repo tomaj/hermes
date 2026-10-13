@@ -15,9 +15,6 @@ interface DispatcherInterface
      * This handler will be called in background job when event
      * of registered $type will be emitted.
      *
-     * @param string             $type
-     * @param HandlerInterface   $handler
-     *
      * @return $this
      */
     public function registerHandler(string $type, HandlerInterface $handler): DispatcherInterface;
@@ -25,26 +22,17 @@ interface DispatcherInterface
     /**
      * Register multiple handlers for same type.
      *
-     * @param string $type
      * @param HandlerInterface[] $handler
-     * @return DispatcherInterface
      */
     public function registerHandlers(string $type, array $handler): DispatcherInterface;
 
     /**
      * Will unregister all handlers. This method is useful for testing.
-     *
-     * @return DispatcherInterface
      */
     public function unregisterAllHandlers(): DispatcherInterface;
 
     /**
      * Will unregister a specific handler.
-     *
-     * @param string $type
-     * @param HandlerInterface $handler
-     *
-     * @return DispatcherInterface
      */
     public function unregisterHandler(string $type, HandlerInterface $handler): DispatcherInterface;
 

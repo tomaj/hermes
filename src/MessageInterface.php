@@ -12,15 +12,11 @@ interface MessageInterface
      * This identifier should be unique all the time.
      * Recommendation is to use UUIDv4 (Included Message implementation
      * generating UUIDv4 identifiers)
-     *
-     * @return string
      */
     public function getId(): string;
 
     /**
      * Message creation date - microtime(true)
-     *
-     * @return float
      */
     public function getCreated(): float;
 
@@ -36,8 +32,6 @@ interface MessageInterface
      *
      * Based on this field, message will be dispatched and will be sent to
      * appropriate handler.
-     *
-     * @return string
      */
     public function getType(): string;
 
@@ -54,8 +48,6 @@ interface MessageInterface
 
     /**
      * Total retries for message
-     *
-     * @return int
      */
     public function getRetries(): int;
 }

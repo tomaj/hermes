@@ -18,23 +18,8 @@ class RedisSetDriver implements DriverInterface
     use ShutdownTrait;
     use SerializerAwareTrait;
 
-    /** @var array<int, string>  */
-    private $queues = [];
-
-    /**
-     * @var string
-     */
-    private $scheduleKey;
-
-    /**
-     * @var Redis
-     */
-    private $redis;
-
-    /**
-     * @var integer
-     */
-    private $refreshInterval;
+    /** @var array<int, string> */
+    private array $queues = [];
 
     /**
      * Create new RedisSetDriver
@@ -47,25 +32,18 @@ class RedisSetDriver implements DriverInterface
      * of this class. You have to have enabled native Redis php extension.
      *
      * @see examples/redis
-     *
-     * @param Redis                  $redis
-     * @param string                 $key
-     * @param integer                $refreshInterval
-     * @param string                 $scheduleKey
      */
-    public function __construct(Redis $redis, string $key = 'hermes', int $refreshInterval = 1, string $scheduleKey = 'hermes_schedule')
-    {
+    public function __construct(
+        private readonly Redis $redis,
+        string $key = 'hermes',
+        private readonly int $refreshInterval = 1,
+        private readonly string $scheduleKey = 'hermes_schedule',
+    ) {
         $this->setupPriorityQueue($key, Dispatcher::DEFAULT_PRIORITY);
-
-        $this->scheduleKey = $scheduleKey;
-        $this->redis = $redis;
-        $this->refreshInterval = $refreshInterval;
         $this->serializer = new MessageSerializer();
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @throws UnknownPriorityException
      */
     public function send(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): bool
@@ -79,18 +57,12 @@ class RedisSetDriver implements DriverInterface
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function setupPriorityQueue(string $name, int $priority): void
     {
         $this->queues[$priority] = $name;
     }
 
     /**
-     * @param int $priority
-     * @return string
-     *
      * @throws UnknownPriorityException
      */
     private function getKey(int $priority): string
@@ -102,8 +74,6 @@ class RedisSetDriver implements DriverInterface
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @throws ShutdownException
      * @throws UnknownPriorityException
      * @throws SerializeException

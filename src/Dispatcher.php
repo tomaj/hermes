@@ -18,45 +18,34 @@ class Dispatcher implements DispatcherInterface
 {
     public const DEFAULT_PRIORITY = 100;
 
-    private DriverInterface $driver;
-
-    private ?LoggerInterface $logger;
-
-    private ?ShutdownInterface $shutdown;
-
     /**
      * All registered handlers
      *
-     * @var HandlerInterface[][]
+     * @var array<string, array<int, HandlerInterface>>
      */
     private array $handlers = [];
 
-    private DateTime $startTime;
+    private readonly DateTime $startTime;
 
     /**
      * Create new Dispatcher
-     *
-     * @param DriverInterface $driver
-     * @param LoggerInterface|null $logger
-     * @param ShutdownInterface|null $shutdown
      */
-    public function __construct(DriverInterface $driver, ?LoggerInterface $logger = null, ?ShutdownInterface $shutdown = null)
-    {
-        $this->driver = $driver;
-        $this->logger = $logger;
-        $this->shutdown = $shutdown;
+    public function __construct(
+        private readonly DriverInterface $driver,
+        private readonly ?LoggerInterface $logger = null,
+        private readonly ?ShutdownInterface $shutdown = null,
+    ) {
         $this->startTime = new DateTime();
 
         // check if driver use ShutdownTrait
-        if ($shutdown !== null && method_exists($this->driver, 'setShutdown')) {
-            $this->driver->setShutdown($shutdown);
+        if ($this->shutdown !== null && method_exists($this->driver, 'setShutdown')) {
+            $this->driver->setShutdown($this->shutdown);
         }
     }
 
     /**
-     * @param MessageInterface $message
-     * @param int $priority
-     * @return DispatcherInterface
+     * @return $this
+     *
      * @deprecated - use Emitter::emit method instead
      */
     public function emit(MessageInterface $message, int $priority = self::DEFAULT_PRIORITY): DispatcherInterface
@@ -79,8 +68,6 @@ class Dispatcher implements DispatcherInterface
      * WARNING! Don't use it on web server calls. Run it only with cli.
      *
      * @param int[] $priorities
-     *
-     * @return void
      */
     public function handle(array $priorities = []): void
     {
@@ -111,10 +98,6 @@ class Dispatcher implements DispatcherInterface
 
     /**
      * Dispatch message
-     *
-     * @param MessageInterface $message
-     *
-     * @return bool
      */
     private function dispatch(MessageInterface $message): bool
     {
@@ -139,11 +122,6 @@ class Dispatcher implements DispatcherInterface
 
     /**
      * Handle given message with given handler
-     *
-     * @param HandlerInterface $handler
-     * @param MessageInterface $message
-     *
-     * @return bool
      */
     private function handleMessage(HandlerInterface $handler, MessageInterface $message): bool
     {
@@ -179,9 +157,6 @@ class Dispatcher implements DispatcherInterface
 
     /**
      * Helper function for sending retrying message back to driver
-     *
-     * @param MessageInterface $message
-     * @param HandlerInterface $handler
      */
     private function retryMessage(MessageInterface $message, HandlerInterface $handler): void
     {
@@ -198,9 +173,6 @@ class Dispatcher implements DispatcherInterface
      * Calculate next retry
      *
      * Inspired by ruby sidekiq (https://github.com/mperham/sidekiq/wiki/Error-Handling#automatic-job-retry)
-     *
-     * @param MessageInterface $message
-     * @return float
      */
     private function nextRetry(MessageInterface $message): float
     {
@@ -209,19 +181,12 @@ class Dispatcher implements DispatcherInterface
 
     /**
      * Check if actual dispatcher has handler for given type
-     *
-     * @param string $type
-     *
-     * @return bool
      */
     private function hasHandlers(string $type): bool
     {
         return isset($this->handlers[$type]) && count($this->handlers[$type]) > 0;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function registerHandler(string $type, HandlerInterface $handler): DispatcherInterface
     {
         if (!isset($this->handlers[$type])) {
@@ -232,9 +197,6 @@ class Dispatcher implements DispatcherInterface
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function registerHandlers(string $type, array $handlers): DispatcherInterface
     {
         foreach ($handlers as $handler) {
@@ -243,18 +205,12 @@ class Dispatcher implements DispatcherInterface
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function unregisterAllHandlers(): DispatcherInterface
     {
         $this->handlers = [];
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function unregisterHandler(string $type, HandlerInterface $handler): DispatcherInterface
     {
         if (!isset($this->handlers[$type])) {
@@ -270,8 +226,6 @@ class Dispatcher implements DispatcherInterface
 
     /**
      * Serialize message to logger context
-     *
-     * @param MessageInterface $message
      *
      * @return array<string, mixed>
      */
@@ -290,13 +244,9 @@ class Dispatcher implements DispatcherInterface
     /**
      * Interal log method wrapper
      *
-     * @param mixed $level
-     * @param string $message
      * @param array<mixed> $context
-     *
-     * @return void
      */
-    private function log($level, string $message, array $context = []): void
+    private function log(string $level, string $message, array $context = []): void
     {
         if ($this->logger !== null) {
             $this->logger->log($level, $message, $context);

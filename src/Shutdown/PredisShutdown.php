@@ -14,19 +14,12 @@ use Predis\Client;
  */
 class PredisShutdown implements ShutdownInterface
 {
-    private string $key;
-
-    private Client $redis;
-
-    public function __construct(Client $redis, string $key = 'hermes_shutdown')
-    {
-        $this->redis = $redis;
-        $this->key = $key;
-    }
+    public function __construct(
+        private readonly Client $redis,
+        private readonly string $key = 'hermes_shutdown',
+    ) {}
 
     /**
-     * {@inheritdoc}
-     *
      * Returns true:
      *
      * - if shutdown timestamp is set,
@@ -56,8 +49,6 @@ class PredisShutdown implements ShutdownInterface
     }
 
     /**
-     * {@inheritdoc}
-     *
      * Sets to Redis value `$shutdownTime` (or current DateTime) to `$key` defined in constructor.
      */
     public function shutdown(?DateTime $shutdownTime = null): bool

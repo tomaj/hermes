@@ -21,50 +21,25 @@ class LazyRabbitMqDriver implements DriverInterface
     use ShutdownTrait;
     use SerializerAwareTrait;
 
-    /** @var AMQPLazyConnection */
-    private $connection;
-
-    /** @var AMQPChannel */
-    private $channel;
-
-    /** @var string */
-    private $queue;
-
-    /** @var array<string, mixed> */
-    private $amqpMessageProperties = [];
-
-    /** @var integer */
-    private $refreshInterval;
-
-    /** @var string */
-    private $consumerTag;
-
-    /** @var bool */
-    private $durable;
+    private ?AMQPChannel $channel = null;
 
     /**
-     * @param AMQPLazyConnection $connection
-     * @param string $queue
      * @param array<string, mixed> $amqpMessageProperties
-     * @param int $refreshInterval
-     * @param string $consumerTag
      * @param bool $durable Declare a durable queue and publish persistent messages (delivery_mode 2).
      *                      Pass false to keep using a queue that was declared non-durable by Hermes 5.x.
      */
-    public function __construct(AMQPLazyConnection $connection, string $queue, array $amqpMessageProperties = [], int $refreshInterval = 0, string $consumerTag = 'hermes', bool $durable = true)
-    {
-        $this->connection = $connection;
-        $this->queue = $queue;
-        $this->amqpMessageProperties = $amqpMessageProperties;
-        $this->refreshInterval = $refreshInterval;
-        $this->consumerTag = $consumerTag;
-        $this->durable = $durable;
+    public function __construct(
+        private readonly AMQPLazyConnection $connection,
+        private readonly string $queue,
+        private readonly array $amqpMessageProperties = [],
+        private readonly int $refreshInterval = 0,
+        private readonly string $consumerTag = 'hermes',
+        private readonly bool $durable = true,
+    ) {
         $this->serializer = new MessageSerializer();
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @throws \PhpAmqpLib\Exception\AMQPChannelClosedException
      * @throws \PhpAmqpLib\Exception\AMQPConnectionBlockedException
      * @throws \PhpAmqpLib\Exception\AMQPConnectionClosedException
@@ -82,9 +57,6 @@ class LazyRabbitMqDriver implements DriverInterface
     }
 
     /**
-     * @param string $name
-     * @param int $priority
-     *
      * @throws NotSupportedException
      */
     public function setupPriorityQueue(string $name, int $priority): void
@@ -93,8 +65,6 @@ class LazyRabbitMqDriver implements DriverInterface
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @throws ShutdownException
      * @throws \PhpAmqpLib\Exception\AMQPOutOfBoundsException
      * @throws \PhpAmqpLib\Exception\AMQPRuntimeException
@@ -168,7 +138,6 @@ class LazyRabbitMqDriver implements DriverInterface
 
     /**
      * @throws \PhpAmqpLib\Exception\AMQPTimeoutException
-     * @return AMQPChannel
      */
     private function getChannel(): AMQPChannel
     {

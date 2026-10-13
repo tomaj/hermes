@@ -8,16 +8,10 @@ use DateTime;
 
 class SharedFileShutdown implements ShutdownInterface
 {
-    private string $filePath;
+    public function __construct(
+        private readonly string $filePath,
+    ) {}
 
-    public function __construct(string $filePath)
-    {
-        $this->filePath = $filePath;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function shouldShutdown(DateTime $startTime): bool
     {
         clearstatcache(false, $this->filePath);
@@ -35,8 +29,6 @@ class SharedFileShutdown implements ShutdownInterface
     }
 
     /**
-     * {@inheritdoc}
-     *
      * Creates file defined in constructor with modification time `$shutdownTime` (or current DateTime).
      */
     public function shutdown(?DateTime $shutdownTime = null): bool

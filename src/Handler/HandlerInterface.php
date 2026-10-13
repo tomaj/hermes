@@ -16,10 +16,7 @@ interface HandlerInterface
      * long processing jobs that will be executed by dispatcher.
      * You have to register all your handlers to Dispatcher for specified types.
      *
-     * @param MessageInterface $message
      * @throws \Exception
-     *
-     * @return bool
      */
     public function handle(MessageInterface $message): bool;
 }
