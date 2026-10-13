@@ -78,7 +78,7 @@ That member-to-score map is the shape Predis expects. It is the fix for [issue #
 
 The live queue is still a set. `spop` is not FIFO. Empty loops sleep `$refreshInterval` seconds when that value is not `0`.
 
-Priority order is the same reverse-insertion behavior as ext-redis. Read [Priority](/guide/priority) before you depend on high numbers running first.
+Priority order is the same as ext-redis: the highest number first. See [Priority](/guide/priority).
 
 Shutdown checks use `ShutdownTrait`. Pair this driver with `PredisShutdown`, not `RedisShutdown`. `PredisShutdown::shutdown()` treats a Predis status payload of `OK` as success. `shouldShutdown()` treats a missing key (`null` from `get`) as "keep running".
 
@@ -102,7 +102,7 @@ Predis 2.3 and later, and Predis 3. The tests run against both the lowest (2.3.0
 
 ### Do priorities work the same way?
 
-Yes, including the reverse registration order from issue [#50](https://github.com/tomaj/hermes/issues/50). See [Priority](/guide/priority).
+Yes. The highest number is polled first. 5.x used reverse registration order, issue [#50](https://github.com/tomaj/hermes/issues/50). See [Priority](/guide/priority).
 
 ### Is there a full Predis example?
 

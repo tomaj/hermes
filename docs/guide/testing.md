@@ -66,7 +66,7 @@ After a successful CI run on `master`, the documentation workflow publishes that
 
 `Tomaj\Hermes\Test\Driver\DummyDriver` implements `DriverInterface` in memory. `HandleTest`, `EmitTest`, and the shutdown tests use it so they do not need Redis. It is not part of `src/` and not a driver you install.
 
-`DummyDriver::setupPriorityQueue()` sorts keys numerically before `wait()` reverses them. That is why `HandleTest::testPriorityProcessing()` sees the higher priority first. The Redis drivers do not sort. Do not copy that test's expectation onto `RedisSetDriver`. [Issue #50](https://github.com/tomaj/hermes/issues/50) is the Redis behavior.
+`DummyDriver::setupPriorityQueue()` sorts keys numerically before `wait()` reverses them. That is why `HandleTest::testPriorityProcessing()` sees the higher priority first, which matches the Redis drivers from 6.0. On 5.x the Redis drivers did not sort. [Issue #50](https://github.com/tomaj/hermes/issues/50) is the Redis behavior.
 
 Driver tests that need a server mock the client (`Redis`, `Predis\Client`, `SqsClient`, `AMQPLazyConnection`). A green PHPUnit run does not require a local Redis, RabbitMQ, or AWS account.
 
@@ -97,6 +97,6 @@ No. Driver tests mock the clients, so `composer phpunit` runs without any server
 
 No. Use `composer phpunit` or `make test`.
 
-### Why does `DummyDriver` order priorities differently from Redis?
+### Does `DummyDriver` order priorities like Redis?
 
-It sorts priorities numerically. The Redis drivers do not. See [Priority](/guide/priority).
+Yes, from 6.0. Both poll the highest priority number first. On 5.x the Redis drivers used reverse registration order. See [Priority](/guide/priority).

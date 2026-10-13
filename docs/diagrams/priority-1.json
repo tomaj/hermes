@@ -186,7 +186,7 @@
    "t": "text",
    "x": 410.5325,
    "y": 169.5,
-   "text": "array_reverse\nkeeps keys and\nflips the order",
+   "text": "krsort sorts\nby number,\nhighest first",
    "size": 18
   },
   {
@@ -254,7 +254,7 @@
    "t": "text",
    "x": 56.0,
    "y": 169.5,
-   "text": "wait() pops 110,\nthen 90, then\n100",
+   "text": "wait() pops 110,\nthen 100, then\n90",
    "size": 18,
    "align": "left"
   },

@@ -37,7 +37,7 @@ features:
       width: 42px
       height: 42px
     title: Priority queues
-    details: Redis drivers keep a separate set per priority. Read the ordering caveat from issue 50 before you rely on it.
+    details: Redis drivers keep a separate set per priority and always poll the highest priority first.
   - icon:
       src: /icons/shutdown.svg
       alt: Shutdown

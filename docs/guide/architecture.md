@@ -50,7 +50,7 @@ Start the same script more than once. Redis `SPOP` removes a member, so two work
 
 - It does not restart the process. [Shutdown](/guide/shutdown) only makes `handle()` return.
 - It does not sort Redis sets. `SPOP` is not FIFO.
-- It does not sort priority numbers. [Issue #50](https://github.com/tomaj/hermes/issues/50) describes the order `wait()` actually uses.
+- It polls priority queues from the highest number down. 5.x used reverse registration order ([issue #50](https://github.com/tomaj/hermes/issues/50)).
 - It does not delay RabbitMQ or SQS messages. `executeAt` is stored in the JSON and ignored by those `send()` methods.
 - It does not ship a ZeroMQ driver. That driver left the package in 3.0.0 and lives in [tomaj/hermes-zmq-driver](https://github.com/tomaj/hermes-zmq-driver).
 

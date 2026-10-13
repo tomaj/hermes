@@ -7,7 +7,7 @@ description: "Compare the Hermes drivers for Redis, Predis, RabbitMQ, and Amazon
 const drivers = ['Redis <code>ext-redis</code>', 'Predis', 'RabbitMQ lazy', 'Amazon SQS']
 const comparison = [
   { label: 'Class', cells: ['<code>RedisSetDriver</code>', '<code>PredisSetDriver</code>', '<code>LazyRabbitMqDriver</code>', '<code>AmazonSqsDriver</code>'] },
-  { label: 'Priority', cells: ['~ set per priority, order caveat', '~ same as Redis', '✗ throws <code>NotSupportedException</code>', '✗ throws <code>NotSupportedException</code>'] },
+  { label: 'Priority', cells: ['✓ set per priority', '✓ set per priority', '✗ throws <code>NotSupportedException</code>', '✗ throws <code>NotSupportedException</code>'] },
   { label: 'Delay', cells: ['✓ sorted set', '✓ sorted set', '✗ published at once', '✗ sent at once'] },
   { label: 'Persistence', cells: ['~ Redis RDB or AOF config', '~ Redis RDB or AOF config', '~ non-durable queue', '✓ stored by SQS'] },
   { label: 'Ack', cells: ['✗ removed before the handler', '✗ removed before the handler', '✗ <code>no_ack = true</code>', '✓ deleted after the handler'] },
@@ -28,7 +28,7 @@ The four classes in `src/Driver` all implement `DriverInterface`. Pick one for t
 
 ### Redis `ext-redis` notes
 
-- **Priority.** Each integer priority is a separate Redis set. The poll order is reverse insertion order, not numeric order. See [issue #50](https://github.com/tomaj/hermes/issues/50).
+- **Priority.** Each integer priority is a separate Redis set. `wait()` polls the highest number first. 5.x used reverse insertion order ([issue #50](https://github.com/tomaj/hermes/issues/50)).
 - **Delay.** A future `executeAt` goes into a sorted set with `ZADD`. Promotion uses `ZREM` on the member it just read. In 5.x it called `SPOP` and never promoted ([#95](https://github.com/tomaj/hermes/issues/95)).
 - **Persistence.** Whatever Redis is configured to do (RDB or AOF). Hermes does not set it. Values live in sets plus one sorted set.
 - **Ack.** There is no ack API. `SPOP` deletes the member, then the handler runs. A `true` or `false` return is ignored.

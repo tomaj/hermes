@@ -110,7 +110,9 @@ class RedisSetDriver implements DriverInterface
      */
     public function wait(Closure $callback, array $priorities = []): void
     {
-        $queues = array_reverse($this->queues, true);
+        // Highest priority first, regardless of the order the queues were set up in
+        $queues = $this->queues;
+        krsort($queues, SORT_NUMERIC);
         while (true) {
             $this->checkShutdown();
             if (!$this->shouldProcessNext()) {

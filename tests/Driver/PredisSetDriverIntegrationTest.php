@@ -41,7 +41,7 @@ class PredisSetDriverIntegrationTest extends TestCase
     protected function tearDown(): void
     {
         if (isset($this->prefix)) {
-            $this->redis->del([$this->prefix, $this->prefix . '_high', $this->prefix . '_schedule']);
+            $this->redis->del([$this->prefix, $this->prefix . '_high', $this->prefix . '_schedule', $this->prefix . '_top', $this->prefix . '_low']);
         }
     }
 
@@ -85,6 +85,21 @@ class PredisSetDriverIntegrationTest extends TestCase
 
         self::assertSame(['high', 'low'], array_map(static fn(array $item): string => $item[0]->getType(), $received));
         self::assertSame([200, 100], array_column($received, 1));
+    }
+
+    public function testPrioritiesAreTakenInNumericOrderRegardlessOfSetupOrder(): void
+    {
+        $driver = $this->driver();
+        $driver->setupPriorityQueue($this->prefix . '_high', 200);
+        $driver->setupPriorityQueue($this->prefix . '_top', 1000);
+        $driver->setupPriorityQueue($this->prefix . '_low', 50);
+        foreach ([50, 100, 200, 1000] as $priority) {
+            $driver->send(new Message('job', ['p' => $priority]), $priority);
+        }
+
+        $received = $this->receive($driver, 4);
+
+        self::assertSame([1000, 200, 100, 50], array_map(static fn(array $row): int => $row[1], $received));
     }
 
     private function driver(): PredisSetDriver

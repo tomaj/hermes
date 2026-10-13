@@ -1,6 +1,6 @@
 ---
 title: "Priority"
-description: "Priority queues on the Redis drivers, the polling order from issue 50, and running a worker per priority."
+description: "Priority queues on the Redis drivers, their numeric polling order, and running a worker per priority."
 ---
 
 # Priority
@@ -21,29 +21,28 @@ The constructor already registered the main key (`hermes` by default) at priorit
 
 Register the same pairs on the worker. A priority that was not registered throws `UnknownPriorityException` (`Unknown priority 110` if 110 was never set up).
 
-<Diagram name="priority-1" alt="Priority queues are registered in order and the worker polls them in reverse insertion order" />
+<Diagram name="priority-1" alt="Priority queues can be registered in any order; the worker sorts them and polls the highest number first" />
 
-## Issue 50
+## Polling order
 
-[Issue #50](https://github.com/tomaj/hermes/issues/50) is open. `RedisSetDriver::wait()` and `PredisSetDriver::wait()` do this:
+`RedisSetDriver::wait()` and `PredisSetDriver::wait()` sort the registered queues by priority number, highest first:
 
 ```php
-$queues = array_reverse($this->queues, true);
+$queues = $this->queues;
+krsort($queues, SORT_NUMERIC);
 ```
 
-PHP arrays remember insertion order. `array_reverse` with `true` flips that order and keeps the priority integers as keys. It does not `krsort` them. The issue asks for a numeric sort so a larger integer always wins. The current code does not do that.
-
-The constructor inserts priority `100` first, so after the reverse it is **last**. Extra queues are polled in the reverse of the order you called `setupPriorityQueue()`.
-
-The example above calls low (90) and then high (110). The worker therefore pops:
+The order of the `setupPriorityQueue()` calls does not matter. The example above calls low (90) and then high (110), and the worker pops:
 
 1. `hermes_high` (110)
-2. `hermes_low` (90)
-3. `hermes` (100)
+2. `hermes` (100)
+3. `hermes_low` (90)
 
-90 runs before 100. That is the bug, not a second ordering rule. Calling high before low yields `90`, then `110`, then `100`. There is no call order that yields `110`, then `100`, then `90`, because `100` was inserted first and assigning the same key again does not move it.
+Each `wait()` iteration starts again from the top, so a waiting 110 message always runs before a 100 one.
 
-`DummyDriver` in the test suite does `ksort` inside `setupPriorityQueue()` and then reverses, so its tests observe numeric order. `RedisSetDriver` does not `ksort`.
+### Before 6.0
+
+Up to 5.x the drivers used `array_reverse($this->queues, true)`, which polls in reverse registration order, not by number ([issue #50](https://github.com/tomaj/hermes/issues/50)). The constructor registers 100 first, so it was always polled last, and the example above popped 110, then 90, then 100. On 5.x, register only priorities above 100, in ascending order, or run a worker per priority.
 
 ## A worker per priority
 
@@ -53,15 +52,15 @@ The example above calls low (90) and then high (110). The worker therefore pops:
 $dispatcher->handle([Dispatcher::DEFAULT_PRIORITY + 10]);
 ```
 
-The list is integers. `in_array($priority, $priorities)` decides. An empty list polls every registered queue, in the reversed insertion order above.
+The list is integers. `in_array($priority, $priorities)` decides. An empty list polls every registered queue, highest number first.
 
-Run three CLI processes if you need numeric priority for real:
+Run three CLI processes if you want to scale priorities separately:
 
 - one `handle([110])`
 - one `handle([100])`
 - one `handle([90])`
 
-Give the 110 process more replicas than the others. Each process only `SPOP`s its own key. They no longer share one loop, so issue 50 does not reorder them.
+Give the 110 process more replicas than the others. Each process only `SPOP`s its own key. A burst of low-priority work then cannot delay high-priority work at all.
 
 ## Other limits
 
@@ -77,11 +76,11 @@ Only `RedisSetDriver` and `PredisSetDriver`. RabbitMQ and SQS throw `NotSupporte
 
 ### Why did a lower priority run first?
 
-The Redis drivers poll queues in reverse registration order, not by number. Priority 100 is registered first by the constructor. See issue [#50](https://github.com/tomaj/hermes/issues/50) and the [priority recipe](/examples/priority).
+On 6.0 a lower number runs first only when no higher-priority message is waiting. On 5.x the Redis drivers polled queues in reverse registration order, not by number, so priority 100 (registered first by the constructor) was polled last. See issue [#50](https://github.com/tomaj/hermes/issues/50) and the [priority recipe](/examples/priority).
 
 ### How do I get strict numeric order?
 
-Run one worker per priority with `handle([110])`, `handle([100])`, and so on, and scale them separately. Or register only priorities above 100, in ascending order.
+From 6.0 the drivers poll in numeric order, highest first. On 5.x, run one worker per priority with `handle([110])`, `handle([100])`, and so on, or register only priorities above 100, in ascending order.
 
 ### Do I have to register priorities on both sides?
 
