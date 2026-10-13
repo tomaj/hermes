@@ -10,7 +10,7 @@ const comparison = [
   { label: 'Priority', cells: ['~ set per priority, order caveat', '~ same as Redis', '✗ throws <code>NotSupportedException</code>', '✗ throws <code>NotSupportedException</code>'] },
   { label: 'Delay', cells: ['✓ sorted set', '✓ sorted set', '✗ published at once', '✗ sent at once'] },
   { label: 'Persistence', cells: ['~ Redis RDB or AOF config', '~ Redis RDB or AOF config', '~ non-durable queue', '✓ stored by SQS'] },
-  { label: 'Ack', cells: ['✗ removed before the handler', '✗ removed before the handler', '✗ <code>no_ack = true</code>', '✗ deleted before the handler'] },
+  { label: 'Ack', cells: ['✗ removed before the handler', '✗ removed before the handler', '✗ <code>no_ack = true</code>', '✓ deleted after the handler'] },
 ]
 </script>
 
@@ -51,8 +51,8 @@ The four classes in `src/Driver` all implement `DriverInterface`. Pick one for t
 
 - **Priority.** Same as RabbitMQ. The exception text says `AmazonSQS`.
 - **Delay.** `executeAt` stays in the JSON. `sendMessage` happens immediately.
-- **Persistence.** SQS stores the body until this driver deletes it. The driver deletes on receive, before `handle()`.
-- **Ack.** `deleteMessage` runs before unserialize and before the handler.
+- **Persistence.** SQS stores the body until this driver deletes it. The driver deletes after the callback returns. A failed handler leaves the message to reappear after the visibility timeout.
+- **Ack.** `deleteMessage` runs after unserialize and the callback succeed. Delivery is at least once. 5.x deleted before the handler ([#69](https://github.com/tomaj/hermes/issues/69)).
 
 Within one Redis or Predis priority, order is not FIFO. A set has no order, and `SPOP` returns one random member.
 

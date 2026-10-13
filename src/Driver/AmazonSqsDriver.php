@@ -9,6 +9,7 @@ use Closure;
 use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
+use Tomaj\Hermes\Shutdown\ShutdownException;
 
 class AmazonSqsDriver implements DriverInterface
 {
@@ -137,7 +138,6 @@ class AmazonSqsDriver implements DriverInterface
             $messages = $result['Messages'] ?? null;
 
             if (is_array($messages) && $messages !== []) {
-                $hermesMessages = [];
                 foreach ($messages as $message) {
                     if (!is_array($message)) {
                         continue;
@@ -147,14 +147,16 @@ class AmazonSqsDriver implements DriverInterface
                     if (!is_string($receiptHandle) || !is_string($body)) {
                         continue;
                     }
-                    $this->client->deleteMessage([
-                        'QueueUrl' => $this->queueUrl,
-                        'ReceiptHandle' => $receiptHandle,
-                    ]);
-                    $hermesMessages[] = $this->serializer->unserialize($body);
-                }
-                foreach ($hermesMessages as $hermesMessage) {
-                    $callback($hermesMessage);
+                    // Delete only after the message was handled. If unserializing or the callback fails,
+                    // the message stays in SQS and is redelivered after the visibility timeout (or moved to a DLQ).
+                    try {
+                        $callback($this->serializer->unserialize($body));
+                    } catch (ShutdownException $e) {
+                        // The dispatcher requests shutdown after the message was handled.
+                        $this->deleteMessage($receiptHandle);
+                        throw $e;
+                    }
+                    $this->deleteMessage($receiptHandle);
                     $this->incrementProcessedItems();
                 }
             } elseif ($this->sleepInterval !== 0) {
@@ -162,5 +164,13 @@ class AmazonSqsDriver implements DriverInterface
                 sleep($this->sleepInterval);
             }
         }
+    }
+
+    private function deleteMessage(string $receiptHandle): void
+    {
+        $this->client->deleteMessage([
+            'QueueUrl' => $this->queueUrl,
+            'ReceiptHandle' => $receiptHandle,
+        ]);
     }
 }

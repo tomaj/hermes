@@ -359,7 +359,7 @@
   {
    "t": "text",
    "x": 245.65750000000003,
-   "y": 235.5,
+   "y": 365.0,
    "text": "deleteMessage",
    "size": 16,
    "color": "muted"
@@ -369,11 +369,11 @@
    "points": [
     [
      77.22,
-     263.5
+     393.0
     ],
     [
      414.095,
-     263.5
+     393.0
     ]
    ]
   },
@@ -391,14 +391,14 @@
    "t": "text",
    "x": 495.095,
    "y": 313.5,
-   "text": "the message is gone before the\nhandler runs",
+   "text": "deleted only after the\nhandler returns",
    "size": 15,
    "color": "muted"
   },
   {
    "t": "text",
    "x": 320.6575,
-   "y": 365.0,
+   "y": 235.5,
    "text": "handle()",
    "size": 16,
    "color": "muted"
@@ -408,11 +408,11 @@
    "points": [
     [
      77.22,
-     393.0
+     263.5
     ],
     [
      564.095,
-     393.0
+     263.5
     ]
    ]
   },

@@ -89,7 +89,7 @@ Call `$callback($message, $priority)`. The dispatcher logs that integer. If you 
 
 `MaxItemsTrait` and `ShutdownTrait` are optional. Use them if `wait()` loops. `Dispatcher` will call `setShutdown()` only when the method exists.
 
-If you remove the message before the callback, document that, because every built-in driver does and callers assume a crash loses the delivery. If you remove it only after a `true` return, you are stricter than the built-in drivers. The dispatcher still ignores the boolean on the way back, so your driver has to read the callback's return value itself. The built-in drivers do not.
+If you remove the message before the callback, document that, because the Redis and RabbitMQ drivers do and callers assume a crash loses the delivery. `AmazonSqsDriver` removes it only after the callback returns without an exception. If you remove it only after a `true` return, you are stricter than the built-in drivers. The dispatcher still ignores the boolean on the way back, so your driver has to read the callback's return value itself. The built-in drivers do not.
 
 ## A handler
 

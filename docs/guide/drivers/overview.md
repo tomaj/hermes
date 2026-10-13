@@ -55,7 +55,7 @@ The drivers differ in what they do with these:
 - **You already run Redis:** use `PredisSetDriver`. It needs no PHP extension and is the one driver with working delayed messages and retries in 5.x.
 - **You need priorities:** use `PredisSetDriver` or `RedisSetDriver`. The other two have one queue.
 - **You already run RabbitMQ:** use `LazyRabbitMqDriver`. Delay and retry need your own design.
-- **You are on AWS and want managed storage:** use `AmazonSqsDriver`. It deletes the message before the handler runs, so a crash loses it.
+- **You are on AWS and want managed storage:** use `AmazonSqsDriver`. It deletes the message only after the handler finished, so a crash leaves it for redelivery.
 - **Something else:** write a driver. It is three methods and three traits.
 
 ## Driver pages
