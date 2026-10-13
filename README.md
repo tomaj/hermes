@@ -435,6 +435,10 @@ Since version 2.0, you can schedule messages for future execution by passing a t
 
 ## Upgrade Guide
 
+### From v5 to v6
+
+See [UPGRADE-6.0.md](UPGRADE-6.0.md).
+
 ### From v3 to v4
 
 **Breaking Changes:**

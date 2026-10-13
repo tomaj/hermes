@@ -73,6 +73,8 @@ There is no public sleep setting. `$sleepInterval` is a private `0` and nothing 
 
 The dispatcher catches handler exceptions, so a handler that throws still counts as handled and its message is deleted. [Retry](/guide/retry) can `sendMessage` a new body. That new body is visible immediately, because this driver does not honor `executeAt`.
 
+A PHP `Error` (for example `TypeError`) from a handler is not caught. The worker exits, the message stays in SQS, and it comes back after the visibility timeout ([#112](https://github.com/tomaj/hermes/issues/112)). A body that cannot be unserialized also comes back. Add a redrive policy so such messages end up in a dead-letter queue. Set it on an existing queue with `aws sqs set-queue-attributes`, not through the constructor: the constructor calls `CreateQueue`, which fails with `QueueAlreadyExists` when its attributes differ from the queue's.
+
 `$priorities` is unused.
 
 `SharedFileShutdown` works here. Pass it to the `Dispatcher` constructor. The driver uses `ShutdownTrait`, so the constructor forwards it and `wait()` checks it at the start of each loop.

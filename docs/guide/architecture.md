@@ -31,7 +31,7 @@ The Redis drivers remove the message **before** the handler runs. From 6.0, Rabb
 
 A handler that returns `false` cannot put that delivery back. A thrown exception can publish a **new** copy when [retry](/guide/retry) is enabled. If the process dies after the pop and before `handle()` finishes, that delivery is gone.
 
-This is at-most-once for a single delivery. It is why a retry copy exists, and why a process manager should restart a worker that exits.
+On Redis and Predis this is at-most-once for a single delivery. On RabbitMQ and SQS (6.0+) it is at-least-once. Either way a process manager should restart a worker that exits.
 
 ## Life of one message
 
@@ -66,7 +66,7 @@ On Redis (`SPOP`), before the handler runs, so a crash during `handle()` loses t
 
 ### Is delivery at-least-once or at-most-once?
 
-At-most-once for a single delivery. A thrown exception can publish a new copy through [Retry](/guide/retry), but a killed process cannot.
+It depends on the driver. Redis and Predis are at-most-once: a killed process loses the delivery, and only a thrown exception can publish a new copy through [Retry](/guide/retry). RabbitMQ and SQS are at-least-once from 6.0: the broker redelivers a message that was not acknowledged, so handlers should be idempotent.
 
 ### Do several workers coordinate?
 

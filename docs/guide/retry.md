@@ -96,4 +96,4 @@ Those drivers ignore `executeAt`, so the copy is published at once. Use Predis f
 
 ### Is there a dead-letter queue?
 
-No. After the last allowed attempt the copy is simply not sent. Log the final failure in the handler if you need to act on it. See [Logging](/guide/logging).
+Not in Hermes. After the last allowed attempt the copy is simply not sent. Log the final failure in the handler if you need to act on it. See [Logging](/guide/logging). The brokers have their own: an SQS redrive policy and a RabbitMQ dead-letter exchange catch messages that the driver rejects or that keep crashing workers (see the [SQS](/guide/drivers/sqs) and [RabbitMQ](/guide/drivers/rabbitmq) pages).
