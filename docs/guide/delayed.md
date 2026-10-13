@@ -1,0 +1,42 @@
+# Delayed execution
+
+Since 2.0 a message can carry `executeAt`, a `microtime(true)` timestamp. The fourth constructor argument is `created`. The fifth is `executeAt`.
+
+```php
+$executeAt = microtime(true) + 60;
+$message = new Message('send-email', [
+    'to' => 'test@test.com',
+    'subject' => 'Later',
+    'message' => 'Hello from hermes!',
+], null, null, $executeAt);
+
+$emitter->emit($message);
+```
+
+<Diagram name="delayed-1" alt="Delayed execution diagram" />
+
+Supported drivers are `RedisSetDriver` and `PredisSetDriver`. `LazyRabbitMqDriver::send()` and `AmazonSqsDriver::send()` do not read `getExecuteAt()`.
+
+## Redis extension
+
+`send()` delays when `getExecuteAt()` is not `null` and is greater than `microtime(true)`:
+
+```php
+$this->redis->zAdd($this->scheduleKey, $message->getExecuteAt(), $serialized);
+```
+
+The default schedule key is `hermes_schedule`. Change it with the fourth constructor argument if the default key is already used. The emitter and the worker must use the same key.
+
+Each `wait()` iteration calls `zRangeByScore($scheduleKey, '-inf', $now, ['limit' => [0, 1]])`. For each returned row it calls `pop()`, and `pop()` is `sPop()`. The score that was written with `ZADD` is not what `SPOP` removes. `SPOP` targets a Redis set. Treat delayed execution on `RedisSetDriver` as the code path above, and use Predis when you need the member removed from the sorted set with `ZREM`.
+
+If `pop()` returns a string, the driver unserializes it and calls `send()` with no priority. `send()` sees the same `executeAt`. When that timestamp is still in the future the payload goes back to the sorted set. When it is due, `send()` writes the default priority set (`hermes` unless you changed the key). The original priority is not stored on the message, so a delayed message does not return to `hermes_high`.
+
+## Predis
+
+`send()` delays when `getExecuteAt()` is truthy and greater than now. The write is `zadd($scheduleKey, [$serialized => $executeAt])`.
+
+`wait()` reads with `zrangebyscore` and `LIMIT OFFSET 0 COUNT 1`, then `zrem`s that exact member, then `send()`s it. That `zrem` is the 4.0.1 fix for [issue #48](https://github.com/tomaj/hermes/issues/48). Promotion still uses `send()` without a priority, so the due message joins the default set.
+
+## Retry uses the same field
+
+`Dispatcher` sets `executeAt` from `nextRetry()` and calls `send()`. On Redis and Predis the retry waits. On RabbitMQ and SQS it does not. The formula is on the [Retry](/guide/retry) page.

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img">
+  <title>Queues</title>
+  <rect width="64" height="64" rx="16" fill="#eef2ff"/>
+  
+<rect x="18" y="16" width="28" height="8" rx="2" fill="none" stroke="#4338ca" stroke-width="2"/>
+<rect x="16" y="28" width="32" height="8" rx="2" fill="none" stroke="#0891b2" stroke-width="2"/>
+<rect x="18" y="40" width="28" height="8" rx="2" fill="none" stroke="#4338ca" stroke-width="2"/>
+<path d="M22 20h8M22 32h12M22 44h8" stroke="#4338ca" stroke-width="1.6" stroke-linecap="round"/>
+
+</svg>

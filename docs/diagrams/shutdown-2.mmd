@@ -1,0 +1,12 @@
+sequenceDiagram
+  participant Ops
+  participant Signal
+  participant Driver
+  participant Dispatcher
+  participant Manager
+  Ops->>Signal: shutdown now
+  Driver->>Signal: shouldShutdown at the next loop
+  Driver-->>Dispatcher: ShutdownException
+  Dispatcher->>Dispatcher: notice, then handle returns
+  Manager->>Driver: start worker.php again
+  Note over Signal: a worker that starts later keeps running

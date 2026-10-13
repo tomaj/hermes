@@ -1,0 +1,13 @@
+flowchart TD
+  boot["Dispatcher stores start time"] --> loop["Driver.wait loop"]
+  loop --> early{"ShutdownTrait says stop"}
+  early -->|yes| boom["ShutdownException"]
+  early -->|no| one["take one message and run handlers"]
+  one --> late{"Dispatcher shutdown says stop"}
+  late -->|yes| boom
+  late -->|no| cap{"processed is still under max items"}
+  cap -->|yes| loop
+  cap -->|no| done["wait returns"]
+  boom --> notice["log notice and return from handle"]
+  done --> notice
+  notice --> manager["process manager starts the script again"]

@@ -1,9 +1,18 @@
 # Hermes
 
+<p align="left">
+  <img src="docs/public/logo.svg" alt="Hermes" width="96" height="96" />
+</p>
+
 **Background job processing PHP library**
+
+**Documentation: https://tomaj.github.io/hermes/**
+
+[Getting started](https://tomaj.github.io/hermes/guide/getting-started) · [API reference](https://tomaj.github.io/hermes/api/reference) · [Changelog](https://tomaj.github.io/hermes/changelog)
 
 [![Latest Stable Version](https://img.shields.io/packagist/v/tomaj/hermes.svg)](https://packagist.org/packages/tomaj/hermes)
 [![PHPStan](https://img.shields.io/badge/PHPStan-level%20max-brightgreen.svg)](https://phpstan.org/)
+[![Documentation](https://img.shields.io/badge/docs-5.x-4f46e5.svg)](https://tomaj.github.io/hermes/)
 
 ## What is Hermes?
 
@@ -458,7 +467,17 @@ The coverage reports will be generated in:
 - **HTML report**: `build/coverage/index.html` (open in browser to see line-by-line coverage)
 - **Clover XML**: `build/logs/clover.xml` (for CI/CD integration)
 
-**Online Coverage Reports**: Coverage reports are automatically published to GitHub Pages after each successful test run on the main branch.
+**Online Coverage Reports**: Coverage reports are published with the documentation site after each successful test run on `master`, at [https://tomaj.github.io/hermes/coverage/](https://tomaj.github.io/hermes/coverage/).
+
+## Documentation
+
+- [Documentation](https://tomaj.github.io/hermes/)
+- [Getting started](https://tomaj.github.io/hermes/guide/getting-started)
+- [Concepts](https://tomaj.github.io/hermes/guide/concepts)
+- [Drivers](https://tomaj.github.io/hermes/guide/drivers/)
+- [API reference](https://tomaj.github.io/hermes/api/reference)
+- [Changelog](https://tomaj.github.io/hermes/changelog)
+- [Coverage report](https://tomaj.github.io/hermes/coverage/)
 
 ## Contributing
 

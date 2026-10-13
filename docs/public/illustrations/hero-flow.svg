@@ -1,0 +1,160 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" class="hero-flow" role="img">
+  <title>Messages travel from emit to the queue and then to the worker</title>
+  <style>
+    .panel { fill: var(--hf-card, #ffffff); stroke: var(--hf-line, #c7d2fe); }
+    .wash { fill: var(--hf-bg, #f4f7ff); }
+    .ink { fill: var(--hf-ink, #0f172a); }
+    .muted { fill: var(--hf-muted, #64748b); }
+    .lane-high { fill: var(--hf-high, #4f46e5); }
+    .lane-def { fill: var(--hf-def, #0891b2); }
+    .lane-sched { fill: var(--hf-sched, #d97706); }
+    .route { fill: none; stroke: var(--hf-line); stroke-width: 2; }
+    .paper { fill: var(--hf-paper, #ffffff); }
+    .mover, .mark { opacity: 0; }
+    .m-high { animation: move-high 16s ease-in-out infinite; }
+    .m-def { animation: move-def 16s ease-in-out infinite; }
+    .m-sched { animation: move-sched 16s ease-in-out infinite; }
+    .m-fail { animation: move-fail 16s ease-in-out infinite; }
+    .tick-high { animation: tick-high 16s ease-in-out infinite; }
+    .tick-def { animation: tick-def 16s ease-in-out infinite; }
+    .tick-sched { animation: tick-sched 16s ease-in-out infinite; }
+    .tick-retry { animation: tick-retry 16s ease-in-out infinite; }
+    .cross { animation: show-cross 16s ease-in-out infinite; }
+    .tick-static { opacity: 0; }
+    @keyframes move-high {
+      0% { transform: translate(72px, 150px); opacity: 0; }
+      5% { opacity: 1; }
+      20% { transform: translate(372px, 100px); opacity: 1; }
+      32% { transform: translate(372px, 100px); }
+      46% { transform: translate(500px, 150px); }
+      58% { opacity: 1; }
+      66% { opacity: 0; }
+      100% { transform: translate(72px, 150px); opacity: 0; }
+    }
+    @keyframes move-def {
+      0%, 8% { transform: translate(72px, 176px); opacity: 0; }
+      14% { opacity: 1; }
+      30% { transform: translate(372px, 142px); opacity: 1; }
+      44% { transform: translate(372px, 142px); }
+      58% { transform: translate(500px, 168px); }
+      68% { opacity: 1; }
+      76% { opacity: 0; }
+      100% { transform: translate(72px, 176px); opacity: 0; }
+    }
+    @keyframes move-sched {
+      0%, 12% { transform: translate(72px, 202px); opacity: 0; }
+      18% { opacity: 1; }
+      34% { transform: translate(372px, 208px); opacity: 1; }
+      58% { transform: translate(372px, 208px); }
+      72% { transform: translate(500px, 186px); }
+      82% { opacity: 1; }
+      90% { opacity: 0; }
+      100% { transform: translate(72px, 202px); opacity: 0; }
+    }
+    @keyframes move-fail {
+      0%, 46% { transform: translate(72px, 188px); opacity: 0; }
+      52% { opacity: 1; transform: translate(500px, 132px); }
+      60% { opacity: 1; transform: translate(500px, 132px); }
+      74% { transform: translate(300px, 292px); opacity: 1; }
+      88% { transform: translate(500px, 150px); }
+      96% { opacity: 0; }
+      100% { transform: translate(72px, 188px); opacity: 0; }
+    }
+    @keyframes tick-high {
+      0%, 44% { opacity: 0; }
+      50%, 60% { opacity: 1; }
+      68%, 100% { opacity: 0; }
+    }
+    @keyframes tick-def {
+      0%, 56% { opacity: 0; }
+      62%, 70% { opacity: 1; }
+      78%, 100% { opacity: 0; }
+    }
+    @keyframes tick-sched {
+      0%, 70% { opacity: 0; }
+      76%, 84% { opacity: 1; }
+      92%, 100% { opacity: 0; }
+    }
+    @keyframes show-cross {
+      0%, 50% { opacity: 0; }
+      54%, 62% { opacity: 1; }
+      70%, 100% { opacity: 0; }
+    }
+    @keyframes tick-retry {
+      0%, 84% { opacity: 0; }
+      88%, 94% { opacity: 1; }
+      98%, 100% { opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .mover, .mark { animation: none; }
+      .m-high { transform: translate(372px, 100px); opacity: 1; }
+      .m-def { transform: translate(372px, 142px); opacity: 1; }
+      .m-sched { transform: translate(372px, 208px); opacity: 1; }
+      .m-fail, .cross, .tick-high, .tick-def, .tick-sched, .tick-retry { opacity: 0; }
+      .tick-static { opacity: 1; }
+    }
+  </style>
+  <rect class="wash" width="640" height="360" rx="28"/>
+  <path class="route" d="M176 168 H250"/>
+  <path class="route" d="M430 110 H470"/>
+  <path class="route" d="M430 168 H470"/>
+  <path class="route" d="M430 230 H470"/>
+  <path class="route" d="M520 250 C520 310, 300 318, 268 250" stroke-dasharray="5 4"/>
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <rect class="panel" x="28" y="78" width="156" height="168" rx="16"/>
+    <text class="muted" x="46" y="112" font-size="13">Web app</text>
+    <text class="ink" x="46" y="142" font-size="20" font-weight="700">emit()</text>
+    <rect class="panel" x="236" y="48" width="196" height="230" rx="16"/>
+    <text class="muted" x="254" y="78" font-size="13">Queue</text>
+    <rect class="lane-high" x="254" y="94" width="160" height="28" rx="8" opacity="0.16"/>
+    <text class="ink" x="266" y="113" font-size="13">high</text>
+    <rect class="lane-def" x="254" y="136" width="160" height="28" rx="8" opacity="0.16"/>
+    <text class="ink" x="266" y="155" font-size="13">default</text>
+    <rect class="lane-sched" x="254" y="202" width="160" height="28" rx="8" opacity="0.2"/>
+    <text class="ink" x="266" y="221" font-size="13">scheduled</text>
+    <rect class="panel" x="468" y="78" width="148" height="168" rx="16"/>
+    <text class="muted" x="486" y="112" font-size="13">Worker</text>
+    <text class="ink" x="486" y="142" font-size="20" font-weight="700">handle()</text>
+    <text class="muted" x="250" y="308" font-size="12">retry</text>
+  </g>
+  <g class="mark tick-static" transform="translate(500 168)">
+    <circle cx="11" cy="11" r="11" fill="var(--hf-ok)"/>
+    <path d="M6 11 l3 3 7-7" fill="none" class="paper" stroke="var(--hf-paper)" stroke-width="2" stroke-linecap="round"/>
+  </g>
+  <g class="mark tick-high" transform="translate(500 150)">
+    <circle cx="11" cy="11" r="11" fill="var(--hf-ok)"/>
+    <path d="M6 11 l3 3 7-7" fill="none" stroke="var(--hf-paper)" stroke-width="2" stroke-linecap="round"/>
+  </g>
+  <g class="mark tick-def" transform="translate(522 168)">
+    <circle cx="11" cy="11" r="11" fill="var(--hf-ok)"/>
+    <path d="M6 11 l3 3 7-7" fill="none" stroke="var(--hf-paper)" stroke-width="2" stroke-linecap="round"/>
+  </g>
+  <g class="mark tick-sched" transform="translate(500 186)">
+    <circle cx="11" cy="11" r="11" fill="var(--hf-ok)"/>
+    <path d="M6 11 l3 3 7-7" fill="none" stroke="var(--hf-paper)" stroke-width="2" stroke-linecap="round"/>
+  </g>
+  <g class="mark tick-retry" transform="translate(522 150)">
+    <circle cx="11" cy="11" r="11" fill="var(--hf-ok)"/>
+    <path d="M6 11 l3 3 7-7" fill="none" stroke="var(--hf-paper)" stroke-width="2" stroke-linecap="round"/>
+  </g>
+  <g class="mark cross" transform="translate(500 128)">
+    <circle cx="11" cy="11" r="11" fill="var(--hf-bad)"/>
+    <path d="M7 7 l8 8 M15 7 l-8 8" fill="none" stroke="var(--hf-paper)" stroke-width="2" stroke-linecap="round"/>
+  </g>
+  <g class="mover m-high">
+    <rect width="26" height="16" rx="3" class="lane-high"/>
+    <path d="M2 3 L13 10 L24 3" fill="none" class="paper" stroke="var(--hf-paper)" stroke-width="1.5"/>
+  </g>
+  <g class="mover m-def">
+    <rect width="26" height="16" rx="3" class="lane-def"/>
+    <path d="M2 3 L13 10 L24 3" fill="none" stroke="var(--hf-paper)" stroke-width="1.5"/>
+  </g>
+  <g class="mover m-sched">
+    <rect width="26" height="16" rx="3" class="lane-sched"/>
+    <path d="M2 3 L13 10 L24 3" fill="none" stroke="var(--hf-paper)" stroke-width="1.5"/>
+  </g>
+  <g class="mover m-fail">
+    <rect width="26" height="16" rx="3" fill="var(--hf-bad)"/>
+    <path d="M2 3 L13 10 L24 3" fill="none" stroke="var(--hf-paper)" stroke-width="1.5"/>
+  </g>
+</svg>

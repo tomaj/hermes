@@ -1,0 +1,9 @@
+flowchart TD
+  thrown["handler throws"] --> logged["error log, and Tracy if Debugger is enabled"]
+  logged --> room{"canRetry and maxRetry exist, and getRetries is below maxRetry?"}
+  room -->|no| stop["no new message"]
+  room -->|yes| copy["new Message: same id, retries plus 1, executeAt is nextRetry"]
+  copy --> send["driver.send with default priority"]
+  send --> honor{"driver stores executeAt?"}
+  honor -->|"Redis or Predis"| waitq["sorted set until due"]
+  honor -->|"RabbitMQ or SQS"| now["published now"]

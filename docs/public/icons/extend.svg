@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img">
+  <title>Extend</title>
+  <rect width="64" height="64" rx="16" fill="#eef2ff"/>
+  
+<rect x="14" y="26" width="16" height="16" rx="3" fill="none" stroke="#4338ca" stroke-width="2.2"/>
+<rect x="34" y="22" width="16" height="16" rx="3" fill="none" stroke="#0891b2" stroke-width="2.2"/>
+<path d="M30 34h4M38 30v-6M46 30v-6M34 22h16" fill="none" stroke="#0891b2" stroke-width="2.2" stroke-linecap="round"/>
+<path d="M22 26v-4h8" fill="none" stroke="#4338ca" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+
+</svg>

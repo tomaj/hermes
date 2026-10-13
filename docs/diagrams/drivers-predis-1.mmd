@@ -1,0 +1,12 @@
+sequenceDiagram
+  participant Worker
+  participant Redis
+  participant Handler
+  loop until shutdown or max items
+    Worker->>Redis: ZRANGEBYSCORE schedule, now, LIMIT 1
+    Worker->>Redis: ZREM the member that was read
+    Worker->>Worker: unserialize and send again
+    Worker->>Redis: SPOP the first selected priority key
+    Redis-->>Worker: member or null
+    Worker->>Handler: callback message, priority
+  end

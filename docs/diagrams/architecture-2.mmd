@@ -1,0 +1,18 @@
+sequenceDiagram
+  participant App
+  participant Emitter
+  participant Driver
+  participant Dispatcher
+  participant Handler
+  App->>Emitter: emit message, priority
+  Emitter->>Driver: send
+  Emitter-->>App: return
+  Dispatcher->>Driver: wait
+  Driver-->>Dispatcher: callback message, priority
+  Dispatcher->>Handler: handle
+  alt returns
+    Handler-->>Dispatcher: true or false
+  else throws
+    Handler-->>Dispatcher: exception
+    Dispatcher->>Driver: maybe send a retry copy
+  end

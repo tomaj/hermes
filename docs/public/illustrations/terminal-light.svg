@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 280" role="img">
+  <title>EchoHandler output from the Redis worker</title>
+  <rect width="920" height="280" rx="18" fill="#e2e8f0"/>
+  <rect x="0" y="0" width="920" height="42" rx="18" fill="#f8fafc"/>
+  <rect x="0" y="24" width="920" height="18" fill="#f8fafc"/>
+  <circle cx="24" cy="21" r="6" fill="#fb7185"/>
+  <circle cx="46" cy="21" r="6" fill="#fbbf24"/>
+  <circle cx="68" cy="21" r="6" fill="#34d399"/>
+  <text x="360" y="26" fill="#64748b" font-size="13" font-family="ui-sans-serif, system-ui, sans-serif">worker.php</text>
+  <rect x="8" y="42" width="904" height="230" fill="#ffffff"/>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+    <text x="28" y="78" fill="#4f46e5" font-size="15">$ php examples/redis/processor.php</text><text x="28" y="114" fill="#047857" font-size="15">Received message: #6f1c0a2e-9b44-4d1a-8c33-0a9e5d77b214 (type type1)</text><text x="28" y="150" fill="#0e7490" font-size="15">Payload: {"message":1}</text><text x="28" y="186" fill="#047857" font-size="15">Received message: #91ab77d0-2c10-4e55-9f01-66c31a0e88d2 (type type1)</text><text x="28" y="222" fill="#0e7490" font-size="15">Payload: {"message":2}</text>
+  </g>
+</svg>

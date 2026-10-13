@@ -1,0 +1,9 @@
+flowchart TD
+  result["handler.handle returns or throws"] --> ok{"thrown?"}
+  ok -->|no| bool["true or false is only a boolean"]
+  ok -->|yes| retry{"RetryTrait methods exist and retries remain?"}
+  retry -->|yes| copy["a new message is sent"]
+  retry -->|no| gone["nothing is sent"]
+  bool --> gone2["the original delivery was already removed"]
+  copy --> gone2
+  gone --> gone2

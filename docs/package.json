@@ -1,0 +1,23 @@
+{
+  "name": "hermes-docs",
+  "version": "1.0.0",
+  "description": "Documentation for tomaj/hermes",
+  "private": true,
+  "scripts": {
+    "docs:dev": "vitepress dev",
+    "docs:build": "vitepress build",
+    "docs:preview": "vitepress preview",
+    "docs:links": "bash scripts/check-links.sh",
+    "diagrams": "node scripts/render-diagrams.mjs",
+    "diagrams:check": "node scripts/render-diagrams.mjs --check"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@excalidraw/mermaid-to-excalidraw": "2.2.2",
+    "@excalidraw/utils": "0.1.5",
+    "esbuild": "0.28.2",
+    "linkinator": "6.1.2",
+    "puppeteer-core": "25.13.0",
+    "vitepress": "1.6.4"
+  }
+}

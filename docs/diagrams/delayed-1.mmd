@@ -1,0 +1,12 @@
+flowchart TD
+  send["Driver.send"] --> future{"executeAt set and greater than now"}
+  future -->|"RedisSetDriver"| zadd["ZADD hermes_schedule"]
+  future -->|"PredisSetDriver"| zadd2["zadd hermes_schedule"]
+  future -->|"null, due, RabbitMQ, or SQS"| live["live queue immediately"]
+  zadd --> worker["worker loop"]
+  zadd2 --> worker
+  worker --> read["read one due member"]
+  read --> predis["Predis ZREM that member, then send"]
+  read --> redis["ext-redis SPOP the schedule key, then send"]
+  predis --> live
+  redis --> live
