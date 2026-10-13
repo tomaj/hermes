@@ -1,3 +1,8 @@
+---
+title: "Delayed execution"
+description: "Run a message later with executeAt on Redis and Predis, and why RabbitMQ and SQS deliver at once."
+---
+
 # Delayed execution
 
 Since 2.0 a message can carry `executeAt`, a `microtime(true)` timestamp. The fourth constructor argument is `created`. The fifth is `executeAt`.
@@ -13,7 +18,7 @@ $message = new Message('send-email', [
 $emitter->emit($message);
 ```
 
-<Diagram name="delayed-1" alt="Delayed execution diagram" />
+<Diagram name="delayed-1" alt="Driver.send checks executeAt: Redis and Predis put future messages in the schedule set, the worker moves them to the live queue when due" />
 
 Supported drivers are `RedisSetDriver` and `PredisSetDriver`. `LazyRabbitMqDriver::send()` and `AmazonSqsDriver::send()` do not read `getExecuteAt()`.
 
@@ -40,3 +45,25 @@ If `pop()` returns a string, the driver unserializes it and calls `send()` with 
 ## Retry uses the same field
 
 `Dispatcher` sets `executeAt` from `nextRetry()` and calls `send()`. On Redis and Predis the retry waits. On RabbitMQ and SQS it does not. The formula is on the [Retry](/guide/retry) page.
+
+## FAQ
+
+### How do I delay a message?
+
+Pass a Unix timestamp as the fifth `Message` argument, `executeAt`, for example `microtime(true) + 3600`. The [delayed reminder](/examples/reminder) recipe shows a complete example.
+
+### Which drivers support delays?
+
+Predis delays and promotes reliably. `RedisSetDriver` writes the sorted set, but its promotion step uses `SPOP` on a sorted set, so due messages stay there. RabbitMQ and SQS deliver at once.
+
+### Where are delayed messages stored?
+
+In the sorted set `hermes_schedule` by default, scored by `executeAt`. The emitter and the worker must use the same schedule key.
+
+### Does a delayed message keep its priority?
+
+No. When it is due, the driver calls `send()` without a priority, so it lands on the default priority 100.
+
+### What if no worker is running when the message is due?
+
+Nothing is lost. Due messages are moved only inside `wait()`, so the message runs as soon as a worker starts.

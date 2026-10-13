@@ -1,3 +1,8 @@
+---
+title: "Priority"
+description: "Priority queues on the Redis drivers, the polling order from issue 50, and running a worker per priority."
+---
+
 # Priority
 
 Priority is an integer you pass to `emit()` or `send()`, and a name you bind to that integer with `setupPriorityQueue()`. Higher numbers are the ones you intend to run first. `Dispatcher::DEFAULT_PRIORITY` is `100`.
@@ -16,7 +21,7 @@ The constructor already registered the main key (`hermes` by default) at priorit
 
 Register the same pairs on the worker. A priority that was not registered throws `UnknownPriorityException` (`Unknown priority 110` if 110 was never set up).
 
-<Diagram name="priority-1" alt="Priority diagram" />
+<Diagram name="priority-1" alt="Priority queues are registered in order and the worker polls them in reverse insertion order" />
 
 ## Issue 50
 
@@ -63,3 +68,25 @@ Give the 110 process more replicas than the others. Each process only `SPOP`s it
 - A set is unordered. Two messages on `hermes_high` come off with `SPOP`, which is not FIFO.
 - Retries and promoted delayed messages call `send()` without a priority, so they join key `hermes` at 100.
 - The message JSON has no priority field. A worker cannot recover the original integer from the payload.
+
+## FAQ
+
+### Which drivers support priorities?
+
+Only `RedisSetDriver` and `PredisSetDriver`. RabbitMQ and SQS throw `NotSupportedException` from `setupPriorityQueue()`.
+
+### Why did a lower priority run first?
+
+The Redis drivers poll queues in reverse registration order, not by number. Priority 100 is registered first by the constructor. See issue [#50](https://github.com/tomaj/hermes/issues/50) and the [priority recipe](/examples/priority).
+
+### How do I get strict numeric order?
+
+Run one worker per priority with `handle([110])`, `handle([100])`, and so on, and scale them separately. Or register only priorities above 100, in ascending order.
+
+### Do I have to register priorities on both sides?
+
+Yes. The emitter and every worker call `setupPriorityQueue()` with the same pairs. An unknown priority throws `UnknownPriorityException`.
+
+### Are messages within one priority FIFO?
+
+No. Each priority is a Redis set, and `SPOP` returns a random member.

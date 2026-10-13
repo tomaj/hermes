@@ -1,8 +1,13 @@
+---
+title: "Getting started"
+description: "Install Hermes 5.x, emit a message from a web request, and run a PHP worker that handles it."
+---
+
 # Getting started
 
 Hermes 5.x is a PHP library. There is no Hermes binary. A web request constructs a `Message` and passes it to `Emitter`. A separate PHP CLI process constructs a `Dispatcher`, registers handlers, and calls `handle()`, which blocks.
 
-<Diagram name="getting-started-1" alt="Getting started diagram" />
+<Diagram name="getting-started-1" alt="Sequence: the app emits a message, the emitter sends it to the driver, and the dispatcher waits, receives it, and calls the handler" />
 
 The package constraint in `composer.json` is `php: ^8.4`. CI runs PHP 8.4, PHP 8.4 with the lowest dependencies, and PHP 8.5.
 
@@ -134,3 +139,25 @@ Returning `false` does not put the message back. The Redis driver has already re
 - [Concepts](/guide/concepts) for the five types you actually call.
 - [Redis](/guide/drivers/redis) or [Predis](/guide/drivers/predis) for the connection you have.
 - [Production deployment](/guide/deployment) when the worker should survive a deploy.
+
+## FAQ
+
+### Does Hermes need a server or daemon of its own?
+
+No. Hermes is a PHP library. Your web code emits messages, and a PHP CLI script that you write runs the worker with `Dispatcher::handle()`. The only shared piece is the broker: Redis, RabbitMQ, or SQS.
+
+### Which driver should I start with?
+
+Use `PredisSetDriver` if you cannot install a PHP extension, or `RedisSetDriver` if you already have phpredis. Both support priorities. Only Predis moves delayed messages and retries back to the queue reliably in 5.x. See the [driver comparison](/guide/drivers/).
+
+### Can I call `handle()` from a web request?
+
+No. `handle()` blocks until shutdown, max items, or a driver error. Run it in a separate CLI process under a process manager. See [Production deployment](/guide/deployment).
+
+### What should a handler return?
+
+`true` when the work succeeded and `false` when it failed for good. Throw an exception when a later attempt could succeed: with `RetryTrait` the dispatcher then sends a retry copy. See [Retry](/guide/retry).
+
+### Is there a complete project I can copy?
+
+Yes. The [welcome email tutorial](/examples/welcome-email) builds an app from an empty folder, with Redis and Mailpit in Docker Compose, a real email handler, retries, a test, and Supervisor.

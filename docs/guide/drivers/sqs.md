@@ -1,3 +1,8 @@
+---
+title: "Amazon SQS driver"
+description: "AmazonSqsDriver for Hermes: queue creation, receive and delete, IAM permissions, and what it does not support."
+---
+
 # Amazon SQS
 
 `Tomaj\Hermes\Driver\AmazonSqsDriver` needs `aws/aws-sdk-php` 3.x, which is what `composer.json` suggests (`aws/aws-sdk-php: 3.*`). The class docblock still shows the AWS SDK v2 `SqsClient::factory()` and `Aws\Common\Aws` examples. The code and `examples/sqs` use an SDK v3 client.
@@ -58,11 +63,11 @@ There is no public sleep setting. `$sleepInterval` is a private `0` and nothing 
 
 `WaitTimeSeconds` is `1`. The constructor can pass `VisibilityTimeout` through to `createQueue`, as a string attribute. The worker never calls `ChangeMessageVisibility`. It deletes the message before `handle()`, so the visibility window does not cover handler runtime. Once `deleteMessage` succeeds, a crash inside the handler does not put that SQS message back.
 
-<Diagram name="drivers-sqs-1" alt="Emit and handle diagram" />
+<Diagram name="drivers-sqs-1" alt="Sequence: the worker creates the queue, receives a message, deletes it, then runs the handler" />
 
 ## Receive and delete
 
-<Diagram name="drivers-sqs-2" alt="Receive and delete diagram" />
+<Diagram name="drivers-sqs-2" alt="Sequence of the SQS receive loop: receiveMessage, deleteMessage, then unserialize and callback" />
 
 `wait()` reads `$result['Messages']`. For each entry it deletes by `ReceiptHandle`, unserializes `Body`, and only then calls the dispatcher callback. `incrementProcessedItems()` runs after the callback.
 
@@ -71,3 +76,25 @@ If the handler throws, the SQS message is already deleted. [Retry](/guide/retry)
 `$priorities` is unused.
 
 `SharedFileShutdown` works here. Pass it to the `Dispatcher` constructor. The driver uses `ShutdownTrait`, so the constructor forwards it and `wait()` checks it at the start of each loop.
+
+## FAQ
+
+### Which AWS SDK version do I need?
+
+`aws/aws-sdk-php` 3.x.
+
+### Why does the emitter need permission to create queues?
+
+The constructor calls `createQueue` on every construction, in the web process and in the worker.
+
+### Does the visibility timeout protect a slow handler?
+
+No. The driver deletes the message before calling the handler.
+
+### Do delays or retries wait?
+
+No. `executeAt` is not turned into an SQS delay, so messages and retries are visible at once.
+
+### Does the worker sleep on an empty queue?
+
+It waits with `WaitTimeSeconds` 1 on `receiveMessage`. There is no extra sleep setting.

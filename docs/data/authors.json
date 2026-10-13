@@ -1,0 +1,57 @@
+{
+  "maintainer": {
+    "login": "tomaj",
+    "name": "Tomas Majer",
+    "avatar": "https://avatars.githubusercontent.com/u/446736?v=4&s=192",
+    "url": "https://github.com/tomaj",
+    "company": "Resco.net",
+    "location": "Slovakia",
+    "blog": "https://tomaj.sk/",
+    "twitter": "tommaj",
+    "githubSince": "2010"
+  },
+  "contributors": [
+    {
+      "login": "tomaj",
+      "avatar": "https://avatars.githubusercontent.com/u/446736?v=4&s=96",
+      "url": "https://github.com/tomaj",
+      "commits": 219
+    },
+    {
+      "login": "lulco",
+      "avatar": "https://avatars.githubusercontent.com/u/9377319?v=4&s=96",
+      "url": "https://github.com/lulco",
+      "commits": 7
+    },
+    {
+      "login": "markoph",
+      "avatar": "https://avatars.githubusercontent.com/u/6843562?v=4&s=96",
+      "url": "https://github.com/markoph",
+      "commits": 4
+    },
+    {
+      "login": "burithetech",
+      "avatar": "https://avatars.githubusercontent.com/u/3502143?v=4&s=96",
+      "url": "https://github.com/burithetech",
+      "commits": 3
+    },
+    {
+      "login": "rootpd",
+      "avatar": "https://avatars.githubusercontent.com/u/812909?v=4&s=96",
+      "url": "https://github.com/rootpd",
+      "commits": 3
+    },
+    {
+      "login": "MarkusBauer",
+      "avatar": "https://avatars.githubusercontent.com/u/9571253?v=4&s=96",
+      "url": "https://github.com/MarkusBauer",
+      "commits": 1
+    },
+    {
+      "login": "ricco24",
+      "avatar": "https://avatars.githubusercontent.com/u/1409647?v=4&s=96",
+      "url": "https://github.com/ricco24",
+      "commits": 1
+    }
+  ]
+}

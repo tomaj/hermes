@@ -1,13 +1,16 @@
+---
+title: "Production deployment"
+description: "Run Hermes workers in production with Supervisor, systemd, or Kubernetes, scale them, and restart them on deploy."
+---
+
 # Production deployment
 
 Run the worker as a CLI process that is allowed to block. Keep the web nodes on `Emitter` only. Share the queue, not the PHP objects.
 
-<Diagram name="deployment-1" alt="Production deployment diagram" />
-
-<Diagram name="deployment-2" alt="Production deployment diagram" />
-
-<img class="theme-img only-light" src="/illustrations/workers-light.svg" alt="One Redis set with three worker processes" />
-<img class="theme-img only-dark" src="/illustrations/workers-dark.svg" alt="" />
+<DiagramTabs :tabs="[
+  { label: 'Scaling', name: 'deployment-2', alt: 'Two web replicas emit into Redis, RabbitMQ, or SQS, and three worker replicas take messages from it' },
+  { label: 'Restart on deploy', name: 'deployment-1', alt: 'Web replicas emit into one broker. Supervisor, systemd template units, or Kubernetes replicas run the workers, and a shutdown signal makes the manager start the new process' },
+]" />
 
 Each worker is the same script. Redis `SPOP` gives a member to one connection. RabbitMQ and SQS do that inside the broker. Hermes does not elect a leader.
 
@@ -129,3 +132,25 @@ Readiness probes do not fit a process that never opens a port. Leave the worker 
 - RabbitMQ queues from this library are non-durable unless you declare them yourself.
 - SQS credentials can `createQueue`, because the driver constructor does.
 - Logs go to a PSR-3 logger. `EchoHandler` stdout is only the two lines it `echo`s.
+
+## FAQ
+
+### How many workers should I run?
+
+Start with one per CPU core for CPU-bound handlers, more for I/O-bound ones such as email or HTTP. Add processes until the queue stays short.
+
+### Supervisor, systemd, or Kubernetes?
+
+Any of them works. The worker is a plain CLI script that exits on shutdown or max items, and the manager starts it again. Pick the one you already run.
+
+### How do I deploy new code without losing messages?
+
+Run the shutdown signal as the last deploy step. Workers finish their current message, exit, and the manager starts them on the new code. See [Shutdown](/guide/shutdown).
+
+### Do workers need a health check port?
+
+No. A worker opens no port. Use a process liveness check, not an HTTP readiness probe.
+
+### Should web servers run workers too?
+
+They can, but keep `handle()` out of the web path. Web nodes only need `Emitter`.

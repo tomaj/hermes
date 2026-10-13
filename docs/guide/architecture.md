@@ -1,12 +1,17 @@
+---
+title: "Architecture"
+description: "How Hermes splits work between the web process and the worker, when a message is removed, and what crosses the queue."
+---
+
 # Architecture
 
 Hermes is a library inside your process. The queue is the only thing shared between the request and the worker.
 
-<Diagram name="architecture-1" alt="Architecture diagram" />
+<Diagram name="architecture-1" alt="The controller emits through the Emitter and Driver.send into the broker, and Driver.wait hands messages to the Dispatcher and handler" />
 
 `emit()` returns as soon as `send()` returns. `handle()` is the call that blocks. The handler never runs in the request that emitted the message.
 
-<Diagram name="architecture-2" alt="Architecture diagram" />
+<Diagram name="architecture-2" alt="Sequence of one message from the app through Emitter, Driver, and Dispatcher to the Handler and back" />
 
 ## What crosses the process boundary
 
@@ -48,3 +53,25 @@ Start the same script more than once. Redis `SPOP` removes a member, so two work
 - It does not sort priority numbers. [Issue #50](https://github.com/tomaj/hermes/issues/50) describes the order `wait()` actually uses.
 - It does not delay RabbitMQ or SQS messages. `executeAt` is stored in the JSON and ignored by those `send()` methods.
 - It does not ship a ZeroMQ driver. That driver left the package in 3.0.0 and lives in [tomaj/hermes-zmq-driver](https://github.com/tomaj/hermes-zmq-driver).
+
+## FAQ
+
+### What crosses from the web process to the worker?
+
+Only the serialized message JSON: id, type, created, payload, execute_at, and retries. Handlers, loggers, and connections are built separately in each process.
+
+### When is a message removed from the broker?
+
+Before the handler finishes, on every built-in driver: `SPOP` on Redis, `no_ack` on RabbitMQ, `deleteMessage` on SQS. A crash during `handle()` loses that delivery.
+
+### Is delivery at-least-once or at-most-once?
+
+At-most-once for a single delivery. A thrown exception can publish a new copy through [Retry](/guide/retry), but a killed process cannot.
+
+### Do several workers coordinate?
+
+No. Each worker pops from the broker, and the broker hands each message to one of them. Start more processes to scale. See [Production deployment](/guide/deployment).
+
+### Does Hermes delay messages on RabbitMQ or SQS?
+
+No. `executeAt` is stored in the JSON and ignored by those drivers, so the message is delivered at once. See [Delayed execution](/guide/delayed).

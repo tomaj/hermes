@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitepress'
 import { navEn, sidebar5x } from '../site-nav'
+import { seoHead, siteUrl } from './seo'
 
 const descriptionEn = 'PHP library for background jobs on Redis, RabbitMQ, and Amazon SQS'
 
@@ -12,18 +13,17 @@ export default defineConfig({
   head: [
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/hermes/favicon.svg' }],
     ['meta', { name: 'theme-color', content: '#4f46e5' }],
-    ['meta', { property: 'og:type', content: 'website' }],
-    ['meta', { property: 'og:title', content: 'Hermes - background jobs for PHP' }],
-    ['meta', { property: 'og:description', content: descriptionEn }],
-    ['meta', { property: 'og:url', content: 'https://tomaj.github.io/hermes/' }],
-    ['meta', { property: 'og:image', content: 'https://tomaj.github.io/hermes/og.svg' }],
-    ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
-    ['meta', { name: 'twitter:title', content: 'Hermes - background jobs for PHP' }],
-    ['meta', { name: 'twitter:description', content: descriptionEn }],
-    ['meta', { name: 'twitter:image', content: 'https://tomaj.github.io/hermes/og.svg' }],
   ],
 
   lastUpdated: true,
+
+  sitemap: {
+    hostname: siteUrl,
+  },
+
+  transformHead({ pageData, siteConfig }) {
+    return seoHead(pageData, siteConfig.srcDir, descriptionEn)
+  },
 
 
   // English is the only locale today. A `sk` locale can be added beside `root`

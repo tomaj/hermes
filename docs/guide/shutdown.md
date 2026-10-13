@@ -1,8 +1,13 @@
+---
+title: "Shutdown and max items"
+description: "Stop Hermes workers gracefully with a file or a Redis key, and recycle them after N messages."
+---
+
 # Shutdown and max items
 
 Hermes can leave `Dispatcher::handle()`. It cannot start the process again. Supervisor, systemd, or Kubernetes does that. The old `Restart*` names were removed in 4.0.0.
 
-<Diagram name="shutdown-1" alt="Shutdown and max items diagram" />
+<Diagram name="shutdown-1" alt="The worker loop checks the shutdown signal and max items, then exits so the process manager starts it again" />
 
 Pass the shutdown object to the dispatcher. If the driver has `setShutdown()`, the constructor calls it, so both checks run. The four built-in drivers use `ShutdownTrait`.
 
@@ -14,7 +19,7 @@ The examples also call `$driver->setShutdown()` themselves. That is enough for t
 
 `ShutdownException` extends `HermesException`. `handle()` catches it, logs `Exiting hermes dispatcher - shutdown` at `notice`, and returns. Other exceptions that escape `wait()` are caught separately. When `Tracy\Debugger::isEnabled()` is true they are passed to `Debugger::log($exception, Debugger::EXCEPTION)`. Hermes does not call `Debugger::enable()` for you.
 
-<Diagram name="shutdown-2" alt="Shutdown and max items diagram" />
+<Diagram name="shutdown-2" alt="Sequence: an operator sets the shutdown signal, the running worker finishes its message and exits, and the manager starts a new one" />
 
 ## SharedFileShutdown
 
@@ -90,3 +95,25 @@ $driver->setMaxProcessItems(1000);
 The process then exits `handle()` with no `ShutdownException`. A process manager with `autorestart` or `Restart=always` starts a new one. That is the memory-cap pattern: recycle every N messages instead of running one PHP process forever.
 
 `processed()` returns the current count. `incrementProcessedItems()` is public and is what the drivers call. You do not need to call it yourself.
+
+## FAQ
+
+### How do I stop workers after a deploy?
+
+Call `shutdown()` on the same `RedisShutdown`, `PredisShutdown`, or `SharedFileShutdown` that the workers use. Each worker finishes its current message and returns from `handle()`.
+
+### Will the new workers stop too?
+
+No. Workers that started after the shutdown time keep running, because the signal is compared with each worker's start time.
+
+### Does Hermes restart the process?
+
+No. Use Supervisor, systemd, or Kubernetes to start a new process when the old one exits. See [Production deployment](/guide/deployment).
+
+### What does `setMaxProcessItems()` do?
+
+It makes `wait()` return after N handled messages, so the process exits cleanly and the process manager starts a fresh one. `0` means no limit.
+
+### Does Hermes handle SIGTERM?
+
+No. There is no `pcntl` handler. A process killed during `handle()` loses the message it already took, so give the process manager a stop timeout longer than one message.

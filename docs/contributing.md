@@ -1,3 +1,8 @@
+---
+title: "Contributing"
+description: "How to contribute to Hermes: coding style, tests, checks, and how to change the documentation diagrams."
+---
+
 # Contributing
 
 Pull requests are welcome on [tomaj/hermes](https://github.com/tomaj/hermes). [CONTRIBUTING.md](https://github.com/tomaj/hermes/blob/master/CONTRIBUTING.md) is the project policy. This page matches that file. Participation follows the [code of conduct](https://github.com/tomaj/hermes/blob/master/CODE_OF_CONDUCT.md).
@@ -52,3 +57,25 @@ Do not open a public issue for a vulnerability. Use [private vulnerability repor
 ## License
 
 Contributions are under the [MIT license](https://github.com/tomaj/hermes/blob/master/LICENSE.md).
+
+## FAQ
+
+### Which checks must pass?
+
+PHPUnit, PHP-CS-Fixer, PHPStan level max, `composer audit`, Infection, and the docs diagram and link checks.
+
+### How do I change a diagram?
+
+Edit `docs/diagrams/<name>.json` or `.mmd`, run `npm run diagrams` in `docs/`, and commit the source and the three generated files.
+
+### Can I document a planned 6.x feature?
+
+Not on the 5.x pages. See [Versioning docs](/guide/versioning).
+
+### Which branch should a pull request come from?
+
+A feature branch, one change per pull request.
+
+### Where do I preview the docs?
+
+Run `npm run docs:dev` in `docs/`.

@@ -1,10 +1,15 @@
+---
+title: "Testing"
+description: "Test Hermes handlers without Redis, run the library test suite, coverage, and mutation testing."
+---
+
 # Testing
 
 The test suite is PHPUnit 13, configured in `phpunit.xml`. Tests live in `tests/` under `Tomaj\Hermes\Test\`. Risky tests and warnings fail the run.
 
 A handler test does not need Redis. Call `handle()` with a `Message`, or put that message in `DummyDriver` and call `Dispatcher::handle()`. `DummyDriver` lives in `tests/` and is not a class you install.
 
-<Diagram name="testing-1" alt="Testing diagram" />
+<Diagram name="testing-1" alt="Testing a handler directly with a new Message, or through DummyDriver and Dispatcher.handle" />
 
 ## Commands
 
@@ -73,3 +78,25 @@ Driver tests that need a server mock the client (`Redis`, `Predis\Client`, `SqsC
 | CodeQL Security Analysis | push and pull request to `master`, and a weekly schedule |
 | OpenSSF Scorecard | push and pull request to `master`, branch protection changes, and a weekly schedule |
 | Deploy Documentation | diagram, link, and SVG checks on pull requests and pushes; Pages deploy after CI succeeds on `master` |
+
+## FAQ
+
+### How do I test a handler?
+
+Call `handle()` directly with a `new Message(...)` and assert the result and side effects. No Redis or worker is needed. The [welcome email tutorial](/examples/welcome-email#_9-test-the-handler) has a complete PHPUnit test.
+
+### Can I install `DummyDriver`?
+
+No. It lives in `tests/` of this repository. Copy the idea, an in-memory `DriverInterface`, into your own test suite.
+
+### Do the Hermes tests need Redis or RabbitMQ?
+
+No. Driver tests mock the clients, so `composer phpunit` runs without any server.
+
+### Is there a `composer test` script?
+
+No. Use `composer phpunit` or `make test`.
+
+### Why does `DummyDriver` order priorities differently from Redis?
+
+It sorts priorities numerically. The Redis drivers do not. See [Priority](/guide/priority).

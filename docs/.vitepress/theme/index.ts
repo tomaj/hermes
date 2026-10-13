@@ -4,6 +4,10 @@ import Layout from './Layout.vue'
 import Diagram from './Diagram.vue'
 import WorkerDemo from './WorkerDemo.vue'
 import CompareTable from './CompareTable.vue'
+import DiagramTabs from './DiagramTabs.vue'
+import AuthorsPage from './AuthorsPage.vue'
+import ProjectSource from './ProjectSource.vue'
+import LinkCards from './LinkCards.vue'
 import './custom.css'
 
 function versionLabel(path: string): string {
@@ -30,6 +34,10 @@ export default {
     app.component('Diagram', Diagram)
     app.component('WorkerDemo', WorkerDemo)
     app.component('CompareTable', CompareTable)
+    app.component('DiagramTabs', DiagramTabs)
+    app.component('AuthorsPage', AuthorsPage)
+    app.component('ProjectSource', ProjectSource)
+    app.component('LinkCards', LinkCards)
     if (!inBrowser) {
       return
     }

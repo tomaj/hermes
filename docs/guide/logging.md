@@ -1,8 +1,13 @@
+---
+title: "Logging"
+description: "PSR-3 logging in Emitter and Dispatcher, the exact lines Hermes writes, handler loggers, and Tracy."
+---
+
 # Logging
 
 `Emitter` and `Dispatcher` accept any `Psr\Log\LoggerInterface`. With no logger, both classes skip every log call. Hermes does not configure Monolog for you. `monolog/monolog` is a suggested package.
 
-<Diagram name="logging-1" alt="Logging diagram" />
+<Diagram name="logging-1" alt="Which component writes which log line: emit, start, end, error, and the shutdown notice" />
 
 ```php
 use Monolog\Handler\StreamHandler;
@@ -77,3 +82,25 @@ class SendEmailHandler implements HandlerInterface
 - any other `Exception` that escapes `Driver::wait()`, except `ShutdownException`
 
 Both use `Debugger::log($exception, Debugger::EXCEPTION)`. Call `Debugger::enable()` in the worker bootstrap if you want those files. Hermes will not enable Tracy on its own.
+
+## FAQ
+
+### Does Hermes log anything by default?
+
+No. Pass a PSR-3 logger to `Emitter` and `Dispatcher`. Without one, every log call is skipped.
+
+### Which logger should I use?
+
+Any PSR-3 logger. Monolog is the usual choice and is listed under `suggest`.
+
+### How does a handler get the logger?
+
+Implement `setLogger()`, for example with `LoggerAwareTrait`. The dispatcher injects its logger before calling `handle()`.
+
+### Where do handler exceptions go?
+
+They are logged at `error` with the exception in the context, and passed to Tracy when `Debugger::isEnabled()` is true.
+
+### Why does the emitter log the word Dispatcher?
+
+That is the exact string `Emitter::emit()` writes in 5.x. Search your logs for it as it is.
