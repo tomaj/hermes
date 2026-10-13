@@ -1,8 +1,13 @@
+---
+title: "Extending Hermes"
+description: "Write your own Hermes driver, handler, serializer, or shutdown signal against the 5.x interfaces."
+---
+
 # Extending Hermes
 
 The supported extension points are `DriverInterface`, `HandlerInterface`, `SerializerInterface`, and `ShutdownInterface`. The Gearman sketch in the README does not match the current method signatures (`$serialier` is not defined, and `wait()` now requires a priority list). Use the signatures from `src/Driver/DriverInterface.php`.
 
-<Diagram name="extending-1" alt="Extending Hermes diagram" />
+<Diagram name="extending-1" alt="Your own classes implementing DriverInterface, SerializerInterface, ShutdownInterface, and HandlerInterface" />
 
 `MemoryDriver` in this diagram is an example you would write. It is not a class in the package. `MessageSerializer`, `SharedFileShutdown`, and `HandlerInterface` are.
 
@@ -184,3 +189,25 @@ $driver->setSerializer(new ExtraFieldSerializer());
 Implement `ShutdownInterface` when a file or a Redis key is the wrong switch. `shouldShutdown(DateTime $startTime)` is polled. `shutdown(?DateTime $shutdownTime = null)` is how another process asks for the stop. Return `true` from `shutdown()` when the signal was stored.
 
 Keep the start-time rule if you can. Workers that start after the signal should keep running, or a rolling restart will shut down the new processes too. `RedisShutdown` does this. `SharedFileShutdown` does this by comparing `filemtime()` with the start timestamp.
+
+## FAQ
+
+### What can I replace?
+
+The driver (`DriverInterface`), handlers (`HandlerInterface`), the serializer (`SerializerInterface`), and the shutdown signal (`ShutdownInterface`).
+
+### Does the dispatcher read the handler result in my driver?
+
+It returns it to your `wait()` callback. The built-in drivers ignore it. A custom driver can use it to acknowledge only on `true`.
+
+### Do I have to change both sides when I replace the serializer?
+
+Yes. The emitter and the worker must use the same serializer, or they cannot decode each other's messages.
+
+### How should a custom shutdown signal treat new workers?
+
+Ignore signals older than the worker's start time, like the built-in ones, so a rolling restart does not stop the new processes.
+
+### Can I sort priorities numerically in my driver?
+
+Yes. Sort the queue map with `krsort` before polling, as in the example on this page, to avoid issue [#50](https://github.com/tomaj/hermes/issues/50).

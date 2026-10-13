@@ -1,3 +1,8 @@
+---
+title: "Redis (ext-redis) driver"
+description: "RedisSetDriver with the phpredis extension: keys, the wait loop, priorities, and delayed messages."
+---
+
 # Redis (ext-redis)
 
 `Tomaj\Hermes\Driver\RedisSetDriver` talks to a `Redis` instance from the phpredis extension. You open the connection yourself. The class does not call `connect()`.
@@ -59,7 +64,7 @@ The argument is the integer priority, not the key name `hermes_high`.
 
 Hermes does not use a Redis list. Live messages are set members. Delayed messages are sorted-set members. Each priority integer is its own set key. The default key is `hermes` at priority `100`. The schedule key defaults to `hermes_schedule`.
 
-<Diagram name="drivers-redis-1" alt="Emit and handle diagram" />
+<Diagram name="drivers-redis-1" alt="Redis send: future messages go to the hermes_schedule sorted set, others to the set for their priority" />
 
 `SPOP` removes one random member. It is not `LPOP`, and it is not FIFO. Names such as `hermes_high` are whatever you passed to `setupPriorityQueue()`. The integers above are the ones in `examples/redis`.
 
@@ -77,7 +82,7 @@ if ($message->getExecuteAt() !== null && $message->getExecuteAt() > microtime(tr
 
 ## What `wait()` does
 
-<Diagram name="drivers-redis-2" alt="What wait() does diagram" />
+<Diagram name="drivers-redis-2" alt="Redis wait loop: read due schedule entries, SPOP the first priority set with a member, and call the handler" />
 
 On an empty pass, and when `$refreshInterval` is not `0`, the driver sleeps that many seconds. It checks shutdown before the sleep as well as at the top of the loop.
 
@@ -90,3 +95,25 @@ Priority polling uses `array_reverse($this->queues, true)`. That reverses insert
 ## Traits
 
 `setSerializer()`, `setMaxProcessItems()`, and `setShutdown()` are available. Passing the shutdown object to `Dispatcher` also calls `setShutdown()` for you.
+
+## FAQ
+
+### Does the driver connect to Redis for me?
+
+No. Create the `Redis` object, call `connect()`, and pass it to the constructor.
+
+### Why do my delayed messages never run?
+
+In 5.x the promotion step calls `SPOP` on the sorted schedule key, so due messages stay there. Use `PredisSetDriver` for delays and retries. See [Delayed execution](/guide/delayed).
+
+### Are messages processed in order?
+
+No. Each priority is a Redis set, and `SPOP` returns a random member.
+
+### What does the refresh interval do?
+
+It is how many seconds `wait()` sleeps when every queue is empty. `0` means no sleep, which keeps a CPU busy.
+
+### Can I use a Predis client here?
+
+No. Use `PredisSetDriver` for Predis. The two drivers were split in 4.0.0.

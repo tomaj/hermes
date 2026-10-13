@@ -1,8 +1,13 @@
+---
+title: "Versioning docs"
+description: "Which Hermes version these docs describe and how 6.x and a Slovak translation will be added."
+---
+
 # Versioning docs
 
 These pages describe Hermes 5.x, the current code in `src/`. They are the site root (`/hermes/` on GitHub Pages).
 
-<Diagram name="versioning-1" alt="Versioning docs diagram" />
+<Diagram name="versioning-1" alt="The 5.x pages at the site root are copied to docs/5.x, 6.x is written at the root, and docs/sk can be added as a locale" />
 
 ## Adding 6.x later
 
@@ -30,3 +35,25 @@ The theme, the diagram component, and the SVG files are shared. Translated pages
 ## What not to duplicate
 
 The coverage report is not a VitePress page. The CI workflow uploads `coverage-report`, and `.github/workflows/docs.yml` copies it to `dist/coverage/` at deploy time. A 6.x or Slovak tree should keep linking to `https://tomaj.github.io/hermes/coverage/` rather than embedding the HTML report.
+
+## FAQ
+
+### Which version do these pages describe?
+
+Hermes 5.x, the code in `src/` on the default branch.
+
+### Where will 6.x documentation go?
+
+At the site root, with the 5.x pages copied to `docs/5.x/` so their URLs stay stable.
+
+### Is there a Slovak translation?
+
+Not yet. English is the only locale. The steps to add `docs/sk/` are on this page.
+
+### Is the coverage report part of the docs build?
+
+No. CI uploads it and the docs workflow copies it to `/coverage/` at deploy time.
+
+### How do I report a mistake in the docs?
+
+Use the edit link at the bottom of any page, or open an issue. See [Contributing](/contributing).

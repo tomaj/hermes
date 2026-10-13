@@ -1,12 +1,17 @@
+---
+title: "Concepts"
+description: "Message, Emitter, Dispatcher, Handler, and Driver: the five types of Hermes and how a message moves between them."
+---
+
 # Concepts
 
 Five types do the work. Everything else is a driver, a shutdown signal, or a serializer.
 
-<Diagram name="concepts-1" alt="Concepts diagram" />
+<Diagram name="concepts-1" alt="A web request creates a Message, the Emitter passes it to the Driver and queue, and the Dispatcher hands it to the Handler" />
 
 A message is not a row with a status column. These names are the stages the code actually passes through. `Processing` starts only after the driver has already removed the payload from the broker.
 
-<Diagram name="concepts-2" alt="Concepts diagram" />
+<Diagram name="concepts-2" alt="Message states: emitted, scheduled or queued, processing, then done, failed, or retried as a copy" />
 
 ## Message
 
@@ -101,7 +106,7 @@ public function handle(MessageInterface $message): bool;
 
 A handler does the slow work: mail, HTTP, files. Hermes calls it only from `Dispatcher`, which you run from CLI.
 
-<Diagram name="concepts-3" alt="Handler diagram" />
+<Diagram name="concepts-3" alt="What a handler result means: true is success, false is a failure with no retry, an exception may send a retry copy" />
 
 | Outcome | What Hermes does |
 | --- | --- |
@@ -134,3 +139,25 @@ The built-in drivers also use three traits:
 - `ShutdownTrait::setShutdown()` lets `wait()` throw `ShutdownException` between messages.
 
 `Dispatcher` calls `setShutdown()` on the driver when the driver has that method and you passed a shutdown object into the dispatcher.
+
+## FAQ
+
+### What is the difference between `Emitter` and `Dispatcher`?
+
+`Emitter` runs in the web process and only sends messages to the driver. `Dispatcher` runs in the worker: it waits on the driver and calls the handlers registered for each message type.
+
+### Does a message remember its priority?
+
+No. Priority is only the second argument of `emit()` and `send()`. The serialized message has no priority field, so retries and delayed messages come back at the default priority 100.
+
+### What can I put in the payload?
+
+Anything that survives `json_encode()`: scalars and arrays. Do not put objects, resources, or connections in it. Pass ids and let the handler load fresh data.
+
+### What happens when no handler is registered for a type?
+
+`dispatch()` returns `true` and the message is gone. The start line is logged, the end line is not. Register handlers on every worker that reads that queue.
+
+### Can several handlers run for one type?
+
+Yes. Use `registerHandler()` more than once or `registerHandlers()`. They run in registration order, and an exception in one does not stop the others.

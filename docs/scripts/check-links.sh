@@ -10,6 +10,8 @@ base="/hermes/"
 # Generated diagrams must match their docs/diagrams/*.mmd sources.
 npm run diagrams:check
 
+python3 scripts/check-snippets.py
+
 npm run docs:build
 python3 scripts/check-svg.py .vitepress/dist
 
@@ -79,49 +81,50 @@ if missing:
 print(f"ok {len(found)} edit links match files on disk")
 PY
 
-# Blob links point at this repository. Requesting each one trips GitHub's
-# rate limit, so check that the file exists in the checkout instead.
+# Blob and tree links point at this repository. Requesting each one trips
+# GitHub's rate limit, and links added by a pull request 404 until it is
+# merged, so check that the file or folder exists in the checkout instead.
 python3 - <<'PY'
 import re
 import sys
 from pathlib import Path
 
-prefix = "https://github.com/tomaj/hermes/blob/master/"
 repo = Path("..")
-found: set[str] = set()
-missing: list[str] = []
-for page in Path(".vitepress/dist").rglob("*.html"):
-    text = page.read_text(encoding="utf-8", errors="replace")
-    for url in re.findall(re.escape(prefix) + r"[^\"'\s#\\]+", text):
-        relative = url[len(prefix):]
-        found.add(relative)
-        if not (repo / relative).is_file():
-            missing.append(f"{url} ({page})")
-if not found:
-    print("No GitHub blob links found in the built site", file=sys.stderr)
-    sys.exit(1)
-if missing:
-    print("Blob link target is missing:", file=sys.stderr)
-    for item in missing:
-        print(item, file=sys.stderr)
-    sys.exit(1)
-print(f"ok {len(found)} blob links match files on disk")
+kinds = {
+    "blob": ("https://github.com/tomaj/hermes/blob/master/", Path.is_file),
+    "tree": ("https://github.com/tomaj/hermes/tree/master/", Path.is_dir),
+}
+pages = [(page, page.read_text(encoding="utf-8", errors="replace")) for page in Path(".vitepress/dist").rglob("*.html")]
+for kind, (prefix, exists) in kinds.items():
+    found: set[str] = set()
+    missing: list[str] = []
+    for page, text in pages:
+        for url in re.findall(re.escape(prefix) + r"[^\"'\s#\\?]+", text):
+            relative = url[len(prefix):].rstrip("/")
+            found.add(relative)
+            if not exists(repo / relative):
+                missing.append(f"{url} ({page})")
+    if not found:
+        print(f"No GitHub {kind} links found in the built site", file=sys.stderr)
+        sys.exit(1)
+    if missing:
+        print(f"{kind.capitalize()} link target is missing:", file=sys.stderr)
+        for item in missing:
+            print(item, file=sys.stderr)
+        sys.exit(1)
+    print(f"ok {len(found)} {kind} links match the checkout")
 PY
 
-# github.com edit and blob links are skipped so a 429 or 503 from GitHub
-# cannot fail the check. Coverage and the social image are published with
-# the Pages site; they are not on the current Pages root until this
-# workflow has deployed once.
+# github.com edit, blob and tree links are skipped so a 429 or 503 from GitHub
+# cannot fail the check. Absolute links to the published site (canonical,
+# og:url, og:image, sitemap) point at pages this crawl already checks
+# locally; new pages only exist there after the next deploy.
 skip_args=(
   --skip 'https://github\.com/tomaj/hermes/edit/'
   --skip 'https://github\.com/tomaj/hermes/blob/master/'
+  --skip 'https://github\.com/tomaj/hermes/tree/master/'
+  --skip 'https://tomaj\.github\.io/hermes/'
 )
-if ! curl -sf -o /dev/null --max-time 20 "https://tomaj.github.io/hermes/coverage/"; then
-  skip_args+=(--skip 'https://tomaj\.github\.io/hermes/coverage')
-fi
-if ! curl -sf -o /dev/null --max-time 20 "https://tomaj.github.io/hermes/og.svg"; then
-  skip_args+=(--skip 'https://tomaj\.github\.io/hermes/og\.svg')
-fi
 
 run_check() {
   npx --no-install linkinator "http://127.0.0.1:${port}${base}" \

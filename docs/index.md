@@ -66,6 +66,7 @@ features:
 ## Where to go next
 
 - [Getting started](/guide/getting-started) installs 5.x and runs one worker.
+- [Examples](/examples/) are complete recipes, starting with a [welcome email tutorial](/examples/welcome-email) from an empty folder.
 - [Concepts](/guide/concepts) defines Message, Emitter, Dispatcher, Handler, and Driver.
 - [Driver comparison](/guide/drivers/) shows priority, delay, persistence, and ack side by side.
 - [API reference](/api/reference) lists the classes that exist in `src/`.

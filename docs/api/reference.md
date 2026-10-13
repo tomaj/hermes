@@ -1,8 +1,13 @@
+---
+title: "API reference"
+description: "Every public class, interface, trait, and exception in Hermes 5.x with its signature."
+---
+
 # API reference
 
 Public types in `src/` for 5.x. Paths are relative to the package root. Examples elsewhere in this guide are the place for full scripts.
 
-<Diagram name="api-reference-1" alt="API reference diagram" />
+<Diagram name="api-reference-1" alt="Message implements MessageInterface, Emitter sends through DriverInterface, and Dispatcher calls HandlerInterface" />
 
 ## Tomaj\Hermes\Message
 
@@ -207,3 +212,25 @@ public function shutdown(?DateTime $shutdownTime = null): bool;
 | `PredisShutdown` | `(Client $redis, string $key = 'hermes_shutdown')` | Same rules. `shutdown()` is true when the Predis payload is `OK`. |
 
 Details and the differences between the file and Redis rules are on [Shutdown and max items](/guide/shutdown).
+
+## FAQ
+
+### Where is the priority argument?
+
+On `Emitter::emit()` and `DriverInterface::send()`, as the second argument. `Message` has no priority.
+
+### Which methods can throw `UnknownPriorityException`?
+
+`send()` and `wait()` on the Redis drivers, when a priority was not registered with `setupPriorityQueue()`.
+
+### Is `Dispatcher::emit()` still supported?
+
+It works but is deprecated. Use `Emitter`.
+
+### Which traits do the built-in drivers use?
+
+`MaxItemsTrait`, `ShutdownTrait`, and `SerializerAwareTrait`, on all four.
+
+### Where are complete usage examples?
+
+In the [Examples](/examples/) section and in `examples/` in the repository.

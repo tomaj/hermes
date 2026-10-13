@@ -1,3 +1,8 @@
+---
+title: "Drivers"
+description: "Compare the Hermes drivers for Redis, Predis, RabbitMQ, and Amazon SQS: priority, delay, persistence, and ack."
+---
+
 <script setup>
 const drivers = ['Redis <code>ext-redis</code>', 'Predis', 'RabbitMQ lazy', 'Amazon SQS']
 const comparison = [
@@ -13,7 +18,7 @@ const comparison = [
 
 The four classes in `src/Driver` all implement `DriverInterface`. Pick one for the emitter and the same one for the dispatcher. They must agree on the queue name, the priority keys, and the schedule key, because those strings are the queue.
 
-<Diagram name="drivers-1" alt="Drivers diagram" />
+<Diagram name="drivers-1" alt="Choosing a driver: phpredis gives RedisSetDriver, Predis gives PredisSetDriver, RabbitMQ and SQS have their own drivers" />
 
 ## Comparison
 
@@ -61,3 +66,25 @@ Within one Redis or Predis priority, order is not FIFO. A set has no order, and 
 | AWS SQS | [Amazon SQS](/guide/drivers/sqs), `examples/sqs` |
 
 Shutdown helpers are not drivers. `SharedFileShutdown` works with any driver. `RedisShutdown` needs ext-redis. `PredisShutdown` needs Predis. They are documented on [Shutdown and max items](/guide/shutdown).
+
+## FAQ
+
+### Which driver is the safest default?
+
+`PredisSetDriver`. It needs no extension, supports priorities, and is the only driver that promotes delayed messages and retries reliably in 5.x.
+
+### Which driver keeps messages if a worker crashes?
+
+None of them. Every built-in driver removes the message before the handler finishes. See [Architecture](/guide/architecture).
+
+### Can the emitter and the worker use different drivers?
+
+No. They must use the same driver class with the same keys, because the keys are the queue.
+
+### Does any driver support acknowledgements?
+
+No. RabbitMQ consumes with `no_ack`, SQS deletes on receive, and Redis pops the member.
+
+### Is there a ZeroMQ driver?
+
+It moved out of the package in 3.0.0, to [tomaj/hermes-zmq-driver](https://github.com/tomaj/hermes-zmq-driver).

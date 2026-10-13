@@ -1,3 +1,8 @@
+---
+title: "Predis driver"
+description: "PredisSetDriver for Hermes: Redis without a PHP extension, delayed messages, priorities, and shutdown."
+---
+
 # Predis
 
 `Tomaj\Hermes\Driver\PredisSetDriver` is the same Redis layout as `RedisSetDriver`, with a `Predis\Client` and Predis method names. Use this class when you cannot load `ext-redis`. Do not pass a Predis client to `RedisSetDriver`. The 4.0.0 split made those two types separate.
@@ -67,7 +72,7 @@ That member-to-score map is the Predis 1.1 shape. It is the fix for [issue #48](
 
 ## Wait loop
 
-<Diagram name="drivers-predis-1" alt="Wait loop diagram" />
+<Diagram name="drivers-predis-1" alt="Predis wait loop: ZRANGEBYSCORE and ZREM promote due messages, then SPOP takes one from the priority sets" />
 
 `zrangebyscore` uses `LIMIT OFFSET 0 COUNT 1`. Each returned member is removed with `zrem` and passed back through `send()`. If it is still in the future it returns to the sorted set. If it is due, `send()` `sadd`s it onto the **default** priority key, because `send()` is called with no priority argument.
 
@@ -76,3 +81,25 @@ The live queue is still a set. `spop` is not FIFO. Empty loops sleep `$refreshIn
 Priority order is the same reverse-insertion behavior as ext-redis. Read [Priority](/guide/priority) before you depend on high numbers running first.
 
 Shutdown checks use `ShutdownTrait`. Pair this driver with `PredisShutdown`, not `RedisShutdown`. `PredisShutdown::shutdown()` treats a Predis status payload of `OK` as success. `shouldShutdown()` treats a missing key (`null` from `get`) as "keep running".
+
+## FAQ
+
+### When should I choose Predis over ext-redis?
+
+When you cannot install the phpredis extension, or when you need delayed messages and retries, which Predis promotes correctly.
+
+### Is the Redis data layout the same?
+
+Yes. Sets per priority and one sorted set for the schedule, so the key names and behaviour match `RedisSetDriver`.
+
+### Which shutdown class goes with it?
+
+`PredisShutdown`. `RedisShutdown` expects a phpredis `Redis` object.
+
+### Do priorities work the same way?
+
+Yes, including the reverse registration order from issue [#50](https://github.com/tomaj/hermes/issues/50). See [Priority](/guide/priority).
+
+### Is there a full Predis example?
+
+Yes. All [examples](/examples/) except the RabbitMQ recipe use Predis, starting with the [welcome email tutorial](/examples/welcome-email).

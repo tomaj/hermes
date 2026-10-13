@@ -1,3 +1,8 @@
+---
+title: "RabbitMQ driver"
+description: "LazyRabbitMqDriver for Hermes: queue declaration, publishing, no_ack consumption, and its limits."
+---
+
 # RabbitMQ
 
 `Tomaj\Hermes\Driver\LazyRabbitMqDriver` uses `PhpAmqpLib\Connection\AMQPLazyConnection`. The connection is lazy: the channel is opened on the first `send()` or `wait()`, inside `getChannel()`.
@@ -38,7 +43,7 @@ $dispatcher->handle();
 
 There is one queue and the default exchange. Hermes does not declare an exchange of its own. `basic_publish` uses an empty exchange name and the queue name as the routing key, which is the broker's default exchange. `basic_consume` is called with `no_ack` true, so the delivery is settled before your handler runs. There is no `basic_ack` and no `basic_nack`.
 
-<Diagram name="drivers-rabbitmq-1" alt="RabbitMQ diagram" />
+<Diagram name="drivers-rabbitmq-1" alt="RabbitMQ publish path: Emitter, basic_publish, default exchange, non-durable queue, basic_consume with no_ack, Handler" />
 
 ## Queue and publish
 
@@ -72,7 +77,7 @@ The queue declaration is still non-durable. A broker restart drops the queue eve
 
 ## Consume
 
-<Diagram name="drivers-rabbitmq-2" alt="Consume diagram" />
+<Diagram name="drivers-rabbitmq-2" alt="Sequence: the worker declares the queue, consumes with no_ack, and passes each body to the callback" />
 
 The `basic_consume` arguments are the queue, `$consumerTag` (default `hermes`), `no_local` false, `no_ack` true, exclusive false, nowait false, and the callback. `no_ack` true means the broker settles the delivery when it is sent to the client. The callback unserializes `$rabbitMessage->body` and calls the dispatcher. There is no `basic_ack` and no `basic_nack` in this class.
 
@@ -87,3 +92,25 @@ new LazyRabbitMqDriver($connection, 'hermes_queue', [], 1, 'hermes-worker-1');
 When max items is reached, both loops break, then the driver closes the channel and the connection. A shutdown throws `ShutdownException` before that close. `Dispatcher::handle()` catches it, logs `Exiting hermes dispatcher - shutdown`, and returns.
 
 `MaxItemsTrait`, `ShutdownTrait`, and `SerializerAwareTrait` are on this driver. `SharedFileShutdown` does not need RabbitMQ. `RedisShutdown` still needs a Redis client, which this driver does not have.
+
+## FAQ
+
+### Are messages persistent?
+
+Only if you pass `delivery_mode` in the message properties, and even then the queue itself is non-durable, so a broker restart drops it. Declare a durable queue yourself if you need one.
+
+### Does the driver acknowledge messages?
+
+No. It consumes with `no_ack = true`, so the broker settles a delivery when it is sent to the worker.
+
+### Do retries wait?
+
+No. `executeAt` is ignored, so a retry copy is published at once.
+
+### Can I use priorities?
+
+No. `setupPriorityQueue()` throws `NotSupportedException`. Use separate queues and workers instead.
+
+### Why does my worker use 100% CPU?
+
+The default refresh interval is `0`, so the consume loop never sleeps. Pass `1` as the fourth constructor argument.

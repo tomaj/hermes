@@ -226,3 +226,112 @@ html.dark .use-cases .icon img.dark { display: block; }
   .vp-doc table td:not(:first-child) code { white-space: nowrap; }
   .vp-doc table tr:nth-child(2n) td:first-child { background: var(--vp-c-bg-soft); }
 }
+
+/* Several diagrams for one topic share one frame, one tab each. */
+.diagram-tabs {
+  margin: 1.5rem 0;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.diagram-tabs-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 6px 8px 0;
+  border-bottom: 1px solid var(--vp-c-divider);
+  background: var(--vp-c-bg-soft);
+}
+.diagram-tabs-tab {
+  padding: 8px 14px;
+  border-bottom: 2px solid transparent;
+  color: var(--vp-c-text-2);
+  font-size: 14px;
+  font-weight: 500;
+}
+.diagram-tabs-tab[aria-selected='true'] {
+  border-bottom-color: var(--vp-c-brand-1);
+  color: var(--vp-c-text-1);
+}
+.diagram-tabs-tab:focus-visible { outline: 2px solid var(--vp-c-brand-1); outline-offset: -2px; }
+.diagram-tabs .hand-diagram { margin: 1rem; }
+
+/* Runnable project box on the recipe pages. */
+.project-source {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin: 1.5rem 0;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--vp-c-brand-soft);
+  border-left: 4px solid var(--vp-c-brand-1);
+  border-radius: 8px;
+  background: var(--vp-c-bg-soft);
+}
+.project-source-text { flex: 1 1 22rem; min-width: 0; }
+.project-source-text p { margin: 0 0 0.5rem; font-size: 14px; line-height: 1.6; }
+.project-source .project-source-title { font-weight: 600; font-size: 15px; color: var(--vp-c-text-1); }
+.project-source-files { display: flex; flex-wrap: wrap; gap: 0.35rem 0.5rem; margin: 0.5rem 0 0 !important; padding: 0 !important; list-style: none; }
+.project-source-files li { margin: 0 !important; }
+.project-source-files a {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 6px;
+  font-family: var(--vp-font-family-mono);
+  font-size: 12.5px;
+  text-decoration: none;
+}
+.project-source-files a:hover { border-color: var(--vp-c-brand-1); }
+.project-source-button {
+  display: inline-flex;
+  flex: none;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.55rem 1rem;
+  border-radius: 20px;
+  border: 1px solid var(--vp-button-brand-border);
+  background: var(--vp-button-brand-bg);
+  color: var(--vp-button-brand-text) !important;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none !important;
+  white-space: nowrap;
+}
+.project-source-button:hover { background: var(--vp-button-brand-hover-bg); color: var(--vp-button-brand-hover-text) !important; }
+.project-source-button:focus-visible,
+.project-source-files a:focus-visible { outline: 2px solid var(--vp-c-brand-1); outline-offset: 2px; }
+.vp-doc ul.project-source-files { list-style: none; }
+.vp-doc ul.project-source-files li { list-style: none; }
+.vp-doc ul.project-source-files li::marker { content: none; }
+.project-source .project-source-label { margin: 0.75rem 0 0; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--vp-c-text-2); }
+
+/* Link cards, used on the Drivers overview. */
+.vp-doc ul.link-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0;
+  padding: 0;
+  list-style: none;
+}
+.vp-doc ul.link-cards li { margin: 0; }
+.vp-doc a.link-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  height: 100%;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  background: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-1);
+  text-decoration: none;
+  transition: border-color 0.2s;
+}
+.vp-doc a.link-card:hover { border-color: var(--vp-c-brand-1); }
+.vp-doc a.link-card:focus-visible { outline: 2px solid var(--vp-c-brand-1); outline-offset: 2px; }
+.link-card-title { font-weight: 600; color: var(--vp-c-brand-1); }
+.link-card-text { font-size: 14px; line-height: 1.5; color: var(--vp-c-text-2); }

@@ -1,3 +1,8 @@
+---
+title: "Changelog"
+description: "All notable changes to Hermes, release by release, since 2015."
+---
+
 # Changelog
 
 Notable changes from [CHANGELOG.md](https://github.com/tomaj/hermes/blob/master/CHANGELOG.md) and the [GitHub releases](https://github.com/tomaj/hermes/releases). The 5.0.0 notes are still under the `Unreleased` heading in `CHANGELOG.md`. The [5.0.0 release](https://github.com/tomaj/hermes/releases/tag/5.0.0) publishes those same notes.

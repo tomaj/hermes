@@ -1,0 +1,85 @@
+---
+title: "Drivers overview"
+description: "What a Hermes driver does between Emitter and Dispatcher: send, wait, serialization, priority, delay, and how to choose one."
+---
+
+<script setup>
+const cards = [
+  { title: 'Comparison', text: 'Priority, delay, persistence, and ack for all four drivers in one table.', link: '/guide/drivers/' },
+  { title: 'Redis (ext-redis)', text: 'RedisSetDriver on the phpredis extension. Priorities, but see the delay caveat.', link: '/guide/drivers/redis' },
+  { title: 'Predis', text: 'PredisSetDriver, plain PHP. Priorities, delayed messages, and retries.', link: '/guide/drivers/predis' },
+  { title: 'RabbitMQ', text: 'LazyRabbitMqDriver on php-amqplib. One queue, no priorities, no delay.', link: '/guide/drivers/rabbitmq' },
+  { title: 'Amazon SQS', text: 'AmazonSqsDriver on the AWS SDK. Managed storage, no priorities, no delay.', link: '/guide/drivers/sqs' },
+  { title: 'Write your own', text: 'Implement DriverInterface for another broker or database.', link: '/guide/extending#a-driver' },
+]
+</script>
+
+# Drivers overview
+
+A driver is the only part of Hermes that talks to a queue. `Emitter` and `Dispatcher` know nothing about Redis, RabbitMQ, or SQS. They call a `DriverInterface`, and the driver turns that into commands for its broker.
+
+<Diagram name="drivers-overview-1" alt="The Emitter in the web process calls send() on the driver. The driver stores the message as JSON in Redis, RabbitMQ, or SQS. The Dispatcher in the worker calls wait() with a callback and runs the handler for each message." />
+
+## What a driver does
+
+`DriverInterface` has three methods:
+
+```php
+public function send(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): bool;
+public function setupPriorityQueue(string $name, int $priority): void;
+public function wait(Closure $callback, array $priorities): void;
+```
+
+- **`send()`** runs in the web process, inside `Emitter::emit()`. It serializes the message and writes it to the broker. It has to be fast, because the request waits for it.
+- **`wait()`** runs in the worker, inside `Dispatcher::handle()`. It loops, reads one message at a time, unserializes it, and calls `$callback($message, $priority)`. The dispatcher's callback finds the handlers for the message type and runs them.
+- **`setupPriorityQueue()`** registers an extra queue for a priority. The emitter and every worker must register the same ones.
+
+Use the same driver class, with the same queue names, on both sides. They share nothing else.
+
+## Serialization
+
+Every driver turns a message into a string with `MessageSerializer`, which writes JSON: id, type, payload, created time, `executeAt`, and the retry count. The payload must survive `json_encode()`. Call `setSerializer()` on the driver to use another format, and set the same serializer on both sides. See [A serializer](/guide/extending#a-serializer).
+
+The priority is not part of the JSON. It only decides which queue `send()` writes to.
+
+## Priority, delay, and shutdown
+
+The drivers differ in what they do with these:
+
+- **Priority.** `RedisSetDriver` and `PredisSetDriver` keep one Redis set per priority. `LazyRabbitMqDriver` and `AmazonSqsDriver` throw `NotSupportedException` from `setupPriorityQueue()`. See [Priority](/guide/priority).
+- **Delay.** The Redis drivers put a message with a future `executeAt` in a sorted set and move it to the queue when it is due. Only `PredisSetDriver` does that move correctly in 5.x. RabbitMQ and SQS deliver at once. See [Delayed execution](/guide/delayed).
+- **Shutdown and max items.** All four drivers use `ShutdownTrait` and `MaxItemsTrait`. `wait()` checks the shutdown signal and the processed count, and stops the worker cleanly. See [Shutdown and max items](/guide/shutdown).
+
+## How to choose
+
+- **You already run Redis:** use `PredisSetDriver`. It needs no PHP extension and is the one driver with working delayed messages and retries in 5.x.
+- **You need priorities:** use `PredisSetDriver` or `RedisSetDriver`. The other two have one queue.
+- **You already run RabbitMQ:** use `LazyRabbitMqDriver`. Delay and retry need your own design.
+- **You are on AWS and want managed storage:** use `AmazonSqsDriver`. It deletes the message before the handler runs, so a crash loses it.
+- **Something else:** write a driver. It is three methods and three traits.
+
+## Driver pages
+
+<LinkCards :items="cards" />
+
+## FAQ
+
+### Can the emitter and the worker use different drivers?
+
+No. They must use the same driver class with the same queue names and priority queues, because the queue is the only thing they share.
+
+### Which driver supports delayed messages and retries?
+
+`PredisSetDriver`. `RedisSetDriver` writes delayed messages to the sorted set but does not move them back to the queue in 5.x. RabbitMQ and SQS deliver at once. See [Delayed execution](/guide/delayed).
+
+### Does the driver acknowledge a message after the handler succeeds?
+
+No. Every driver removes the message before the handler runs, so a worker that dies in `handle()` loses it. See the Ack row in the [comparison](/guide/drivers/).
+
+### Can I store messages in something other than JSON?
+
+Yes. Implement `SerializerInterface` and call `setSerializer()` on the driver in the web process and in every worker. See [A serializer](/guide/extending#a-serializer).
+
+### What happens when I send to a priority that was never registered?
+
+The Redis drivers throw `UnknownPriorityException`. RabbitMQ and SQS ignore the priority argument.

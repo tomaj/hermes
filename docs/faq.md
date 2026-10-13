@@ -1,8 +1,13 @@
+---
+title: "FAQ"
+description: "Answers to common questions about Hermes: priorities, retries, shutdown, workers, payloads, and alternatives."
+---
+
 # FAQ
 
 What the handler does with a failure is decided entirely in `Dispatcher`. The broker is not asked to nack.
 
-<Diagram name="faq-1" alt="FAQ diagram" />
+<Diagram name="faq-1" alt="A handler returns or throws. Thrown with retries left sends a new message, otherwise the original delivery is already removed" />
 
 ## The README passes priority as the third `Message` argument. Why does this guide not?
 

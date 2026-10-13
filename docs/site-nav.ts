@@ -12,6 +12,7 @@ const releasesLink = 'https://github.com/tomaj/hermes/releases'
 export const navEn: DocsNavItem[] = [
   { text: 'Home', link: '/' },
   { text: 'Guide', link: '/guide/getting-started' },
+  { text: 'Examples', link: '/examples/' },
   { text: 'API', link: '/api/reference' },
   {
     text: currentVersion,
@@ -34,8 +35,22 @@ export const sidebar5x: DocsNavItem[] = [
     ],
   },
   {
+    text: 'Examples',
+    items: [
+      { text: 'Overview', link: '/examples/' },
+      { text: 'Welcome email, from zero', link: '/examples/welcome-email' },
+      { text: 'Invoice PDF', link: '/examples/invoice-pdf' },
+      { text: 'Webhooks with retries', link: '/examples/webhooks' },
+      { text: 'CSV import in chunks', link: '/examples/csv-import' },
+      { text: 'Image thumbnails', link: '/examples/thumbnails' },
+      { text: 'Delayed reminder', link: '/examples/reminder' },
+      { text: 'Priority queues', link: '/examples/priority' },
+    ],
+  },
+  {
     text: 'Drivers',
     items: [
+      { text: 'Overview', link: '/guide/drivers/overview' },
       { text: 'Comparison', link: '/guide/drivers/' },
       { text: 'Redis (ext-redis)', link: '/guide/drivers/redis' },
       { text: 'Predis', link: '/guide/drivers/predis' },
@@ -69,6 +84,7 @@ export const sidebar5x: DocsNavItem[] = [
       { text: 'FAQ', link: '/faq' },
       { text: 'Changelog', link: '/changelog' },
       { text: 'Contributing', link: '/contributing' },
+      { text: 'Authors', link: '/authors' },
     ],
   },
 ]
