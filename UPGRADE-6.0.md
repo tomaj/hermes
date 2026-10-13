@@ -110,6 +110,19 @@ As with `VisibilityTimeout`, do not pass `RedrivePolicy` to the driver.
 
 RabbitMQ has no equivalent for this driver: delivery limits need quorum queues, which the driver cannot declare.
 
+## Retry jitter no longer uses `rand()`
+
+`Dispatcher` takes the 1 to 30 second retry jitter from a `Random\Randomizer` instead of the global `rand()` ([#82](https://github.com/tomaj/hermes/issues/82)). The formula is unchanged. `mt_srand()` no longer makes retry times reproducible. Pass a seeded `Randomizer` as the fourth argument instead, in tests only:
+
+```php
+use Random\Engine\Mt19937;
+use Random\Randomizer;
+
+$dispatcher = new Dispatcher($driver, $logger, null, new Randomizer(new Mt19937(42)));
+```
+
+If your container autowires `Dispatcher` and has a `Randomizer` service, that service is now injected. See [Retry](docs/guide/retry.md#reproducible-retry-times).
+
 ## Private state is readonly
 
 Constructor arguments are promoted to `readonly` properties in `Message`, `Dispatcher`, `Emitter`, the drivers and the shutdowns ([#78](https://github.com/tomaj/hermes/issues/78)). The public API is unchanged, but:

@@ -51,19 +51,49 @@ The copy is one `send()`. On Redis and Predis that `executeAt` parks the copy in
 `Dispatcher::nextRetry()` is the Sidekiq-style formula in the source:
 
 ```php
-return microtime(true) + pow($message->getRetries(), 4) + 15 + (rand(1, 30) * ($message->getRetries() + 1));
+$retries = $message->getRetries();
+return microtime(true) + $retries ** 4 + 15 + $this->randomizer->getInt(1, 30) * ($retries + 1);
 ```
 
-`$message->getRetries()` is the count **before** the increment. `rand()` is PHP's `rand`.
+`$retries` is the count **before** the increment. The jitter comes from a `Random\Randomizer`. By default it is `new Randomizer()`, which uses the cryptographically secure engine. Up to 5.x it was the global `rand()`.
 
 | Current `retries` | Added delay, in seconds |
 | --- | --- |
 | 0 | 15 + a random integer from 1 to 30 |
 | 1 | 16 + a random integer from 2 to 60 |
 | 2 | 31 + a random integer from 3 to 90 |
-| n | `n^4 + 15 + rand(1, 30) * (n + 1)` |
+| n | `n^4 + 15 + jitter(1, 30) * (n + 1)` |
 
 Redis and Predis will wait, because `executeAt` is in the future. RabbitMQ and SQS publish the copy immediately. The timestamp is still inside the JSON, and the next failure still increments `retries`, but the worker can see the copy on the next poll. On those two drivers a failing handler can spin until `maxRetry()` is reached.
+
+### Reproducible retry times
+
+Pass your own `Randomizer` as the fourth `Dispatcher` argument. With a seeded engine the sequence of jitter values is the same on every run, which is useful in tests. The first retry the worker computes gets the first value, and so on. Which message that is depends on the delivery order, and the Redis drivers pop a random member of the set:
+
+```php
+use Random\Engine\Mt19937;
+use Random\Randomizer;
+
+$dispatcher = new Dispatcher($driver, $logger, null, new Randomizer(new Mt19937(42)));
+```
+
+Keep the default in production. Workers started with the same seed compute the same delays, so when an outage makes them all fail at once, their retries come back together on Redis and Predis. RabbitMQ and SQS ignore `executeAt`, so the jitter does not spread their retries in any case. `mt_srand()` does not affect the jitter any more, because it only seeds the global `rand()` that 5.x used.
+
+A container that autowires `Dispatcher` injects a `Random\Randomizer` service if you registered one, for example a seeded one meant for something else. Pass `null` to keep the default. In Symfony, in `config/services.yaml`:
+
+```yaml
+services:
+    Tomaj\Hermes\Dispatcher:
+        arguments:
+            $randomizer: null
+```
+
+In Nette, in `config/services.neon`:
+
+```yaml
+services:
+	- Tomaj\Hermes\Dispatcher(randomizer: null)
+```
 
 ## Several handlers
 
@@ -88,7 +118,7 @@ Remove the trait, or make `maxRetry()` return `0`. Returning `false` from `canRe
 
 ### How long until the next attempt?
 
-`retries⁴ + 15 + rand(1, 30) × (retries + 1)` seconds, so 16 to 45 seconds for the first retry. It grows quickly after that.
+`retries⁴ + 15 + jitter × (retries + 1)` seconds, with a random jitter from 1 to 30, so 16 to 45 seconds for the first retry. It grows quickly after that. Pass a seeded `Random\Randomizer` to the `Dispatcher` to make it reproducible.
 
 ### Why do retries happen instantly on RabbitMQ or SQS?
 

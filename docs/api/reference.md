@@ -65,11 +65,12 @@ public const int DEFAULT_PRIORITY = 100;
 public function __construct(
     DriverInterface $driver,
     ?LoggerInterface $logger = null,
-    ?ShutdownInterface $shutdown = null
+    ?ShutdownInterface $shutdown = null,
+    ?Randomizer $randomizer = null
 )
 ```
 
-When `$shutdown` is not `null` and the driver has `setShutdown()`, the constructor calls it.
+When `$shutdown` is not `null` and the driver has `setShutdown()`, the constructor calls it. `$randomizer` (`Random\Randomizer`) supplies the retry jitter; it defaults to `new Randomizer()`. See [Retry](/guide/retry#reproducible-retry-times).
 
 | Method | Behavior |
 | --- | --- |
@@ -82,7 +83,7 @@ When `$shutdown` is not `null` and the driver has `setShutdown()`, the construct
 
 `handle()`'s array is a list of priority integers. Empty means all queues the driver has.
 
-Handler exceptions are caught per handler. They do not leave `handle()` unless the driver itself throws. Retry is described in [Retry](/guide/retry). The private delay formula is `microtime(true) + pow($retries, 4) + 15 + (rand(1, 30) * ($retries + 1))`.
+Handler exceptions are caught per handler. They do not leave `handle()` unless the driver itself throws. Retry is described in [Retry](/guide/retry). The private delay formula is `microtime(true) + $retries ** 4 + 15 + $randomizer->getInt(1, 30) * ($retries + 1)`.
 
 ## Tomaj\Hermes\DispatcherInterface
 

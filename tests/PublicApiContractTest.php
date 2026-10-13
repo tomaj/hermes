@@ -52,7 +52,7 @@ final class PublicApiContractTest extends TestCase
     public static function constructors(): iterable
     {
         yield 'Message' => [Message::class, ['string $type', '?array $payload = null', '?string $messageId = null', '?float $created = null', '?float $executeAt = null', 'int $retries = 0']];
-        yield 'Dispatcher' => [Dispatcher::class, ['Tomaj\\Hermes\\Driver\\DriverInterface $driver', '?Psr\\Log\\LoggerInterface $logger = null', '?Tomaj\\Hermes\\Shutdown\\ShutdownInterface $shutdown = null']];
+        yield 'Dispatcher' => [Dispatcher::class, ['Tomaj\\Hermes\\Driver\\DriverInterface $driver', '?Psr\\Log\\LoggerInterface $logger = null', '?Tomaj\\Hermes\\Shutdown\\ShutdownInterface $shutdown = null', '?Random\\Randomizer $randomizer = null']];
         yield 'Emitter' => [Emitter::class, ['Tomaj\\Hermes\\Driver\\DriverInterface $driver', '?Psr\\Log\\LoggerInterface $logger = null']];
         yield 'RedisSetDriver' => [RedisSetDriver::class, ['Redis $redis', 'string $key = "hermes"', 'int $refreshInterval = 1', 'string $scheduleKey = "hermes_schedule"']];
         yield 'PredisSetDriver' => [PredisSetDriver::class, ['Predis\\Client $redis', 'string $key = "hermes"', 'int $refreshInterval = 1', 'string $scheduleKey = "hermes_schedule"']];

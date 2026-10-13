@@ -51,7 +51,7 @@ The worker logs `Handler App\WebhookHandler throws exception - Receiver answered
 
 - **Decide which failures to retry.** Throwing retries, returning `false` does not. A timeout, `5xx`, or `429` can succeed later. A `404` or `410` will not.
 - **Send a stable id.** The dispatcher keeps the message id on every retry copy. Send it as a header so receivers can drop duplicates, because a timeout can hide a request that did arrive.
-- **The retry delay is fixed by Hermes.** It is `retries⁴ + 15 + rand(1, 30) × (retries + 1)` seconds. With `maxRetry()` at 8, the last attempt is about an hour and a half after the first.
+- **The retry delay is fixed by Hermes.** It is `retries⁴ + 15 + jitter × (retries + 1)` seconds, with a random jitter from 1 to 30. With `maxRetry()` at 8, the last attempt is about an hour and a half after the first.
 - **Retries need a driver with delay.** On RabbitMQ and SQS the copy is published at once, so all attempts happen within seconds. Use Predis for webhooks.
 - **Set a timeout.** One slow receiver must not block the worker. Ten seconds is plenty, and running several workers keeps other deliveries moving.
 
