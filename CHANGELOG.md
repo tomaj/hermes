@@ -19,6 +19,8 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ### Changed
 
+* **BREAKING CHANGE**: `PredisSetDriver` and `PredisShutdown` now support `predis/predis` `^2.3 || ^3.0`. Predis 1.x and 2.0 to 2.2 are no longer tested: they emit deprecations on PHP 8.4. Upgrade Predis together with Hermes.
+* `PredisSetDriver::wait()` passes the schedule bound to `zrangebyscore` as a string with microseconds, as Predis 2 and 3 expect.
 * **BREAKING CHANGE**: Raised the minimum PHP version to 8.4. PHP 7.4 and 8.0 through 8.3 are no longer supported.
 * `ramsey/uuid` now requires `^4.7` and `tracy/tracy` now requires `^2.10.10`, so both install on PHP 8.4 and 8.5.
 * **BREAKING CHANGE**: Updated minimum PHP version requirement to PHP 7.4+ with full PHP 8.0+ support

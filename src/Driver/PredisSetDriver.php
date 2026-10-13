@@ -104,7 +104,7 @@ class PredisSetDriver implements DriverInterface
         return $this->queues[$priority];
     }
 
-    /**s
+    /**
      * {@inheritdoc}
      *
      * @throws ShutdownException
@@ -120,8 +120,9 @@ class PredisSetDriver implements DriverInterface
                 break;
             }
 
-            // check schedule
-            $messagesString = $this->redis->zrangebyscore($this->scheduleKey, '-inf', microtime(true), ['LIMIT' => ['OFFSET' => 0, 'COUNT' => 1]]);
+            // check schedule; Redis takes the score bound as a string, keep the microseconds
+            $now = sprintf('%.6F', microtime(true));
+            $messagesString = $this->redis->zrangebyscore($this->scheduleKey, '-inf', $now, ['LIMIT' => ['OFFSET' => 0, 'COUNT' => 1]]);
             if ($messagesString !== []) {
                 foreach ($messagesString as $messageString) {
                     if (!is_string($messageString)) {

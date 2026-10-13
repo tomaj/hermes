@@ -22,7 +22,7 @@ That pulls in `ext-json`, `ramsey/uuid` (`^3 || ^4`), `psr/log` (`^1 || ^2 || ^3
 | Driver | What you install |
 | --- | --- |
 | `RedisSetDriver` | The [phpredis](https://github.com/phpredis/phpredis) extension (`ext-redis`). Composer does not install the extension. |
-| `PredisSetDriver` | `composer require predis/predis` (`^1.1` in this package's dev requirement) |
+| `PredisSetDriver` | `composer require predis/predis` (Predis 2.3 or newer, or 3.x) |
 | `LazyRabbitMqDriver` | `composer require php-amqplib/php-amqplib` |
 | `AmazonSqsDriver` | `composer require aws/aws-sdk-php` |
 
