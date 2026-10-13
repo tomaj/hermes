@@ -47,7 +47,7 @@ Soft restart support on the drivers of that release, a consumer tag on `LazyRabb
 
 ## 2.2.0
 
-`registerHandlers()` registers several handlers for one type. RabbitMQ drivers gained an ack-related retry fix in that release. The current `LazyRabbitMqDriver` consumes with `no_ack = true`. [RabbitMQ](/guide/drivers/rabbitmq) describes that call.
+`registerHandlers()` registers several handlers for one type. RabbitMQ drivers gained an ack-related retry fix in that release. `LazyRabbitMqDriver` consumed with `no_ack = true` until 6.0. [RabbitMQ](/guide/drivers/rabbitmq) describes that call.
 
 ## 2.1.0
 

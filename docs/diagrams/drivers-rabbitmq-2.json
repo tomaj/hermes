@@ -312,7 +312,7 @@
    "t": "text",
    "x": 212.44250000000005,
    "y": 56.0,
-   "text": "queue_declare, non-durable",
+   "text": "queue_declare, durable",
    "size": 16,
    "color": "muted"
   },
@@ -333,7 +333,7 @@
    "t": "text",
    "x": 212.44250000000005,
    "y": 106.0,
-   "text": "basic_consume, no_ack true",
+   "text": "basic_qos 1, basic_consume",
    "size": 16,
    "color": "muted"
   },
@@ -354,7 +354,7 @@
    "t": "text",
    "x": 212.44250000000005,
    "y": 156.0,
-   "text": "body, already acknowledged",
+   "text": "body, not yet acknowledged",
    "size": 16,
    "color": "muted"
   },
@@ -376,7 +376,7 @@
    "t": "text",
    "x": 289.37125000000003,
    "y": 206.0,
-   "text": "unserialize and callback",
+   "text": "callback, then basic_ack",
    "size": 16,
    "color": "muted"
   },

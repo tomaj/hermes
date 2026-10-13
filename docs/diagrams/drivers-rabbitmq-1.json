@@ -149,7 +149,7 @@
    "t": "text",
    "x": 747.2675,
    "y": 44.25,
-   "text": "durable false",
+   "text": "durable",
    "size": 13,
    "color": "muted",
    "align": "left"
@@ -227,7 +227,7 @@
    "t": "text",
    "x": 976.6153750000001,
    "y": 44.25,
-   "text": "no_ack true",
+   "text": "manual ack",
    "size": 13,
    "color": "muted",
    "align": "left"
