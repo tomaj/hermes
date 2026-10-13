@@ -1,0 +1,171 @@
+#!/usr/bin/env bash
+# Check generated diagrams, build the VitePress site, and check links at the real GitHub Pages base.
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+port="${DOCS_LINK_PORT:-4173}"
+base="/hermes/"
+
+# Generated diagrams must match their docs/diagrams/*.mmd sources.
+npm run diagrams:check
+
+npm run docs:build
+python3 scripts/check-svg.py .vitepress/dist
+
+if curl -sf -o /dev/null "http://127.0.0.1:${port}${base}"; then
+  echo "Port ${port} is already in use" >&2
+  exit 1
+fi
+
+./node_modules/.bin/vitepress preview --host 127.0.0.1 --port "$port" >/tmp/docs-preview.log 2>&1 &
+preview_pid=$!
+
+cleanup() {
+  if kill -0 "$preview_pid" 2>/dev/null; then
+    kill "$preview_pid" 2>/dev/null || true
+    wait "$preview_pid" 2>/dev/null || true
+  fi
+}
+trap cleanup EXIT
+
+ready=0
+for _ in $(seq 1 40); do
+  if curl -sf -o /dev/null "http://127.0.0.1:${port}${base}"; then
+    ready=1
+    break
+  fi
+  if ! kill -0 "$preview_pid" 2>/dev/null; then
+    echo "VitePress preview exited before it was ready" >&2
+    cat /tmp/docs-preview.log >&2 || true
+    exit 1
+  fi
+  sleep 0.25
+done
+
+if [[ "$ready" -ne 1 ]]; then
+  echo "VitePress preview did not serve ${base}" >&2
+  cat /tmp/docs-preview.log >&2 || true
+  exit 1
+fi
+
+# Edit links are produced by the VitePress editLink pattern. Requesting each
+# one from GitHub trips the rate limit, so check that the file exists instead.
+python3 - <<'PY'
+import re
+import sys
+from pathlib import Path
+
+prefix = "https://github.com/tomaj/hermes/edit/master/docs/"
+found: set[str] = set()
+missing: list[str] = []
+for page in Path(".vitepress/dist").rglob("*.html"):
+    text = page.read_text(encoding="utf-8", errors="replace")
+    for url in re.findall(re.escape(prefix) + r"[^\"'\s#\\]+", text):
+        if ":path" in url or not url.endswith(".md"):
+            continue
+        relative = url[len(prefix):]
+        found.add(relative)
+        if not Path(relative).is_file():
+            missing.append(f"{url} ({page})")
+if not found:
+    print("No generated GitHub edit links found in the built site", file=sys.stderr)
+    sys.exit(1)
+if missing:
+    print("Edit link target is missing:", file=sys.stderr)
+    for item in missing:
+        print(item, file=sys.stderr)
+    sys.exit(1)
+print(f"ok {len(found)} edit links match files on disk")
+PY
+
+# Blob links point at this repository. Requesting each one trips GitHub's
+# rate limit, so check that the file exists in the checkout instead.
+python3 - <<'PY'
+import re
+import sys
+from pathlib import Path
+
+prefix = "https://github.com/tomaj/hermes/blob/master/"
+repo = Path("..")
+found: set[str] = set()
+missing: list[str] = []
+for page in Path(".vitepress/dist").rglob("*.html"):
+    text = page.read_text(encoding="utf-8", errors="replace")
+    for url in re.findall(re.escape(prefix) + r"[^\"'\s#\\]+", text):
+        relative = url[len(prefix):]
+        found.add(relative)
+        if not (repo / relative).is_file():
+            missing.append(f"{url} ({page})")
+if not found:
+    print("No GitHub blob links found in the built site", file=sys.stderr)
+    sys.exit(1)
+if missing:
+    print("Blob link target is missing:", file=sys.stderr)
+    for item in missing:
+        print(item, file=sys.stderr)
+    sys.exit(1)
+print(f"ok {len(found)} blob links match files on disk")
+PY
+
+# github.com edit and blob links are skipped so a 429 or 503 from GitHub
+# cannot fail the check. Coverage and the social image are published with
+# the Pages site; they are not on the current Pages root until this
+# workflow has deployed once.
+skip_args=(
+  --skip 'https://github\.com/tomaj/hermes/edit/'
+  --skip 'https://github\.com/tomaj/hermes/blob/master/'
+)
+if ! curl -sf -o /dev/null --max-time 20 "https://tomaj.github.io/hermes/coverage/"; then
+  skip_args+=(--skip 'https://tomaj\.github\.io/hermes/coverage')
+fi
+if ! curl -sf -o /dev/null --max-time 20 "https://tomaj.github.io/hermes/og.svg"; then
+  skip_args+=(--skip 'https://tomaj\.github\.io/hermes/og\.svg')
+fi
+
+run_check() {
+  npx --no-install linkinator "http://127.0.0.1:${port}${base}" \
+    --recurse \
+    --retry \
+    --concurrency 1 \
+    --timeout 20000 \
+    --verbosity error \
+    "${skip_args[@]}"
+}
+
+# 429 is a rate limit, not a broken link. 5xx from GitHub is retried a few times.
+attempt=1
+while true; do
+  set +e
+  run_check 2>&1 | tee /tmp/docs-linkinator.txt
+  status=${PIPESTATUS[0]}
+  set -e
+  if [[ "$status" -eq 0 ]]; then
+    break
+  fi
+  mapfile -t codes < <(grep -oE '\[[0-9]{3}\]' /tmp/docs-linkinator.txt | tr -d '[]' | sort -u)
+  if [[ ${#codes[@]} -eq 0 ]]; then
+    exit "$status"
+  fi
+  only_rate_limit=1
+  retryable=1
+  for code in "${codes[@]}"; do
+    if [[ "$code" != "429" ]]; then
+      only_rate_limit=0
+    fi
+    case "$code" in
+      429|500|502|503|504) ;;
+      *) retryable=0 ;;
+    esac
+  done
+  if [[ "$only_rate_limit" -eq 1 ]]; then
+    echo "GitHub rate limited some links; not treating HTTP 429 as a failure." >&2
+    break
+  fi
+  if [[ "$retryable" -eq 0 || "$attempt" -ge 3 ]]; then
+    exit "$status"
+  fi
+  echo "GitHub returned a temporary error; retrying the link check (${attempt})..." >&2
+  attempt=$((attempt + 1))
+  sleep $((attempt * 8))
+done

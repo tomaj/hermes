@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img">
+  <title>Workers</title>
+  <rect width="64" height="64" rx="16" fill="#1e1b4b"/>
+  
+<rect x="12" y="18" width="14" height="18" rx="2.5" fill="none" stroke="#e0e7ff" stroke-width="2"/>
+<rect x="25" y="28" width="14" height="18" rx="2.5" fill="none" stroke="#67e8f9" stroke-width="2"/>
+<rect x="38" y="18" width="14" height="18" rx="2.5" fill="none" stroke="#e0e7ff" stroke-width="2"/>
+<path d="M16 23h6M29 33h6M42 23h6" stroke="#e0e7ff" stroke-width="1.6" stroke-linecap="round"/>
+
+</svg>

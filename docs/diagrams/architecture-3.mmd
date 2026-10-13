@@ -1,0 +1,9 @@
+flowchart TD
+  created["new Message"] --> emit["Emitter.emit"]
+  emit --> send["Driver.send"]
+  send --> choice{"executeAt in the future?"}
+  choice -->|"Redis or Predis"| later["Sorted set"]
+  choice -->|"due, or RabbitMQ, or SQS"| live["Live queue"]
+  later --> promote["Worker sends it again when due"]
+  promote --> live
+  live --> taken["Driver takes the message"]

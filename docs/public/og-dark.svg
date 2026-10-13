@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img">
+  <title>Hermes documentation</title>
+  <defs>
+    <linearGradient id="ogbg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#312e81"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#ogbg)"/>
+  <rect x="72" y="72" width="1056" height="486" rx="36" fill="#111827"/>
+  <g transform="translate(120 250) scale(2.4)">
+    <path fill="#c7d2fe" d="M30 27c-2-11-14-15-22-8 6-1 13 3 16 10-8-1-14 4-16 12 7-3 13-4 18-2-1-4-1-8 4-12z"/>
+<path fill="#c7d2fe" d="M34 27c2-11 14-15 22-8-6-1-13 3-16 10 8-1 14 4 16 12-7-3-13-4-18-2 1-4 1-8-4-12z"/>
+    <mask id="env-clip">
+  <rect x="15" y="31" width="34" height="21" rx="4" fill="#fff"/>
+</mask>
+<g mask="url(#env-clip)">
+  <rect x="15" y="31" width="34" height="21" fill="#f8fafc"/>
+  <path d="M15 34.5 32 48 49 34.5" fill="none" stroke="#67e8f9" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+</g>
+  </g>
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <text x="340" y="300" fill="#f8fafc" font-size="92" font-weight="700">Hermes</text>
+    <text x="344" y="368" fill="#c7d2fe" font-size="32">Background jobs for PHP 5.x</text>
+    <text x="344" y="430" fill="#67e8f9" font-size="24">Redis, Predis, RabbitMQ, Amazon SQS</text>
+  </g>
+</svg>

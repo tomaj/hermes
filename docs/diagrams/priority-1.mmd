@@ -1,0 +1,6 @@
+flowchart TD
+  ctor["constructor stores hermes at 100"] --> low["setupPriorityQueue hermes_low at 90"]
+  low --> high["setupPriorityQueue hermes_high at 110"]
+  high --> inserted["array order is 100, then 90, then 110"]
+  inserted --> reversed["array_reverse keeps keys and flips that order"]
+  reversed --> polled["wait pops 110, then 90, then 100"]

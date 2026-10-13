@@ -1,6 +1,9 @@
 build/
 vendor/
 composer.lock
+docs/node_modules/
+docs/.vitepress/dist/
+docs/.vitepress/cache/
 coverage.clover
 .idea/
 .phpunit.cache/

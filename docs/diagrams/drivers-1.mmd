@@ -1,0 +1,12 @@
+flowchart TD
+  need["Pick a broker"] --> ext{"phpredis extension available?"}
+  ext -->|yes| redis["RedisSetDriver"]
+  ext -->|no| php{"Predis acceptable?"}
+  php -->|yes| predis["PredisSetDriver"]
+  php -->|no| which{"Which broker do you already run?"}
+  which -->|RabbitMQ| rabbit["LazyRabbitMqDriver"]
+  which -->|AWS| sqs["AmazonSqsDriver"]
+  redis --> both["Delay and priority exist, with the order caveat"]
+  predis --> both
+  rabbit --> plain["One queue, no delay, no priority"]
+  sqs --> plain

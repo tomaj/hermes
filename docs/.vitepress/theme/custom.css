@@ -1,0 +1,130 @@
+/**
+ * Customize default theme styling by overriding CSS variables:
+ * https://github.com/vuejs/vitepress/blob/main/src/client/theme-default/styles/vars.css
+ */
+
+:root {
+  --vp-c-brand-1: #4f46e5;
+  --vp-c-brand-2: #6366f1;
+  --vp-c-brand-3: #818cf8;
+  --vp-c-brand-soft: rgba(79, 70, 229, 0.14);
+
+  --vp-button-brand-border: transparent;
+  --vp-button-brand-text: #ffffff;
+  --vp-button-brand-bg: #4f46e5;
+  --vp-button-brand-hover-border: transparent;
+  --vp-button-brand-hover-text: #ffffff;
+  --vp-button-brand-hover-bg: #4338ca;
+  --vp-button-brand-active-border: transparent;
+  --vp-button-brand-active-text: #ffffff;
+  --vp-button-brand-active-bg: #3730a3;
+
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(120deg, #4f46e5 0%, #0891b2 100%);
+  --vp-home-hero-image-background-image: linear-gradient(135deg, #4f46e580 0%, #06b6d480 100%);
+  --vp-home-hero-image-filter: blur(44px);
+}
+
+.dark {
+  --vp-c-brand-1: #a5b4fc;
+  --vp-c-brand-2: #818cf8;
+  --vp-c-brand-3: #6366f1;
+  --vp-c-brand-soft: rgba(165, 180, 252, 0.16);
+
+  --vp-button-brand-bg: #6366f1;
+  --vp-button-brand-hover-bg: #818cf8;
+  --vp-button-brand-active-bg: #4f46e5;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --vp-home-hero-image-filter: blur(56px);
+  }
+}
+
+@media (min-width: 960px) {
+  :root {
+    --vp-home-hero-image-filter: blur(68px);
+  }
+}
+
+.only-dark {
+  display: none;
+}
+
+.dark .only-light {
+  display: none;
+}
+
+.dark .only-dark {
+  display: block;
+}
+
+.theme-img {
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  border: 1px solid var(--vp-c-divider);
+}
+
+.hero-flow {
+  --hf-bg: #f4f7ff;
+  --hf-card: #ffffff;
+  --hf-line: #c7d2fe;
+  --hf-ink: #0f172a;
+  --hf-muted: #64748b;
+  --hf-high: #4f46e5;
+  --hf-def: #0891b2;
+  --hf-sched: #d97706;
+  --hf-ok: #059669;
+  --hf-bad: #e11d48;
+  --hf-paper: #ffffff;
+}
+
+html.dark .hero-flow {
+  --hf-bg: #0f172a;
+  --hf-card: #111827;
+  --hf-line: #4338ca;
+  --hf-ink: #e2e8f0;
+  --hf-muted: #94a3b8;
+  --hf-high: #a5b4fc;
+  --hf-def: #67e8f9;
+  --hf-sched: #fbbf24;
+  --hf-ok: #6ee7b7;
+  --hf-bad: #fb7185;
+  --hf-paper: #0f172a;
+}
+
+.dark .VPHero img.image-src {
+  content: url("/hermes/illustrations/hero-dark.svg");
+}
+
+.dark .VPFeature img[src$="queues.svg"] { content: url("/hermes/icons/queues-dark.svg"); }
+.dark .VPFeature img[src$="retry.svg"] { content: url("/hermes/icons/retry-dark.svg"); }
+.dark .VPFeature img[src$="priority.svg"] { content: url("/hermes/icons/priority-dark.svg"); }
+.dark .VPFeature img[src$="shutdown.svg"] { content: url("/hermes/icons/shutdown-dark.svg"); }
+.dark .VPFeature img[src$="extend.svg"] { content: url("/hermes/icons/extend-dark.svg"); }
+.dark .VPFeature img[src$="workers.svg"] { content: url("/hermes/icons/workers-dark.svg"); }
+
+/* Hand-drawn diagrams. Sources live in docs/diagrams, see contributing. */
+.hand-diagram {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  text-align: center;
+}
+
+.hand-diagram img {
+  display: inline-block;
+  max-width: 100%;
+  width: auto;
+  height: auto;
+}
+
+.hand-diagram .hand-diagram-dark { display: none; }
+.dark .hand-diagram .hand-diagram-light { display: none; }
+.dark .hand-diagram .hand-diagram-dark { display: inline-block; }
+
+.VPFeature .icon {
+  background: transparent;
+  border-radius: 12px;
+}

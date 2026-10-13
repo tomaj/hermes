@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img">
+  <title>Hermes</title>
+  <path fill="#4f46e5" d="M30 27c-2-11-14-15-22-8 6-1 13 3 16 10-8-1-14 4-16 12 7-3 13-4 18-2-1-4-1-8 4-12z"/>
+<path fill="#4f46e5" d="M34 27c2-11 14-15 22-8-6-1-13 3-16 10 8-1 14 4 16 12-7-3-13-4-18-2 1-4 1-8-4-12z"/>
+  <mask id="env-clip">
+  <rect x="15" y="31" width="34" height="21" rx="4" fill="#fff"/>
+</mask>
+<g mask="url(#env-clip)">
+  <rect x="15" y="31" width="34" height="21" fill="#0f172a"/>
+  <path d="M15 34.5 32 48 49 34.5" fill="none" stroke="#06b6d4" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+</g>
+</svg>

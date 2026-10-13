@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 480" role="img">
+  <title>Several Hermes workers sharing one queue</title>
+  <rect width="860" height="480" rx="28" fill="#0b1220"/>
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    
+    <path d="M248 240 H360 V96 H500" fill="none" stroke="#6366f1" stroke-width="3"/>
+    <path d="M488 96 l12 8-12 8z" fill="#a5b4fc"/>
+    <rect x="500" y="40" width="300" height="120" rx="18" fill="#111827" stroke="#334155"/>
+    <text x="524" y="76" fill="#94a3b8" font-size="14">worker 1</text>
+    <text x="524" y="106" fill="#e2e8f0" font-size="18" font-weight="700">php worker.php</text>
+    <rect x="524" y="120" width="120" height="24" rx="8" fill="#1e1b4b"/>
+    <text x="536" y="137" fill="#a5b4fc" font-size="13">one SPOP</text>
+
+    <path d="M248 240 H500" fill="none" stroke="#6366f1" stroke-width="3"/>
+    <path d="M488 236 l12 8-12 8z" fill="#a5b4fc"/>
+    <rect x="500" y="180" width="300" height="120" rx="18" fill="#111827" stroke="#334155"/>
+    <text x="524" y="216" fill="#94a3b8" font-size="14">worker 2</text>
+    <text x="524" y="246" fill="#e2e8f0" font-size="18" font-weight="700">php worker.php</text>
+    <rect x="524" y="260" width="120" height="24" rx="8" fill="#1e1b4b"/>
+    <text x="536" y="277" fill="#a5b4fc" font-size="13">one SPOP</text>
+
+    <path d="M248 240 H360 V376 H500" fill="none" stroke="#6366f1" stroke-width="3"/>
+    <path d="M488 376 l12 8-12 8z" fill="#a5b4fc"/>
+    <rect x="500" y="320" width="300" height="120" rx="18" fill="#111827" stroke="#334155"/>
+    <text x="524" y="356" fill="#94a3b8" font-size="14">worker 3</text>
+    <text x="524" y="386" fill="#e2e8f0" font-size="18" font-weight="700">php worker.php</text>
+    <rect x="524" y="400" width="120" height="24" rx="8" fill="#1e1b4b"/>
+    <text x="536" y="417" fill="#a5b4fc" font-size="13">one SPOP</text>
+
+    <rect x="48" y="150" width="200" height="180" rx="20" fill="#111827" stroke="#334155"/>
+    <text x="72" y="190" fill="#94a3b8" font-size="15">Redis set</text>
+    <text x="72" y="226" fill="#e2e8f0" font-size="22" font-weight="700">hermes</text>
+    <rect x="72" y="246" width="150" height="26" rx="8" fill="#1e1b4b"/>
+    <rect x="72" y="280" width="120" height="26" rx="8" fill="#1e1b4b"/>
+    <text x="86" y="264" fill="#a5b4fc" font-size="13">message A</text>
+    <text x="86" y="298" fill="#67e8f9" font-size="13">message B</text>
+  </g>
+</svg>
