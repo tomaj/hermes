@@ -59,12 +59,14 @@ class DummyDriver implements DriverInterface
         $this->events[$priority][] = $event;
     }
 
+    #[\Override]
     public function send(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): bool
     {
         $this->addEvent($this->serializer->serialize($message), $priority);
         return true;
     }
 
+    #[\Override]
     public function setupPriorityQueue(string $name, int $priority): void
     {
         $this->queues[$priority] = $name;
@@ -96,6 +98,7 @@ class DummyDriver implements DriverInterface
      * @param Closure $callback
      * @param int[] $priorities
      */
+    #[\Override]
     public function wait(Closure $callback, array $priorities = []): void
     {
         $queues = array_reverse($this->queues, true);

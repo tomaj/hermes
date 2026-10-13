@@ -34,13 +34,19 @@ class RetryBackoffTest extends TestCase
 
             public function __construct(private MessageInterface $message) {}
 
+            #[\Override]
+
             public function send(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): bool
             {
                 $this->sent[] = $message;
                 return true;
             }
 
+            #[\Override]
+
             public function setupPriorityQueue(string $name, int $priority): void {}
+
+            #[\Override]
 
             public function wait(Closure $callback, array $priorities = []): void
             {
@@ -51,6 +57,8 @@ class RetryBackoffTest extends TestCase
         $dispatcher = new Dispatcher($driver, null, null, $randomizer);
         $dispatcher->registerHandler('job', new class implements HandlerInterface {
             use RetryTrait;
+
+            #[\Override]
 
             public function handle(MessageInterface $message): bool
             {

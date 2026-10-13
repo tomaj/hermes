@@ -6,12 +6,13 @@ namespace Tomaj\Hermes\Shutdown;
 
 use DateTime;
 
-class SharedFileShutdown implements ShutdownInterface
+final class SharedFileShutdown implements ShutdownInterface
 {
     public function __construct(
         private readonly string $filePath,
     ) {}
 
+    #[\Override]
     public function shouldShutdown(DateTime $startTime): bool
     {
         clearstatcache(false, $this->filePath);
@@ -31,6 +32,7 @@ class SharedFileShutdown implements ShutdownInterface
     /**
      * Creates file defined in constructor with modification time `$shutdownTime` (or current DateTime).
      */
+    #[\Override]
     public function shutdown(?DateTime $shutdownTime = null): bool
     {
         if ($shutdownTime === null) {

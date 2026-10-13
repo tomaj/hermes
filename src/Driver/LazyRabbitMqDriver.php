@@ -15,7 +15,7 @@ use Tomaj\Hermes\MessageSerializer;
 use Tomaj\Hermes\SerializeException;
 use Tomaj\Hermes\Shutdown\ShutdownException;
 
-class LazyRabbitMqDriver implements DriverInterface
+final class LazyRabbitMqDriver implements DriverInterface
 {
     use MaxItemsTrait;
     use ShutdownTrait;
@@ -45,6 +45,7 @@ class LazyRabbitMqDriver implements DriverInterface
      * @throws \PhpAmqpLib\Exception\AMQPConnectionClosedException
      * @throws \PhpAmqpLib\Exception\AMQPTimeoutException
      */
+    #[\Override]
     public function send(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): bool
     {
         $properties = $this->amqpMessageProperties;
@@ -59,6 +60,7 @@ class LazyRabbitMqDriver implements DriverInterface
     /**
      * @throws NotSupportedException
      */
+    #[\Override]
     public function setupPriorityQueue(string $name, int $priority): void
     {
         throw new NotSupportedException('LazyRabbitMqDriver is not supporting priority queues now');
@@ -71,6 +73,7 @@ class LazyRabbitMqDriver implements DriverInterface
      * @throws \PhpAmqpLib\Exception\AMQPTimeoutException
      * @throws \ErrorException
      */
+    #[\Override]
     public function wait(Closure $callback, array $priorities = []): void
     {
         // Deliver one unacknowledged message at a time to this worker.

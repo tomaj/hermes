@@ -123,6 +123,71 @@ $dispatcher = new Dispatcher($driver, $logger, null, new Randomizer(new Mt19937(
 
 If your container autowires `Dispatcher` and has a `Randomizer` service, that service is now injected. See [Retry](docs/guide/retry.md#reproducible-retry-times).
 
+## Classes are final
+
+Every concrete class in `src/` is `final` ([#81](https://github.com/tomaj/hermes/issues/81)): `Message`, `MessageSerializer`, `Emitter`, `Dispatcher`, `EchoHandler`, the four drivers, the three shutdowns, and the exceptions `SerializeException`, `ShutdownException`, `NotSupportedException` and `UnknownPriorityException`. `HermesException` stays open, because the other exceptions extend it, and so can yours.
+
+If you extended one of these classes, switch to the interface it implements and wrap the built-in class:
+
+| You extended | Implement instead |
+| --- | --- |
+| `Message` | `MessageInterface` |
+| `MessageSerializer` | `SerializerInterface` |
+| `Emitter` | `EmitterInterface` |
+| `Dispatcher` | `DispatcherInterface` |
+| a driver | `DriverInterface` (the traits in `src/Driver` are still available) |
+| a shutdown | `ShutdownInterface` |
+| `EchoHandler` | `HandlerInterface` (with `RetryTrait` if you need retries) |
+
+For example, a driver that adds logging around `RedisSetDriver`:
+
+```php
+use Psr\Log\LoggerInterface;
+use Tomaj\Hermes\Dispatcher;
+use Tomaj\Hermes\Driver\DriverInterface;
+use Tomaj\Hermes\Driver\RedisSetDriver;
+use Tomaj\Hermes\MessageInterface;
+use Tomaj\Hermes\Shutdown\ShutdownInterface;
+
+final class LoggingDriver implements DriverInterface
+{
+    public function __construct(
+        private readonly RedisSetDriver $inner,
+        private readonly LoggerInterface $logger,
+    ) {}
+
+    #[\Override]
+    public function send(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): bool
+    {
+        $this->logger->debug('send', ['id' => $message->getId()]);
+        return $this->inner->send($message, $priority);
+    }
+
+    #[\Override]
+    public function setupPriorityQueue(string $name, int $priority): void
+    {
+        $this->inner->setupPriorityQueue($name, $priority);
+    }
+
+    #[\Override]
+    public function wait(\Closure $callback, array $priorities = []): void
+    {
+        $this->inner->wait($callback, $priorities);
+    }
+
+    public function setShutdown(ShutdownInterface $shutdown): void
+    {
+        $this->inner->setShutdown($shutdown);
+    }
+}
+```
+
+Forward `setShutdown()` as above. `Dispatcher` passes its `ShutdownInterface` only to a driver that has this method. Without it, a worker waiting on an empty queue does not notice a shutdown request; it stops only after the next message. Forward `setMaxProcessItems()` and `setSerializer()` the same way if you call them on the wrapper. `$inner` is typed as the concrete driver because these methods are not part of `DriverInterface`.
+
+Doubling a final class fails in PHPUnit (`ClassIsFinalException`), Mockery and Prophecy. Mock the interface instead (`$this->createMock(EmitterInterface::class)`), and type-hint `EmitterInterface` and `DispatcherInterface` in your own classes so they accept the mock. Until you have changed those type hints, [`dg/bypass-finals`](https://github.com/dg/bypass-finals) can remove `final` in your test bootstrap. Use it in tests only.
+
+All methods that implement an interface method carry `#[\Override]`, and PHPStan (`checkMissingOverrideMethodAttribute`) enforces it in `src/` and `tests/`.
+
 ## Private state is readonly
 
 Constructor arguments are promoted to `readonly` properties in `Message`, `Dispatcher`, `Emitter`, the drivers and the shutdowns ([#78](https://github.com/tomaj/hermes/issues/78)). The public API is unchanged, but:
@@ -138,7 +203,7 @@ Constructor arguments are promoted to `readonly` properties in `Message`, `Dispa
 public const int DEFAULT_PRIORITY = 100;
 ```
 
-The value is the same. If you extend `Dispatcher` and redeclare `DEFAULT_PRIORITY`, declare it as `public const int` too. An untyped redeclaration is now a fatal error: `Type of …::DEFAULT_PRIORITY must be compatible with Tomaj\Hermes\Dispatcher::DEFAULT_PRIORITY of type int`.
+The value is the same.
 
 **Decision: no `Priority` enum or value object.** Priorities stay `int` in `DriverInterface::send()`, `setupPriorityQueue()`, `Emitter::emit()` and `Dispatcher::handle()` ([#80](https://github.com/tomaj/hermes/issues/80)), because:
 

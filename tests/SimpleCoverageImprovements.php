@@ -177,6 +177,7 @@ class SimpleCoverageImprovements extends TestCase
         $dispatcher = new Dispatcher($driver);
 
         $handler1 = new class implements HandlerInterface {
+            #[\Override]
             public function handle(MessageInterface $message): bool
             {
                 return true;
@@ -184,6 +185,7 @@ class SimpleCoverageImprovements extends TestCase
         };
 
         $handler2 = new class implements HandlerInterface {
+            #[\Override]
             public function handle(MessageInterface $message): bool
             {
                 return true;
@@ -217,6 +219,7 @@ class SimpleCoverageImprovements extends TestCase
         $driver->send($message);
 
         $handler = new class implements HandlerInterface {
+            #[\Override]
             public function handle(MessageInterface $message): bool
             {
                 throw new \Exception('Test exception for logging');

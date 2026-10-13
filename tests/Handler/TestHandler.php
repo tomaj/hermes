@@ -20,6 +20,7 @@ class TestHandler implements HandlerInterface
         $this->result = $result;
     }
 
+    #[\Override]
     public function handle(MessageInterface $message): bool
     {
         $this->receivedMessages[] = $message;

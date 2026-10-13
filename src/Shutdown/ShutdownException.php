@@ -6,4 +6,4 @@ namespace Tomaj\Hermes\Shutdown;
 
 use Tomaj\Hermes\HermesException;
 
-class ShutdownException extends HermesException {}
+final class ShutdownException extends HermesException {}

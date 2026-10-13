@@ -14,6 +14,7 @@ class RetryTraitTest extends \PHPUnit\Framework\TestCase
         $handler = new class implements \Tomaj\Hermes\Handler\HandlerInterface {
             use \Tomaj\Hermes\Handler\RetryTrait;
 
+            #[\Override]
             public function handle(\Tomaj\Hermes\MessageInterface $message): bool
             {
                 return true;
@@ -28,6 +29,7 @@ class RetryTraitTest extends \PHPUnit\Framework\TestCase
         $handler = new class implements \Tomaj\Hermes\Handler\HandlerInterface {
             use \Tomaj\Hermes\Handler\RetryTrait;
 
+            #[\Override]
             public function handle(\Tomaj\Hermes\MessageInterface $message): bool
             {
                 return true;

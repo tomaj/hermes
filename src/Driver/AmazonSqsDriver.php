@@ -11,7 +11,7 @@ use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
 use Tomaj\Hermes\Shutdown\ShutdownException;
 
-class AmazonSqsDriver implements DriverInterface
+final class AmazonSqsDriver implements DriverInterface
 {
     use MaxItemsTrait;
     use ShutdownTrait;
@@ -78,6 +78,7 @@ class AmazonSqsDriver implements DriverInterface
         $this->queueUrl = $queueUrl;
     }
 
+    #[\Override]
     public function send(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): bool
     {
         $this->client->sendMessage([
@@ -90,11 +91,13 @@ class AmazonSqsDriver implements DriverInterface
     /**
      * @throws NotSupportedException
      */
+    #[\Override]
     public function setupPriorityQueue(string $name, int $priority): void
     {
         throw new NotSupportedException('AmazonSQS is not supporting priority queues now');
     }
 
+    #[\Override]
     public function wait(Closure $callback, array $priorities = []): void
     {
         while (true) {

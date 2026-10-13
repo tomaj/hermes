@@ -9,11 +9,13 @@ use Tomaj\Hermes\SerializerInterface;
 
 class DummySerializer implements SerializerInterface
 {
+    #[\Override]
     public function serialize(MessageInterface $message): string
     {
         return serialize($message);
     }
 
+    #[\Override]
     public function unserialize(string $string): MessageInterface
     {
         $decoded = unserialize($string);

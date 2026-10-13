@@ -9,6 +9,7 @@ use Tomaj\Hermes\MessageInterface;
 
 final class PrintHandler implements HandlerInterface
 {
+    #[\Override]
     public function handle(MessageInterface $message): bool
     {
         // Replace with the real work for each type.

@@ -12,7 +12,7 @@ use Predis\Client;
  *
  * Set UNIX timestamp (as `string`) to key `$key` (default `hermes_shutdown`) to shutdown Hermes worker.
  */
-class PredisShutdown implements ShutdownInterface
+final class PredisShutdown implements ShutdownInterface
 {
     public function __construct(
         private readonly Client $redis,
@@ -26,6 +26,7 @@ class PredisShutdown implements ShutdownInterface
      * - and timestamp is not in future,
      * - and hermes was started ($startTime) before timestamp
      */
+    #[\Override]
     public function shouldShutdown(DateTime $startTime): bool
     {
         // load UNIX timestamp from redis
@@ -51,6 +52,7 @@ class PredisShutdown implements ShutdownInterface
     /**
      * Sets to Redis value `$shutdownTime` (or current DateTime) to `$key` defined in constructor.
      */
+    #[\Override]
     public function shutdown(?DateTime $shutdownTime = null): bool
     {
         if ($shutdownTime === null) {

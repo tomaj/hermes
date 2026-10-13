@@ -6,10 +6,11 @@ namespace Tomaj\Hermes\Handler;
 
 use Tomaj\Hermes\MessageInterface;
 
-class EchoHandler implements HandlerInterface
+final class EchoHandler implements HandlerInterface
 {
     use RetryTrait;
 
+    #[\Override]
     public function handle(MessageInterface $message): bool
     {
         echo "Received message: #{$message->getId()} (type {$message->getType()})\n";

@@ -12,6 +12,7 @@ final class ThumbnailHandler implements HandlerInterface
 {
     public function __construct(private string $directory) {}
 
+    #[\Override]
     public function handle(MessageInterface $message): bool
     {
         ['path' => $path, 'sizes' => $sizes] = $message->getPayload();
