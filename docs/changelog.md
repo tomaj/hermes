@@ -7,6 +7,8 @@ description: "All notable changes to Hermes, release by release, since 2015."
 
 Notable changes from [CHANGELOG.md](https://github.com/tomaj/hermes/blob/master/CHANGELOG.md) and the [GitHub releases](https://github.com/tomaj/hermes/releases). The 5.0.0 notes are still under the `Unreleased` heading in `CHANGELOG.md`. The [5.0.0 release](https://github.com/tomaj/hermes/releases/tag/5.0.0) publishes those same notes.
 
+Upgrading from 5.x to 6.0? The steps are in [UPGRADE-6.0.md](https://github.com/tomaj/hermes/blob/master/UPGRADE-6.0.md).
+
 ## 5.0.0
 
 Minimum PHP is 7.4. PHP 7.2 and 7.3 left the CI matrix. The matrix includes 8.0, 8.1, 8.2, and 8.3.

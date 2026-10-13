@@ -68,9 +68,9 @@ With `$durable = true` the driver also publishes persistent messages (`delivery_
 
 ### Upgrading a 5.x queue
 
-Hermes 5.x declared the queue non-durable. RabbitMQ refuses to redeclare an existing queue with different flags and closes the channel with `PRECONDITION_FAILED`. You have two options:
+Hermes 5.x declared the queue non-durable. RabbitMQ refuses to redeclare an existing queue with different flags and closes the channel with `PRECONDITION_FAILED`. The emitter and the worker both declare the queue: `emit()` throws, and the worker exits with status 0 without a log line, because `Dispatcher::handle()` catches the exception. You have two options:
 
-- Drain the old queue, delete it (`rabbitmqctl delete_queue hermes_queue`), and let 6.0 declare it durable.
+- Stop the producers, let the workers drain the old queue, delete it (`rabbitmqctl delete_queue --if-empty hermes_queue`), and let 6.0 declare it durable. A 5.x process cannot use the durable queue, so rolling back needs the same steps.
 - Keep the old queue and opt out:
 
 ```php
@@ -89,10 +89,10 @@ With `durable: false` the queue is non-durable and messages are not marked persi
 
 - The body is unserialized and passed to the dispatcher callback. When it returns, the driver calls `basic_ack` and counts the message for max items.
 - If the callback throws, the driver calls `basic_nack` with requeue, so the message goes back to the queue, and rethrows.
-- If the body cannot be unserialized, the driver calls `basic_nack` without requeue, so a broken message is not redelivered forever. Configure a dead-letter exchange on the queue to keep it.
+- If the body cannot be unserialized, the driver calls `basic_nack` without requeue, so a broken message is not redelivered forever. To keep it, add a dead-letter exchange with a policy (`rabbitmqctl set_policy -p / hermes-dlx '^hermes$' '{"dead-letter-exchange":"hermes-dlx"}' --apply-to queues`, with your queue name in the pattern; the `hermes-dlx` exchange needs a bound queue, and only the highest-priority policy applies to a queue). Do not use queue arguments: the driver declares the queue without arguments, so `x-dead-letter-exchange` or `x-queue-type` make the declaration fail with `PRECONDITION_FAILED`.
 - If the worker dies before the ack, RabbitMQ redelivers the message when the connection closes.
 
-Delivery is at least once, so handlers should be idempotent. The dispatcher catches handler exceptions itself, so a handler that throws is still acknowledged. [Retry](/guide/retry) publishes a new copy for those.
+Delivery is at least once, so handlers should be idempotent. The dispatcher catches handler exceptions itself, so a handler that throws an `Exception` is still acknowledged. A PHP `Error` (for example `TypeError`) is not caught: the worker exits, the message is requeued, and the next worker hits it again ([#112](https://github.com/tomaj/hermes/issues/112)). Convert `Error` to an exception inside the handler. [Retry](/guide/retry) publishes a new copy for those.
 
 The consume loop calls `AMQPChannel::wait(null, true)` (non-blocking). When `$refreshInterval` is greater than `0`, it sleeps that many seconds after each wait. The default is `0`, so the loop does not sleep. The example passes `0`. For a quiet queue, pass `1` if you do not want a tight loop:
 

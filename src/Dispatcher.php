@@ -16,7 +16,7 @@ use Tracy\Debugger;
 
 class Dispatcher implements DispatcherInterface
 {
-    public const DEFAULT_PRIORITY = 100;
+    public const int DEFAULT_PRIORITY = 100;
 
     /**
      * All registered handlers

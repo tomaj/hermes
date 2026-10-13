@@ -9,7 +9,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use PHPUnit\Framework\TestCase;
 use Redis;
+use ReflectionClassConstant;
 use ReflectionMethod;
+use ReflectionNamedType;
 use ReflectionProperty;
 use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\Driver\AmazonSqsDriver;
@@ -27,7 +29,7 @@ use Tomaj\Hermes\Test\Driver\DummyDriver;
 
 /**
  * Pins public behaviour that constructor promotion and readonly properties must not change:
- * constructor signatures (types, names, order, defaults), Message defaults, fluent return
+ * constructor signatures (types, names, order, defaults), the typed DEFAULT_PRIORITY constant, Message defaults, fluent return
  * types, and unserializing a Message that Hermes 5.x serialized.
  */
 #[CoversClass(Message::class)]
@@ -93,6 +95,16 @@ final class PublicApiContractTest extends TestCase
         self::assertSame(1, new ReflectionProperty($predis, 'refreshInterval')->getValue($predis));
         self::assertSame('hermes_schedule', new ReflectionProperty($redis, 'scheduleKey')->getValue($redis));
         self::assertSame('hermes_schedule', new ReflectionProperty($predis, 'scheduleKey')->getValue($predis));
+    }
+
+    public function testDefaultPriorityIsATypedIntConstant(): void
+    {
+        $constant = new ReflectionClassConstant(Dispatcher::class, 'DEFAULT_PRIORITY');
+        $type = $constant->getType();
+
+        self::assertInstanceOf(ReflectionNamedType::class, $type);
+        self::assertSame('int', $type->getName());
+        self::assertSame(100, $constant->getValue());
     }
 
     public function testMessageDefaults(): void

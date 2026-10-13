@@ -60,7 +60,7 @@ Calls `Driver::send`. Logs at `info` when `$logger` is set. Returns `$this`. Thr
 `src/Dispatcher.php`. Implements `DispatcherInterface`.
 
 ```php
-public const DEFAULT_PRIORITY = 100;
+public const int DEFAULT_PRIORITY = 100;
 
 public function __construct(
     DriverInterface $driver,
