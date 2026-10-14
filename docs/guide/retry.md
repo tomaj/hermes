@@ -88,6 +88,12 @@ services:
             $randomizer: null
 ```
 
+In Laravel, in a service provider's `register()`:
+
+```php
+$this->app->when(Dispatcher::class)->needs(Randomizer::class)->give(fn () => null);
+```
+
 In Nette, in `config/services.neon`:
 
 ```yaml

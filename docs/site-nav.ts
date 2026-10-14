@@ -48,6 +48,15 @@ export const sidebar5x: DocsNavItem[] = [
     ],
   },
   {
+    text: 'Framework integration',
+    items: [
+      { text: 'Overview', link: '/frameworks/' },
+      { text: 'Nette', link: '/frameworks/nette' },
+      { text: 'Laravel', link: '/frameworks/laravel' },
+      { text: 'Symfony', link: '/frameworks/symfony' },
+    ],
+  },
+  {
     text: 'Drivers',
     items: [
       { text: 'Overview', link: '/guide/drivers/overview' },

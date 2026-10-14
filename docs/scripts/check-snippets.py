@@ -18,11 +18,15 @@ for page in sorted(docs.rglob("*.md")):
         path = target.split("#", 1)[0]
         if not (docs / path).is_file():
             errors.append(f"{page.relative_to(docs)}: snippet {path} does not exist")
+    project = None
     if page.parent.name == "examples":
         project = docs.parent / "examples" / page.stem
+    elif page.parent.name == "frameworks":
+        project = docs.parent / "examples" / "frameworks" / page.stem
+    if project is not None:
         for title in re.findall(r"^```\w*\s*\[([^\]]+)\]", text, re.M):
             if (project / title).is_file():
-                errors.append(f"{page.relative_to(docs)}: pasted copy of examples/{page.stem}/{title}, use <<< @/../examples/{page.stem}/{title}")
+                errors.append(f"{page.relative_to(docs)}: pasted copy of {project.relative_to(docs.parent).as_posix()}/{title}, use <<< @/../{project.relative_to(docs.parent).as_posix()}/{title}")
 
 for error in errors:
     print(error, file=sys.stderr)
