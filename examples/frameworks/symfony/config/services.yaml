@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=../vendor/symfony/dependency-injection/Loader/schema/services.schema.json
+
+parameters:
+    # Defaults for the environment variables; override them in .env.local or the real environment.
+    env(HERMES_DRIVER): redis # redis (ext-redis), predis, rabbitmq or sqs
+    env(HERMES_QUEUE): hermes
+    env(HERMES_REDIS_HOST): 127.0.0.1
+    env(HERMES_REDIS_PORT): '6379'
+    env(HERMES_RABBITMQ_HOST): 127.0.0.1
+    env(HERMES_RABBITMQ_PORT): '5672'
+    env(HERMES_RABBITMQ_USER): guest
+    env(HERMES_RABBITMQ_PASSWORD): guest
+    env(HERMES_RABBITMQ_VHOST): /
+    env(HERMES_SQS_REGION): eu-central-1
+    env(HERMES_SQS_ENDPOINT): ''
+    env(AWS_ACCESS_KEY_ID): ''
+    env(AWS_SECRET_ACCESS_KEY): ''
+
+    hermes:
+        driver: '%env(HERMES_DRIVER)%'
+        queue: '%env(HERMES_QUEUE)%'
+        max_items: 1000
+        redis:
+            host: '%env(HERMES_REDIS_HOST)%'
+            port: '%env(int:HERMES_REDIS_PORT)%'
+        rabbitmq:
+            host: '%env(HERMES_RABBITMQ_HOST)%'
+            port: '%env(int:HERMES_RABBITMQ_PORT)%'
+            user: '%env(HERMES_RABBITMQ_USER)%'
+            password: '%env(HERMES_RABBITMQ_PASSWORD)%'
+            vhost: '%env(HERMES_RABBITMQ_VHOST)%'
+        sqs:
+            region: '%env(HERMES_SQS_REGION)%'
+            endpoint: '%env(HERMES_SQS_ENDPOINT)%'
+            key: '%env(AWS_ACCESS_KEY_ID)%'
+            secret: '%env(AWS_SECRET_ACCESS_KEY)%'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: '../src/'
+
+    # One driver for the web process and the worker.
+    Tomaj\Hermes\Driver\DriverInterface:
+        factory: ['App\Hermes\DriverFactory', 'create']
+        arguments: ['%hermes%']
+
+    Tomaj\Hermes\Shutdown\ShutdownInterface:
+        class: Tomaj\Hermes\Shutdown\SharedFileShutdown
+        arguments: ['%kernel.project_dir%/var/hermes-shutdown']
+
+    # Producers type-hint EmitterInterface; the logger is autowired (Monolog).
+    Tomaj\Hermes\EmitterInterface:
+        class: Tomaj\Hermes\Emitter
+
+    # The worker command type-hints DispatcherInterface.
+    Tomaj\Hermes\DispatcherInterface:
+        class: Tomaj\Hermes\Dispatcher
+        calls:
+            - registerHandler: ['user.registered', '@App\Hermes\UserRegisteredHandler']

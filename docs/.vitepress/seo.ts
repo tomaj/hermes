@@ -29,6 +29,7 @@ export function pageUrl(relativePath: string): string {
 const sections: Record<string, [string, string]> = {
   guide: ['Guide', 'guide/getting-started.html'],
   examples: ['Examples', 'examples/'],
+  frameworks: ['Framework integration', 'frameworks/'],
   api: ['Reference', 'api/reference.html'],
 }
 

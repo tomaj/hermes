@@ -11,7 +11,11 @@ const blob = (file: string) => `${repo}/blob/master/examples/${props.name}/${fil
   <aside class="project-source" :aria-label="`Runnable project examples/${name}`">
     <div class="project-source-text">
       <p class="project-source-title">Runnable project</p>
-      <p>
+      <p v-if="name.startsWith('frameworks/')">
+        Every file below is imported from <code>examples/{{ name }}</code>. <code>install.sh</code> copies them into a
+        fresh project, and <code>e2e.sh</code> runs the whole flow once per driver.
+      </p>
+      <p v-else>
         Every file below is imported from <code>examples/{{ name }}</code>, which has a <code>Makefile</code>
         and an <code>e2e.sh</code> that runs the whole flow. Clone the repository, <code>cd examples/{{ name }}</code>,
         and run <code>make install up</code>.

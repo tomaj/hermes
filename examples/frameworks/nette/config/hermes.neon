@@ -1,0 +1,48 @@
+extensions:
+	console: Contributte\Console\DI\ConsoleExtension(%consoleMode%)
+
+parameters:
+	consoleMode: false
+	hermes:
+		driver: redis # redis (ext-redis), predis, rabbitmq or sqs; override it in local.neon
+		queue: hermes
+		max_items: 1000
+		redis:
+			host: 127.0.0.1
+			port: 6379
+		rabbitmq:
+			host: 127.0.0.1
+			port: 5672
+			user: guest
+			password: guest
+			vhost: /
+		sqs:
+			region: eu-central-1
+			endpoint: null # http://localhost:4566 for a local SQS
+			key: ''
+			secret: ''
+
+services:
+	# One driver for the web process and the worker.
+	hermes.driver:
+		type: Tomaj\Hermes\Driver\DriverInterface
+		create: App\Hermes\DriverFactory::create(%hermes%)
+
+	- Tomaj\Hermes\Shutdown\SharedFileShutdown(%tempDir%/hermes-shutdown)
+
+	# Hermes logs through Tracy's logger (log/info.log).
+	- Tracy\Bridges\Psr\TracyToPsrLoggerAdapter
+
+	# Producers type-hint EmitterInterface.
+	- Tomaj\Hermes\Emitter
+
+	# The worker command type-hints DispatcherInterface.
+	hermes.dispatcher:
+		create: Tomaj\Hermes\Dispatcher
+		setup:
+			- registerHandler('user.registered', @App\Hermes\UserRegisteredHandler)
+
+	- App\Hermes\UserRegisteredHandler
+	- App\Console\HermesWorkCommand
+	- App\Console\HermesRestartCommand
+	- App\Console\RegisterUserCommand

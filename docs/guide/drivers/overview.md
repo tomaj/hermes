@@ -62,6 +62,10 @@ The drivers differ in what they do with these:
 
 <LinkCards :items="cards" />
 
+## In a framework
+
+To pick the driver from config in an application, see [Framework integration](/frameworks/). The [Nette](/frameworks/nette), [Laravel](/frameworks/laravel) and [Symfony](/frameworks/symfony) pages use one `DriverFactory` that builds any of the four drivers.
+
 ## FAQ
 
 ### Can the emitter and the worker use different drivers?
