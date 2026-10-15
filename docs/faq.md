@@ -9,11 +9,11 @@ What the handler does with a failure is decided entirely in `Dispatcher`. The br
 
 <Diagram name="faq-1" alt="A handler returns or throws. Thrown with retries left sends a new message, otherwise the original delivery is already removed" />
 
-## The README passes priority as the third `Message` argument. Why does this guide not?
+## Is priority an argument of `Message` or of `emit()`?
 
-`Message::__construct` is `(string $type, ?array $payload = null, ?string $messageId = null, ?float $created = null, ?float $executeAt = null, int $retries = 0)`. The third parameter is an id. Priority is the second argument of `Emitter::emit()` and of `Driver::send()`. On PHP 8 an integer in the id position is a `TypeError`.
+Of `emit()`. `Message::__construct` is `(string $type, ?array $payload = null, ?string $messageId = null, ?float $created = null, ?float $executeAt = null, int $retries = 0)`. The third parameter is an id. Priority is the second argument of `Emitter::emit()` and of `Driver::send()`.
 
-`examples/redis/emitter.php` passes the priority to `emit()`. Follow the example, not the older README snippet.
+An integer in the id position does not set a priority. With `declare(strict_types=1)` it is a `TypeError`. Without it, PHP turns it into the id string, for example `"110"`, and the message goes to the default priority. README examples before 6.0 made this mistake.
 
 ## Why did a high priority run after a low one?
 
