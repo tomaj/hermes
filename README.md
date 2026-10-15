@@ -278,14 +278,15 @@ $driver->setupPriorityQueue('hermes_low', Dispatcher::DEFAULT_PRIORITY - 10);
 $driver->setupPriorityQueue('hermes_high', Dispatcher::DEFAULT_PRIORITY + 10);
 
 $emitter = new Emitter($driver);
-$emitter->emit(new Message('type1', ['a' => 'b'], Dispatcher::DEFAULT_PRIORITY - 10));
-$emitter->emit(new Message('type1', ['c' => 'd'], Dispatcher::DEFAULT_PRIORITY + 10));
+$emitter->emit(new Message('type1', ['a' => 'b']), Dispatcher::DEFAULT_PRIORITY - 10);
+$emitter->emit(new Message('type1', ['c' => 'd']), Dispatcher::DEFAULT_PRIORITY + 10);
 ```
 
 Key points about priorities:
-- Use priority constants from the `Dispatcher` class or any numeric value
+- Priority is the second argument of `Emitter::emit()`. The third argument of `Message` is the message id, not a priority
+- Use `Dispatcher::DEFAULT_PRIORITY` (`100`) or any integer you registered with `setupPriorityQueue()`
 - Higher numbers indicate higher priority
-- You can pass an array of queue names to `Dispatcher::handle()` to create workers that process specific queues
+- You can pass a list of priorities to `Dispatcher::handle()`, for example `handle([Dispatcher::DEFAULT_PRIORITY + 10])`, to create workers that process only those queues
 
 ## Graceful Shutdown
 
