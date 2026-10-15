@@ -39,7 +39,7 @@ The only priority constant is `DEFAULT_PRIORITY = 100`. The comment in `examples
 
 ## `composer test` is not a script
 
-Use `make test`, `composer phpunit`, or `vendor/bin/phpunit`. [Testing](/guide/testing) lists the scripts that `composer.json` actually defines.
+Use `composer phpunit` or `vendor/bin/phpunit`. [Testing](/guide/testing) lists the scripts that `composer.json` actually defines.
 
 ## Does Hermes restart the worker?
 

@@ -24,7 +24,7 @@ composer phpcs
 composer phpstan
 ```
 
-`make test` is PHPUnit as well. Coverage:
+Coverage:
 
 ```bash
 composer coverage

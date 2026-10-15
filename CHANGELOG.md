@@ -15,8 +15,6 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 * Added composer validation and dependency caching in CI
 * Added local code coverage reporting with HTML and Clover XML output
 * Added GitHub Pages deployment for coverage reports
-* Added `coverage.sh` helper script for generating coverage reports
-* Added Makefile with coverage target
 
 ### Changed
 
@@ -49,6 +47,10 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 * Updated test coverage check to use `johanvanhelden/gha-clover-test-coverage-check@v1`
 * **BREAKING CHANGE**: `AmazonSqsDriver` deletes a message only after it was handled, not right after `receiveMessage`. A worker crash or an exception from the callback leaves the message in SQS for the visibility timeout or a dead-letter queue. Delivery is at least once, so set `VisibilityTimeout` above your slowest handler ([#69](https://github.com/tomaj/hermes/issues/69)).
 * Coverage reports are now automatically published to GitHub Pages after successful test runs
+
+### Removed
+
+* `.scrutinizer.yml`, `coverage.sh` and the root `Makefile`. Use `composer phpunit` and `composer coverage` instead. The Composer dist archive now contains only `src/`, the license, README, CHANGELOG, UPGRADE-6.0.md and `composer.json` ([#88](https://github.com/tomaj/hermes/issues/88)).
 
 ### Fixed
 

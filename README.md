@@ -464,8 +464,6 @@ To generate code coverage reports:
 ``` bash
 # Generate coverage reports locally
 $ composer coverage
-# or use the helper script
-$ ./coverage.sh
 ```
 
 The coverage reports will be generated in:
