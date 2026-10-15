@@ -8,14 +8,14 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Tomaj\Hermes\Driver\DriverInterface;
 
-final class Emitter implements EmitterInterface
+final readonly class Emitter implements EmitterInterface
 {
     /**
      * Create new Emitter
      */
     public function __construct(
-        private readonly DriverInterface $driver,
-        private readonly ?LoggerInterface $logger = null,
+        private DriverInterface $driver,
+        private ?LoggerInterface $logger = null,
     ) {}
 
     /**
@@ -28,7 +28,7 @@ final class Emitter implements EmitterInterface
 
         $this->log(
             LogLevel::INFO,
-            "Dispatcher send message #{$message->getId()} to driver " . get_class($this->driver),
+            "Dispatcher send message #{$message->getId()} to driver " . $this->driver::class,
             $this->messageLoggerContext($message),
         );
         return $this;

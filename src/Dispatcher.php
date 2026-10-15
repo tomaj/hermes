@@ -62,7 +62,7 @@ final class Dispatcher implements DispatcherInterface
 
         $this->log(
             LogLevel::INFO,
-            "Dispatcher send message #{$message->getId()} with priority {$priority} to driver " . get_class($this->driver),
+            "Dispatcher send message #{$message->getId()} with priority {$priority} to driver " . $this->driver::class,
             $this->messageLoggerContext($message),
         );
         return $this;
@@ -96,7 +96,7 @@ final class Dispatcher implements DispatcherInterface
 
                 return $result;
             }, $priorities);
-        } catch (ShutdownException $e) {
+        } catch (ShutdownException) {
             $this->log(LogLevel::NOTICE, 'Exiting hermes dispatcher - shutdown');
         } catch (Exception $exception) {
             if (Debugger::isEnabled()) {
@@ -150,7 +150,7 @@ final class Dispatcher implements DispatcherInterface
         } catch (Exception $e) {
             $this->log(
                 LogLevel::ERROR,
-                'Handler ' . get_class($handler) . " throws exception - {$e->getMessage()}",
+                'Handler ' . $handler::class . " throws exception - {$e->getMessage()}",
                 ['error' => $e, 'message' => $this->messageLoggerContext($message), 'exception' => $e],
             );
             if (Debugger::isEnabled()) {
@@ -169,13 +169,18 @@ final class Dispatcher implements DispatcherInterface
      */
     private function retryMessage(MessageInterface $message, HandlerInterface $handler): void
     {
-        if (method_exists($handler, 'canRetry') && method_exists($handler, 'maxRetry')) {
-            if ($message->getRetries() < $handler->maxRetry()) {
-                $executeAt = $this->nextRetry($message);
-                $newMessage = new Message($message->getType(), $message->getPayload(), $message->getId(), $message->getCreated(), $executeAt, $message->getRetries() + 1);
-                $this->driver->send($newMessage);
-            }
+        if (!method_exists($handler, 'canRetry') || !method_exists($handler, 'maxRetry') || $message->getRetries() >= $handler->maxRetry()) {
+            return;
         }
+
+        $this->driver->send(new Message(
+            $message->getType(),
+            $message->getPayload(),
+            $message->getId(),
+            $message->getCreated(),
+            $this->nextRetry($message),
+            $message->getRetries() + 1,
+        ));
     }
 
     /**
@@ -194,16 +199,12 @@ final class Dispatcher implements DispatcherInterface
      */
     private function hasHandlers(string $type): bool
     {
-        return isset($this->handlers[$type]) && count($this->handlers[$type]) > 0;
+        return ($this->handlers[$type] ?? []) !== [];
     }
 
     #[\Override]
     public function registerHandler(string $type, HandlerInterface $handler): DispatcherInterface
     {
-        if (!isset($this->handlers[$type])) {
-            $this->handlers[$type] = [];
-        }
-
         $this->handlers[$type][] = $handler;
         return $this;
     }

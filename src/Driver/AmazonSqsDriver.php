@@ -61,10 +61,10 @@ final class AmazonSqsDriver implements DriverInterface
     ) {
         $this->serializer = new MessageSerializer();
 
-        $attributes = [];
-        foreach ($queueAttributes as $attributeName => $attributeValue) {
-            $attributes[$attributeName] = is_scalar($attributeValue) ? (string) $attributeValue : '';
-        }
+        $attributes = array_map(
+            static fn(mixed $attributeValue): string => is_scalar($attributeValue) ? (string) $attributeValue : '',
+            $queueAttributes,
+        );
 
         $result = $this->client->createQueue([
             'QueueName' => $this->queueName,
@@ -92,7 +92,7 @@ final class AmazonSqsDriver implements DriverInterface
      * @throws NotSupportedException
      */
     #[\Override]
-    public function setupPriorityQueue(string $name, int $priority): void
+    public function setupPriorityQueue(string $name, int $priority): never
     {
         throw new NotSupportedException('AmazonSQS is not supporting priority queues now');
     }

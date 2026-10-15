@@ -11,6 +11,7 @@ use Redis;
 use Tomaj\Hermes\Driver\RedisSetDriver;
 use Tomaj\Hermes\Message;
 use Tomaj\Hermes\MessageInterface;
+use Tomaj\Hermes\Test\Shutdown\PollBudgetShutdown;
 
 /**
  * Runs against a real Redis server. Set HERMES_TEST_REDIS (for example
@@ -57,6 +58,7 @@ class RedisSetDriverPriorityIntegrationTest extends TestCase
 
         $priorities = [];
         $driver->setMaxProcessItems(4);
+        $driver->setShutdown(new PollBudgetShutdown());
         $driver->wait(static function (MessageInterface $message, int $priority) use (&$priorities): void {
             $priorities[] = $priority;
         });

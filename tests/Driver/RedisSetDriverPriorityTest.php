@@ -15,10 +15,11 @@ use Tomaj\Hermes\Message;
 use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
 use Tomaj\Hermes\Test\Double\PredisClientDouble;
+use Tomaj\Hermes\Test\Shutdown\PollBudgetShutdown;
 
 /**
  * Issue #50: queues must be polled from the highest priority number down,
- * not in reverse setup order.
+ * not in reverse setup order, and only the requested priorities are polled.
  */
 #[CoversClass(RedisSetDriver::class)]
 #[CoversClass(PredisSetDriver::class)]
@@ -77,13 +78,47 @@ class RedisSetDriverPriorityTest extends TestCase
         self::assertSame(['top', 'higher', 'default', 'lower'], $this->polled);
     }
 
-    private function waitOnce(RedisSetDriver|PredisSetDriver $driver): ?int
+    #[RequiresPhpExtension('redis')]
+    public function testRedisSetDriverPollsOnlyRequestedPriorities(): void
+    {
+        $redis = $this->createMock(Redis::class);
+        $redis->method('zRangeByScore')->willReturn([]);
+        $redis->method('sPop')->willReturnCallback(fn(string $key): string|false => $this->pop($key));
+
+        $driver = new RedisSetDriver($redis, 'default', 0);
+        $this->setupPriorities($driver);
+
+        self::assertSame(50, $this->waitOnce($driver, [50]));
+        self::assertSame(['lower'], $this->polled);
+    }
+
+    public function testPredisSetDriverPollsOnlyRequestedPriorities(): void
+    {
+        $redis = $this->getMockBuilder(PredisClientDouble::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['zrangebyscore', 'spop'])
+            ->getMock();
+        $redis->method('zrangebyscore')->willReturn([]);
+        $redis->method('spop')->willReturnCallback(fn(string $key): ?string => $this->popOrNull($key));
+
+        $driver = new PredisSetDriver($redis, 'default', 0);
+        $this->setupPriorities($driver);
+
+        self::assertSame(50, $this->waitOnce($driver, [50]));
+        self::assertSame(['lower'], $this->polled);
+    }
+
+    /**
+     * @param list<int> $priorities
+     */
+    private function waitOnce(RedisSetDriver|PredisSetDriver $driver, array $priorities = []): ?int
     {
         $found = null;
         $driver->setMaxProcessItems(1);
+        $driver->setShutdown(new PollBudgetShutdown());
         $driver->wait(static function (MessageInterface $message, int $priority) use (&$found): void {
             $found = $priority;
-        });
+        }, $priorities);
         return $found;
     }
 }

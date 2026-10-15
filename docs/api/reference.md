@@ -109,10 +109,10 @@ public function wait(Closure $callback, array $priorities): void;
 | --- | --- | --- |
 | `RedisSetDriver` | `src/Driver/RedisSetDriver.php` | `(Redis $redis, string $key = 'hermes', int $refreshInterval = 1, string $scheduleKey = 'hermes_schedule')` |
 | `PredisSetDriver` | `src/Driver/PredisSetDriver.php` | `(Client $redis, string $key = 'hermes', int $refreshInterval = 1, string $scheduleKey = 'hermes_schedule')` |
-| `LazyRabbitMqDriver` | `src/Driver/LazyRabbitMqDriver.php` | `(AMQPLazyConnection $connection, string $queue, array $amqpMessageProperties = [], int $refreshInterval = 0, string $consumerTag = 'hermes')` |
+| `LazyRabbitMqDriver` | `src/Driver/LazyRabbitMqDriver.php` | `(AMQPLazyConnection $connection, string $queue, array $amqpMessageProperties = [], int $refreshInterval = 0, string $consumerTag = 'hermes', bool $durable = true)` |
 | `AmazonSqsDriver` | `src/Driver/AmazonSqsDriver.php` | `(SqsClient $client, string $queueName, array $queueAttributes = [])` |
 
-`RedisSetDriver::setupPriorityQueue` and `PredisSetDriver::setupPriorityQueue` store `$name` at `$priority`. The other two throw `NotSupportedException`.
+`RedisSetDriver::setupPriorityQueue` and `PredisSetDriver::setupPriorityQueue` store `$name` at `$priority`. The other two always throw `NotSupportedException` and declare the `never` return type.
 
 All four `use` `MaxItemsTrait`, `ShutdownTrait`, and `SerializerAwareTrait`.
 

@@ -55,7 +55,7 @@ $shutdown = new RedisShutdown($redis);
 $dispatcher = new Dispatcher($driver, null, $shutdown);
 ```
 
-`examples/redis/shutdown.php` is `(new RedisShutdown($redis))->shutdown()`.
+`examples/redis/shutdown.php` is `new RedisShutdown($redis)->shutdown()`.
 
 `shutdown()` `SET`s the key to the unix timestamp. `shouldShutdown()` returns true only when all of these hold:
 
@@ -77,7 +77,7 @@ $redis = new Client([
     'port' => 6379,
 ]);
 
-(new PredisShutdown($redis))->shutdown();
+new PredisShutdown($redis)->shutdown();
 ```
 
 One key stops every worker that was started before that timestamp and that polls the same Redis. New workers started by the process manager see a timestamp older than their start time and stay up. Delete the key when you want a later deploy to use a fresh signal. Leaving it in place is safe for workers that start afterwards. It is not safe for a worker whose start timestamp is still earlier.

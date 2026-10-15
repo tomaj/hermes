@@ -49,7 +49,8 @@ class LazyRabbitMqDriverAckTest extends TestCase
             $this->log[] = 'nack ' . $tag . ($requeue ? ' requeue' : ' drop');
             return null;
         });
-        $channel->method('basic_consume')->willReturnCallback(
+        // One consume per wait(): a broken inner loop would re-consume forever.
+        $channel->expects(self::once())->method('basic_consume')->willReturnCallback(
             function (string $queue, string $tag, bool $noLocal, bool $noAck, bool $exclusive, bool $nowait, callable $consumer) use ($channel, $body): string {
                 self::assertSame('q', $queue);
                 self::assertFalse($noAck, 'messages must be acknowledged manually');

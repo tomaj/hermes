@@ -71,7 +71,7 @@ class MemoryDriver implements DriverInterface
         krsort($queues, SORT_NUMERIC);
 
         foreach ($queues as $priority => $name) {
-            if (count($priorities) > 0 && !in_array($priority, $priorities, true)) {
+            if ($priorities !== [] && !in_array($priority, $priorities, true)) {
                 continue;
             }
 

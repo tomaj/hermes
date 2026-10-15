@@ -61,7 +61,7 @@ final class LazyRabbitMqDriver implements DriverInterface
      * @throws NotSupportedException
      */
     #[\Override]
-    public function setupPriorityQueue(string $name, int $priority): void
+    public function setupPriorityQueue(string $name, int $priority): never
     {
         throw new NotSupportedException('LazyRabbitMqDriver is not supporting priority queues now');
     }
@@ -91,7 +91,7 @@ final class LazyRabbitMqDriver implements DriverInterface
                 },
             );
 
-            while (count($this->getChannel()->callbacks)) {
+            while ($this->getChannel()->callbacks !== []) {
                 $this->getChannel()->wait(null, true);
                 $this->checkShutdown();
                 if (!$this->shouldProcessNext()) {

@@ -11,6 +11,7 @@ use Redis;
 use Tomaj\Hermes\Driver\RedisSetDriver;
 use Tomaj\Hermes\Message;
 use Tomaj\Hermes\MessageInterface;
+use Tomaj\Hermes\Test\Shutdown\PollBudgetShutdown;
 
 /**
  * Runs against a real Redis server. Set HERMES_TEST_REDIS (for example
@@ -54,6 +55,7 @@ class RedisSetDriverIntegrationTest extends TestCase
         usleep(400000);
         $driver->setMaxProcessItems(1);
         $ids = [];
+        $driver->setShutdown(new PollBudgetShutdown());
         $driver->wait(static function (MessageInterface $message) use (&$ids): void {
             $ids[] = $message->getId();
         });

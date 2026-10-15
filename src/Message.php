@@ -6,11 +6,11 @@ namespace Tomaj\Hermes;
 
 use Ramsey\Uuid\Uuid;
 
-final class Message implements MessageInterface
+final readonly class Message implements MessageInterface
 {
-    private readonly string $messageId;
+    private string $messageId;
 
-    private readonly float $created;
+    private float $created;
 
     /**
      * Native implementation of message.
@@ -20,12 +20,12 @@ final class Message implements MessageInterface
      * @param float|null $executeAt timestamp (microtime(true))
      */
     public function __construct(
-        private readonly string $type,
-        private readonly ?array $payload = null,
+        private string $type,
+        private ?array $payload = null,
         ?string $messageId = null,
         ?float $created = null,
-        private readonly ?float $executeAt = null,
-        private readonly int $retries = 0,
+        private ?float $executeAt = null,
+        private int $retries = 0,
     ) {
         $this->messageId = ($messageId === null || $messageId === '')
             ? Uuid::uuid4()->toString()
