@@ -6,10 +6,10 @@ namespace Tomaj\Hermes\Shutdown;
 
 use DateTime;
 
-final class SharedFileShutdown implements ShutdownInterface
+final readonly class SharedFileShutdown implements ShutdownInterface
 {
     public function __construct(
-        private readonly string $filePath,
+        private string $filePath,
     ) {}
 
     #[\Override]
@@ -35,9 +35,7 @@ final class SharedFileShutdown implements ShutdownInterface
     #[\Override]
     public function shutdown(?DateTime $shutdownTime = null): bool
     {
-        if ($shutdownTime === null) {
-            $shutdownTime = new DateTime();
-        }
+        $shutdownTime ??= new DateTime();
 
         return touch($this->filePath, (int) $shutdownTime->format('U'));
     }

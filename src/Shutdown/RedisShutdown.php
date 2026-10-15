@@ -12,11 +12,11 @@ use Redis;
  *
  * Set UNIX timestamp (as `string`) to key `$key` (default `hermes_shutdown`) to shutdown Hermes worker.
  */
-final class RedisShutdown implements ShutdownInterface
+final readonly class RedisShutdown implements ShutdownInterface
 {
     public function __construct(
-        private readonly Redis $redis,
-        private readonly string $key = 'hermes_shutdown',
+        private Redis $redis,
+        private string $key = 'hermes_shutdown',
     ) {}
 
     /**
@@ -54,9 +54,7 @@ final class RedisShutdown implements ShutdownInterface
     #[\Override]
     public function shutdown(?DateTime $shutdownTime = null): bool
     {
-        if ($shutdownTime === null) {
-            $shutdownTime = new DateTime();
-        }
+        $shutdownTime ??= new DateTime();
 
         return $this->redis->set($this->key, $shutdownTime->format('U'));
     }

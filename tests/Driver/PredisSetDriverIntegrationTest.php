@@ -11,6 +11,7 @@ use Predis\Connection\ConnectionException;
 use Tomaj\Hermes\Driver\PredisSetDriver;
 use Tomaj\Hermes\Message;
 use Tomaj\Hermes\MessageInterface;
+use Tomaj\Hermes\Test\Shutdown\PollBudgetShutdown;
 
 /**
  * Runs against a real Redis server. Set HERMES_TEST_REDIS (for example
@@ -116,6 +117,7 @@ class PredisSetDriverIntegrationTest extends TestCase
     {
         $received = [];
         $driver->setMaxProcessItems($count);
+        $driver->setShutdown(new PollBudgetShutdown());
         $driver->wait(static function (MessageInterface $message, int $priority) use (&$received): bool {
             $received[] = [$message, $priority];
             return true;

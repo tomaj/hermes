@@ -53,7 +53,7 @@ $dispatcher->handle();
 `examples/predis/shutdown.php` stops workers with:
 
 ```php
-(new PredisShutdown($redis))->shutdown();
+new PredisShutdown($redis)->shutdown();
 ```
 
 ## Commands

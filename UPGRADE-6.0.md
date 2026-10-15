@@ -188,12 +188,17 @@ Doubling a final class fails in PHPUnit (`ClassIsFinalException`), Mockery and P
 
 All methods that implement an interface method carry `#[\Override]`, and PHPStan (`checkMissingOverrideMethodAttribute`) enforces it in `src/` and `tests/`.
 
+## `setupPriorityQueue()` on RabbitMQ and SQS returns `never`
+
+`LazyRabbitMqDriver::setupPriorityQueue()` and `AmazonSqsDriver::setupPriorityQueue()` always threw `NotSupportedException`. They now declare it with the `never` return type ([#83](https://github.com/tomaj/hermes/issues/83)). Runtime behavior is the same. If your code calls the method on one of these concrete types, PHPStan reports the code after the call as unreachable. Remove the call, or call it through `DriverInterface`.
+
 ## Private state is readonly
 
 Constructor arguments are promoted to `readonly` properties in `Message`, `Dispatcher`, `Emitter`, the drivers and the shutdowns ([#78](https://github.com/tomaj/hermes/issues/78)). The public API is unchanged, but:
 
 - Code that changes these private properties through reflection or `Closure::bind()` after construction gets an `Error`.
 - PHP `serialize()` and `var_export()` list the `Message` properties in a different order. A `Message` serialized by 5.x still unserializes. `MessageSerializer` (JSON) output is unchanged.
+- `Message`, `Emitter`, `SharedFileShutdown`, `RedisShutdown` and `PredisShutdown` are declared `final readonly class` ([#83](https://github.com/tomaj/hermes/issues/83)). Setting an undeclared property on them (`$message->foo = 1`) throws `Error: Cannot create dynamic property` instead of a deprecation. Test doubles still work: PHPUnit mocks of the interfaces and `dg/bypass-finals` doubles with PHPUnit or Mockery were checked.
 
 ## Priorities stay plain integers
 

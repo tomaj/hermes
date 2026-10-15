@@ -82,7 +82,7 @@ class DummyDriver implements DriverInterface
         $message = null;
         $queues = array_reverse($this->queues, true);
         foreach ($queues as $priority => $queueName) {
-            if (count($this->events[$priority]) > 0) {
+            if ($this->events[$priority] !== []) {
                 $message = array_pop($this->events[$priority]);
                 break;
             }

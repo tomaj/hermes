@@ -111,7 +111,7 @@ final class PredisSetDriver implements DriverInterface
             $foundPriority = null;
 
             foreach ($queues as $priority => $name) {
-                if (count($priorities) > 0 && !in_array($priority, $priorities, true)) {
+                if ($priorities !== [] && !in_array($priority, $priorities, true)) {
                     continue;
                 }
                 if ($messageString !== null) {

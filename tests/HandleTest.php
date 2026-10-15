@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes\Test;
 
+use Closure;
 use PHPUnit\Framework\TestCase;
 use Tomaj\Hermes\Dispatcher;
+use Tomaj\Hermes\Driver\DriverInterface;
 use Tomaj\Hermes\Emitter;
+use Tomaj\Hermes\Handler\HandlerInterface;
 use Tomaj\Hermes\Message;
+use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\Test\Driver\DummyDriver;
 use Tomaj\Hermes\Test\Handler\ExceptionHandler;
 use Tomaj\Hermes\Test\Handler\TestHandler;
@@ -370,5 +374,31 @@ class HandleTest extends TestCase
         }
 
         self::assertFalse($foundRetryMessage, 'Should not have found a retry message with retries=6');
+    }
+
+    public function testHandlerWithMaxRetryButWithoutCanRetryIsNotRetried(): void
+    {
+        $handler = new class implements HandlerInterface {
+            #[\Override]
+            public function handle(MessageInterface $message): bool
+            {
+                throw new \RuntimeException('no retry');
+            }
+
+            public function maxRetry(): int
+            {
+                return 5;
+            }
+        };
+        $driver = $this->createMock(DriverInterface::class);
+        $driver->method('wait')->willReturnCallback(static function (Closure $callback): void {
+            $callback(new Message('event1', []), Dispatcher::DEFAULT_PRIORITY);
+        });
+        // Retry needs both canRetry() and maxRetry().
+        $driver->expects(self::never())->method('send');
+
+        $dispatcher = new Dispatcher($driver);
+        $dispatcher->registerHandler('event1', $handler);
+        $dispatcher->handle();
     }
 }
