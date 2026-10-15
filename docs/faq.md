@@ -37,9 +37,9 @@ The driver had already removed it. `false` does not requeue. An exception requeu
 
 The only priority constant is `DEFAULT_PRIORITY = 100`. The comment in `examples/redis/processor.php` that mentions `PRIORITY_HIGH` does not match the class. Pass the integer you registered, for example `Dispatcher::DEFAULT_PRIORITY + 10`.
 
-## `composer test` is not a script
+## How do I run the tests?
 
-Use `composer phpunit` or `vendor/bin/phpunit`. [Testing](/guide/testing) lists the scripts that `composer.json` actually defines.
+`composer test` runs PHPUnit, and `composer check` runs code style, PHPStan and the tests. [Testing](/guide/testing) lists every script that `composer.json` defines.
 
 ## Does Hermes restart the worker?
 

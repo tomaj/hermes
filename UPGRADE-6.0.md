@@ -7,6 +7,8 @@ This file lists the changes in 6.0 that may need work in your application, and t
 - PHP 8.4 or newer.
 - `predis/predis` `^2.3 || ^3.0` if you use `PredisSetDriver` or `PredisShutdown`. Predis is only a suggested package, so Composer does not enforce this: upgrade it yourself.
 - `ramsey/uuid` `^4.7` and `tracy/tracy` `^2.10.10`. Composer resolves these unless your project pins older versions.
+- `psr/log` `^2 || ^3`. psr/log 1.x (no native types) is no longer allowed; a project that pins `psr/log` 1.x must upgrade it.
+- `ext-json` is no longer listed in `require`: it is always enabled since PHP 8.0.
 
 ## Deploy order and rollback
 

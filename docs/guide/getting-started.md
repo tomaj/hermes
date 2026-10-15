@@ -17,7 +17,7 @@ The package constraint in `composer.json` is `php: ^8.4`. CI runs PHP 8.4, PHP 8
 composer require tomaj/hermes
 ```
 
-That pulls in `ext-json`, `ramsey/uuid` (`^3 || ^4`), `psr/log` (`^1 || ^2 || ^3`), and `tracy/tracy` (`^2.0`). You still pick a queue client:
+That pulls in `ramsey/uuid` (`^4.7`), `psr/log` (`^2 || ^3`), and `tracy/tracy` (`^2.10.10`). You still pick a queue client:
 
 | Driver | What you install |
 | --- | --- |

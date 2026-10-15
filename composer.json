@@ -1,10 +1,13 @@
 {
     "name": "tomaj/hermes",
     "description": "Simple php background processing library",
-    "type": "library",
     "license": "MIT",
-    "keywords": ["event", "background", "workers"],
-    "homepage": "https://github.com/tomaj/hermes",
+    "type": "library",
+    "keywords": [
+        "event",
+        "background",
+        "workers"
+    ],
     "authors": [
         {
             "name": "Tomas Majer",
@@ -12,38 +15,39 @@
             "homepage": "http://www.tomaj.sk/"
         }
     ],
+    "homepage": "https://github.com/tomaj/hermes",
     "support": {
         "issues": "https://github.com/tomaj/hermes/issues",
         "source": "https://github.com/tomaj/hermes"
     },
     "require": {
         "php": "^8.4",
-        "ext-json": "*",
+        "psr/log": "^2 || ^3",
         "ramsey/uuid": "^4.7",
-        "psr/log": "^1 || ^2 || ^3",
         "tracy/tracy": "^2.10.10"
     },
     "require-dev": {
         "ext-redis": "*",
-        "predis/predis": "^2.3 || ^3.0",
-        "phpunit/phpunit": "^13.0",
-        "friendsofphp/php-cs-fixer": "^3.64",
-        "php-amqplib/php-amqplib": "^3.7",
         "aws/aws-sdk-php": "^3.337",
+        "friendsofphp/php-cs-fixer": "^3.64",
+        "infection/infection": "^0.35",
+        "php-amqplib/php-amqplib": "^3.7",
         "phpstan/phpstan": "^2.1",
         "phpstan/phpstan-strict-rules": "^2.0",
-        "infection/infection": "^0.35"
+        "phpunit/phpunit": "^13.0",
+        "predis/predis": "^2.3 || ^3.0"
     },
     "suggest": {
-        "monolog/monolog": "Basic logger implements psr/logger",
-        "ext-redis": "Allow use for redis driver with native redis php extension",
-        "predis/predis": "Allow use for redis driver with php package Predis",
-        "aws/aws-sdk-php": "Allow use Amazon SQS driver",
-        "php-amqplib/php-amqplib": "Allow using rabbimq as driver"
+        "ext-redis": "Needed for RedisSetDriver and RedisShutdown (native Redis extension)",
+        "aws/aws-sdk-php": "Needed for AmazonSqsDriver (Amazon SQS)",
+        "monolog/monolog": "A PSR-3 logger to pass to Emitter and Dispatcher",
+        "php-amqplib/php-amqplib": "Needed for LazyRabbitMqDriver (RabbitMQ)",
+        "predis/predis": "Needed for PredisSetDriver and PredisShutdown (Redis without the extension)"
     },
+    "minimum-stability": "stable",
     "autoload": {
         "psr-4": {
-             "Tomaj\\Hermes\\": "src"
+            "Tomaj\\Hermes\\": "src"
         }
     },
     "autoload-dev": {
@@ -51,19 +55,30 @@
             "Tomaj\\Hermes\\Test\\": "tests"
         }
     },
-    "scripts": {
-        "phpunit": "phpunit",
-        "phpstan": "phpstan analyse --memory-limit=1G",
-        "phpcs": "php-cs-fixer fix --dry-run --diff --verbose",
-        "cs": "php-cs-fixer fix --dry-run --diff --verbose",
-        "cs-fix": "php-cs-fixer fix",
-        "infection": "XDEBUG_MODE=coverage infection --threads=max",
-        "coverage": "XDEBUG_MODE=coverage phpunit --coverage-clover build/logs/clover.xml --coverage-html build/coverage"
-    },
     "config": {
         "allow-plugins": {
             "infection/extension-installer": true
-        }
+        },
+        "sort-packages": true
     },
-    "minimum-stability": "stable"
+    "scripts": {
+        "check": [
+            "@phpcs",
+            "@phpstan",
+            "@test"
+        ],
+        "coverage": [
+            "@putenv XDEBUG_MODE=coverage",
+            "phpunit --coverage-clover build/logs/clover.xml --coverage-html build/coverage"
+        ],
+        "cs-fix": "php-cs-fixer fix",
+        "infection": [
+            "@putenv XDEBUG_MODE=coverage",
+            "infection --threads=max"
+        ],
+        "phpcs": "php-cs-fixer fix --dry-run --diff --verbose",
+        "phpstan": "phpstan analyse --memory-limit=1G",
+        "phpunit": "phpunit --no-coverage",
+        "test": "@phpunit"
+    }
 }
