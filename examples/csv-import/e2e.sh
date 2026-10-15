@@ -2,6 +2,7 @@
 # End-to-end check: upload 1234 rows twice, expect 1234 customers.
 set -euo pipefail
 cd "$(dirname "$0")"
+[[ -f vendor/autoload.php ]] || { echo "fail: vendor/ is missing, run make install (composer install) first" >&2; exit 1; }
 mkdir -p storage
 rm -f storage/app.sqlite
 
@@ -10,7 +11,8 @@ WORKER=$!
 php -S 127.0.0.1:8000 -t public > /dev/null 2>&1 &
 WEB=$!
 trap 'kill $WORKER $WEB 2>/dev/null || true' EXIT
-sleep 1
+for _ in $(seq 1 50); do php -r 'exit(@fsockopen("127.0.0.1", 8000) ? 0 : 1);' 2>/dev/null && break; sleep 0.1; done
+php -r 'exit(@fsockopen("127.0.0.1", 8000) ? 0 : 1);' 2>/dev/null && kill -0 "$WEB" 2>/dev/null || { echo "fail: the PHP web server did not start" >&2; exit 1; }
 
 php -r '$f = fopen("storage/customers.csv", "w"); fputcsv($f, ["email", "name"]); for ($i = 0; $i < 1234; $i++) { fputcsv($f, ["user$i@example.com", "User $i"]); }'
 curl -fsS -F csv=@storage/customers.csv http://127.0.0.1:8000/

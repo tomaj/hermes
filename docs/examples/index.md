@@ -19,7 +19,7 @@ Start with the tutorial. It explains every step, and the other recipes build on 
 | [Delayed reminder](/examples/reminder) | Predis | `executeAt` and checking state when the message runs |
 | [Priority queues](/examples/priority) | Predis | Priority order, and a worker for urgent work only |
 
-Every recipe uses Hermes 5.x from Packagist (`tomaj/hermes:^5.0`) and PHP 8.2 or newer. The code was run against Redis 8, RabbitMQ 4, and Mailpit.
+Every recipe requires `tomaj/hermes:dev-master`, the upcoming 6.0, and PHP 8.4 or newer. The code was run against Redis 8, RabbitMQ 4, and Mailpit.
 
 Each recipe is a runnable project in [`examples/`](https://github.com/tomaj/hermes/tree/master/examples) with a `Makefile` and an `e2e.sh` that checks the whole flow. The code on these pages is imported from those files at build time, so it is the code that the checks run.
 
@@ -27,11 +27,11 @@ Each recipe is a runnable project in [`examples/`](https://github.com/tomaj/herm
 
 ### Do the examples use the released package?
 
-Yes. Each one requires `tomaj/hermes:^5.0` from Packagist.
+Not yet. Until Hermes 6.0 is tagged, each one requires `tomaj/hermes:dev-master` from Packagist with `"minimum-stability": "dev"` and `"prefer-stable": true`, so only Hermes itself comes from a branch. After the release the constraint becomes `^6.0`. If you ran the thumbnails recipe on 5.x, delete its `thumbnails` queue first: 6.0 declares it durable and RabbitMQ rejects the changed declaration.
 
 ### Which PHP version do the examples need?
 
-PHP 8.2 or newer.
+PHP 8.4 or newer, like Hermes 6.0.
 
 ### Do I need Docker?
 
@@ -39,7 +39,7 @@ Only for Redis, Mailpit, and RabbitMQ. Any local Redis or RabbitMQ on the defaul
 
 ### Why do most examples use Predis?
 
-It needs no PHP extension and it promotes delayed messages and retries correctly in 5.x. See [Delayed execution](/guide/delayed).
+It needs no PHP extension. On 5.x it was also the only Redis client that promoted delayed messages and retries; from 6.0 ext-redis does too. See [Delayed execution](/guide/delayed).
 
 ### Where is the runnable code?
 

@@ -8,4 +8,4 @@ for file in $(cd "$src" && find config src tests -type f); do
     mkdir -p "$app/$(dirname "$file")"
     cp "$src/$file" "$app/$file"
 done
-echo "Copied the Hermes integration into $app. Now run: composer require tomaj/hermes"
+echo "Copied the Hermes integration into $app. Now run: composer require tomaj/hermes:dev-master"

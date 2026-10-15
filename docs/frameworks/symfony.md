@@ -17,13 +17,13 @@ This page adds Hermes to a fresh Symfony 7.4 project, next to or instead of Mess
 ```bash
 composer create-project symfony/skeleton:"7.4.*" app
 cd app
-composer require tomaj/hermes symfony/monolog-bundle
+composer require tomaj/hermes:dev-master symfony/monolog-bundle
 composer require predis/predis              # only for the predis driver
 composer require php-amqplib/php-amqplib    # only for the rabbitmq driver
 composer require aws/aws-sdk-php            # only for the sqs driver
 ```
 
-Until Hermes 6.0 is tagged, require `tomaj/hermes:dev-master`. Without `monolog-bundle` the autowired `LoggerInterface` is Symfony's minimal logger, which writes to stderr.
+Until Hermes 6.0 is tagged, require `tomaj/hermes:dev-master` as above; switch to `^6.0` once it is released. Without `monolog-bundle` the autowired `LoggerInterface` is Symfony's minimal logger, which writes to stderr.
 
 ## 2. Configure the services
 

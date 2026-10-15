@@ -23,7 +23,7 @@ PHPStan runs with strict rules. Coverage is local HTML plus Clover, and CI publi
 
 ## 4.1.0
 
-`RedisSetDriver` schedule handling was updated for the scheduled set. The current `wait()` path is documented on [Delayed execution](/guide/delayed): `zRangeByScore`, then `sPop` on the schedule key.
+`RedisSetDriver` schedule handling was updated for the scheduled set. Up to 5.x its `wait()` called `zRangeByScore`, then `sPop` on the schedule key, which never promoted anything ([#95](https://github.com/tomaj/hermes/issues/95)). 6.0 uses `ZREM`; see [Delayed execution](/guide/delayed).
 
 ## 4.0.1
 

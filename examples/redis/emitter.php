@@ -20,7 +20,7 @@ $counter = 1;
 $priorities = [\Tomaj\Hermes\Dispatcher::DEFAULT_PRIORITY, \Tomaj\Hermes\Dispatcher::DEFAULT_PRIORITY - 10, \Tomaj\Hermes\Dispatcher::DEFAULT_PRIORITY + 10];
 while (true) {
     $emitter->emit(new Message('type1', ['message' => $counter]), $priorities[rand(0, count($priorities) - 1)]);
-    echo "Emited message $counter\n";
+    echo "Emitted message $counter\n";
     $counter++;
     sleep(1);
 }

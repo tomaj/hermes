@@ -17,13 +17,13 @@ This page adds Hermes to a fresh `nette/web-project`. A presenter emits `user.re
 ```bash
 composer create-project nette/web-project app
 cd app
-composer require tomaj/hermes contributte/console
+composer require tomaj/hermes:dev-master contributte/console
 composer require predis/predis              # only for the predis driver
 composer require php-amqplib/php-amqplib    # only for the rabbitmq driver
 composer require aws/aws-sdk-php            # only for the sqs driver
 ```
 
-Until Hermes 6.0 is tagged, require `tomaj/hermes:dev-master`. Nette has no console of its own; [contributte/console](https://github.com/contributte/console) adds Symfony Console commands to the DI container.
+Until Hermes 6.0 is tagged, require `tomaj/hermes:dev-master` as above; switch to `^6.0` once it is released. Nette has no console of its own; [contributte/console](https://github.com/contributte/console) adds Symfony Console commands to the DI container.
 
 ## 2. Configure the services
 

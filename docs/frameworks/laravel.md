@@ -17,13 +17,13 @@ This page adds Hermes to a fresh Laravel 11 or 12 project. A controller emits `u
 ```bash
 composer create-project laravel/laravel app
 cd app
-composer require tomaj/hermes
+composer require tomaj/hermes:dev-master
 composer require predis/predis              # only for the predis driver
 composer require php-amqplib/php-amqplib    # only for the rabbitmq driver
 composer require aws/aws-sdk-php            # only for the sqs driver
 ```
 
-Until Hermes 6.0 is tagged, require `tomaj/hermes:dev-master`. The default `redis` driver needs the phpredis extension (`ext-redis`).
+Until Hermes 6.0 is tagged, require `tomaj/hermes:dev-master` as above; switch to `^6.0` once it is released. The default `redis` driver needs the phpredis extension (`ext-redis`).
 
 ## 2. Configure the driver
 

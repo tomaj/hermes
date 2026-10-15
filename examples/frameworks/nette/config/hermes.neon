@@ -18,7 +18,7 @@ parameters:
 			vhost: /
 		sqs:
 			region: eu-central-1
-			endpoint: null # http://localhost:4566 for a local SQS
+			endpoint: null # http://127.0.0.1:4566 for a local SQS
 			key: ''
 			secret: ''
 

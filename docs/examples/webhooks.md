@@ -33,7 +33,7 @@ A fake receiver for local testing. It answers `503` to the first attempt and `20
 ```bash
 composer install
 docker compose up -d redis
-php -S localhost:9000 receiver.php     # terminal 1: the receiver
+php -S 127.0.0.1:9000 receiver.php     # terminal 1: the receiver
 php bin/worker.php                     # terminal 2: the worker
 php public/index.php                   # terminal 3: emit one event
 ```
