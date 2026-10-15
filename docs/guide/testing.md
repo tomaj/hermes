@@ -13,7 +13,7 @@ A handler test does not need Redis. Call `handle()` with a `Message`, or put tha
 
 ## Commands
 
-`composer.json` scripts are `phpunit`, `phpstan`, `phpcs` (also `cs`), `cs-fix`, `infection`, and `coverage`. There is no `composer test` script.
+`composer.json` scripts are `test` (an alias of `phpunit`), `phpunit`, `phpstan`, `phpcs`, `cs-fix`, `infection`, `coverage`, and `check`, which runs `phpcs`, `phpstan` and `test` in that order. `phpunit` and `test` run without coverage, so they need neither Xdebug nor PCOV; `coverage` and `infection` need one of them.
 
 ```bash
 composer install
@@ -87,7 +87,7 @@ No. Driver tests mock the clients, so `composer phpunit` runs without any server
 
 ### Is there a `composer test` script?
 
-No. Use `composer phpunit`.
+Yes. It runs PHPUnit, like `composer phpunit`. `composer check` runs code style, PHPStan and the tests.
 
 ### Does `DummyDriver` order priorities like Redis?
 
