@@ -19,7 +19,7 @@ $emitter = new Emitter($driver);
 $counter = 1;
 while (true) {
     $emitter->emit(new Message('type1', ['message' => $counter]));
-    echo "Emited message $counter\n";
+    echo "Emitted message $counter\n";
     $counter++;
     sleep(1);
 }

@@ -9,4 +9,4 @@ for file in $(cd "$src" && find app bin config tests -type f); do
     cp "$src/$file" "$app/$file"
 done
 chmod +x "$app/bin/console"
-echo "Copied the Hermes integration into $app. Now run: composer require tomaj/hermes contributte/console"
+echo "Copied the Hermes integration into $app. Now run: composer require tomaj/hermes:dev-master contributte/console"

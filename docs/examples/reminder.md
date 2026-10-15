@@ -54,7 +54,7 @@ Every file of this recipe, with its `README.md`, `Makefile` and the `e2e.sh` che
 
 ### Can I use ext-redis for reminders?
 
-Not in 5.x. Its promotion step leaves due messages in the sorted set. Use Predis. See [Delayed execution](/guide/delayed).
+Yes, from 6.0, which these recipes require. In 5.x its promotion step leaves due messages in the sorted set, so use Predis there. See [Delayed execution](/guide/delayed).
 
 ### What if the reservation is cancelled?
 

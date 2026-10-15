@@ -5,7 +5,7 @@ description: "AmazonSqsDriver for Hermes: queue creation, receive and delete, IA
 
 # Amazon SQS
 
-`Tomaj\Hermes\Driver\AmazonSqsDriver` needs `aws/aws-sdk-php` 3.x, which is what `composer.json` suggests (`aws/aws-sdk-php: 3.*`). The class docblock still shows the AWS SDK v2 `SqsClient::factory()` and `Aws\Common\Aws` examples. The code and `examples/sqs` use an SDK v3 client.
+`Tomaj\Hermes\Driver\AmazonSqsDriver` needs `aws/aws-sdk-php` 3.x. `composer.json` lists it under `suggest` ("Needed for AmazonSqsDriver"), and the tests run against `^3.337`. The class docblock still shows the AWS SDK v2 `SqsClient::factory()` and `Aws\Common\Aws` examples. The code and `examples/sqs` use an SDK v3 client.
 
 ```php
 public function __construct(SqsClient $client, string $queueName, array $queueAttributes = [])

@@ -2,6 +2,7 @@
 # End-to-end check: schedule a reminder 5 seconds ahead, wait for it in Mailpit.
 set -euo pipefail
 cd "$(dirname "$0")"
+[[ -f vendor/autoload.php ]] || { echo "fail: vendor/ is missing, run make install (composer install) first" >&2; exit 1; }
 MAILPIT=${MAILPIT_URL:-http://127.0.0.1:8025}
 
 php bin/worker.php > /tmp/reminder-worker.log 2>&1 &

@@ -1,7 +1,7 @@
 {
     "require": {
-        "php": ">=8.2",
-        "tomaj/hermes": "^5.0",
+        "php": ">=8.4",
+        "tomaj/hermes": "dev-master",
         "predis/predis": "^2.3 || ^3.0",
         "dompdf/dompdf": "^3.0"
     },
@@ -9,5 +9,7 @@
         "psr-4": {
             "App\\": "src/"
         }
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

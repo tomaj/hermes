@@ -9,36 +9,46 @@ shift
 drivers=("${@:-redis}")
 cd "$app"
 log=var/log/dev.log
+worker=
+cleanup() {
+    if [[ -n $worker ]]; then kill "$worker" 2>/dev/null || true; fi
+}
+trap cleanup EXIT
 
 for driver in "${drivers[@]}"; do
     export HERMES_DRIVER=$driver HERMES_QUEUE="hermes_e2e_${driver}_$$"
     email="symfony-$driver-$RANDOM@example.com"
 
+    # SharedFileShutdown compares whole seconds: a worker started in the same second
+    # as the previous hermes:restart would stop at once.
+    while [[ $(date +%s) -le ${restarted:-0} ]]; do sleep 0.2; done
     php bin/console hermes:work > "/tmp/hermes-symfony-$driver.log" 2>&1 &
     worker=$!
-    sleep 2
     php bin/console app:register-user "$email"
 
+    # The message waits in the queue, so the worker does not have to be ready first.
     for _ in $(seq 1 30); do
         grep -q "Welcome email sent to $email" "$log" 2>/dev/null && break
+        kill -0 "$worker" 2>/dev/null || break
         sleep 1
     done
     if ! grep -q "Welcome email sent to $email" "$log"; then
         echo "fail [$driver]: no log line for $email" >&2
-        kill "$worker" 2>/dev/null || true
         cat "/tmp/hermes-symfony-$driver.log" >&2
         exit 1
     fi
 
     php bin/console hermes:restart > /dev/null
+    restarted=$(date +%s)
     for _ in $(seq 1 15); do
         kill -0 "$worker" 2>/dev/null || break
         sleep 1
     done
     if kill -0 "$worker" 2>/dev/null; then
         echo "fail [$driver]: the worker did not stop after hermes:restart" >&2
-        kill "$worker"
         exit 1
     fi
+    wait "$worker" 2>/dev/null || true
+    worker=
     echo "ok [$driver]: handled $email, worker stopped on hermes:restart"
 done

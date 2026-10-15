@@ -3,7 +3,7 @@ title: "Welcome email tutorial"
 description: "Step by step from an empty folder: send a welcome email from a PHP background worker with Hermes, Redis, and Mailpit."
 howto:
   totalTime: PT15M
-  tools: [PHP 8.2 or newer, Composer, Docker with Compose]
+  tools: [PHP 8.4 or newer, Composer, Docker with Compose]
 ---
 
 # Welcome email, from zero
@@ -19,7 +19,7 @@ It takes about 15 minutes. Every file is complete, so you can copy each block as
 
 ## What you need
 
-- PHP 8.2 or newer with Composer
+- PHP 8.4 or newer with Composer
 - Docker with Compose, for Redis and Mailpit
 
 The app uses `PredisSetDriver`. Predis is a plain PHP package, so there is no extension to install. It is also the Redis driver that moves delayed messages and retries back to the queue with `ZREM`, which the retry step below needs. See [Delayed execution](/guide/delayed).
@@ -37,7 +37,7 @@ mkdir -p public src bin tests deploy
 composer install
 ```
 
-This installs Hermes 5.x, Predis, Symfony Mailer for SMTP, and Monolog so the worker prints what it does.
+This installs Hermes from `dev-master` (6.0 until it is tagged), Predis, Symfony Mailer for SMTP, and Monolog so the worker prints what it does.
 
 ## 2. Start Redis and Mailpit
 
@@ -141,21 +141,7 @@ The delay grows with each attempt: `retries⁴ + 15 + jitter × (retries + 1)` s
 
 ## 9. Test the handler
 
-A handler is a plain class, so test it without Redis or a worker. Add PHPUnit:
-
-```bash
-composer require --dev phpunit/phpunit
-```
-
-Add this to `composer.json` and run `composer dump-autoload`:
-
-```json
-"autoload-dev": {
-    "psr-4": {
-        "App\\Tests\\": "tests/"
-    }
-}
-```
+A handler is a plain class, so test it without Redis or a worker. The `composer.json` from step 1 already has PHPUnit in `require-dev` and maps `App\Tests\` to `tests/` in `autoload-dev`, so `composer install` set both up.
 
 <<< @/../examples/welcome-email/tests/WelcomeEmailHandlerTest.php{php} [tests/WelcomeEmailHandlerTest.php]
 
@@ -243,7 +229,7 @@ Yes. Set `MAILER_DSN`, for example `smtp://user:pass@smtp.example.com:587`, for 
 
 ### Why Predis and not ext-redis?
 
-Retries need the delayed-message path, which only Predis promotes correctly in 5.x. See [Delayed execution](/guide/delayed).
+It needs no PHP extension. Retries need the delayed-message path, which on 5.x only Predis promotes correctly; from 6.0 ext-redis works too. See [Delayed execution](/guide/delayed).
 
 ### How many times is a failed email retried?
 

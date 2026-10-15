@@ -5,7 +5,7 @@
 ```bash
 make install
 make up                              # Redis
-php -S localhost:9000 receiver.php   # terminal 1: answers 503, then 204
+php -S 127.0.0.1:9000 receiver.php   # terminal 1: answers 503, then 204
 make worker                          # terminal 2
 php public/index.php                 # terminal 3: emit one webhook
 ```

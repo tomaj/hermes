@@ -86,7 +86,7 @@ Shutdown checks use `ShutdownTrait`. Pair this driver with `PredisShutdown`, not
 
 ### When should I choose Predis over ext-redis?
 
-When you cannot install the phpredis extension, or when you need delayed messages and retries, which Predis promotes correctly.
+When you cannot install the phpredis extension. On 5.x also when you need delayed messages and retries, which only Predis promotes correctly there; from 6.0 `RedisSetDriver` promotes them too.
 
 ### Is the Redis data layout the same?
 
