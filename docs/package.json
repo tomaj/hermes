@@ -16,8 +16,16 @@
     "@excalidraw/mermaid-to-excalidraw": "2.2.2",
     "@excalidraw/utils": "0.1.5",
     "esbuild": "0.28.2",
-    "linkinator": "6.1.2",
+    "linkinator": "7.6.1",
     "puppeteer-core": "25.13.0",
     "vitepress": "1.6.4"
+  },
+  "overrides": {
+    "@excalidraw/mermaid-to-excalidraw": {
+      "nanoid": "^5.1.11"
+    },
+    "katex": "^0.18.2",
+    "lodash-es": "^4.18.1",
+    "vite": "^6.4.3"
   }
 }
