@@ -13,16 +13,10 @@ A handler test does not need Redis. Call `handle()` with a `Message`, or put tha
 
 ## Commands
 
-`composer.json` scripts are `phpunit`, `phpstan`, `phpcs` (also `cs`), `cs-fix`, `infection`, and `coverage`. There is no `composer test` script. The Makefile target `test` runs PHPUnit.
+`composer.json` scripts are `phpunit`, `phpstan`, `phpcs` (also `cs`), `cs-fix`, `infection`, and `coverage`. There is no `composer test` script.
 
 ```bash
 composer install
-make test
-```
-
-The same PHPUnit binary:
-
-```bash
 composer phpunit
 vendor/bin/phpunit
 ```
@@ -43,11 +37,9 @@ composer phpstan
 
 ```bash
 composer coverage
-make coverage
-./coverage.sh
 ```
 
-All three run PHPUnit with `XDEBUG_MODE=coverage`. Reports:
+It runs PHPUnit with `XDEBUG_MODE=coverage`. Reports:
 
 - HTML: `build/coverage/index.html`
 - Clover: `build/logs/clover.xml`
@@ -95,7 +87,7 @@ No. Driver tests mock the clients, so `composer phpunit` runs without any server
 
 ### Is there a `composer test` script?
 
-No. Use `composer phpunit` or `make test`.
+No. Use `composer phpunit`.
 
 ### Does `DummyDriver` order priorities like Redis?
 
