@@ -16,7 +16,7 @@ class ShutdownTraitTest extends TestCase
 {
     public function testSetShutdown(): void
     {
-        $shutdown = $this->createMock(ShutdownInterface::class);
+        $shutdown = self::createStub(ShutdownInterface::class);
 
         $testClass = new class {
             use ShutdownTrait;
@@ -34,6 +34,29 @@ class ShutdownTraitTest extends TestCase
 
         $testClass->setShutdown($shutdown);
         self::expectNotToPerformAssertions();
+    }
+
+    public function testShouldShutdownIsFalseWhenAClassAssignsOnlyTheShutdown(): void
+    {
+        // A driver that overrides setShutdown() and assigns only $shutdown never set a start time.
+        $shutdown = $this->createMock(ShutdownInterface::class);
+        $shutdown->expects(self::never())->method('shouldShutdown');
+
+        $testClass = new class ($shutdown) {
+            use ShutdownTrait;
+
+            public function __construct(ShutdownInterface $shutdown)
+            {
+                $this->shutdown = $shutdown;
+            }
+
+            public function callShouldShutdown(): bool
+            {
+                return $this->shouldShutdown();
+            }
+        };
+
+        self::assertFalse($testClass->callShouldShutdown());
     }
 
     public function testShouldShutdownWhenNotSet(): void

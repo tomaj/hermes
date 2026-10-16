@@ -27,7 +27,7 @@ Code style is [PER Coding Style](https://www.php-fig.org/per/coding-style/), che
 composer phpcs
 ```
 
-PHPStan runs at level `max` with the settings in `phpstan.neon`:
+PHPStan runs at level `max` with the settings in `phpstan.neon`: bleeding edge, `phpstan-strict-rules`, `phpstan-deprecation-rules` and `phpstan-phpunit`, plus `checkUninitializedProperties` and `reportUnmatchedIgnoredErrors`. There is no baseline and no ignored error, in `src/` or in `tests/`.
 
 ```bash
 composer phpstan
@@ -60,7 +60,7 @@ After a successful CI run on `master`, the documentation workflow publishes that
 
 `DummyDriver::setupPriorityQueue()` sorts keys numerically before `wait()` reverses them. That is why `HandleTest::testPriorityProcessing()` sees the higher priority first, which matches the Redis drivers from 6.0. On 5.x the Redis drivers did not sort. [Issue #50](https://github.com/tomaj/hermes/issues/50) is the Redis behavior.
 
-Driver tests that need a server mock the client (`Redis`, `Predis\Client`, `SqsClient`, `AMQPLazyConnection`). A green PHPUnit run does not require a local Redis, RabbitMQ, or AWS account.
+Driver tests that need a server mock the client (`Redis`, `Predis\Client`, `SqsClient`, the php-amqplib `AbstractConnection`). A green PHPUnit run does not require a local Redis, RabbitMQ, or AWS account.
 
 ## CI workflows
 

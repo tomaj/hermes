@@ -77,6 +77,11 @@ class DummyDriver implements DriverInterface
         }
     }
 
+    /**
+     * Takes the next message off the queue, so each call can return another one.
+     *
+     * @phpstan-impure
+     */
     public function getMessage(): ?MessageInterface
     {
         $message = null;

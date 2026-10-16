@@ -64,6 +64,6 @@ class AmazonSqsDriverIntegrationTest extends TestCase
         $queueUrl = $this->client->getQueueUrl(['QueueName' => $this->queueName])->get('QueueUrl');
         self::assertIsString($queueUrl);
         $left = $this->client->receiveMessage(['QueueUrl' => $queueUrl, 'WaitTimeSeconds' => 1])->get('Messages');
-        self::assertEmpty($left);
+        self::assertSame([], $left ?? []);
     }
 }

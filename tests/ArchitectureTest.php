@@ -55,7 +55,7 @@ class ArchitectureTest extends TestCase
     public function testImplementedMethodsHaveOverride(string $class): void
     {
         $reflection = new ReflectionClass($class);
-        $this->addToAssertionCount(1);
+        $missing = [];
         foreach ($reflection->getMethods() as $method) {
             if ($method->getDeclaringClass()->getName() !== $class || $method->isConstructor()) {
                 continue;
@@ -69,7 +69,10 @@ class ArchitectureTest extends TestCase
             if (!$inherited) {
                 continue;
             }
-            self::assertNotEmpty($method->getAttributes(\Override::class), "{$class}::{$method->getName()}() must have #[\\Override]");
+            if ($method->getAttributes(\Override::class) === []) {
+                $missing[] = "{$class}::{$method->getName()}()";
+            }
         }
+        self::assertSame([], $missing, 'These methods must have #[\\Override]');
     }
 }

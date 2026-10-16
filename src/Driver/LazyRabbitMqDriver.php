@@ -6,7 +6,7 @@ namespace Tomaj\Hermes\Driver;
 
 use Closure;
 use PhpAmqpLib\Channel\AMQPChannel;
-use PhpAmqpLib\Connection\AMQPLazyConnection;
+use PhpAmqpLib\Connection\AbstractConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 use Throwable;
 use Tomaj\Hermes\Dispatcher;
@@ -29,7 +29,7 @@ final class LazyRabbitMqDriver implements DriverInterface
      *                      Pass false to keep using a queue that was declared non-durable by Hermes 5.x.
      */
     public function __construct(
-        private readonly AMQPLazyConnection $connection,
+        private readonly AbstractConnection $connection,
         private readonly string $queue,
         private readonly array $amqpMessageProperties = [],
         private readonly int $refreshInterval = 0,
@@ -91,7 +91,7 @@ final class LazyRabbitMqDriver implements DriverInterface
                 },
             );
 
-            while ($this->getChannel()->callbacks !== []) {
+            while ($this->getChannel()->is_consuming()) {
                 $this->getChannel()->wait(null, true);
                 $this->checkShutdown();
                 if (!$this->shouldProcessNext()) {

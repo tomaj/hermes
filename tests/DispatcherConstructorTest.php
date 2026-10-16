@@ -69,7 +69,7 @@ class DispatcherConstructorTest extends TestCase
             }
         };
 
-        $dispatcher = new Dispatcher($driver, null, $shutdown);
+        new Dispatcher($driver, null, $shutdown);
 
         // Verify that setShutdown was called on the driver
         self::assertTrue($driver->wasShutdownSet());

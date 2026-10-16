@@ -44,9 +44,9 @@ class HandleTest extends TestCase
         $dispatcher->handle();
 
         $receivedMessages = $handler->getReceivedMessages();
-        self::assertEquals(1, count($receivedMessages));
-        self::assertEquals('event2', $receivedMessages[0]->getType());
-        self::assertEquals(['c' => 'd'], $receivedMessages[0]->getPayload());
+        self::assertCount(1, $receivedMessages);
+        self::assertSame('event2', $receivedMessages[0]->getType());
+        self::assertSame(['c' => 'd'], $receivedMessages[0]->getPayload());
         self::assertTrue($driver->waitResult());
     }
 
@@ -66,14 +66,14 @@ class HandleTest extends TestCase
         $dispatcher->handle();
 
         $receivedMessages = $handler1->getReceivedMessages();
-        self::assertEquals(1, count($receivedMessages));
-        self::assertEquals('eventx', $receivedMessages[0]->getType());
-        self::assertEquals(['a' => 'x'], $receivedMessages[0]->getPayload());
+        self::assertCount(1, $receivedMessages);
+        self::assertSame('eventx', $receivedMessages[0]->getType());
+        self::assertSame(['a' => 'x'], $receivedMessages[0]->getPayload());
 
         $receivedMessages = $handler2->getReceivedMessages();
-        self::assertEquals(1, count($receivedMessages));
-        self::assertEquals('eventx', $receivedMessages[0]->getType());
-        self::assertEquals(['a' => 'x'], $receivedMessages[0]->getPayload());
+        self::assertCount(1, $receivedMessages);
+        self::assertSame('eventx', $receivedMessages[0]->getType());
+        self::assertSame(['a' => 'x'], $receivedMessages[0]->getPayload());
 
         self::assertFalse($driver->waitResult());
     }
@@ -93,7 +93,7 @@ class HandleTest extends TestCase
         $dispatcher->handle();
 
         $receivedMessages = $handler->getReceivedMessages();
-        self::assertEquals(0, count($receivedMessages));
+        self::assertCount(0, $receivedMessages);
         self::assertTrue($driver->waitResult());
     }
 
@@ -140,10 +140,10 @@ class HandleTest extends TestCase
 
         $receivedMessages = $testHandler->getReceivedMessages();
         self::assertCount(4, $receivedMessages);
-        self::assertEquals(['n' => 2], $receivedMessages[0]->getPayload());
-        self::assertEquals(['n' => 4], $receivedMessages[1]->getPayload());
-        self::assertEquals(['n' => 1], $receivedMessages[2]->getPayload());
-        self::assertEquals(['n' => 3], $receivedMessages[3]->getPayload());
+        self::assertSame(['n' => 2], $receivedMessages[0]->getPayload());
+        self::assertSame(['n' => 4], $receivedMessages[1]->getPayload());
+        self::assertSame(['n' => 1], $receivedMessages[2]->getPayload());
+        self::assertSame(['n' => 3], $receivedMessages[3]->getPayload());
     }
 
     public function testMaxItemProcess(): void
@@ -171,8 +171,8 @@ class HandleTest extends TestCase
 
         $receivedMessages = $testHandler->getReceivedMessages();
         self::assertCount(2, $receivedMessages);
-        self::assertEquals(['n' => 2], $receivedMessages[0]->getPayload());
-        self::assertEquals(['n' => 1], $receivedMessages[1]->getPayload());
+        self::assertSame(['n' => 2], $receivedMessages[0]->getPayload());
+        self::assertSame(['n' => 1], $receivedMessages[1]->getPayload());
     }
 
     public function testUnregisterAllHandlers(): void
@@ -220,6 +220,9 @@ class HandleTest extends TestCase
         self::assertCount(1, $secondHandlerReceivedMessages);
     }
 
+    /**
+     * @deprecated Covers the deprecated Dispatcher::emit().
+     */
     public function testEmitMethod(): void
     {
         $driver = new DummyDriver([]);
@@ -234,8 +237,8 @@ class HandleTest extends TestCase
         // Check that the message was sent via the driver
         $sentMessage = $driver->getMessage();
         self::assertNotNull($sentMessage);
-        self::assertEquals('test-event', $sentMessage->getType());
-        self::assertEquals(['test' => 'data'], $sentMessage->getPayload());
+        self::assertSame('test-event', $sentMessage->getType());
+        self::assertSame(['test' => 'data'], $sentMessage->getPayload());
     }
 
     public function testRegisterHandlers(): void

@@ -29,12 +29,6 @@ class SharedFileShutdownTest extends TestCase
         }
     }
 
-    public function testConstructor(): void
-    {
-        $shutdown = new SharedFileShutdown($this->tempFile);
-        self::assertInstanceOf(SharedFileShutdown::class, $shutdown);
-    }
-
     public function testShouldShutdownWhenFileDoesNotExist(): void
     {
         if (file_exists($this->tempFile)) {
@@ -96,7 +90,7 @@ class SharedFileShutdownTest extends TestCase
 
         self::assertTrue($result);
         self::assertTrue(file_exists($this->tempFile));
-        self::assertEquals($shutdownTime->getTimestamp(), filemtime($this->tempFile));
+        self::assertSame($shutdownTime->getTimestamp(), filemtime($this->tempFile));
     }
 
     public function testShutdownWithNullTime(): void

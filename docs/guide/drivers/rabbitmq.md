@@ -5,11 +5,11 @@ description: "LazyRabbitMqDriver for Hermes: durable queue, persistent publishin
 
 # RabbitMQ
 
-`Tomaj\Hermes\Driver\LazyRabbitMqDriver` uses `PhpAmqpLib\Connection\AMQPLazyConnection`. The connection is lazy: the channel is opened on the first `send()` or `wait()`, inside `getChannel()`.
+`Tomaj\Hermes\Driver\LazyRabbitMqDriver` takes any php-amqplib connection (`PhpAmqpLib\Connection\AbstractConnection`). The driver is lazy: it opens the channel on the first `send()` or `wait()`, inside `getChannel()`. Pass a lazy connection too, so that building the driver does not connect: `AMQPLazyConnection`, as below, or, since php-amqplib deprecated that class, `AMQPConnectionFactory::create()` with `AMQPConnectionConfig::setIsLazy(true)`. Hermes 5.x required `AMQPLazyConnection`.
 
 ```php
 public function __construct(
-    AMQPLazyConnection $connection,
+    AbstractConnection $connection,
     string $queue,
     array $amqpMessageProperties = [],
     int $refreshInterval = 0,

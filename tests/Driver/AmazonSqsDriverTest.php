@@ -31,7 +31,7 @@ class AmazonSqsDriverTest extends TestCase
         $driver = new AmazonSqsDriver($client, 'test-queue');
 
         $this->expectException(NotSupportedException::class);
-        $this->expectExceptionMessage('AmazonSQS is not supporting priority queues now');
+        $this->expectExceptionMessageIs('AmazonSQS is not supporting priority queues now');
 
         $driver->setupPriorityQueue('test', 100);
     }
@@ -50,9 +50,7 @@ class AmazonSqsDriverTest extends TestCase
                ])
                ->willReturn($this->createMockResult(['QueueUrl' => 'https://sqs.region.amazonaws.com/123456789/test-queue']));
 
-        $driver = new AmazonSqsDriver($client, 'test-queue');
-
-        self::assertInstanceOf(AmazonSqsDriver::class, $driver);
+        new AmazonSqsDriver($client, 'test-queue');
     }
 
     public function testConstructorWithQueueAttributes(): void
@@ -71,9 +69,7 @@ class AmazonSqsDriverTest extends TestCase
                ])
                ->willReturn($this->createMockResult(['QueueUrl' => 'https://sqs.region.amazonaws.com/123456789/test-queue']));
 
-        $driver = new AmazonSqsDriver($client, 'test-queue', $attributes);
-
-        self::assertInstanceOf(AmazonSqsDriver::class, $driver);
+        new AmazonSqsDriver($client, 'test-queue', $attributes);
     }
 
     public function testTraitsAreUsed(): void
@@ -89,13 +85,12 @@ class AmazonSqsDriverTest extends TestCase
         $driver = new AmazonSqsDriver($client, 'test-queue');
 
         // Test MaxItemsTrait methods
-        self::assertEquals(0, $driver->processed());
+        self::assertSame(0, $driver->processed());
         self::assertTrue($driver->shouldProcessNext());
 
         // Test SerializerAwareTrait methods (we can only test setSerializer)
-        $customSerializer = $this->createMock(SerializerInterface::class);
+        $customSerializer = self::createStub(SerializerInterface::class);
         $driver->setSerializer($customSerializer);
-
     }
 
     public function testSendMessage(): void

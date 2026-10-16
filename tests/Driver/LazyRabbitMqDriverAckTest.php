@@ -6,7 +6,7 @@ namespace Tomaj\Hermes\Test\Driver;
 
 use Closure;
 use PhpAmqpLib\Channel\AMQPChannel;
-use PhpAmqpLib\Connection\AMQPLazyConnection;
+use PhpAmqpLib\Connection\AbstractConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
@@ -32,7 +32,7 @@ class LazyRabbitMqDriverAckTest extends TestCase
      */
     private function deliver(string $body, Closure $callback, bool $durable = true): void
     {
-        $connection = $this->createMock(AMQPLazyConnection::class);
+        $connection = $this->createMock(AbstractConnection::class);
         $channel = $this->createMock(AMQPChannel::class);
         $connection->method('channel')->willReturn($channel);
 
@@ -62,7 +62,7 @@ class LazyRabbitMqDriverAckTest extends TestCase
                 return $tag;
             },
         );
-        $channel->callbacks = ['hermes' => static fn(): null => null];
+        $channel->method('is_consuming')->willReturn(true);
 
         $driver = new LazyRabbitMqDriver($connection, 'q', [], 0, 'hermes', $durable);
         $driver->setMaxProcessItems(1);
@@ -148,7 +148,7 @@ class LazyRabbitMqDriverAckTest extends TestCase
      */
     private function publish(bool $durable, array $properties): AMQPMessage
     {
-        $connection = $this->createMock(AMQPLazyConnection::class);
+        $connection = $this->createMock(AbstractConnection::class);
         $channel = $this->createMock(AMQPChannel::class);
         $connection->method('channel')->willReturn($channel);
         $channel->expects(self::once())->method('queue_declare')->with('q', false, $durable, false, false);
@@ -171,10 +171,10 @@ class LazyRabbitMqDriverAckTest extends TestCase
 
     public function testDefaultRefreshIntervalDoesNotSleep(): void
     {
-        $connection = $this->createMock(AMQPLazyConnection::class);
+        $connection = $this->createMock(AbstractConnection::class);
         $channel = $this->createMock(AMQPChannel::class);
         $connection->method('channel')->willReturn($channel);
-        $channel->callbacks = ['hermes' => static fn(): null => null];
+        $channel->method('is_consuming')->willReturn(true);
         $shutdown = $this->createMock(\Tomaj\Hermes\Shutdown\ShutdownInterface::class);
         $shutdown->method('shouldShutdown')->willReturnOnConsecutiveCalls(false, true);
 

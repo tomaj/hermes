@@ -18,7 +18,7 @@ class MessageSerializerTest extends TestCase
         $serializer = new MessageSerializer();
 
         $this->expectException(SerializeException::class);
-        $this->expectExceptionMessage("Cannot unserialize message from 'invalid json'");
+        $this->expectExceptionMessageIs("Cannot unserialize message from 'invalid json'");
 
         $serializer->unserialize('invalid json');
     }
@@ -30,7 +30,7 @@ class MessageSerializerTest extends TestCase
         // Create a message with non-serializable data (like a resource)
         $resource = fopen('php://memory', 'r');
         self::assertIsResource($resource);
-        $message = $this->createMock(\Tomaj\Hermes\MessageInterface::class);
+        $message = self::createStub(\Tomaj\Hermes\MessageInterface::class);
         $message->method('getId')->willReturn('test-id');
         $message->method('getType')->willReturn('test-type');
         $message->method('getPayload')->willReturn(['resource' => $resource]);
@@ -39,7 +39,7 @@ class MessageSerializerTest extends TestCase
         $message->method('getRetries')->willReturn(0);
 
         $this->expectException(SerializeException::class);
-        $this->expectExceptionMessage('Cannot serialize message test-id');
+        $this->expectExceptionMessageIs('Cannot serialize message test-id');
 
         try {
             $serializer->serialize($message);
@@ -53,7 +53,7 @@ class MessageSerializerTest extends TestCase
         $serializer = new MessageSerializer();
 
         $this->expectException(SerializeException::class);
-        $this->expectExceptionMessage("Cannot unserialize message from '{\"data\":\"test\"}'");
+        $this->expectExceptionMessageIs("Cannot unserialize message from '{\"data\":\"test\"}'");
 
         $serializer->unserialize('{"data":"test"}');
     }
@@ -63,7 +63,7 @@ class MessageSerializerTest extends TestCase
         $serializer = new MessageSerializer();
 
         $this->expectException(SerializeException::class);
-        $this->expectExceptionMessage("Invalid message format in '{\"message\":{\"type\":\"test\"}}'");
+        $this->expectExceptionMessageIs("Invalid message format in '{\"message\":{\"type\":\"test\"}}'");
 
         $serializer->unserialize('{"message":{"type":"test"}}');
     }

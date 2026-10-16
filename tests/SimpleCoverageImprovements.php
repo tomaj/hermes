@@ -6,7 +6,7 @@ namespace Tomaj\Hermes\Test;
 
 use DateTime;
 use PhpAmqpLib\Channel\AMQPChannel;
-use PhpAmqpLib\Connection\AMQPLazyConnection;
+use PhpAmqpLib\Connection\AbstractConnection;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Redis;
@@ -109,7 +109,7 @@ class SimpleCoverageImprovements extends TestCase
         };
 
         $driver->wait($callback);
-        self::assertEquals(0, $processedCount);
+        self::assertSame(0, $processedCount);
     }
 
     public function testAmazonSqsDriverWithAttributes(): void
@@ -151,7 +151,7 @@ class SimpleCoverageImprovements extends TestCase
                         ->onlyMethods(['queue_declare', 'basic_publish'])
                         ->getMock();
 
-        $connection = $this->getMockBuilder(AMQPLazyConnection::class)
+        $connection = $this->getMockBuilder(AbstractConnection::class)
                            ->disableOriginalConstructor()
                            ->onlyMethods(['channel'])
                            ->getMock();
@@ -294,14 +294,14 @@ class SimpleCoverageImprovements extends TestCase
         $serialized = $serializer->serialize($message);
         $unserialized = $serializer->unserialize($serialized);
 
-        self::assertEquals($longId, $unserialized->getId());
+        self::assertSame($longId, $unserialized->getId());
 
         // Test message with empty payload
         $emptyMessage = new Message('empty.event', []);
         $serialized = $serializer->serialize($emptyMessage);
         $unserialized = $serializer->unserialize($serialized);
 
-        self::assertEquals([], $unserialized->getPayload());
+        self::assertSame([], $unserialized->getPayload());
     }
 
     /**

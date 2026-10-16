@@ -36,6 +36,6 @@ class RetryTraitTest extends \PHPUnit\Framework\TestCase
             }
         };
 
-        self::assertEquals(25, $handler->maxRetry());
+        self::assertSame(25, $handler->maxRetry());
     }
 }
