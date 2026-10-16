@@ -40,8 +40,8 @@ class LoggerTest extends TestCase
         self::assertCount(1, $logData);
 
         $log = $logData[0];
-        self::assertEquals('test', $log['context']['type']);
-        self::assertEquals(['asdsd' => 'asdsd'], $log['context']['payload']);
+        self::assertSame('test', $log['context']['type']);
+        self::assertSame(['asdsd' => 'asdsd'], $log['context']['payload']);
         self::assertStringContainsString($message->getId(), (string) $log['message']);
     }
 
@@ -62,11 +62,11 @@ class LoggerTest extends TestCase
         self::assertCount(2, $logs);
 
         $priority = Dispatcher::DEFAULT_PRIORITY;
-        self::assertEquals('info', $logs[0]['level']);
-        self::assertEquals("Start handle message #{$message1->getId()} ({$message1->getType()}) priority:{$priority}", $logs[0]['message']);
+        self::assertSame('info', $logs[0]['level']);
+        self::assertSame("Start handle message #{$message1->getId()} ({$message1->getType()}) priority:{$priority}", $logs[0]['message']);
 
-        self::assertEquals('info', $logs[1]['level']);
-        self::assertEquals("End handle message #{$message1->getId()} ({$message1->getType()})", $logs[1]['message']);
+        self::assertSame('info', $logs[1]['level']);
+        self::assertSame("End handle message #{$message1->getId()} ({$message1->getType()})", $logs[1]['message']);
     }
 
     public function testEmitterLogsDriverClassName(): void
@@ -77,6 +77,9 @@ class LoggerTest extends TestCase
         self::assertSame('Dispatcher send message #abc to driver ' . DummyDriver::class, $testLogger->getLogs()[0]['message']);
     }
 
+    /**
+     * @deprecated Covers the deprecated Dispatcher::emit().
+     */
     public function testDeprecatedDispatcherEmitLogsDriverClassName(): void
     {
         $testLogger = new TestLogger();

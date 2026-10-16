@@ -19,12 +19,12 @@ class MaxItemsTraitTest extends TestCase
         };
 
         // Test initial state
-        self::assertEquals(0, $handler->processed());
+        self::assertSame(0, $handler->processed());
         self::assertTrue($handler->shouldProcessNext());
 
         // Test incrementing
-        self::assertEquals(1, $handler->incrementProcessedItems());
-        self::assertEquals(1, $handler->processed());
+        self::assertSame(1, $handler->incrementProcessedItems());
+        self::assertSame(1, $handler->processed());
 
         // Test with max items set
         $handler->setMaxProcessItems(2);

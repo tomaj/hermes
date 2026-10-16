@@ -56,7 +56,7 @@ final class PublicApiContractTest extends TestCase
         yield 'Emitter' => [Emitter::class, ['Tomaj\\Hermes\\Driver\\DriverInterface $driver', '?Psr\\Log\\LoggerInterface $logger = null']];
         yield 'RedisSetDriver' => [RedisSetDriver::class, ['Redis $redis', 'string $key = "hermes"', 'int $refreshInterval = 1', 'string $scheduleKey = "hermes_schedule"']];
         yield 'PredisSetDriver' => [PredisSetDriver::class, ['Predis\\Client $redis', 'string $key = "hermes"', 'int $refreshInterval = 1', 'string $scheduleKey = "hermes_schedule"']];
-        yield 'LazyRabbitMqDriver' => [LazyRabbitMqDriver::class, ['PhpAmqpLib\\Connection\\AMQPLazyConnection $connection', 'string $queue', 'array $amqpMessageProperties = []', 'int $refreshInterval = 0', 'string $consumerTag = "hermes"', 'bool $durable = true']];
+        yield 'LazyRabbitMqDriver' => [LazyRabbitMqDriver::class, ['PhpAmqpLib\\Connection\\AbstractConnection $connection', 'string $queue', 'array $amqpMessageProperties = []', 'int $refreshInterval = 0', 'string $consumerTag = "hermes"', 'bool $durable = true']];
         yield 'AmazonSqsDriver' => [AmazonSqsDriver::class, ['Aws\\Sqs\\SqsClient $client', 'string $queueName', 'array $queueAttributes = []']];
         yield 'RedisShutdown' => [RedisShutdown::class, ['Redis $redis', 'string $key = "hermes_shutdown"']];
         yield 'PredisShutdown' => [PredisShutdown::class, ['Predis\\Client $redis', 'string $key = "hermes_shutdown"']];
@@ -134,6 +134,9 @@ final class PublicApiContractTest extends TestCase
         self::assertSame(3, $message->getRetries());
     }
 
+    /**
+     * @deprecated Covers the deprecated Dispatcher::emit().
+     */
     public function testFluentMethodsReturnTheSameConcreteInstance(): void
     {
         $dispatcher = new Dispatcher(new DummyDriver());

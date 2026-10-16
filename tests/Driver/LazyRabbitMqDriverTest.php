@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tomaj\Hermes\Test\Driver;
 
 use PhpAmqpLib\Channel\AMQPChannel;
-use PhpAmqpLib\Connection\AMQPLazyConnection;
+use PhpAmqpLib\Connection\AbstractConnection;
 use PHPUnit\Framework\TestCase;
 use Tomaj\Hermes\Driver\LazyRabbitMqDriver;
 use Tomaj\Hermes\Driver\NotSupportedException;
@@ -21,42 +21,42 @@ class LazyRabbitMqDriverTest extends TestCase
     public function testSetupPriorityQueueThrowsException(): void
     {
         // We can test this method without a real connection since it just throws an exception
-        $connection = $this->createMock(AMQPLazyConnection::class);
+        $connection = self::createStub(AbstractConnection::class);
         $driver = new LazyRabbitMqDriver($connection, 'test_queue');
 
         $this->expectException(NotSupportedException::class);
-        $this->expectExceptionMessage('LazyRabbitMqDriver is not supporting priority queues now');
+        $this->expectExceptionMessageIs('LazyRabbitMqDriver is not supporting priority queues now');
 
         $driver->setupPriorityQueue('test', 100);
     }
 
     public function testConstructorSetsProperties(): void
     {
-        $connection = $this->createMock(AMQPLazyConnection::class);
+        $connection = self::createStub(AbstractConnection::class);
         $amqpProperties = ['delivery_mode' => 2];
         $driver = new LazyRabbitMqDriver($connection, 'test_queue', $amqpProperties, 300, 'custom_tag');
 
         // We can't access private properties directly, but we can test that the constructor doesn't throw
-        self::assertInstanceOf(LazyRabbitMqDriver::class, $driver);
+        self::assertSame(0, $driver->processed());
     }
 
     public function testTraitsAreUsed(): void
     {
-        $connection = $this->createMock(AMQPLazyConnection::class);
+        $connection = self::createStub(AbstractConnection::class);
         $driver = new LazyRabbitMqDriver($connection, 'test_queue');
 
         // Test MaxItemsTrait methods
-        self::assertEquals(0, $driver->processed());
+        self::assertSame(0, $driver->processed());
         self::assertTrue($driver->shouldProcessNext());
 
         // Test SerializerAwareTrait methods (we can only test setSerializer)
-        $customSerializer = $this->createMock(SerializerInterface::class);
+        $customSerializer = self::createStub(SerializerInterface::class);
         $driver->setSerializer($customSerializer);
     }
 
     public function testGetChannelCreatesChannel(): void
     {
-        $connection = $this->createMock(AMQPLazyConnection::class);
+        $connection = $this->createMock(AbstractConnection::class);
         $channel = $this->createMock(AMQPChannel::class);
 
         $connection->expects(self::once())

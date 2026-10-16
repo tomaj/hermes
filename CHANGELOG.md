@@ -9,6 +9,7 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 * `Dispatcher` takes an optional fourth argument `?Random\Randomizer $randomizer` for the retry jitter. Pass one with a seeded engine for reproducible retry times. The default `new Randomizer()` replaces the global `rand()`, so `mt_srand()` no longer makes the retry times reproducible: pass a seeded `Randomizer` instead ([#82](https://github.com/tomaj/hermes/issues/82)).
 * Enhanced PHPStan configuration with strict rules and additional type checking
 * Added `phpstan/phpstan-strict-rules` extension for improved code quality analysis
+* PHPStan also runs with bleeding edge, `phpstan/phpstan-deprecation-rules`, `phpstan/phpstan-phpunit`, `checkUninitializedProperties` and `reportUnmatchedIgnoredErrors`, without a baseline or ignored errors ([#85](https://github.com/tomaj/hermes/issues/85))
 * Improved type safety with PHP 7.4+ typed properties in core classes
 * Added comprehensive GitHub Actions workflows with PHP 7.4+ support
 * Added security audit workflow with weekly vulnerability scanning
@@ -22,6 +23,8 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 * **BREAKING CHANGE**: `LazyRabbitMqDriver` acknowledges messages manually: `basic_ack` after the callback, `basic_nack` with requeue when it throws, `basic_nack` without requeue when the body cannot be unserialized, prefetch 1. It consumed with `no_ack = true`, which lost the message when the worker crashed ([#70](https://github.com/tomaj/hermes/issues/70)).
 * **BREAKING CHANGE**: `LazyRabbitMqDriver` declares a durable queue and publishes persistent messages (`delivery_mode` 2) by default. A queue created by 5.x is non-durable and RabbitMQ rejects the new declaration with `PRECONDITION_FAILED`: delete and recreate the queue, or pass the new `$durable = false` constructor argument ([#70](https://github.com/tomaj/hermes/issues/70)).
 * `LazyRabbitMqDriver` counts handled messages, so `setMaxProcessItems()` works with it.
+* `LazyRabbitMqDriver` accepts any `PhpAmqpLib\Connection\AbstractConnection`, not only `AMQPLazyConnection`, which php-amqplib deprecated. Pass a lazy connection, for example from `AMQPConnectionFactory` with `AMQPConnectionConfig::setIsLazy(true)`. Existing code that passes `AMQPLazyConnection` keeps working. The driver checks for active consumers with `AMQPChannel::is_consuming()` instead of the internal `$callbacks` property.
+* `ShutdownTrait` initializes its properties to `null`, so a driver that never gets a shutdown has no uninitialized properties.
 * **BREAKING CHANGE**: `PredisSetDriver` and `PredisShutdown` now support `predis/predis` `^2.3 || ^3.0`. Predis 1.x and 2.0 to 2.2 are no longer tested: they emit deprecations on PHP 8.4. Upgrade Predis together with Hermes.
 * `PredisSetDriver::wait()` passes the schedule bound to `zrangebyscore` as a string with microseconds, as Predis 2 and 3 expect.
 * Use PHP 8.4 idioms in the source: `::class` on objects instead of `get_class()`, `!== []` instead of `count() > 0`, `??=` for the default shutdown time, `array_map()` with a typed arrow function for SQS queue attributes, and an early return in the retry path. Rector's PHP 8.4 set reports no changes in `src/` ([#83](https://github.com/tomaj/hermes/issues/83)).

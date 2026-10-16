@@ -93,7 +93,6 @@ final class RedisSetDriver implements DriverInterface
             }
 
             // check schedule
-            $microTime = microtime(true);
             /** @var list<string> $messageStrings */
             $messageStrings = $this->redis->zRangeByScore($this->scheduleKey, '-inf', (string) microtime(true), ['limit' => [0, 1]]);
             foreach ($messageStrings as $messageString) {

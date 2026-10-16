@@ -39,7 +39,7 @@ class DispatcherShutdownTest extends TestCase
         $receivedMessages = $handler->getReceivedMessages();
 
         // no shutdown; we received both messages
-        self::assertEquals(2, count($receivedMessages));
+        self::assertCount(2, $receivedMessages);
     }
 
     public function testEmitWithDummyDriverWithShutdown(): void
@@ -59,6 +59,6 @@ class DispatcherShutdownTest extends TestCase
         $dispatcher->handle();
 
         $receivedMessages = $handler->getReceivedMessages();
-        self::assertEquals(1, count($receivedMessages));
+        self::assertCount(1, $receivedMessages);
     }
 }

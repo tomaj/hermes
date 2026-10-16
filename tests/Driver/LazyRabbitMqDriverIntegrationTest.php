@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes\Test\Driver;
 
-use PhpAmqpLib\Connection\AMQPLazyConnection;
+use PhpAmqpLib\Connection\AbstractConnection;
+use PhpAmqpLib\Connection\AMQPConnectionConfig;
+use PhpAmqpLib\Connection\AMQPConnectionFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
@@ -44,9 +46,12 @@ class LazyRabbitMqDriverIntegrationTest extends TestCase
         }
     }
 
-    private function connection(): AMQPLazyConnection
+    private function connection(): AbstractConnection
     {
-        return new AMQPLazyConnection($this->host, 5672, 'guest', 'guest');
+        $config = new AMQPConnectionConfig();
+        $config->setHost($this->host);
+        $config->setIsLazy(true);
+        return AMQPConnectionFactory::create($config);
     }
 
     public function testFailedMessageIsRequeuedAndHandledMessageIsAcknowledged(): void

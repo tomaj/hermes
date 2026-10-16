@@ -30,7 +30,7 @@ class EmitTest extends TestCase
 
         $message = $driver->getMessage();
         self::assertInstanceOf(Message::class, $message);
-        self::assertEquals('event-type', $message->getType());
-        self::assertEquals(['content'], $message->getPayload());
+        self::assertSame('event-type', $message->getType());
+        self::assertSame(['content'], $message->getPayload());
     }
 }

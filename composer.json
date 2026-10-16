@@ -33,8 +33,10 @@
         "infection/infection": "^0.35",
         "php-amqplib/php-amqplib": "^3.7",
         "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "phpstan/phpstan-phpunit": "^2.0.5",
         "phpstan/phpstan-strict-rules": "^2.0",
-        "phpunit/phpunit": "^13.0",
+        "phpunit/phpunit": "^13.2",
         "predis/predis": "^2.3 || ^3.0"
     },
     "suggest": {

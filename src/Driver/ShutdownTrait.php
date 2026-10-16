@@ -10,9 +10,9 @@ use Tomaj\Hermes\Shutdown\ShutdownInterface;
 
 trait ShutdownTrait
 {
-    private ShutdownInterface $shutdown;
+    private ?ShutdownInterface $shutdown = null;
 
-    private DateTime $startTime;
+    private ?DateTime $startTime = null;
 
     public function setShutdown(ShutdownInterface $shutdown): void
     {
@@ -22,7 +22,10 @@ trait ShutdownTrait
 
     private function shouldShutdown(): bool
     {
-        return isset($this->shutdown) && $this->shutdown->shouldShutdown($this->startTime);
+        if ($this->shutdown === null || $this->startTime === null) {
+            return false;
+        }
+        return $this->shutdown->shouldShutdown($this->startTime);
     }
 
     /**
