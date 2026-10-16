@@ -1,0 +1,504 @@
+{
+ "padding": 10,
+ "elements": [
+  {
+   "t": "rect",
+   "x": 0,
+   "y": 0,
+   "w": 860,
+   "h": 150,
+   "color": "muted",
+   "dashed": true
+  },
+  {
+   "t": "text",
+   "x": 24,
+   "y": 18,
+   "text": "Web application (HTTP request)",
+   "size": 20,
+   "align": "left"
+  },
+  {
+   "t": "rect",
+   "x": 70,
+   "y": 66,
+   "w": 180,
+   "h": 56
+  },
+  {
+   "t": "line",
+   "points": [
+    [
+     91,
+     85.0
+    ],
+    [
+     85,
+     92.0
+    ],
+    [
+     91,
+     99.0
+    ]
+   ],
+   "width": 1.5
+  },
+  {
+   "t": "line",
+   "points": [
+    [
+     101,
+     85.0
+    ],
+    [
+     107,
+     92.0
+    ],
+    [
+     101,
+     99.0
+    ]
+   ],
+   "width": 1.5
+  },
+  {
+   "t": "line",
+   "points": [
+    [
+     98,
+     83.0
+    ],
+    [
+     94,
+     101.0
+    ]
+   ],
+   "width": 1.5
+  },
+  {
+   "t": "text",
+   "x": 126,
+   "y": 82.75,
+   "text": "/file.php",
+   "size": 18,
+   "align": "left"
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     256,
+     94
+    ],
+    [
+     514,
+     94
+    ]
+   ],
+   "curve": false
+  },
+  {
+   "t": "text",
+   "x": 385,
+   "y": 67,
+   "text": "emit(Message)",
+   "size": 15,
+   "align": "center",
+   "color": "muted"
+  },
+  {
+   "t": "rect",
+   "x": 520,
+   "y": 66,
+   "w": 240,
+   "h": 56
+  },
+  {
+   "t": "rect",
+   "x": 535,
+   "y": 85.0,
+   "w": 26,
+   "h": 17,
+   "width": 1.5
+  },
+  {
+   "t": "line",
+   "points": [
+    [
+     535,
+     86.0
+    ],
+    [
+     548,
+     96.0
+    ],
+    [
+     561,
+     86.0
+    ]
+   ],
+   "width": 1.5
+  },
+  {
+   "t": "text",
+   "x": 576,
+   "y": 82.75,
+   "text": "Hermes Emitter",
+   "size": 18,
+   "align": "left"
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     430,
+     156
+    ],
+    [
+     430,
+     214
+    ]
+   ],
+   "curve": false
+  },
+  {
+   "t": "rect",
+   "x": 270,
+   "y": 220,
+   "w": 320,
+   "h": 74
+  },
+  {
+   "t": "ellipse",
+   "x": 288,
+   "y": 240,
+   "w": 22,
+   "h": 7,
+   "width": 1.5
+  },
+  {
+   "t": "line",
+   "points": [
+    [
+     288,
+     243.5
+    ],
+    [
+     288,
+     261
+    ]
+   ],
+   "width": 1.5
+  },
+  {
+   "t": "line",
+   "points": [
+    [
+     310,
+     243.5
+    ],
+    [
+     310,
+     261
+    ]
+   ],
+   "width": 1.5
+  },
+  {
+   "t": "line",
+   "points": [
+    [
+     288,
+     261
+    ],
+    [
+     294,
+     264
+    ],
+    [
+     304,
+     264
+    ],
+    [
+     310,
+     261
+    ]
+   ],
+   "width": 1.5,
+   "curve": true
+  },
+  {
+   "t": "text",
+   "x": 326,
+   "y": 234,
+   "text": "Queue",
+   "size": 18,
+   "align": "left"
+  },
+  {
+   "t": "text",
+   "x": 326,
+   "y": 262,
+   "text": "Redis / RabbitMQ / SQS / ...",
+   "size": 13,
+   "align": "left",
+   "color": "muted"
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     430,
+     300
+    ],
+    [
+     430,
+     358
+    ]
+   ],
+   "curve": false
+  },
+  {
+   "t": "rect",
+   "x": 0,
+   "y": 364,
+   "w": 860,
+   "h": 236,
+   "color": "muted",
+   "dashed": true
+  },
+  {
+   "t": "text",
+   "x": 24,
+   "y": 382,
+   "text": "Background worker (PHP CLI)",
+   "size": 20,
+   "align": "left"
+  },
+  {
+   "t": "rect",
+   "x": 70,
+   "y": 430,
+   "w": 190,
+   "h": 56
+  },
+  {
+   "t": "rect",
+   "x": 85,
+   "y": 447.0,
+   "w": 28,
+   "h": 22,
+   "width": 1.5
+  },
+  {
+   "t": "line",
+   "points": [
+    [
+     85,
+     452.0
+    ],
+    [
+     113,
+     452.0
+    ]
+   ],
+   "width": 1.5
+  },
+  {
+   "t": "line",
+   "points": [
+    [
+     89,
+     456.0
+    ],
+    [
+     94,
+     460.0
+    ],
+    [
+     89,
+     464.0
+    ]
+   ],
+   "width": 1.5
+  },
+  {
+   "t": "line",
+   "points": [
+    [
+     97,
+     464.0
+    ],
+    [
+     104,
+     464.0
+    ]
+   ],
+   "width": 1.5
+  },
+  {
+   "t": "text",
+   "x": 126,
+   "y": 446.75,
+   "text": "Dispatcher",
+   "size": 18,
+   "align": "left"
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     266,
+     458
+    ],
+    [
+     494,
+     458
+    ]
+   ],
+   "curve": false
+  },
+  {
+   "t": "text",
+   "x": 380,
+   "y": 431,
+   "text": "wait()",
+   "size": 15,
+   "align": "center",
+   "color": "muted"
+  },
+  {
+   "t": "rect",
+   "x": 500,
+   "y": 430,
+   "w": 260,
+   "h": 56
+  },
+  {
+   "t": "ellipse",
+   "x": 517,
+   "y": 450.0,
+   "w": 16,
+   "h": 16,
+   "width": 1.5
+  },
+  {
+   "t": "ellipse",
+   "x": 522,
+   "y": 455.0,
+   "w": 6,
+   "h": 6,
+   "width": 1.5
+  },
+  {
+   "t": "line",
+   "points": [
+    [
+     533.0,
+     458.0
+    ],
+    [
+     537.0,
+     458.0
+    ]
+   ],
+   "width": 2.2
+  },
+  {
+   "t": "line",
+   "points": [
+    [
+     529.0,
+     464.9282032302755
+    ],
+    [
+     531.0,
+     468.39230484541326
+    ]
+   ],
+   "width": 2.2
+  },
+  {
+   "t": "line",
+   "points": [
+    [
+     521.0,
+     464.9282032302755
+    ],
+    [
+     519.0,
+     468.39230484541326
+    ]
+   ],
+   "width": 2.2
+  },
+  {
+   "t": "line",
+   "points": [
+    [
+     517.0,
+     458.0
+    ],
+    [
+     513.0,
+     458.0
+    ]
+   ],
+   "width": 2.2
+  },
+  {
+   "t": "line",
+   "points": [
+    [
+     521.0,
+     451.0717967697245
+    ],
+    [
+     519.0,
+     447.60769515458674
+    ]
+   ],
+   "width": 2.2
+  },
+  {
+   "t": "line",
+   "points": [
+    [
+     529.0,
+     451.0717967697245
+    ],
+    [
+     531.0,
+     447.60769515458674
+    ]
+   ],
+   "width": 2.2
+  },
+  {
+   "t": "text",
+   "x": 556,
+   "y": 446.75,
+   "text": "Handler::handle()",
+   "size": 18,
+   "align": "left"
+  },
+  {
+   "t": "text",
+   "x": 70,
+   "y": 516,
+   "text": "\u2022 Continuously listens for new messages",
+   "size": 16,
+   "align": "left",
+   "color": "muted"
+  },
+  {
+   "t": "text",
+   "x": 70,
+   "y": 546,
+   "text": "\u2022 Calls the registered handler to process each message",
+   "size": 16,
+   "align": "left",
+   "color": "muted"
+  }
+ ]
+}
