@@ -21,7 +21,7 @@ class ArchitectureTest extends TestCase
      */
     public static function classes(): iterable
     {
-        $src = dirname(__DIR__) . '/src';
+        $src = __DIR__ . '/../src';
         $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($src, \FilesystemIterator::SKIP_DOTS));
         foreach ($files as $file) {
             if (!$file instanceof \SplFileInfo || $file->getExtension() !== 'php') {

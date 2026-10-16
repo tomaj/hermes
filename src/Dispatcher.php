@@ -46,7 +46,7 @@ final class Dispatcher implements DispatcherInterface
         $this->startTime = new DateTime();
 
         // check if driver use ShutdownTrait
-        if ($this->shutdown !== null && method_exists($this->driver, 'setShutdown')) {
+        if ($this->shutdown instanceof ShutdownInterface && method_exists($this->driver, 'setShutdown')) {
             $this->driver->setShutdown($this->shutdown);
         }
     }
@@ -90,7 +90,7 @@ final class Dispatcher implements DispatcherInterface
 
                 $result = $this->dispatch($message);
 
-                if ($this->shutdown !== null && $this->shutdown->shouldShutdown($this->startTime)) {
+                if ($this->shutdown instanceof ShutdownInterface && $this->shutdown->shouldShutdown($this->startTime)) {
                     throw new ShutdownException('Shutdown');
                 }
 
@@ -135,7 +135,7 @@ final class Dispatcher implements DispatcherInterface
     private function handleMessage(HandlerInterface $handler, MessageInterface $message): bool
     {
         // check if handler implements Psr\Log\LoggerAwareInterface (you can use \Psr\Log\LoggerAwareTrait)
-        if ($this->logger !== null && method_exists($handler, 'setLogger')) {
+        if ($this->logger instanceof LoggerInterface && method_exists($handler, 'setLogger')) {
             $handler->setLogger($this->logger);
         }
 
@@ -263,7 +263,7 @@ final class Dispatcher implements DispatcherInterface
      */
     private function log(string $level, string $message, array $context = []): void
     {
-        if ($this->logger !== null) {
+        if ($this->logger instanceof LoggerInterface) {
             $this->logger->log($level, $message, $context);
         }
     }

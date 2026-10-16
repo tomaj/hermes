@@ -10,6 +10,7 @@ use Tomaj\Hermes\Driver\RedisSetDriver;
 use Tomaj\Hermes\Message;
 use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
+use Tomaj\Hermes\SerializerInterface;
 
 /**
  * @covers \Tomaj\Hermes\Driver\RedisSetDriver
@@ -54,7 +55,7 @@ class RedisSetDriverScheduleTest extends TestCase
 
         $driver = new RedisSetDriver($redis, 'q', 0, 'sched');
         $driver->setMaxProcessItems(1);
-        $driver->setSerializer(new class implements \Tomaj\Hermes\SerializerInterface {
+        $driver->setSerializer(new class implements SerializerInterface {
             #[\Override]
             public function serialize(MessageInterface $message): string
             {

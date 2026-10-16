@@ -26,6 +26,7 @@ composer install
 composer phpunit
 composer phpstan
 composer phpcs
+composer rector
 ```
 
 To generate an HTML and Clover coverage report (requires Xdebug or PCOV):

@@ -105,11 +105,9 @@ class AmazonSqsDriverTest extends TestCase
 
         $client->expects(self::once())
                ->method('sendMessage')
-               ->with(self::callback(function (mixed $params): bool {
-                   return is_array($params)
-                          && ($params['QueueUrl'] ?? null) === 'https://sqs.region.amazonaws.com/123456789/test-queue'
-                          && isset($params['MessageBody']);
-               }));
+               ->with(self::callback(fn(mixed $params): bool => is_array($params)
+                      && ($params['QueueUrl'] ?? null) === 'https://sqs.region.amazonaws.com/123456789/test-queue'
+                      && isset($params['MessageBody'])));
 
         $driver = new AmazonSqsDriver($client, 'test-queue');
 

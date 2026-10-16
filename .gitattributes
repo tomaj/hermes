@@ -12,4 +12,5 @@
 /infection.json5        export-ignore
 /phpstan.neon           export-ignore
 /phpunit.xml            export-ignore
+/rector.php             export-ignore
 /tests                  export-ignore

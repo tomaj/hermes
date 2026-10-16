@@ -7,6 +7,12 @@ namespace Tomaj\Hermes\Driver;
 use Closure;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AbstractConnection;
+use PhpAmqpLib\Exception\AMQPChannelClosedException;
+use PhpAmqpLib\Exception\AMQPConnectionBlockedException;
+use PhpAmqpLib\Exception\AMQPConnectionClosedException;
+use PhpAmqpLib\Exception\AMQPOutOfBoundsException;
+use PhpAmqpLib\Exception\AMQPRuntimeException;
+use PhpAmqpLib\Exception\AMQPTimeoutException;
 use PhpAmqpLib\Message\AMQPMessage;
 use Throwable;
 use Tomaj\Hermes\Dispatcher;
@@ -40,10 +46,10 @@ final class LazyRabbitMqDriver implements DriverInterface
     }
 
     /**
-     * @throws \PhpAmqpLib\Exception\AMQPChannelClosedException
-     * @throws \PhpAmqpLib\Exception\AMQPConnectionBlockedException
-     * @throws \PhpAmqpLib\Exception\AMQPConnectionClosedException
-     * @throws \PhpAmqpLib\Exception\AMQPTimeoutException
+     * @throws AMQPChannelClosedException
+     * @throws AMQPConnectionBlockedException
+     * @throws AMQPConnectionClosedException
+     * @throws AMQPTimeoutException
      */
     #[\Override]
     public function send(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): bool
@@ -68,9 +74,9 @@ final class LazyRabbitMqDriver implements DriverInterface
 
     /**
      * @throws ShutdownException
-     * @throws \PhpAmqpLib\Exception\AMQPOutOfBoundsException
-     * @throws \PhpAmqpLib\Exception\AMQPRuntimeException
-     * @throws \PhpAmqpLib\Exception\AMQPTimeoutException
+     * @throws AMQPOutOfBoundsException
+     * @throws AMQPRuntimeException
+     * @throws AMQPTimeoutException
      * @throws \ErrorException
      */
     #[\Override]
@@ -140,11 +146,11 @@ final class LazyRabbitMqDriver implements DriverInterface
     }
 
     /**
-     * @throws \PhpAmqpLib\Exception\AMQPTimeoutException
+     * @throws AMQPTimeoutException
      */
     private function getChannel(): AMQPChannel
     {
-        if ($this->channel !== null) {
+        if ($this->channel instanceof AMQPChannel) {
             return $this->channel;
         }
         $this->channel = $this->connection->channel();

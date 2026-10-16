@@ -31,9 +31,6 @@ trait MaxItemsTrait
         if ($this->maxProcessItems === 0) {
             return true;
         }
-        if ($this->processed >= $this->maxProcessItems) {
-            return false;
-        }
-        return true;
+        return $this->processed < $this->maxProcessItems;
     }
 }

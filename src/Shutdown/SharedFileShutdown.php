@@ -22,11 +22,7 @@ final readonly class SharedFileShutdown implements ShutdownInterface
         }
 
         $time = filemtime($this->filePath);
-        if ($time !== false && $time >= $startTime->getTimestamp()) {
-            return true;
-        }
-
-        return false;
+        return $time !== false && $time >= $startTime->getTimestamp();
     }
 
     /**

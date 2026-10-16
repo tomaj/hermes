@@ -32,7 +32,7 @@ class RetryBackoffTest extends TestCase
             /** @var list<MessageInterface> */
             public array $sent = [];
 
-            public function __construct(private MessageInterface $message) {}
+            public function __construct(private readonly MessageInterface $message) {}
 
             #[\Override]
 

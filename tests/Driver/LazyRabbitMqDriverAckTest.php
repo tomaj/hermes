@@ -17,6 +17,7 @@ use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
 use Tomaj\Hermes\SerializeException;
 use Tomaj\Hermes\Shutdown\ShutdownException;
+use Tomaj\Hermes\Shutdown\ShutdownInterface;
 
 /**
  * @covers \Tomaj\Hermes\Driver\LazyRabbitMqDriver
@@ -69,14 +70,14 @@ class LazyRabbitMqDriverAckTest extends TestCase
         $driver->wait($callback);
     }
 
-    private static function body(): string
+    private function body(): string
     {
         return new MessageSerializer()->serialize(new Message('type', [], 'm1'));
     }
 
     public function testMessageIsAcknowledgedAfterTheHandler(): void
     {
-        $this->deliver(self::body(), function (MessageInterface $message): void {
+        $this->deliver($this->body(), function (MessageInterface $message): void {
             $this->log[] = 'handle ' . $message->getId();
         });
 
@@ -86,7 +87,7 @@ class LazyRabbitMqDriverAckTest extends TestCase
     public function testFailingHandlerRequeuesTheMessage(): void
     {
         try {
-            $this->deliver(self::body(), function (): void {
+            $this->deliver($this->body(), function (): void {
                 throw new RuntimeException('handler failed');
             });
             self::fail('Exception expected');
@@ -114,7 +115,7 @@ class LazyRabbitMqDriverAckTest extends TestCase
     public function testShutdownAfterHandlingStillAcknowledges(): void
     {
         try {
-            $this->deliver(self::body(), function (): void {
+            $this->deliver($this->body(), function (): void {
                 throw new ShutdownException('Shutdown');
             });
             self::fail('Exception expected');
@@ -175,7 +176,7 @@ class LazyRabbitMqDriverAckTest extends TestCase
         $channel = $this->createMock(AMQPChannel::class);
         $connection->method('channel')->willReturn($channel);
         $channel->method('is_consuming')->willReturn(true);
-        $shutdown = $this->createMock(\Tomaj\Hermes\Shutdown\ShutdownInterface::class);
+        $shutdown = $this->createMock(ShutdownInterface::class);
         $shutdown->method('shouldShutdown')->willReturnOnConsecutiveCalls(false, true);
 
         $driver = new LazyRabbitMqDriver($connection, 'q');

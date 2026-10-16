@@ -37,7 +37,8 @@
         "phpstan/phpstan-phpunit": "^2.0.5",
         "phpstan/phpstan-strict-rules": "^2.0",
         "phpunit/phpunit": "^13.2",
-        "predis/predis": "^2.3 || ^3.0"
+        "predis/predis": "^2.3 || ^3.0",
+        "rector/rector": "2.7.0"
     },
     "suggest": {
         "ext-redis": "Needed for RedisSetDriver and RedisShutdown (native Redis extension)",
@@ -67,6 +68,7 @@
         "check": [
             "@phpcs",
             "@phpstan",
+            "@rector",
             "@test"
         ],
         "coverage": [
@@ -81,6 +83,8 @@
         "phpcs": "php-cs-fixer fix --dry-run --diff --verbose",
         "phpstan": "phpstan analyse --memory-limit=1G",
         "phpunit": "phpunit --no-coverage",
+        "rector": "rector --dry-run",
+        "rector-fix": "rector",
         "test": "@phpunit"
     }
 }

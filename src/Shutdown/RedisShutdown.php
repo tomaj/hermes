@@ -39,13 +39,8 @@ final readonly class RedisShutdown implements ShutdownInterface
         if ($shutdownTime > time()) {
             return false;
         }
-
         // do not shutdown if hermes started after shutdown time
-        if ($shutdownTime < $startTime->getTimestamp()) {
-            return false;
-        }
-
-        return true;
+        return $shutdownTime >= $startTime->getTimestamp();
     }
 
     /**

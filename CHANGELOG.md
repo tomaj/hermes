@@ -17,6 +17,7 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 * Added local code coverage reporting with HTML and Clover XML output
 * Added GitHub Pages deployment for coverage reports
 * Infection fails below 85% MSI and 90% covered code MSI, up from 65% for both. New tests cover the logger context arrays, every `MessageSerializer` field, the exact Redis commands of `PredisSetDriver` and `RedisSetDriver`, SQS queue attributes, and an SQS receive with no messages ([#86](https://github.com/tomaj/hermes/issues/86)).
+* Rector configuration (`rector.php`) with the PHP 8.4 set and the dead code, code quality, type declaration and early return sets. `composer rector` reports changes and `composer check` runs it; `composer rector-fix` applies them. `src` and `tests` follow it ([#84](https://github.com/tomaj/hermes/issues/84)).
 
 ### Changed
 

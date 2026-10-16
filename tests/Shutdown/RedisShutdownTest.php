@@ -68,6 +68,15 @@ class RedisShutdownTest extends TestCase
         self::assertTrue($redisShutdown->shouldShutdown($startTime));
     }
 
+    public function testShouldShutdownWhenTheEntryEqualsTheStartTime(): void
+    {
+        $startTime = new \DateTime('@1700000000');
+        $redis = self::createStub(Redis::class);
+        $redis->method('get')->willReturn('1700000000');
+
+        self::assertTrue(new RedisShutdown($redis)->shouldShutdown($startTime));
+    }
+
     public function testShutdownStoredCorrectValueToRedis(): void
     {
         $shutdownTime = new \DateTime()->modify('-5 minutes');

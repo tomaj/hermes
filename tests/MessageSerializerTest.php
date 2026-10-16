@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tomaj\Hermes\Test;
 
 use PHPUnit\Framework\TestCase;
+use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
 use Tomaj\Hermes\SerializeException;
 
@@ -30,7 +31,7 @@ class MessageSerializerTest extends TestCase
         // Create a message with non-serializable data (like a resource)
         $resource = fopen('php://memory', 'r');
         self::assertIsResource($resource);
-        $message = self::createStub(\Tomaj\Hermes\MessageInterface::class);
+        $message = self::createStub(MessageInterface::class);
         $message->method('getId')->willReturn('test-id');
         $message->method('getType')->willReturn('test-type');
         $message->method('getPayload')->willReturn(['resource' => $resource]);

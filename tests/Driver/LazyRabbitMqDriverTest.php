@@ -72,7 +72,6 @@ class LazyRabbitMqDriverTest extends TestCase
         // Use reflection to call the private getChannel method
         $reflection = new \ReflectionClass($driver);
         $method = $reflection->getMethod('getChannel');
-        $method->setAccessible(true);
 
         $result = $method->invoke($driver);
         self::assertSame($channel, $result);

@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Tomaj\Hermes\Test\Logger;
 
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\Driver\DriverInterface;
@@ -67,6 +70,29 @@ class LoggerTest extends TestCase
 
         self::assertSame('info', $logs[1]['level']);
         self::assertSame("End handle message #{$message1->getId()} ({$message1->getType()})", $logs[1]['message']);
+    }
+
+    public function testDispatcherPassesItsLoggerToLoggerAwareHandlers(): void
+    {
+        $testLogger = new TestLogger();
+        $dispatcher = new Dispatcher(new DummyDriver([new Message('event1', [])]), $testLogger);
+        $handler = new class implements HandlerInterface, LoggerAwareInterface {
+            use LoggerAwareTrait;
+
+            public ?LoggerInterface $received = null;
+
+            #[\Override]
+            public function handle(MessageInterface $message): bool
+            {
+                $this->received = $this->logger;
+                return true;
+            }
+        };
+        $dispatcher->registerHandler('event1', $handler);
+
+        $dispatcher->handle();
+
+        self::assertSame($testLogger, $handler->received);
     }
 
     public function testEmitterLogsDriverClassName(): void
