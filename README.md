@@ -76,29 +76,10 @@ Hermes includes built-in support for multiple queue backends:
 
 Hermes acts as a message broker between your web application and background workers. Here's the flow:
 
-```
-+--------------------------------------------------------+
-|         Web Application (HTTP Request)                |
-|                                                        |
-|  /file.php --> emit(Message) --> Hermes Emitter       |
-+------------------------+-------------------------------+
-                         |
-                         v
-                  +-------------+
-                  |    Queue    |
-                  | Redis/Rabbit|
-                  +------+------+
-                         |
-                         v
-+--------------------------------------------------------+
-|        Background Worker (PHP CLI)                    |
-|                                                        |
-|  Dispatcher --> wait() --> Handler::handle()          |
-|                                                        |
-|  * Continuously listens for new messages              |
-|  * Calls registered handler to process each message   |
-+--------------------------------------------------------+
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/tomaj/hermes/master/docs/public/diagrams/readme-flow-dark.svg">
+  <img src="https://raw.githubusercontent.com/tomaj/hermes/master/docs/public/diagrams/readme-flow-light.svg" width="860" alt="A web request runs /file.php, which calls emit(Message) on the Hermes Emitter. The message goes into a queue in Redis, RabbitMQ, SQS or another driver's backend. A background PHP CLI worker runs the Dispatcher, which waits for messages and calls Handler::handle() for each one.">
+</picture>
 
 Implementation steps:
 
