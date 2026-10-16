@@ -46,7 +46,7 @@ It runs PHPUnit with `XDEBUG_MODE=coverage`. Reports:
 
 CI runs PHPUnit on PHP 8.4, PHP 8.4 with `--prefer-lowest`, and PHP 8.5. The 65% statement coverage gate runs on the PHP 8.4 job. That job also uploads the `coverage-report` artifact on pushes to `master`.
 
-Mutation testing uses [Infection](https://infection.github.io/) with `infection.json5`:
+Mutation testing uses [Infection](https://infection.github.io/) with `infection.json5`. It fails when the MSI is below 85% or the covered code MSI is below 90%:
 
 ```bash
 composer infection

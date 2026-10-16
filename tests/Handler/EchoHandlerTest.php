@@ -25,6 +25,6 @@ class EchoHandlerTest extends TestCase
         $this->expectOutputString($output);
 
         $echoHandler = new EchoHandler();
-        $echoHandler->handle($message);
+        self::assertTrue($echoHandler->handle($message));
     }
 }
