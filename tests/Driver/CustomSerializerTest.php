@@ -26,7 +26,7 @@ class CustomSerializerTest extends TestCase
         $dummyDriver->send($message);
 
         $receivedMessage = false;
-        $dummyDriver->wait(function (MessageInterface $message) use (&$receivedMessage) {
+        $dummyDriver->wait(function (MessageInterface $message) use (&$receivedMessage): void {
             $receivedMessage = $message;
         });
         self::assertEquals($message, $receivedMessage);

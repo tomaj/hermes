@@ -10,6 +10,7 @@ use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\Driver\DriverInterface;
 use Tomaj\Hermes\Emitter;
 use Tomaj\Hermes\Handler\HandlerInterface;
+use Tomaj\Hermes\Handler\RetryTrait;
 use Tomaj\Hermes\Message;
 use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\Test\Driver\DummyDriver;
@@ -265,11 +266,11 @@ class HandleTest extends TestCase
     public function testRetryMessage(): void
     {
         // Create a handler that uses RetryTrait
-        $handler = new class implements \Tomaj\Hermes\Handler\HandlerInterface {
-            use \Tomaj\Hermes\Handler\RetryTrait;
+        $handler = new class implements HandlerInterface {
+            use RetryTrait;
 
             #[\Override]
-            public function handle(\Tomaj\Hermes\MessageInterface $message): bool
+            public function handle(MessageInterface $message): bool
             {
                 // Throw exception to trigger retry
                 throw new \Exception('Test exception to trigger retry');
@@ -290,10 +291,10 @@ class HandleTest extends TestCase
 
         // One should be the retry message with retries=6
         $foundRetryMessage = false;
-        if ($message1 !== null && $message1->getRetries() === 6) {
+        if ($message1 instanceof MessageInterface && $message1->getRetries() === 6) {
             $foundRetryMessage = true;
         }
-        if ($message2 !== null && $message2->getRetries() === 6) {
+        if ($message2 instanceof MessageInterface && $message2->getRetries() === 6) {
             $foundRetryMessage = true;
         }
 
@@ -303,8 +304,8 @@ class HandleTest extends TestCase
     public function testRetryMessageMaxRetriesReached(): void
     {
         // Create a handler that uses RetryTrait with custom maxRetry
-        $handler = new class implements \Tomaj\Hermes\Handler\HandlerInterface {
-            use \Tomaj\Hermes\Handler\RetryTrait;
+        $handler = new class implements HandlerInterface {
+            use RetryTrait;
 
             public function maxRetry(): int
             {
@@ -312,7 +313,7 @@ class HandleTest extends TestCase
             }
 
             #[\Override]
-            public function handle(\Tomaj\Hermes\MessageInterface $message): bool
+            public function handle(MessageInterface $message): bool
             {
                 // Throw exception to trigger retry check
                 throw new \Exception('Test exception to trigger retry');
@@ -333,10 +334,10 @@ class HandleTest extends TestCase
 
         // Should not find any message with retries=6 (no retry should have been sent)
         $foundRetryMessage = false;
-        if ($message1 !== null && $message1->getRetries() === 6) {
+        if ($message1 instanceof MessageInterface && $message1->getRetries() === 6) {
             $foundRetryMessage = true;
         }
-        if ($message2 !== null && $message2->getRetries() === 6) {
+        if ($message2 instanceof MessageInterface && $message2->getRetries() === 6) {
             $foundRetryMessage = true;
         }
 
@@ -346,9 +347,9 @@ class HandleTest extends TestCase
     public function testHandlerWithoutRetryMethods(): void
     {
         // Create a handler that doesn't use RetryTrait
-        $handler = new class implements \Tomaj\Hermes\Handler\HandlerInterface {
+        $handler = new class implements HandlerInterface {
             #[\Override]
-            public function handle(\Tomaj\Hermes\MessageInterface $message): bool
+            public function handle(MessageInterface $message): bool
             {
                 // Throw exception but handler doesn't have retry methods
                 throw new \Exception('Exception in handler without retry methods');
@@ -369,10 +370,10 @@ class HandleTest extends TestCase
 
         // Should not find any message with retries=6 (no retry should have been sent)
         $foundRetryMessage = false;
-        if ($message1 !== null && $message1->getRetries() === 6) {
+        if ($message1 instanceof MessageInterface && $message1->getRetries() === 6) {
             $foundRetryMessage = true;
         }
-        if ($message2 !== null && $message2->getRetries() === 6) {
+        if ($message2 instanceof MessageInterface && $message2->getRetries() === 6) {
             $foundRetryMessage = true;
         }
 

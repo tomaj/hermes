@@ -23,7 +23,7 @@ use Tomaj\Hermes\Test\Double\SqsClientDouble;
 #[AllowMockObjectsWithoutExpectations]
 class AmazonSqsDriverWaitTest extends TestCase
 {
-    private const QUEUE_URL = 'https://sqs.region.amazonaws.com/123456789/test-queue';
+    private const string QUEUE_URL = 'https://sqs.region.amazonaws.com/123456789/test-queue';
 
     /** @var list<string> */
     private array $log = [];
@@ -54,7 +54,7 @@ class AmazonSqsDriverWaitTest extends TestCase
         return $client;
     }
 
-    private static function body(string $id): string
+    private function body(string $id): string
     {
         return new MessageSerializer()->serialize(new Message('type', [], $id));
     }
@@ -63,10 +63,10 @@ class AmazonSqsDriverWaitTest extends TestCase
     {
         $driver = new AmazonSqsDriver($this->client([
             'not-an-array',
-            ['Body' => self::body('no-handle')],
+            ['Body' => $this->body('no-handle')],
             ['ReceiptHandle' => 'no-body'],
-            ['ReceiptHandle' => 'rh-1', 'Body' => self::body('m1')],
-            ['ReceiptHandle' => 'rh-2', 'Body' => self::body('m2')],
+            ['ReceiptHandle' => 'rh-1', 'Body' => $this->body('m1')],
+            ['ReceiptHandle' => 'rh-2', 'Body' => $this->body('m2')],
         ]), 'test-queue');
         $driver->setMaxProcessItems(2);
 
@@ -81,7 +81,7 @@ class AmazonSqsDriverWaitTest extends TestCase
     public function testFailingHandlerKeepsTheMessageInTheQueue(): void
     {
         $driver = new AmazonSqsDriver($this->client([
-            ['ReceiptHandle' => 'rh-1', 'Body' => self::body('m1')],
+            ['ReceiptHandle' => 'rh-1', 'Body' => $this->body('m1')],
         ]), 'test-queue');
 
         try {
@@ -118,8 +118,8 @@ class AmazonSqsDriverWaitTest extends TestCase
     public function testShutdownAfterHandlingStillDeletesTheMessage(): void
     {
         $driver = new AmazonSqsDriver($this->client([
-            ['ReceiptHandle' => 'rh-1', 'Body' => self::body('m1')],
-            ['ReceiptHandle' => 'rh-2', 'Body' => self::body('m2')],
+            ['ReceiptHandle' => 'rh-1', 'Body' => $this->body('m1')],
+            ['ReceiptHandle' => 'rh-2', 'Body' => $this->body('m2')],
         ]), 'test-queue');
 
         try {

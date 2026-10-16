@@ -43,7 +43,7 @@ class DispatcherConstructorTest extends TestCase
                 // no-op
             }
 
-            public function setShutdown(\Tomaj\Hermes\Shutdown\ShutdownInterface $shutdown): void
+            public function setShutdown(ShutdownInterface $shutdown): void
             {
                 $this->shutdownSet = true;
                 $this->shutdown = $shutdown;

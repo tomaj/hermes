@@ -13,7 +13,7 @@ A handler test does not need Redis. Call `handle()` with a `Message`, or put tha
 
 ## Commands
 
-`composer.json` scripts are `test` (an alias of `phpunit`), `phpunit`, `phpstan`, `phpcs`, `cs-fix`, `infection`, `coverage`, and `check`, which runs `phpcs`, `phpstan` and `test` in that order. `phpunit` and `test` run without coverage, so they need neither Xdebug nor PCOV; `coverage` and `infection` need one of them.
+`composer.json` scripts are `test` (an alias of `phpunit`), `phpunit`, `phpstan`, `phpcs`, `cs-fix`, `rector`, `rector-fix`, `infection`, `coverage`, and `check`, which runs `phpcs`, `phpstan`, `rector` and `test` in that order. `phpunit` and `test` run without coverage, so they need neither Xdebug nor PCOV; `coverage` and `infection` need one of them.
 
 ```bash
 composer install
@@ -31,6 +31,12 @@ PHPStan runs at level `max` with the settings in `phpstan.neon`: bleeding edge, 
 
 ```bash
 composer phpstan
+```
+
+[Rector](https://getrector.com/) checks `src` and `tests` against the PHP 8.4 set and the dead code, code quality, type declaration and early return sets in `rector.php`. `composer rector` only reports the changes; `composer rector-fix` applies them:
+
+```bash
+composer rector
 ```
 
 ## Coverage
@@ -87,7 +93,7 @@ No. Driver tests mock the clients, so `composer phpunit` runs without any server
 
 ### Is there a `composer test` script?
 
-Yes. It runs PHPUnit, like `composer phpunit`. `composer check` runs code style, PHPStan and the tests.
+Yes. It runs PHPUnit, like `composer phpunit`. `composer check` runs code style, PHPStan, Rector and the tests.
 
 ### Does `DummyDriver` order priorities like Redis?
 

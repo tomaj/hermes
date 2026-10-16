@@ -22,6 +22,7 @@ composer install
 composer phpunit
 composer phpcs
 composer phpstan
+composer rector
 ```
 
 Coverage:

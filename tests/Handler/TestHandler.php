@@ -10,15 +10,9 @@ use Tomaj\Hermes\MessageInterface;
 class TestHandler implements HandlerInterface
 {
     /** @var MessageInterface[] */
-    private $receivedMessages = [];
+    private array $receivedMessages = [];
 
-    /** @var bool  */
-    private $result;
-
-    public function __construct(bool $result = true)
-    {
-        $this->result = $result;
-    }
+    public function __construct(private readonly bool $result = true) {}
 
     #[\Override]
     public function handle(MessageInterface $message): bool

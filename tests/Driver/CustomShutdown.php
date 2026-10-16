@@ -9,13 +9,7 @@ use Tomaj\Hermes\Shutdown\ShutdownInterface;
 
 class CustomShutdown implements ShutdownInterface
 {
-    /** @var DateTime */
-    private $dateTime;
-
-    public function __construct(DateTime $dateTime)
-    {
-        $this->dateTime = $dateTime;
-    }
+    public function __construct(private DateTime $dateTime) {}
 
     #[\Override]
     public function shouldShutdown(DateTime $startTime): bool

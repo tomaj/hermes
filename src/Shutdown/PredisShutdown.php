@@ -6,6 +6,7 @@ namespace Tomaj\Hermes\Shutdown;
 
 use DateTime;
 use Predis\Client;
+use Predis\Response\Status;
 
 /**
  * Class PredisShutdown provides predis implementation of Tomaj\Hermes\Shutdown\ShutdownInterface
@@ -40,13 +41,8 @@ final readonly class PredisShutdown implements ShutdownInterface
         if ($shutdownTime > time()) {
             return false;
         }
-
         // do not shutdown if hermes started after shutdown time
-        if ($shutdownTime < $startTime->getTimestamp()) {
-            return false;
-        }
-
-        return true;
+        return $shutdownTime >= $startTime->getTimestamp();
     }
 
     /**
@@ -57,7 +53,7 @@ final readonly class PredisShutdown implements ShutdownInterface
     {
         $shutdownTime ??= new DateTime();
 
-        /** @var \Predis\Response\Status $response */
+        /** @var Status $response */
         $response = $this->redis->set($this->key, $shutdownTime->format('U'));
 
         return $response->getPayload() === 'OK';

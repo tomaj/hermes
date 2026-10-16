@@ -71,7 +71,7 @@ class SimpleCoverageImprovements extends TestCase
         $redis->method('zRem')
               ->willReturn(1);
 
-        $callback = function (MessageInterface $message) use (&$processedMessages) {
+        $callback = function (MessageInterface $message) use (&$processedMessages): true {
             $processedMessages[] = $message;
             return true;
         };
@@ -103,7 +103,7 @@ class SimpleCoverageImprovements extends TestCase
         $predis->method('zrangebyscore')->willReturn([]);
 
         $processedCount = 0;
-        $callback = function (MessageInterface $message) use (&$processedCount) {
+        $callback = function (MessageInterface $message) use (&$processedCount): true {
             $processedCount++;
             return true;
         };
@@ -276,7 +276,6 @@ class SimpleCoverageImprovements extends TestCase
         // Use reflection to test private nextRetry method
         $reflection = new \ReflectionClass($dispatcher);
         $method = $reflection->getMethod('nextRetry');
-        $method->setAccessible(true);
 
         $nextRetryTime = $method->invoke($dispatcher, $message);
         self::assertIsFloat($nextRetryTime);

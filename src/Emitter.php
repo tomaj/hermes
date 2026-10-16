@@ -56,7 +56,7 @@ final readonly class Emitter implements EmitterInterface
      */
     private function log(string $level, string $message, array $context = []): void
     {
-        if ($this->logger !== null) {
+        if ($this->logger instanceof LoggerInterface) {
             $this->logger->log($level, $message, $context);
         }
     }

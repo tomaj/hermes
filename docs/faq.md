@@ -39,7 +39,7 @@ The only priority constant is `DEFAULT_PRIORITY = 100`. The comment in `examples
 
 ## How do I run the tests?
 
-`composer test` runs PHPUnit, and `composer check` runs code style, PHPStan and the tests. [Testing](/guide/testing) lists every script that `composer.json` defines.
+`composer test` runs PHPUnit, and `composer check` runs code style, PHPStan, Rector and the tests. [Testing](/guide/testing) lists every script that `composer.json` defines.
 
 ## Does Hermes restart the worker?
 

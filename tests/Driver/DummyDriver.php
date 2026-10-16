@@ -20,13 +20,12 @@ class DummyDriver implements DriverInterface
     use MaxItemsTrait;
 
     /** @var array<int, array<string>> */
-    private $events = [];
+    private array $events = [];
 
     /** @var string[] */
-    private $queues = [];
+    private array $queues = [];
 
-    /** @var bool */
-    private $waitResult = null;
+    private bool $waitResult = false;
 
     /**
      * DummyDriver constructor.
@@ -46,8 +45,6 @@ class DummyDriver implements DriverInterface
     }
 
     /**
-     * @param string $event
-     * @param int $priority
      *
      * @throws UnknownPriorityException
      */
@@ -72,9 +69,7 @@ class DummyDriver implements DriverInterface
         $this->queues[$priority] = $name;
         ksort($this->queues, SORT_NUMERIC);
 
-        if (!isset($this->events[$priority])) {
-            $this->events[$priority] = [];
-        }
+        $this->events[$priority] ??= [];
     }
 
     /**
@@ -100,7 +95,6 @@ class DummyDriver implements DriverInterface
     }
 
     /**
-     * @param Closure $callback
      * @param int[] $priorities
      */
     #[\Override]
