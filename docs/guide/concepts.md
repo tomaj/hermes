@@ -62,10 +62,10 @@ public function emit(MessageInterface $message, int $priority = Dispatcher::DEFA
 `emit()` calls `$driver->send($message, $priority)` and, when a logger was passed, logs at `info`:
 
 ```text
-Dispatcher send message #<id> to driver <driver class>
+Emitter send message #<id> to driver <driver class>
 ```
 
-The context array is `id`, `created`, `type`, and `payload`. The word "Dispatcher" in that string is what `Emitter` writes. The method returns `$this`.
+The context array is `id`, `created`, `type`, and `payload`. Hermes 5.x wrote `Dispatcher send message …` here. The method returns `$this`.
 
 `UnknownPriorityException` comes from the driver when `$priority` was never registered with `setupPriorityQueue()`.
 

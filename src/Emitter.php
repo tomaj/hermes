@@ -28,7 +28,7 @@ final readonly class Emitter implements EmitterInterface
 
         $this->log(
             LogLevel::INFO,
-            "Dispatcher send message #{$message->getId()} to driver " . $this->driver::class,
+            "Emitter send message #{$message->getId()} to driver " . $this->driver::class,
             $this->messageLoggerContext($message),
         );
         return $this;

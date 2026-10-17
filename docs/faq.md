@@ -57,10 +57,6 @@ Out of this package in 3.0.0, into [tomaj/hermes-zmq-driver](https://github.com/
 
 `LazyRabbitMqDriver`. The non-lazy `RabbitMqDriver` was removed in 4.0.0.
 
-## Why does `Emitter` log the word Dispatcher?
-
-`Emitter::emit` writes `Dispatcher send message #<id> to driver <class>`. That string is in `src/Emitter.php`. The deprecated `Dispatcher::emit` adds `with priority <n>` to its own string.
-
 ## The coverage site used to be the whole GitHub Pages site
 
 The HTML report is now published at [https://tomaj.github.io/hermes/coverage/](https://tomaj.github.io/hermes/coverage/) next to this guide. The CI workflow still uploads the `coverage-report` artifact. The docs workflow copies it into the Pages artifact instead of deploying a second site over the first one.

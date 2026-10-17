@@ -29,7 +29,7 @@ Levels are PSR-3 strings (`Psr\Log\LogLevel`).
 
 | Where | Level | Message |
 | --- | --- | --- |
-| `Emitter::emit` | `info` | `Dispatcher send message #<id> to driver <class>` |
+| `Emitter::emit` | `info` | `Emitter send message #<id> to driver <class>` |
 | `Dispatcher::emit` (deprecated) | `info` | `Dispatcher send message #<id> with priority <n> to driver <class>` |
 | `Dispatcher::handle` | `info` | `Start handle message #<id> (<type>) priority:<n>` |
 | `Dispatcher` after a handler returns | `info` | `End handle message #<id> (<type>)` |
