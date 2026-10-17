@@ -4,9 +4,18 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes\Handler;
 
+use Throwable;
+use Tomaj\Hermes\MessageInterface;
+
+/**
+ * Default retry policy: retry every failure, at most 25 times.
+ *
+ * Use it in a class that implements RetryableHandlerInterface. A handler that uses the trait
+ * without the interface is retried as well.
+ */
 trait RetryTrait
 {
-    public function canRetry(): bool
+    public function canRetry(MessageInterface $message, Throwable $exception): bool
     {
         return true;
     }

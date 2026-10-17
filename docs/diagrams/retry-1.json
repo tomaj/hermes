@@ -130,7 +130,7 @@
    "t": "text",
    "x": 727.8665625000001,
    "y": 54.900000000000006,
-   "text": "retry methods\nexist and\nretries below\nmaxRetry?",
+   "text": "retryable,\nretries below\nmaxRetry and\ncanRetry()?",
    "size": 18
   },
   {

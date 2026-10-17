@@ -7,6 +7,7 @@ namespace Tomaj\Hermes\Test\Handler;
 use PHPUnit\Framework\TestCase;
 use Tomaj\Hermes\Handler\HandlerInterface;
 use Tomaj\Hermes\Handler\RetryTrait;
+use Tomaj\Hermes\Message;
 use Tomaj\Hermes\MessageInterface;
 
 /**
@@ -26,7 +27,7 @@ class RetryTraitTest extends TestCase
             }
         };
 
-        self::assertTrue($handler->canRetry());
+        self::assertTrue($handler->canRetry(new Message('a', []), new \RuntimeException('x')));
     }
 
     public function testMaxRetry(): void
