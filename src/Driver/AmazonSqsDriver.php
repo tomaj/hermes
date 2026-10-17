@@ -19,8 +19,6 @@ final class AmazonSqsDriver implements DriverInterface
 
     private readonly string $queueUrl;
 
-    private int $sleepInterval = 0;
-
     /**
      * Create new Amazon SQS driver.
      *
@@ -135,9 +133,6 @@ final class AmazonSqsDriver implements DriverInterface
                     $this->deleteMessage($receiptHandle);
                     $this->incrementProcessedItems();
                 }
-            } elseif ($this->sleepInterval !== 0) {
-                $this->checkShutdown();
-                sleep($this->sleepInterval);
             }
         }
     }

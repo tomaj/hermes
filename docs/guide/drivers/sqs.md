@@ -59,7 +59,7 @@ $dispatcher->handle();
 
 `send()` calls `sendMessage` with `QueueUrl` and `MessageBody`. The priority argument is ignored. `setupPriorityQueue()` throws `NotSupportedException` (`AmazonSQS is not supporting priority queues now`). `executeAt` is not turned into an SQS delay. The body is published now, with `execute_at` only inside the JSON.
 
-There is no public sleep setting. `$sleepInterval` is a private `0` and nothing assigns it, so the empty-queue branch never sleeps. Waiting is `WaitTimeSeconds => 1` on `receiveMessage`.
+There is no sleep setting. On an empty queue the worker waits in `receiveMessage` (`WaitTimeSeconds => 1`, long polling), checks for shutdown, and polls again.
 
 `WaitTimeSeconds` is `1`. The constructor can pass `VisibilityTimeout` through to `createQueue`, as a string attribute. The worker never calls `ChangeMessageVisibility`. It deletes the message only after the callback returns, so the visibility timeout has to be longer than your slowest handler. If the handler crashes the worker, or the callback throws, the message is not deleted and SQS delivers it again when the visibility timeout expires (or moves it to a dead-letter queue when you configure a redrive policy). Delivery is at least once, so handlers must be idempotent. Up to 5.x the driver deleted the message before the handler ([issue #69](https://github.com/tomaj/hermes/issues/69)).
 

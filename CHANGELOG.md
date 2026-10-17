@@ -59,6 +59,7 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 ### Removed
 
 * `.scrutinizer.yml`, `coverage.sh` and the root `Makefile`. Use `composer phpunit` and `composer coverage` instead. The Composer dist archive now contains only `src/`, the license, README, CHANGELOG, UPGRADE-6.0.md and `composer.json` ([#88](https://github.com/tomaj/hermes/issues/88)).
+* The private `AmazonSqsDriver::$sleepInterval` and the empty-queue sleep that used it. Nothing could set it, so the branch never ran; long polling (`WaitTimeSeconds`) paces the loop as before ([#110](https://github.com/tomaj/hermes/issues/110)).
 
 ### Fixed
 
