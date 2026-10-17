@@ -38,11 +38,9 @@ Stop the workers:
 $shutdown->shutdown();
 ```
 
-`shutdown()` defaults the time to `new DateTime()` and `touch()`es the file with that unix timestamp. `shouldShutdown()` calls `clearstatcache()` for that path, then returns true when the file exists and `filemtime()` is greater than or equal to the worker start timestamp. A missing file means keep running. A file that is older than the start time means keep running, so a worker that starts after the touch does not exit.
+`shutdown()` defaults the time to `new DateTime()`. It writes that time with microseconds (`1700000000.123456`) into the file and sets the file's modification time to the same second. Like `touch` in 5.x it rewrites an existing file in place, so the file keeps its owner and mode and the directory does not have to be writable. Unlike `touch`, it needs write access to the file. Workers only need to read the file; one that cannot read it uses its modification time. `shouldShutdown()` returns true when the file exists, the time in it is not in the future, and it is later than the worker's start time. A missing file means keep running. A worker that started after the shutdown keeps running, even when it started in the same second.
 
-`filemtime()` is a whole second. A touch in the same second as process start can be equal to the start timestamp and will shut the worker down, because the comparison is `>=`.
-
-A future timestamp also shuts the worker down immediately if it is already `>=` the start time. That differs from the Redis helpers below.
+`touch` works too. When the file holds no time, or was touched in a later second than the last `shutdown()`, its modification time is used instead. That is a whole second and counts as the start of that second, so a worker that started earlier in that same second keeps running.
 
 ## RedisShutdown
 
@@ -57,11 +55,13 @@ $dispatcher = new Dispatcher($driver, null, $shutdown);
 
 `examples/redis/shutdown.php` is `new RedisShutdown($redis)->shutdown()`.
 
-`shutdown()` `SET`s the key to the unix timestamp. `shouldShutdown()` returns true only when all of these hold:
+`shutdown()` `SET`s the key to the time with microseconds (`1700000000.123456`). `shouldShutdown()` returns true only when all of these hold:
 
-- `GET` returned a value (`false` means the key is missing)
-- the timestamp is not greater than `time()` (a future value does not stop anyone yet)
-- the timestamp is greater than or equal to the worker start timestamp (a worker that started later keeps running)
+- `GET` returned a number (a missing key or any other value means keep running)
+- the time is not in the future (a future value does not stop anyone yet)
+- the time is later than the worker's start time (a worker that started afterwards keeps running, even in the same second)
+
+A whole-second value, such as one written by Hermes 5.x, counts as the start of that second.
 
 ## PredisShutdown
 
@@ -80,7 +80,9 @@ $redis = new Client([
 new PredisShutdown($redis)->shutdown();
 ```
 
-One key stops every worker that was started before that timestamp and that polls the same Redis. New workers started by the process manager see a timestamp older than their start time and stay up. Delete the key when you want a later deploy to use a fresh signal. Leaving it in place is safe for workers that start afterwards. It is not safe for a worker whose start timestamp is still earlier.
+One key stops every worker that was started before that time and that polls the same Redis. New workers started by the process manager see a time older than their start time and stay up. Delete the key when you want a later deploy to use a fresh signal. Leaving it in place is safe for workers that start afterwards. It is not safe for a worker whose start time is still earlier.
+
+All three shutdowns compare the stored time with the worker host's clock. Keep the clocks of the hosts that call `shutdown()` and the hosts that run workers in sync (NTP). A request from a host whose clock is ahead counts as in the future and stops workers only once their clock reaches it. A request from a host whose clock is behind does not stop workers that started within that difference before the request. Hermes 5.x had the same dependency on the clocks.
 
 ## Max items
 

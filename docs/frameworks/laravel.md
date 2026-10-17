@@ -89,7 +89,7 @@ Run `php artisan hermes:restart` as the last deploy step. Each worker stops afte
 
 <<< @/../examples/frameworks/laravel/deploy/hermes-worker.conf{ini} [deploy/hermes-worker.conf]
 
-A worker that starts in the same second as `hermes:restart` stops again at once, because the shutdown time has one-second precision. Supervisor logs it as `not expected` and starts it again. See [Production deployment](/guide/deployment) for systemd and Kubernetes.
+See [Production deployment](/guide/deployment) for systemd and Kubernetes.
 
 ## 8. Test the producer
 

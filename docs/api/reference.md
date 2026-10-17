@@ -208,8 +208,8 @@ public function shutdown(?DateTime $shutdownTime = null): bool;
 
 | Class | Constructor | Signal |
 | --- | --- | --- |
-| `SharedFileShutdown` | `(string $filePath)` | `touch` the file. Stops when `filemtime >= start`. |
-| `RedisShutdown` | `(Redis $redis, string $key = 'hermes_shutdown')` | `SET` a unix timestamp. Stops when the value is set, not in the future, and `>=` start. |
+| `SharedFileShutdown` | `(string $filePath)` | Writes the time with microseconds; `touch` also works. Stops when the time is later than start and not in the future. |
+| `RedisShutdown` | `(Redis $redis, string $key = 'hermes_shutdown')` | `SET`s the time with microseconds. Stops when the value is set, not in the future, and later than start. |
 | `PredisShutdown` | `(Client $redis, string $key = 'hermes_shutdown')` | Same rules. `shutdown()` is true when the Predis payload is `OK`. |
 
 Details and the differences between the file and Redis rules are on [Shutdown and max items](/guide/shutdown).

@@ -77,7 +77,7 @@ class PredisShutdownTest extends TestCase
         self::assertTrue($redisShutdown->shouldShutdown($startTime));
     }
 
-    public function testShouldShutdownWhenTheEntryEqualsTheStartTime(): void
+    public function testWorkerStartedAtTheShutdownTimeKeepsRunning(): void
     {
         $startTime = new \DateTime('@1700000000');
         $redis = $this->getMockBuilder(PredisClientDouble::class)
@@ -88,7 +88,7 @@ class PredisShutdownTest extends TestCase
             ->with('hermes_shutdown')
             ->willReturn('1700000000');
 
-        self::assertTrue(new PredisShutdown($redis)->shouldShutdown($startTime));
+        self::assertFalse(new PredisShutdown($redis)->shouldShutdown($startTime));
     }
 
     public function testShutdownStoredCorrectValueToRedis(): void
@@ -99,7 +99,7 @@ class PredisShutdownTest extends TestCase
             ->getMock();
         $redis->expects(self::once())
             ->method('set')
-            ->with('hermes_shutdown', $shutdownTime->format('U'))
+            ->with('hermes_shutdown', $shutdownTime->format('U.u'))
             ->willReturn(new Status('OK'));
 
         $redisShutdown = new PredisShutdown($redis);
@@ -114,7 +114,7 @@ class PredisShutdownTest extends TestCase
             ->getMock();
         $redis->expects(self::once())
             ->method('set')
-            ->with('hermes_shutdown', $shutdownTime->format('U'))
+            ->with('hermes_shutdown', $shutdownTime->format('U.u'))
             ->willReturn(new Status('OK'));
 
         $redisShutdown = new PredisShutdown($redis);

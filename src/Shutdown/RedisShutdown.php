@@ -10,7 +10,7 @@ use Redis;
 /**
  * Class RedisShutdown provides redis implementation of Tomaj\Hermes\Shutdown\ShutdownInterface
  *
- * Set UNIX timestamp (as `string`) to key `$key` (default `hermes_shutdown`) to shutdown Hermes worker.
+ * Set the shutdown time (`"seconds.microseconds"`, a whole UNIX timestamp also works) to key `$key` (default `hermes_shutdown`) to shutdown Hermes worker.
  */
 final readonly class RedisShutdown implements ShutdownInterface
 {
@@ -20,27 +20,16 @@ final readonly class RedisShutdown implements ShutdownInterface
     ) {}
 
     /**
-     * Returns true:
-     * - if shutdown timestamp is set,
-     * - and timestamp is not in future,
-     * - and hermes was started ($startTime) before timestamp
+     * Returns true when the stored shutdown time is not in the future
+     * and is later than the moment this worker started ($startTime).
      */
     #[\Override]
     public function shouldShutdown(DateTime $startTime): bool
     {
-        // load UNIX timestamp from redis
-        $shutdownTime = $this->redis->get($this->key);
-        if (!is_string($shutdownTime)) {
-            return false;
-        }
-        $shutdownTime = (int) $shutdownTime;
+        // a missing key reads as false (phpredis) or null (Predis), which parse() turns into null
+        $shutdownTime = ShutdownTime::parse($this->redis->get($this->key));
 
-        // do not shutdown if shutdown time is in future
-        if ($shutdownTime > time()) {
-            return false;
-        }
-        // do not shutdown if hermes started after shutdown time
-        return $shutdownTime >= $startTime->getTimestamp();
+        return $shutdownTime !== null && ShutdownTime::isRequested($shutdownTime, $startTime, microtime(true));
     }
 
     /**
@@ -51,6 +40,6 @@ final readonly class RedisShutdown implements ShutdownInterface
     {
         $shutdownTime ??= new DateTime();
 
-        return $this->redis->set($this->key, $shutdownTime->format('U'));
+        return $this->redis->set($this->key, ShutdownTime::format($shutdownTime));
     }
 }

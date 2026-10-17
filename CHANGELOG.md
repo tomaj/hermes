@@ -60,6 +60,7 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ### Fixed
 
+* `SharedFileShutdown`, `RedisShutdown` and `PredisShutdown` store the shutdown time with microseconds and stop only workers that started before it. A worker started in the same second as `hermes:restart` no longer exits at once. `SharedFileShutdown` ignores a future time, like the Redis shutdowns. See UPGRADE-6.0.md ([#115](https://github.com/tomaj/hermes/issues/115)).
 * Fixed strict comparison issues in `Message` constructor
 * Fixed boolean condition checks for better PHP 8+ compatibility
 * `RedisSetDriver` delivers delayed messages and retries again. Due entries are removed from the schedule sorted set with `ZREM`, and only the worker that removed an entry re-sends it. It used `SPOP`, which does not work on a sorted set, so they stayed in the schedule forever ([#95](https://github.com/tomaj/hermes/issues/95)).

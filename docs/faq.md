@@ -47,7 +47,7 @@ No. Since 4.0.0 the feature is shutdown. `handle()` returns. Supervisor `autores
 
 ## Will a shutdown key kill the new process too?
 
-Not with `RedisShutdown` or `PredisShutdown`, when the new process starts after the stored timestamp. `shouldShutdown()` returns false if the timestamp is older than the start time or is still in the future. `SharedFileShutdown` returns false when the file is missing or older than the start time. A file timestamp in the future still stops the worker, because the comparison is `filemtime >= start`.
+No. All three shutdowns store the time with microseconds, and `shouldShutdown()` returns true only when that time is later than the worker's start time and not in the future. A process that starts after the shutdown keeps running, even in the same second ([#115](https://github.com/tomaj/hermes/issues/115)). For `SharedFileShutdown`, a missing file also means keep running.
 
 ## Where did ZeroMQ go?
 
