@@ -7,6 +7,7 @@ namespace Tomaj\Hermes\Driver;
 use DateTimeImmutable;
 use Tomaj\Hermes\Shutdown\ShutdownException;
 use Tomaj\Hermes\Shutdown\ShutdownInterface;
+use Tomaj\Hermes\Shutdown\SignalStop;
 
 trait ShutdownTrait
 {
@@ -22,6 +23,9 @@ trait ShutdownTrait
 
     private function shouldShutdown(): bool
     {
+        if (SignalStop::received() !== null) {
+            return true;
+        }
         if ($this->shutdown === null || $this->startTime === null) {
             return false;
         }

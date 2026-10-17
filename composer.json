@@ -41,6 +41,7 @@
         "rector/rector": "2.7.0"
     },
     "suggest": {
+        "ext-pcntl": "Lets the worker finish the current message and stop on SIGTERM and SIGINT",
         "ext-redis": "Needed for RedisSetDriver and RedisShutdown (native Redis extension)",
         "aws/aws-sdk-php": "Needed for AmazonSqsDriver (Amazon SQS)",
         "monolog/monolog": "A PSR-3 logger to pass to Emitter and Dispatcher",

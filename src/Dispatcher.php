@@ -16,6 +16,7 @@ use Tomaj\Hermes\Handler\RetryableHandlerInterface;
 use Tomaj\Hermes\Handler\RetryTrait;
 use Tomaj\Hermes\Shutdown\ShutdownException;
 use Tomaj\Hermes\Shutdown\ShutdownInterface;
+use Tomaj\Hermes\Shutdown\SignalStop;
 use Tracy\Debugger;
 
 final class Dispatcher implements DispatcherInterface
@@ -87,6 +88,8 @@ final class Dispatcher implements DispatcherInterface
     #[\Override]
     public function handle(array $priorities = []): void
     {
+        // stop after the current message on SIGTERM / SIGINT; the previous handlers come back when this returns
+        $signals = SignalStop::install();
         try {
             $this->driver->wait(function (MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): bool {
                 $this->log(
@@ -97,14 +100,14 @@ final class Dispatcher implements DispatcherInterface
 
                 $result = $this->dispatch($message);
 
-                if ($this->shutdown instanceof ShutdownInterface && $this->shutdown->shouldShutdown($this->startTime)) {
+                if (SignalStop::received() !== null || ($this->shutdown instanceof ShutdownInterface && $this->shutdown->shouldShutdown($this->startTime))) {
                     throw new ShutdownException('Shutdown');
                 }
 
                 return $result;
             }, $priorities);
         } catch (ShutdownException) {
-            $this->log(LogLevel::NOTICE, 'Exiting hermes dispatcher - shutdown');
+            $this->log(LogLevel::NOTICE, $this->shutdownReason());
         } catch (Exception $exception) {
             // a driver failure (lost connection, broken payload): log it and let the worker exit non-zero
             $this->log(
@@ -117,6 +120,13 @@ final class Dispatcher implements DispatcherInterface
             }
             throw $exception;
         }
+    }
+
+    private function shutdownReason(): string
+    {
+        $signal = SignalStop::received();
+
+        return $signal === null ? 'Exiting hermes dispatcher - shutdown' : 'Exiting hermes dispatcher - received ' . SignalStop::describe($signal);
     }
 
     /**

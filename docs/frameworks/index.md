@@ -41,7 +41,7 @@ The driver is built once per process. Both the web process and the worker must g
 - **Only the worker resolves the dispatcher.** Building it in a web request is harmless, but it is never needed there.
 - **Give each application its own queue name.** Two apps that share one Redis and the default `hermes` key take each other's messages. The worker drops a message it has no handler for.
 - **Restart workers after a deploy.** A worker keeps the old code until it exits. Run `hermes:restart` as the last deploy step and let the process manager start new workers. See [Shutdown and max items](/guide/shutdown) and [Production deployment](/guide/deployment).
-- **Stop through Hermes, not with a signal.** Hermes does not handle `SIGTERM`; Supervisor's or systemd's stop signal ends PHP at once, even in the middle of a handler. Call `hermes:restart` first when you can.
+- **Stopping with a signal needs `ext-pcntl`.** With it, `SIGTERM` from Supervisor, systemd or Kubernetes lets the worker finish its message and exit, also inside `hermes:work` (Hermes takes over the console's signal handlers while `handle()` runs). Without it the signal ends PHP at once, even in the middle of a handler, so call `hermes:restart` first. See [Shutdown and max items](/guide/shutdown#sigterm-and-sigint).
 
 ## Retry jitter and a registered `Random\Randomizer`
 

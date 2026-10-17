@@ -19,6 +19,19 @@ The examples also call `$driver->setShutdown()` themselves. That is enough for t
 
 `ShutdownException` extends `HermesException`. `handle()` catches it, logs `Exiting hermes dispatcher - shutdown` at `notice`, and returns. Any other `Exception` that escapes `wait()` is logged at `error` as `Exiting hermes dispatcher - driver error: <class> - <message>`, passed to `Debugger::log($exception, Debugger::EXCEPTION)` when `Tracy\Debugger::isEnabled()` is true, and rethrown, so the worker exits non-zero ([#113](https://github.com/tomaj/hermes/issues/113)). Hermes does not call `Debugger::enable()` for you.
 
+## SIGTERM and SIGINT
+
+With `ext-pcntl` loaded, `handle()` stops gracefully on `SIGTERM` and `SIGINT` ([#116](https://github.com/tomaj/hermes/issues/116)). It is always on; there is nothing to configure.
+
+- The current message finishes: the handler returns, the message is acknowledged (RabbitMQ) or deleted (SQS), then `handle()` returns.
+- An idle worker stops at the driver's next shutdown check: right away with a refresh interval of `0`, otherwise within one interval (one second by default, and one long poll on SQS).
+- `handle()` logs `Exiting hermes dispatcher - received SIGTERM` (or `SIGINT`) at `notice` and returns normally, so the process exits with status 0.
+- Signals are dispatched only at those safe points, never in the middle of your handler code. A blocking call such as `sleep()` in a handler still returns early when the signal arrives, as it does in any PHP process with a signal handler.
+- Further `SIGTERM`/`SIGINT` while the message runs change nothing. `SIGKILL` still ends the process at once, which is what process managers send after their stop timeout.
+- The handlers and the `pcntl_async_signals()` setting that were active before `handle()` come back when it returns or throws. Framework consoles (Symfony, Laravel) that install their own signal handlers get them back after `handle()`.
+
+Without `ext-pcntl` (for example on Windows) nothing changes: a signal ends the process with its default action. A shutdown object and max items work with or without it. Set the process manager's stop timeout longer than your slowest message; see [Production deployment](/guide/deployment).
+
 <Diagram name="shutdown-2" alt="Sequence: an operator sets the shutdown signal, the running worker finishes its message and exits, and the manager starts a new one" />
 
 ## SharedFileShutdown
@@ -118,4 +131,4 @@ It makes `wait()` return after N handled messages, so the process exits cleanly 
 
 ### Does Hermes handle SIGTERM?
 
-No. There is no `pcntl` handler. A process killed during `handle()` loses the message it already took, so give the process manager a stop timeout longer than one message.
+Yes, when `ext-pcntl` is loaded: the worker finishes the current message and returns (see [SIGTERM and SIGINT](#sigterm-and-sigint)). The process manager still sends `SIGKILL` after its stop timeout, so make that timeout longer than one message.
