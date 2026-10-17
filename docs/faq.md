@@ -67,7 +67,7 @@ You cannot, with the Redis drivers, keep the broker copy until `handle()` return
 
 ## What happens when the handler throws?
 
-`Dispatcher` catches the exception per handler. It logs an error. If Tracy's debugger is already enabled, it also writes the exception there. It then calls `retryMessage()`. Later handlers for the same type still run. The exception does not by itself stop the worker. See [Retry](/guide/retry).
+`Dispatcher` catches any `Throwable` per handler, including PHP `Error`s such as `TypeError`. It logs an error. If Tracy's debugger is already enabled, it also writes the exception there. It then calls `retryMessage()`. Later handlers for the same type still run. The exception does not by itself stop the worker. See [Retry](/guide/retry).
 
 ## How do I run more than one worker?
 

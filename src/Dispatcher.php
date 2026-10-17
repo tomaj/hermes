@@ -9,6 +9,7 @@ use Exception;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Random\Randomizer;
+use Throwable;
 use Tomaj\Hermes\Driver\DriverInterface;
 use Tomaj\Hermes\Handler\HandlerInterface;
 use Tomaj\Hermes\Shutdown\ShutdownException;
@@ -147,7 +148,8 @@ final class Dispatcher implements DispatcherInterface
                 "End handle message #{$message->getId()} ({$message->getType()})",
                 $this->messageLoggerContext($message),
             );
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
+            // an Error (TypeError, ...) is a failed message too, not a reason to stop the worker
             $this->log(
                 LogLevel::ERROR,
                 'Handler ' . $handler::class . " throws exception - {$e->getMessage()}",

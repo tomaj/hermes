@@ -112,7 +112,7 @@ A handler does the slow work: mail, HTTP, files. Hermes calls it only from `Disp
 | --- | --- |
 | `true` | Logs the end line. The combined result stays `true` if every handler returned `true`. |
 | `false` | The combined result becomes `false`. Nothing is retried. |
-| Exception | Logs at `error`, writes to Tracy when Tracy is enabled, then maybe [retries](/guide/retry). That handler returns `false` to the loop. Later handlers for the same type still run. |
+| Exception or `Error` (any `Throwable`) | Logs at `error`, writes to Tracy when Tracy is enabled, then maybe [retries](/guide/retry). That handler returns `false` to the loop. Later handlers for the same type still run. |
 
 If the dispatcher has a logger and the handler has `setLogger()` (for example `Psr\Log\LoggerAwareTrait`), the logger is injected before `handle()`.
 
