@@ -125,6 +125,17 @@ $dispatcher = new Dispatcher($driver, $logger, null, new Randomizer(new Mt19937(
 
 If your container autowires `Dispatcher` and has a `Randomizer` service, that service is now injected. See [Retry](docs/guide/retry.md#reproducible-retry-times).
 
+## Shutdown times keep microseconds
+
+`SharedFileShutdown`, `RedisShutdown` and `PredisShutdown` used to compare whole seconds, and an equal second counted as a shutdown request. A worker that the process manager started in the same second as `hermes:restart` (or `shutdown()`) therefore stopped again at once, and Supervisor could hit `startretries` ([#115](https://github.com/tomaj/hermes/issues/115)). Now:
+
+- `shutdown()` stores the time with microseconds: the Redis value and the content of the file are `1700000000.123456`. `SharedFileShutdown` writes it into the file in place and still sets the file's modification time to that second, so the file keeps its owner and mode and the directory does not have to be writable. Unlike 5.x, which only changed the modification time, the process that calls `shutdown()` needs write access to the file. A later `touch` still counts.
+- `shouldShutdown()` returns true only when the stored time is later than the worker's start time, not when it is equal. A worker that started after the request keeps running, even in the same second.
+- A whole-second value counts as the start of that second. This covers a value written by Hermes 5.x and a file you `touch`. A worker that started earlier in that same second keeps running, while 5.x stopped it.
+- `SharedFileShutdown` ignores a time in the future, like the Redis shutdowns already did. In 5.x a future modification time stopped every worker, including newly started ones, until that time passed.
+
+During a rolling deploy, a 5.x worker still stops on a 6.0 request: it reads `1700000000.123456` as `1700000000`. Custom `ShutdownInterface` implementations are not affected.
+
 ## Classes are final
 
 Every concrete class in `src/` is `final` ([#81](https://github.com/tomaj/hermes/issues/81)): `Message`, `MessageSerializer`, `Emitter`, `Dispatcher`, `EchoHandler`, the four drivers, the three shutdowns, and the exceptions `SerializeException`, `ShutdownException`, `NotSupportedException` and `UnknownPriorityException`. `HermesException` stays open, because the other exceptions extend it, and so can yours.

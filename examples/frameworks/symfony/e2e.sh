@@ -19,9 +19,6 @@ for driver in "${drivers[@]}"; do
     export HERMES_DRIVER=$driver HERMES_QUEUE="hermes_e2e_${driver}_$$"
     email="symfony-$driver-$RANDOM@example.com"
 
-    # SharedFileShutdown compares whole seconds: a worker started in the same second
-    # as the previous hermes:restart would stop at once.
-    while [[ $(date +%s) -le ${restarted:-0} ]]; do sleep 0.2; done
     php bin/console hermes:work > "/tmp/hermes-symfony-$driver.log" 2>&1 &
     worker=$!
     php bin/console app:register-user "$email"
@@ -39,7 +36,6 @@ for driver in "${drivers[@]}"; do
     fi
 
     php bin/console hermes:restart > /dev/null
-    restarted=$(date +%s)
     for _ in $(seq 1 15); do
         kill -0 "$worker" 2>/dev/null || break
         sleep 1

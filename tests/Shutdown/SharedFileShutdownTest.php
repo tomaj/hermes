@@ -65,14 +65,14 @@ class SharedFileShutdownTest extends TestCase
         self::assertTrue($shutdown->shouldShutdown($startTime));
     }
 
-    public function testShouldShutdownWhenTheFileTimeEqualsTheStartTime(): void
+    public function testWorkerStartedAtTheFileTimeKeepsRunning(): void
     {
         touch($this->tempFile, 1700000000);
         clearstatcache();
 
         $shutdown = new SharedFileShutdown($this->tempFile);
 
-        self::assertTrue($shutdown->shouldShutdown(new DateTime('@1700000000')));
+        self::assertFalse($shutdown->shouldShutdown(new DateTime('@1700000000')));
     }
 
     public function testShutdownCreatesFile(): void
