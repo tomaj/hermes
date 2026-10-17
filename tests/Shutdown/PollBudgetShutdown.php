@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes\Test\Shutdown;
 
-use DateTime;
+use DateTimeInterface;
 use Tomaj\Hermes\Shutdown\ShutdownInterface;
 
 /**
@@ -28,13 +28,13 @@ final class PollBudgetShutdown implements ShutdownInterface
     }
 
     #[\Override]
-    public function shouldShutdown(DateTime $startTime): bool
+    public function shouldShutdown(DateTimeInterface $startTime): bool
     {
         return ++$this->checks > $this->budget || microtime(true) > $this->deadline;
     }
 
     #[\Override]
-    public function shutdown(?DateTime $shutdownTime = null): bool
+    public function shutdown(?DateTimeInterface $shutdownTime = null): bool
     {
         return true;
     }

@@ -136,6 +136,22 @@ If your container autowires `Dispatcher` and has a `Randomizer` service, that se
 
 During a rolling deploy, a 5.x worker still stops on a 6.0 request: it reads `1700000000.123456` as `1700000000`. Custom `ShutdownInterface` implementations are not affected.
 
+## `ShutdownInterface` takes `DateTimeInterface`
+
+`shouldShutdown()` and `shutdown()` are typed `DateTimeInterface` instead of `DateTime` ([#108](https://github.com/tomaj/hermes/issues/108)). `Dispatcher` and the drivers' `ShutdownTrait` keep the worker start time as a `DateTimeImmutable` and pass that instance. In 5.x they passed their own mutable `DateTime`, so an implementation that called `$startTime->modify()` shifted the start time for every later check.
+
+Custom implementations must widen their parameter types, or PHP reports a fatal error when it loads the class:
+
+```php
+use DateTimeInterface;
+
+public function shouldShutdown(DateTimeInterface $startTime): bool { /* ... */ }
+
+public function shutdown(?DateTimeInterface $shutdownTime = null): bool { /* ... */ }
+```
+
+An implementation that called `DateTime` methods such as `modify()` on `$startTime` must work on a copy instead, for example `DateTimeImmutable::createFromInterface($startTime)->modify('-1 minute')`. Code that only calls `shutdown()` or passes a `DateTime` keeps working.
+
 ## Classes are final
 
 Every concrete class in `src/` is `final` ([#81](https://github.com/tomaj/hermes/issues/81)): `Message`, `MessageSerializer`, `Emitter`, `Dispatcher`, `EchoHandler`, the four drivers, the three shutdowns, and the exceptions `SerializeException`, `ShutdownException`, `NotSupportedException` and `UnknownPriorityException`. `HermesException` stays open, because the other exceptions extend it, and so can yours.

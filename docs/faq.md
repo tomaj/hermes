@@ -49,6 +49,10 @@ No. Since 4.0.0 the feature is shutdown. `handle()` returns. Supervisor `autores
 
 No. All three shutdowns store the time with microseconds, and `shouldShutdown()` returns true only when that time is later than the worker's start time and not in the future. A process that starts after the shutdown keeps running, even in the same second ([#115](https://github.com/tomaj/hermes/issues/115)). For `SharedFileShutdown`, a missing file also means keep running.
 
+## My shutdown class fails with "must be compatible with ShutdownInterface"
+
+6.0 types `shouldShutdown()` and `shutdown()` with `DateTimeInterface` instead of `DateTime` ([#108](https://github.com/tomaj/hermes/issues/108)). Change both parameter types in your class to `DateTimeInterface`. The start time is a `DateTimeImmutable`. See [UPGRADE-6.0.md](https://github.com/tomaj/hermes/blob/master/UPGRADE-6.0.md).
+
 ## Where did ZeroMQ go?
 
 Out of this package in 3.0.0, into [tomaj/hermes-zmq-driver](https://github.com/tomaj/hermes-zmq-driver). It is not in `src/Driver`.
