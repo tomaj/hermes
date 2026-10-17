@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes\Driver;
 
-use DateTime;
+use DateTimeImmutable;
 use Tomaj\Hermes\Shutdown\ShutdownException;
 use Tomaj\Hermes\Shutdown\ShutdownInterface;
 
@@ -12,12 +12,12 @@ trait ShutdownTrait
 {
     private ?ShutdownInterface $shutdown = null;
 
-    private ?DateTime $startTime = null;
+    private ?DateTimeImmutable $startTime = null;
 
     public function setShutdown(ShutdownInterface $shutdown): void
     {
         $this->shutdown = $shutdown;
-        $this->startTime = new DateTime();
+        $this->startTime = new DateTimeImmutable();
     }
 
     private function shouldShutdown(): bool

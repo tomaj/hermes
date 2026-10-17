@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes;
 
-use DateTime;
+use DateTimeImmutable;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -26,7 +26,7 @@ final class Dispatcher implements DispatcherInterface
      */
     private array $handlers = [];
 
-    private readonly DateTime $startTime;
+    private readonly DateTimeImmutable $startTime;
 
     private readonly Randomizer $randomizer;
 
@@ -43,7 +43,7 @@ final class Dispatcher implements DispatcherInterface
         ?Randomizer $randomizer = null,
     ) {
         $this->randomizer = $randomizer ?? new Randomizer();
-        $this->startTime = new DateTime();
+        $this->startTime = new DateTimeImmutable();
 
         // check if driver use ShutdownTrait
         if ($this->shutdown instanceof ShutdownInterface && method_exists($this->driver, 'setShutdown')) {

@@ -186,7 +186,7 @@ $driver->setSerializer(new ExtraFieldSerializer());
 
 ## A shutdown signal
 
-Implement `ShutdownInterface` when a file or a Redis key is the wrong switch. `shouldShutdown(DateTime $startTime)` is polled. `shutdown(?DateTime $shutdownTime = null)` is how another process asks for the stop. Return `true` from `shutdown()` when the signal was stored.
+Implement `ShutdownInterface` when a file or a Redis key is the wrong switch. `shouldShutdown(DateTimeInterface $startTime)` is polled; `Dispatcher` and the drivers pass a `DateTimeImmutable`. `shutdown(?DateTimeInterface $shutdownTime = null)` is how another process asks for the stop, with either a `DateTime` or a `DateTimeImmutable`. Return `true` from `shutdown()` when the signal was stored.
 
 Keep the start-time rule if you can. Workers that start after the signal should keep running, or a rolling restart will shut down the new processes too. `RedisShutdown` does this. `SharedFileShutdown` does this with the time in the file, or its modification time when the file was touched later. The built-in shutdowns compare to the microsecond.
 

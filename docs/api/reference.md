@@ -131,7 +131,7 @@ All four `use` `MaxItemsTrait`, `ShutdownTrait`, and `SerializerAwareTrait`.
 
 | Method | Behavior |
 | --- | --- |
-| `setShutdown(ShutdownInterface $shutdown): void` | Stores it and a new `DateTime` start. |
+| `setShutdown(ShutdownInterface $shutdown): void` | Stores it and a new `DateTimeImmutable` start. |
 
 `shouldShutdown()` and `checkShutdown()` are private. `checkShutdown()` throws `ShutdownException` with an empty message.
 
@@ -201,9 +201,9 @@ The docblock allows the method to throw `\Exception`.
 `src/Shutdown/ShutdownInterface.php`
 
 ```php
-public function shouldShutdown(DateTime $startTime): bool;
+public function shouldShutdown(DateTimeInterface $startTime): bool;
 
-public function shutdown(?DateTime $shutdownTime = null): bool;
+public function shutdown(?DateTimeInterface $shutdownTime = null): bool;
 ```
 
 | Class | Constructor | Signal |

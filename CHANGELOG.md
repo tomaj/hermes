@@ -55,6 +55,7 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 * Updated test coverage check to use `johanvanhelden/gha-clover-test-coverage-check@v1`
 * **BREAKING CHANGE**: `AmazonSqsDriver` deletes a message only after it was handled, not right after `receiveMessage`. A worker crash or an exception from the callback leaves the message in SQS for the visibility timeout or a dead-letter queue. Delivery is at least once, so set `VisibilityTimeout` above your slowest handler ([#69](https://github.com/tomaj/hermes/issues/69)).
 * Coverage reports are now automatically published to GitHub Pages after successful test runs
+* **BREAKING CHANGE**: `ShutdownInterface::shouldShutdown()` and `shutdown()` take `DateTimeInterface` instead of `DateTime`. `Dispatcher` and `ShutdownTrait` keep the worker start time as a `DateTimeImmutable`, so a shutdown can no longer shift the dispatcher's own start time by modifying it. Callers can pass `DateTime` or `DateTimeImmutable`; custom implementations must change their parameter types ([#108](https://github.com/tomaj/hermes/issues/108)).
 
 ### Removed
 

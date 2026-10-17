@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes\Shutdown;
 
-use DateTime;
+use DateTimeImmutable;
+use DateTimeInterface;
 
 /**
  * Stops workers through a file. shutdown() writes the shutdown time ("seconds.microseconds")
@@ -22,7 +23,7 @@ final readonly class SharedFileShutdown implements ShutdownInterface
      * and is later than the moment this worker started ($startTime).
      */
     #[\Override]
-    public function shouldShutdown(DateTime $startTime): bool
+    public function shouldShutdown(DateTimeInterface $startTime): bool
     {
         clearstatcache(false, $this->filePath);
 
@@ -43,9 +44,9 @@ final readonly class SharedFileShutdown implements ShutdownInterface
     }
 
     #[\Override]
-    public function shutdown(?DateTime $shutdownTime = null): bool
+    public function shutdown(?DateTimeInterface $shutdownTime = null): bool
     {
-        $shutdownTime ??= new DateTime();
+        $shutdownTime ??= new DateTimeImmutable();
 
         // Rewrite the file in place, like `touch` in 5.x: an existing file keeps its owner and mode, and
         // the directory does not have to be writable. A worker that reads the file during the write sees

@@ -4,23 +4,24 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes\Test\Driver;
 
-use DateTime;
+use DateTimeImmutable;
+use DateTimeInterface;
 use Tomaj\Hermes\Shutdown\ShutdownInterface;
 
 class CustomShutdown implements ShutdownInterface
 {
-    public function __construct(private DateTime $dateTime) {}
+    public function __construct(private DateTimeInterface $dateTime) {}
 
     #[\Override]
-    public function shouldShutdown(DateTime $startTime): bool
+    public function shouldShutdown(DateTimeInterface $startTime): bool
     {
         return $this->dateTime > $startTime;
     }
 
     #[\Override]
-    public function shutdown(?DateTime $shutdownTime = null): bool
+    public function shutdown(?DateTimeInterface $shutdownTime = null): bool
     {
-        $this->dateTime = $shutdownTime ?? new DateTime();
+        $this->dateTime = $shutdownTime ?? new DateTimeImmutable();
         return true;
     }
 }
