@@ -73,7 +73,7 @@ There is no sleep setting. On an empty queue the worker waits in `receiveMessage
 
 The dispatcher catches handler exceptions, so a handler that throws still counts as handled and its message is deleted. [Retry](/guide/retry) can `sendMessage` a new body. That new body is visible immediately, because this driver does not honor `executeAt`.
 
-A PHP `Error` (for example `TypeError`) from a handler is not caught. The worker exits, the message stays in SQS, and it comes back after the visibility timeout ([#112](https://github.com/tomaj/hermes/issues/112)). A body that cannot be unserialized also comes back. Add a redrive policy so such messages end up in a dead-letter queue. Set it on an existing queue with `aws sqs set-queue-attributes`, not through the constructor: the constructor calls `CreateQueue`, which fails with `QueueAlreadyExists` when its attributes differ from the queue's.
+This includes a PHP `Error` (for example `TypeError`) from a handler ([#112](https://github.com/tomaj/hermes/issues/112)). A body that cannot be unserialized is not deleted: the worker exits and the message comes back after the visibility timeout. Add a redrive policy so such messages end up in a dead-letter queue. Set it on an existing queue with `aws sqs set-queue-attributes`, not through the constructor: the constructor calls `CreateQueue`, which fails with `QueueAlreadyExists` when its attributes differ from the queue's.
 
 `$priorities` is unused.
 

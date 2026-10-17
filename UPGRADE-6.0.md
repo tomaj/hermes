@@ -86,23 +86,9 @@ Create new queues (for example in development) with the same attributes, using `
 
 RabbitMQ and SQS now deliver at least once, so their handlers should be idempotent. The Redis drivers still remove a message before the handler runs.
 
-`Dispatcher` catches an `Exception` from a handler: the message counts as handled, is acknowledged (RabbitMQ) or deleted (SQS), and `RetryTrait` decides whether to retry. A PHP `Error`, such as a `TypeError`, is not caught ([#112](https://github.com/tomaj/hermes/issues/112)). It stops the worker before the acknowledgement, so RabbitMQ requeues the message and SQS delivers it again after the visibility timeout. A handler that always fails this way crashes every worker that receives the message.
+`Dispatcher` catches any `Throwable` from a handler ([#112](https://github.com/tomaj/hermes/issues/112)). In 5.x a PHP `Error`, such as a `TypeError`, was not caught and killed the worker; with RabbitMQ and SQS the message then came back and killed the next worker too. Now an `Error` is handled like an `Exception`: it is logged at `error`, the message counts as handled, is acknowledged (RabbitMQ) or deleted (SQS), and the handler's [retry](docs/guide/retry.md) settings decide whether a retry copy is sent. If you relied on an `Error` stopping the worker, catch it in the handler and stop the worker yourself through a shutdown. Handlers that converted `Error` to an exception keep working; the conversion is no longer needed.
 
-Until #112 is fixed, convert errors in your handlers. The dispatcher then treats them like any other exception, including retries when the handler uses `RetryTrait`:
-
-```php
-public function handle(MessageInterface $message): bool
-{
-    try {
-        // your work
-    } catch (\Error $e) {
-        throw new \RuntimeException($e->getMessage(), 0, $e);
-    }
-    return true;
-}
-```
-
-On SQS, a redrive policy also stops the loop: after `maxReceiveCount` receives, SQS moves the message to the dead-letter queue. Set it on the queue, as above:
+A message whose body cannot be unserialized still stops the worker. On SQS, a redrive policy stops that loop: after `maxReceiveCount` receives, SQS moves the message to the dead-letter queue. Set it on the queue, as above:
 
 ```bash
 aws sqs set-queue-attributes --queue-url "$QUEUE_URL" --attributes \
