@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd" bootstrap="vendor/autoload.php" cacheDirectory=".phpunit.cache" executionOrder="defects" beStrictAboutOutputDuringTests="true" displayDetailsOnPhpunitDeprecations="true" displayDetailsOnPhpunitNotices="true" displayDetailsOnTestsThatTriggerDeprecations="true" displayDetailsOnTestsThatTriggerNotices="true" displayDetailsOnTestsThatTriggerWarnings="true" failOnRisky="true" failOnWarning="true" resolveDependencies="true">
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd" bootstrap="vendor/autoload.php" cacheDirectory=".phpunit.cache" executionOrder="defects" beStrictAboutOutputDuringTests="true" displayDetailsOnPhpunitDeprecations="true" displayDetailsOnPhpunitNotices="true" displayDetailsOnTestsThatTriggerDeprecations="true" displayDetailsOnTestsThatTriggerNotices="true" displayDetailsOnTestsThatTriggerWarnings="true" failOnDeprecation="true" failOnEmptyTestSuite="true" failOnNotice="true" failOnPhpunitDeprecation="true" failOnPhpunitNotice="true" failOnPhpunitWarning="true" failOnRisky="true" failOnWarning="true" resolveDependencies="true">
   <testsuites>
     <testsuite name="default">
       <directory suffix="Test.php">tests</directory>
     </testsuite>
   </testsuites>
-  <source>
+  <source ignoreIndirectDeprecations="true">
     <include>
       <directory suffix=".php">src</directory>
     </include>

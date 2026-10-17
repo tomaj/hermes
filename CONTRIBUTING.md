@@ -29,6 +29,8 @@ composer phpcs
 composer rector
 ```
 
+PHPUnit fails on any notice, deprecation or warning, including PHPUnit's own (for example a mock without expectations: use `createStub()`). Deprecations that one dependency raises inside another are ignored, so the lowest supported dependencies still pass.
+
 To generate an HTML and Clover coverage report (requires Xdebug or PCOV):
 
 ```bash
