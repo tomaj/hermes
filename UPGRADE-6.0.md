@@ -232,3 +232,7 @@ $emitter->emit($message, Priority::HIGH);
 ```
 
 Log levels are not wrapped either. Hermes passes the PSR-3 `Psr\Log\LogLevel` string constants straight to your logger.
+
+## `Emitter` logs "Emitter send message"
+
+`Emitter::emit()` logs `Emitter send message #<id> to driver <class>` instead of `Dispatcher send message #<id> to driver <class>` ([#111](https://github.com/tomaj/hermes/issues/111)). The level (`info`) and the context are unchanged. Update log searches and alerts that match the old text. The deprecated `Dispatcher::emit()` still logs `Dispatcher send message #<id> with priority <n> to driver <class>`.

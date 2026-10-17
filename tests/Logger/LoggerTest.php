@@ -100,7 +100,7 @@ class LoggerTest extends TestCase
         $testLogger = new TestLogger();
         new Emitter(new DummyDriver(), $testLogger)->emit(new Message('test', [], 'abc'));
 
-        self::assertSame('Dispatcher send message #abc to driver ' . DummyDriver::class, $testLogger->getLogs()[0]['message']);
+        self::assertSame('Emitter send message #abc to driver ' . DummyDriver::class, $testLogger->getLogs()[0]['message']);
     }
 
     /**
