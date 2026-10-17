@@ -34,6 +34,7 @@ Levels are PSR-3 strings (`Psr\Log\LogLevel`).
 | `Dispatcher::handle` | `info` | `Start handle message #<id> (<type>) priority:<n>` |
 | `Dispatcher` after a handler returns | `info` | `End handle message #<id> (<type>)` |
 | `Dispatcher` when a handler throws | `error` | `Handler <class> throws exception - <exception message>` |
+| `Dispatcher` after `SIGTERM` / `SIGINT` (ext-pcntl) | `notice` | `Exiting hermes dispatcher - received SIGTERM` (or `SIGINT`) |
 | `Dispatcher` on `ShutdownException` | `notice` | `Exiting hermes dispatcher - shutdown` |
 
 Emitter context is `id`, `created`, `type`, `payload`. Dispatcher context adds `retries` and `execute_at`. The error context also includes `error`, `message` (the array above), and `exception`.

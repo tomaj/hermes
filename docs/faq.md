@@ -69,6 +69,10 @@ You cannot, with the Redis drivers, keep the broker copy until `handle()` return
 
 `Dispatcher` catches the exception per handler. It logs an error. If Tracy's debugger is already enabled, it also writes the exception there. It then calls `retryMessage()`. Later handlers for the same type still run. The exception does not by itself stop the worker. See [Retry](/guide/retry).
 
+## Does a worker stop cleanly on SIGTERM or Ctrl+C?
+
+Yes, when `ext-pcntl` is loaded. It finishes the current message, logs `Exiting hermes dispatcher - received SIGTERM` and returns from `handle()`. Give the process manager a stop timeout longer than one message, because it sends `SIGKILL` after that. See [Shutdown](/guide/shutdown#sigterm-and-sigint).
+
 ## How do I run more than one worker?
 
 Start the same CLI script more than once. Supervisor `numprocs`, several systemd units, or a Kubernetes replica count are enough. The workers do not elect a leader. Redis `SPOP` and the brokers give each delivery to one consumer. [Production deployment](/guide/deployment) shows the shape.

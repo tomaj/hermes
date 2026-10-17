@@ -9,6 +9,7 @@ This file lists the changes in 6.0 that may need work in your application, and t
 - `ramsey/uuid` `^4.7` and `tracy/tracy` `^2.10.10`. Composer resolves these unless your project pins older versions.
 - `psr/log` `^2 || ^3`. psr/log 1.x (no native types) is no longer allowed; a project that pins `psr/log` 1.x must upgrade it.
 - `ext-json` is no longer listed in `require`: it is always enabled since PHP 8.0.
+- Optional: `ext-pcntl` (listed under `suggest`) lets the worker finish its message and stop on `SIGTERM`/`SIGINT`. See [SIGTERM and SIGINT stop the worker gracefully](#sigterm-and-sigint-stop-the-worker-gracefully).
 
 ## Deploy order and rollback
 
@@ -212,6 +213,18 @@ Constructor arguments are promoted to `readonly` properties in `Message`, `Dispa
 - Code that changes these private properties through reflection or `Closure::bind()` after construction gets an `Error`.
 - PHP `serialize()` and `var_export()` list the `Message` properties in a different order. A `Message` serialized by 5.x still unserializes. `MessageSerializer` (JSON) output is unchanged.
 - `Message`, `Emitter`, `SharedFileShutdown`, `RedisShutdown` and `PredisShutdown` are declared `final readonly class` ([#83](https://github.com/tomaj/hermes/issues/83)). Setting an undeclared property on them (`$message->foo = 1`) throws `Error: Cannot create dynamic property` instead of a deprecation. Test doubles still work: PHPUnit mocks of the interfaces and `dg/bypass-finals` doubles with PHPUnit or Mockery were checked.
+
+## SIGTERM and SIGINT stop the worker gracefully
+
+With `ext-pcntl` loaded, `Dispatcher::handle()` installs handlers for `SIGTERM` and `SIGINT` while it runs ([#116](https://github.com/tomaj/hermes/issues/116)). In 5.x the signal killed the worker at once, in the middle of a message. Now the worker finishes the current message, logs `Exiting hermes dispatcher - received SIGTERM` at `notice`, and `handle()` returns, so the process exits with status 0. It is always on. `ext-pcntl` is listed under `suggest`.
+
+What to check:
+
+- Set the stop timeout longer than your slowest message: Supervisor `stopwaitsecs`, systemd `TimeoutStopSec`, Kubernetes `terminationGracePeriodSeconds`. After it the process manager sends `SIGKILL`. See [Production deployment](docs/guide/deployment.md).
+- `Ctrl+C` in a terminal now waits for the current message. A second `Ctrl+C` does not force it; use `SIGKILL` (`kill -9`).
+- If you installed your own `SIGTERM`/`SIGINT` handler, it does not run while `handle()` runs. It is restored when `handle()` returns. The same applies to framework console signal handling (Symfony `SignalableCommandInterface`, Laravel `trap()`).
+- A `sleep()` in a handler returns early when a signal arrives.
+- `pcntl_async_signals()` is switched off while `handle()` runs and restored after it.
 
 ## Priorities stay plain integers
 

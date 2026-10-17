@@ -64,7 +64,7 @@ stdout_logfile=/var/log/hermes.log
 stopwaitsecs=30
 ```
 
-Before a restart, run a one-shot `php /var/www/shutdown.php` that calls `RedisShutdown::shutdown()`, or touch the file if you use `SharedFileShutdown`. `stopwaitsecs` should be longer than one message. Supervisor then sends `SIGTERM`. Hermes does not install a `pcntl` signal handler. If the process is killed mid-handler, the message was already popped.
+`supervisorctl stop` and `restart` send `SIGTERM` (`stopsignal`, default `TERM`). With `ext-pcntl` the worker finishes the current message and exits ([Shutdown](/guide/shutdown#sigterm-and-sigint)). After `stopwaitsecs` Supervisor sends `SIGKILL`, so set it longer than your slowest message. With the Redis drivers a message killed mid-handler is lost, because it was already popped. Without `ext-pcntl`, run a one-shot `php /var/www/shutdown.php` that calls `RedisShutdown::shutdown()` (or touch the file of `SharedFileShutdown`) before the restart.
 
 ## systemd
 
@@ -80,16 +80,19 @@ WorkingDirectory=/var/www
 ExecStart=/usr/bin/php /var/www/worker.php
 Restart=always
 RestartSec=1
+# SIGTERM first; SIGKILL after TimeoutStopSec. Longer than the slowest message.
+KillSignal=SIGTERM
+TimeoutStopSec=60
 
 [Install]
 WantedBy=multi-user.target
 ```
 
-`Restart=always` covers a clean exit from max items and a clean exit from shutdown. Use a template unit (`hermes@.service`) or several services when you want separate priority filters.
+`systemctl stop` sends `SIGTERM`; with `ext-pcntl` the worker finishes the current message and exits. `TimeoutStopSec` is how long systemd waits before `SIGKILL`. The default `KillMode=control-group` sends `SIGTERM` to every process of the unit too, so a child process a handler started gets it at the same time. `Restart=always` covers a clean exit from max items and a clean exit from shutdown. Use a template unit (`hermes@.service`) or several services when you want separate priority filters.
 
 ## Kubernetes
 
-A Deployment with three replicas is three workers. `preStop` publishes the shutdown key so the old pod can finish the message it already took and then return from `handle()`. `terminationGracePeriodSeconds` has to cover that.
+A Deployment with three replicas is three workers. When a pod stops, Kubernetes runs `preStop`, then sends `SIGTERM` to the container's main process, and `SIGKILL` once `terminationGracePeriodSeconds` (default 30) has passed since the start of termination. With `ext-pcntl` the `SIGTERM` alone makes the worker finish its message and exit, so `preStop` is optional. Run PHP as the main process (`command: ["php", ...]`, or `exec` from a shell entrypoint), otherwise the signal goes to the shell and not to PHP. `terminationGracePeriodSeconds` has to cover `preStop` plus the slowest message. Without `ext-pcntl`, `preStop` publishes the shutdown key so the old pod can finish the message it already took and then return from `handle()`.
 
 ```yaml
 apiVersion: apps/v1
@@ -145,7 +148,7 @@ Any of them works. The worker is a plain CLI script that exits on shutdown or ma
 
 ### How do I deploy new code without losing messages?
 
-Run the shutdown signal as the last deploy step. Workers finish their current message, exit, and the manager starts them on the new code. See [Shutdown](/guide/shutdown).
+Let the process manager stop the workers with `SIGTERM` (needs `ext-pcntl`), or run the shutdown signal as the last deploy step. Either way workers finish their current message, exit, and the manager starts them on the new code. See [Shutdown](/guide/shutdown).
 
 ### Do workers need a health check port?
 
