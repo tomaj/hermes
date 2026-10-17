@@ -96,11 +96,11 @@ If you remove the message before the callback, document that, because the Redis 
 A handler is one class per job type, or several classes on the same type via `registerHandler()` / `registerHandlers()`.
 
 ```php
-use Tomaj\Hermes\Handler\HandlerInterface;
+use Tomaj\Hermes\Handler\RetryableHandlerInterface;
 use Tomaj\Hermes\Handler\RetryTrait;
 use Tomaj\Hermes\MessageInterface;
 
-class SendEmailHandler implements HandlerInterface
+class SendEmailHandler implements RetryableHandlerInterface
 {
     use RetryTrait;
 

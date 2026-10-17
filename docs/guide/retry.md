@@ -1,6 +1,6 @@
 ---
 title: "Retry"
-description: "How RetryTrait and the dispatcher retry a failed PHP handler, the backoff formula, and what each driver does with it."
+description: "How RetryableHandlerInterface, RetryTrait and the dispatcher retry a failed PHP handler, the backoff formula, and what each driver does with it."
 ---
 
 # Retry
@@ -9,18 +9,18 @@ A retry is a new `Message` published by `Dispatcher` after a handler throws. It 
 
 <Diagram name="retry-1" alt="A handler throws, the error is logged, and when retries remain a new message with a later executeAt is sent" />
 
-The check is only `method_exists`. `RetryTrait::canRetry()` returns `true`, but `Dispatcher` never calls it. Overriding `canRetry()` to return `false` does not turn retry off. Omit the trait, or make `maxRetry()` return `0`.
+A handler is retried when it implements `RetryableHandlerInterface`, or uses `RetryTrait` (directly, through a parent class or through another trait). When `handle()` throws, `Dispatcher` sends a retry copy only if the message has fewer than `maxRetry()` retries and `canRetry($message, $exception)` returns `true`. `canRetry()` is not called once `maxRetry()` is reached. A handler that merely has methods named `canRetry()` and `maxRetry()`, without the interface or the trait, is not retried ([#107](https://github.com/tomaj/hermes/issues/107)).
 
 Returning `false` from `handle()` does not retry. Only an exception does.
 
-## RetryTrait
+## RetryableHandlerInterface and RetryTrait
 
 ```php
-use Tomaj\Hermes\Handler\HandlerInterface;
+use Tomaj\Hermes\Handler\RetryableHandlerInterface;
 use Tomaj\Hermes\Handler\RetryTrait;
 use Tomaj\Hermes\MessageInterface;
 
-class FlakyHandler implements HandlerInterface
+class FlakyHandler implements RetryableHandlerInterface
 {
     use RetryTrait;
 
@@ -36,11 +36,25 @@ class FlakyHandler implements HandlerInterface
 }
 ```
 
-`RetryTrait::maxRetry()` returns `25` when you do not override it. `EchoHandler` uses the trait. Its `handle()` returns `true` and does not throw, so the trait does nothing until an exception escapes.
+`RetryTrait` provides both interface methods (a trait cannot declare `implements`, so the class does): `canRetry()` returns `true` and `maxRetry()` returns `25` when you do not override them. `EchoHandler` uses the trait. Its `handle()` returns `true` and does not throw, so the trait does nothing until an exception escapes.
+
+Skip retries for errors that cannot succeed later by overriding `canRetry()`:
+
+```php
+use InvalidArgumentException;
+use Throwable;
+
+public function canRetry(MessageInterface $message, Throwable $exception): bool
+{
+    return !$exception instanceof InvalidArgumentException;
+}
+```
+
+A class that uses `RetryTrait` without implementing the interface may keep a 5.x `canRetry(): bool` override without parameters. It is called too, and only a real `true` allows the retry.
 
 The new message keeps the original id, type, payload, and `created`. `retries` becomes `getRetries() + 1`. `executeAt` becomes the value below. `send()` is called **without** a priority, so Redis puts the copy on the schedule set and, once it is due, on the default priority key (`100`).
 
-`HandleTest` covers the boundary. A message that already has `retries = 5` and a handler whose `maxRetry()` is `25` is republished with `retries = 6`. The same message with `maxRetry()` of `5` is not republished, because the test is `getRetries() < maxRetry()`. A handler that does not define `canRetry` and `maxRetry` is not republished either.
+`HandleTest` covers the boundary. A message that already has `retries = 5` and a handler whose `maxRetry()` is `25` is republished with `retries = 6`. The same message with `maxRetry()` of `5` is not republished, because the test is `getRetries() < maxRetry()`. `RetryPolicyTest` covers `canRetry()`, the interface and the trait. A handler without the interface or the trait is not republished.
 
 The copy is one `send()`. On Redis and Predis that `executeAt` parks the copy in the sorted set. On RabbitMQ and SQS the publish is immediate, so the backoff number is stored and not waited on.
 
@@ -116,11 +130,11 @@ Every handler for the type is called, even after an earlier one throws. The exce
 
 ### How do I turn retries on?
 
-Add `use RetryTrait;` to the handler, or define `canRetry()` and `maxRetry()` yourself, and throw an exception when the work fails.
+Implement `RetryableHandlerInterface`, usually with `use RetryTrait;`, and throw an exception when the work fails.
 
 ### How do I turn retries off for one handler?
 
-Remove the trait, or make `maxRetry()` return `0`. Returning `false` from `canRetry()` does not help, because the dispatcher only checks that the methods exist.
+Return `false` from `canRetry()`, or make `maxRetry()` return `0`. Removing the interface and the trait also works.
 
 ### How long until the next attempt?
 

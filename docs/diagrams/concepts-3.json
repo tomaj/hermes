@@ -312,7 +312,7 @@
    "t": "text",
    "x": 1065.2478125,
    "y": 45.337500000000006,
-   "text": "canRetry and\nmaxRetry\nboth exist?",
+   "text": "retryable\nhandler?",
    "size": 18
   },
   {
@@ -326,7 +326,7 @@
    "t": "text",
    "x": 1411.8515625000002,
    "y": 56.587500000000006,
-   "text": "retries below\nmaxRetry?",
+   "text": "below maxRetry\nand canRetry()?",
    "size": 18
   },
   {

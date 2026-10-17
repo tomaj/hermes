@@ -9,8 +9,11 @@ use Exception;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Random\Randomizer;
+use Throwable;
 use Tomaj\Hermes\Driver\DriverInterface;
 use Tomaj\Hermes\Handler\HandlerInterface;
+use Tomaj\Hermes\Handler\RetryableHandlerInterface;
+use Tomaj\Hermes\Handler\RetryTrait;
 use Tomaj\Hermes\Shutdown\ShutdownException;
 use Tomaj\Hermes\Shutdown\ShutdownInterface;
 use Tracy\Debugger;
@@ -157,7 +160,7 @@ final class Dispatcher implements DispatcherInterface
                 Debugger::log($e, Debugger::EXCEPTION);
             }
 
-            $this->retryMessage($message, $handler);
+            $this->retryMessage($message, $handler, $e);
 
             $result = false;
         }
@@ -167,9 +170,17 @@ final class Dispatcher implements DispatcherInterface
     /**
      * Helper function for sending retrying message back to driver
      */
-    private function retryMessage(MessageInterface $message, HandlerInterface $handler): void
+    private function retryMessage(MessageInterface $message, HandlerInterface $handler, Throwable $exception): void
     {
-        if (!method_exists($handler, 'canRetry') || !method_exists($handler, 'maxRetry') || $message->getRetries() >= $handler->maxRetry()) {
+        if ($handler instanceof RetryableHandlerInterface) {
+            $retry = $message->getRetries() < $handler->maxRetry() && $handler->canRetry($message, $exception);
+        } elseif ($this->usesRetryTrait($handler) && method_exists($handler, 'canRetry') && method_exists($handler, 'maxRetry')) {
+            // a handler that uses RetryTrait without the interface, as in 5.x
+            $retry = $message->getRetries() < $handler->maxRetry() && $handler->canRetry($message, $exception) === true;
+        } else {
+            return;
+        }
+        if (!$retry) {
             return;
         }
 
@@ -181,6 +192,25 @@ final class Dispatcher implements DispatcherInterface
             $this->nextRetry($message),
             $message->getRetries() + 1,
         ));
+    }
+
+    /**
+     * True when the handler's class, a parent class or one of their traits uses RetryTrait.
+     */
+    private function usesRetryTrait(HandlerInterface $handler): bool
+    {
+        $pending = [];
+        for ($class = $handler::class; $class !== false; $class = get_parent_class($class)) {
+            $pending = array_merge($pending, class_uses($class));
+        }
+        while (($trait = array_pop($pending)) !== null) {
+            if ($trait === RetryTrait::class) {
+                return true;
+            }
+            $pending = array_merge($pending, class_uses($trait));
+        }
+
+        return false;
     }
 
     /**

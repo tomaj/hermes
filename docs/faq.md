@@ -27,11 +27,15 @@ RabbitMQ and SQS do not implement priority. `setupPriorityQueue()` throws `NotSu
 
 ## I returned `false` and the message disappeared
 
-The driver had already removed it. `false` does not requeue. An exception requeues only when the handler has `canRetry()` and `maxRetry()` methods and `getRetries() < maxRetry()`.
+The driver had already removed it. `false` does not requeue. An exception sends a retry copy only when the handler implements `RetryableHandlerInterface` (or uses `RetryTrait`), `getRetries() < maxRetry()` and `canRetry()` returns `true`.
 
 ## `canRetry()` returns `false` and it still retries
 
-`Dispatcher` uses `method_exists`, not the return value. Remove the trait, or return `0` from `maxRetry()`.
+Not from 6.0: `Dispatcher` calls `canRetry($message, $exception)` and skips the retry when it returns `false` ([#107](https://github.com/tomaj/hermes/issues/107)). Hermes 5.x only checked that the method existed.
+
+## My handler stopped retrying after the upgrade
+
+It defines `canRetry()` and `maxRetry()` without implementing `RetryableHandlerInterface` or using `RetryTrait`. Add `implements RetryableHandlerInterface` and give `canRetry()` the `(MessageInterface $message, Throwable $exception)` parameters. See [UPGRADE-6.0.md](https://github.com/tomaj/hermes/blob/master/UPGRADE-6.0.md).
 
 ## There is no `Dispatcher::PRIORITY_HIGH`
 

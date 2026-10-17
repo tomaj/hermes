@@ -100,7 +100,7 @@ Those lines are the only output unless you pass a logger. See [Logging](/guide/l
 
 ## A handler of your own
 
-`HandlerInterface` has one method. Return `true` when the work succeeded. Return `false` to mark that call as failed. Throw to mark it as failed and, when the handler uses `RetryTrait`, to schedule another attempt.
+`HandlerInterface` has one method. Return `true` when the work succeeded. Return `false` to mark that call as failed. Throw to mark it as failed and, when the handler is retryable (`RetryableHandlerInterface` with `RetryTrait`), to schedule another attempt.
 
 ```php
 <?php
@@ -156,7 +156,7 @@ No. `handle()` blocks until shutdown, max items, or a driver error. Run it in a 
 
 ### What should a handler return?
 
-`true` when the work succeeded and `false` when it failed for good. Throw an exception when a later attempt could succeed: with `RetryTrait` the dispatcher then sends a retry copy. See [Retry](/guide/retry).
+`true` when the work succeeded and `false` when it failed for good. Throw an exception when a later attempt could succeed: with `RetryableHandlerInterface` and `RetryTrait` the dispatcher then sends a retry copy. See [Retry](/guide/retry).
 
 ### Is there a complete project I can copy?
 

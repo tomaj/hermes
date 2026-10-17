@@ -125,6 +125,43 @@ $dispatcher = new Dispatcher($driver, $logger, null, new Randomizer(new Mt19937(
 
 If your container autowires `Dispatcher` and has a `Randomizer` service, that service is now injected. See [Retry](docs/guide/retry.md#reproducible-retry-times).
 
+## Retries follow `RetryableHandlerInterface` and `canRetry()`
+
+5.x retried a failed handler when it had methods named `canRetry()` and `maxRetry()` (`method_exists`), and never called `canRetry()`. 6.0 adds `Tomaj\Hermes\Handler\RetryableHandlerInterface` ([#107](https://github.com/tomaj/hermes/issues/107)):
+
+```php
+public function canRetry(MessageInterface $message, Throwable $exception): bool;
+
+public function maxRetry(): int;
+```
+
+A retry copy is sent when the handler implements the interface or uses `RetryTrait`, the message has fewer than `maxRetry()` retries, and `canRetry()` returns `true`.
+
+- **Handlers that use `RetryTrait`** keep retrying without changes. Adding `implements RetryableHandlerInterface` is recommended. `RetryTrait::canRetry()` now takes the message and the exception; it still returns `true`.
+- **Handlers that define `canRetry()` and `maxRetry()` without the trait** are no longer retried. Add `implements RetryableHandlerInterface` and change `canRetry()` to the signature above.
+- **A `canRetry()` that returns `false`** now really skips the retry. 5.x retried anyway; check that your overrides return what you want.
+- A trait-based handler may keep a `canRetry(): bool` override without parameters, but once the class implements the interface it needs the full signature.
+
+```php
+use InvalidArgumentException;
+use Throwable;
+use Tomaj\Hermes\Handler\RetryableHandlerInterface;
+use Tomaj\Hermes\Handler\RetryTrait;
+use Tomaj\Hermes\MessageInterface;
+
+final class SendInvoiceHandler implements RetryableHandlerInterface
+{
+    use RetryTrait;
+
+    public function handle(MessageInterface $message): bool { /* ... */ }
+
+    public function canRetry(MessageInterface $message, Throwable $exception): bool
+    {
+        return !$exception instanceof InvalidArgumentException; // a bad payload will not get better
+    }
+}
+```
+
 ## Shutdown times keep microseconds
 
 `SharedFileShutdown`, `RedisShutdown` and `PredisShutdown` used to compare whole seconds, and an equal second counted as a shutdown request. A worker that the process manager started in the same second as `hermes:restart` (or `shutdown()`) therefore stopped again at once, and Supervisor could hit `startretries` ([#115](https://github.com/tomaj/hermes/issues/115)). Now:
@@ -150,7 +187,7 @@ If you extended one of these classes, switch to the interface it implements and 
 | `Dispatcher` | `DispatcherInterface` |
 | a driver | `DriverInterface` (the traits in `src/Driver` are still available) |
 | a shutdown | `ShutdownInterface` |
-| `EchoHandler` | `HandlerInterface` (with `RetryTrait` if you need retries) |
+| `EchoHandler` | `HandlerInterface`, or `RetryableHandlerInterface` with `RetryTrait` if you need retries |
 
 For example, a driver that adds logging around `RedisSetDriver`:
 

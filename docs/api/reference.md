@@ -181,14 +181,23 @@ public function handle(MessageInterface $message): bool;
 
 The docblock allows the method to throw `\Exception`.
 
+## Tomaj\Hermes\Handler\RetryableHandlerInterface
+
+`src/Handler/RetryableHandlerInterface.php`. Extends `HandlerInterface`.
+
+| Method | Meaning |
+| --- | --- |
+| `canRetry(MessageInterface $message, Throwable $exception): bool` | Called after `handle()` threw, while `getRetries() < maxRetry()`. `false` skips the retry. |
+| `maxRetry(): int` | The most retries a message gets. `0` turns retries off. |
+
 ## Tomaj\Hermes\Handler\RetryTrait
 
-`src/Handler/RetryTrait.php`.
+`src/Handler/RetryTrait.php`. Implements the methods of `RetryableHandlerInterface`. `Dispatcher` also retries a handler that uses the trait without declaring the interface.
 
 | Method | Returns |
 | --- | --- |
-| `canRetry(): bool` | `true`. `Dispatcher` does not call this method. It only checks that the method exists. |
-| `maxRetry(): int` | `25`. `Dispatcher` calls this. A new attempt is sent when `getRetries() < maxRetry()`. |
+| `canRetry(MessageInterface $message, Throwable $exception): bool` | `true`. |
+| `maxRetry(): int` | `25`. A new attempt is sent when `getRetries() < maxRetry()`. |
 
 ## Tomaj\Hermes\Handler\EchoHandler
 

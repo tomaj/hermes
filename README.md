@@ -213,18 +213,20 @@ class SendEmailHandlerWithLogger implements HandlerInterface
 
 ## Retry
 
-If your handler fails, you can automatically retry by adding the `RetryTrait` to your handler class. Override the `maxRetry()` method to control the number of retry attempts (default is 25).
+If your handler fails, it can be retried automatically: implement `RetryableHandlerInterface` and add `RetryTrait`. Override `maxRetry()` to control the number of retry attempts (default is 25), and `canRetry($message, $exception)` to skip retries for permanent errors.
 
 **Note:** Retry functionality requires a driver that supports delayed execution (the `$executeAt` message parameter). 
 
 ```php
 declare(strict_types=1);
 
-namespace Tomaj\Hermes\Handler;
+namespace App\Handler;
 
+use Tomaj\Hermes\Handler\RetryableHandlerInterface;
+use Tomaj\Hermes\Handler\RetryTrait;
 use Tomaj\Hermes\MessageInterface;
 
-class EchoHandler implements HandlerInterface
+class FailingHandler implements RetryableHandlerInterface
 {
     use RetryTrait;
 
