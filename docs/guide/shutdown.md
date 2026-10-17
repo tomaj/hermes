@@ -17,7 +17,7 @@ $dispatcher = new Dispatcher($driver, $logger, $shutdown);
 
 The examples also call `$driver->setShutdown()` themselves. That is enough for the driver's own check. The dispatcher check after each message runs only when the dispatcher was given the object too.
 
-`ShutdownException` extends `HermesException`. `handle()` catches it, logs `Exiting hermes dispatcher - shutdown` at `notice`, and returns. Other exceptions that escape `wait()` are caught separately. When `Tracy\Debugger::isEnabled()` is true they are passed to `Debugger::log($exception, Debugger::EXCEPTION)`. Hermes does not call `Debugger::enable()` for you.
+`ShutdownException` extends `HermesException`. `handle()` catches it, logs `Exiting hermes dispatcher - shutdown` at `notice`, and returns. Any other `Exception` that escapes `wait()` is logged at `error` as `Exiting hermes dispatcher - driver error: <class> - <message>`, passed to `Debugger::log($exception, Debugger::EXCEPTION)` when `Tracy\Debugger::isEnabled()` is true, and rethrown, so the worker exits non-zero ([#113](https://github.com/tomaj/hermes/issues/113)). Hermes does not call `Debugger::enable()` for you.
 
 <Diagram name="shutdown-2" alt="Sequence: an operator sets the shutdown signal, the running worker finishes its message and exits, and the manager starts a new one" />
 

@@ -44,7 +44,7 @@ The due entries are delayed messages and retries that 5.x never delivered. Remov
 `LazyRabbitMqDriver` declares a durable queue and publishes persistent messages. The emitter and the worker both declare the queue. For a queue that 5.x created non-durable, RabbitMQ rejects the declaration with `PRECONDITION_FAILED`, in 6.0 and also in 5.x once the queue is durable:
 
 - `emit()` throws.
-- The worker exits with status 0 and logs nothing, because `Dispatcher::handle()` catches the exception and only passes it to Tracy when Tracy is enabled. Your process manager restarts it in a loop.
+- The worker logs `Exiting hermes dispatcher - driver error: ...` at `error` and exits non-zero (see [Driver errors stop the worker with an error](#driver-errors-stop-the-worker-with-an-error)). Your process manager restarts it in a loop.
 
 Pick one way:
 
@@ -204,6 +204,18 @@ All methods that implement an interface method carry `#[\Override]`, and PHPStan
 ## `setupPriorityQueue()` on RabbitMQ and SQS returns `never`
 
 `LazyRabbitMqDriver::setupPriorityQueue()` and `AmazonSqsDriver::setupPriorityQueue()` always threw `NotSupportedException`. They now declare it with the `never` return type ([#83](https://github.com/tomaj/hermes/issues/83)). Runtime behavior is the same. If your code calls the method on one of these concrete types, PHPStan reports the code after the call as unreachable. Remove the call, or call it through `DriverInterface`.
+
+## Driver errors stop the worker with an error
+
+In 5.x an `Exception` thrown by the driver (lost broker connection, `PRECONDITION_FAILED`, a body that cannot be unserialized) was caught by `Dispatcher::handle()`, passed to Tracy when Tracy was enabled, and otherwise dropped: `handle()` returned and the worker exited with status 0 without a log line ([#113](https://github.com/tomaj/hermes/issues/113)).
+
+From 6.0 `handle()` logs `Exiting hermes dispatcher - driver error: <class> - <message>` at `error` with the exception in the context, still passes it to Tracy when Tracy is enabled, and then rethrows it. An uncaught exception ends a PHP CLI script with status 255. A PHP `Error` from the driver was never caught and still escapes unchanged.
+
+What to check:
+
+- A process manager that restarts only on failure now restarts the worker after a driver error. Keep it restarting on any exit, because max items and shutdown still return normally with status 0.
+- If your bootstrap wraps `handle()` in its own `try`/`catch`, it now receives driver exceptions. Log and exit non-zero there rather than swallowing them.
+- Framework commands (Symfony, Laravel, Nette) print the exception and return a non-zero status.
 
 ## Private state is readonly
 
