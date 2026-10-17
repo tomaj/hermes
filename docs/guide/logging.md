@@ -35,8 +35,9 @@ Levels are PSR-3 strings (`Psr\Log\LogLevel`).
 | `Dispatcher` after a handler returns | `info` | `End handle message #<id> (<type>)` |
 | `Dispatcher` when a handler throws | `error` | `Handler <class> throws exception - <exception message>` |
 | `Dispatcher` on `ShutdownException` | `notice` | `Exiting hermes dispatcher - shutdown` |
+| `Dispatcher` when the driver throws, before rethrowing | `error` | `Exiting hermes dispatcher - driver error: <class> - <exception message>` |
 
-Emitter context is `id`, `created`, `type`, `payload`. Dispatcher context adds `retries` and `execute_at`. The error context also includes `error`, `message` (the array above), and `exception`.
+Emitter context is `id`, `created`, `type`, `payload`. Dispatcher context adds `retries` and `execute_at`. The handler error context also includes `error`, `message` (the array above), and `exception`. The driver error context is only `exception`.
 
 A type with no registered handler still logs the start line. It does not log the end line, because `handleMessage()` is never called.
 
@@ -79,7 +80,7 @@ class SendEmailHandler implements HandlerInterface
 `tracy/tracy` is a required dependency. Hermes writes to it only when `Debugger::isEnabled()` is already true:
 
 - the exception caught inside `handleMessage()`
-- any other `Exception` that escapes `Driver::wait()`, except `ShutdownException`
+- any other `Exception` that escapes `Driver::wait()`, except `ShutdownException`; it is then rethrown
 
 Both use `Debugger::log($exception, Debugger::EXCEPTION)`. Call `Debugger::enable()` in the worker bootstrap if you want those files. Hermes will not enable Tracy on its own.
 

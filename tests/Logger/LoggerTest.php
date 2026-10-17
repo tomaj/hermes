@@ -146,12 +146,19 @@ class LoggerTest extends TestCase
         ));
     }
 
-    public function testOtherDriverExceptionDoesNotLeaveHandle(): void
+    public function testOtherDriverExceptionIsLoggedAsErrorAndLeavesHandle(): void
     {
         $testLogger = new TestLogger();
-        new Dispatcher($this->driverThatThrows(new RuntimeException('broker down')), $testLogger)->handle();
+        try {
+            new Dispatcher($this->driverThatThrows(new RuntimeException('broker down')), $testLogger)->handle();
+            self::fail('handle() must rethrow the driver exception');
+        } catch (RuntimeException) {
+        }
 
-        self::assertSame([], $testLogger->getLogs());
+        self::assertSame([['level' => 'error', 'message' => 'Exiting hermes dispatcher - driver error: RuntimeException - broker down']], array_map(
+            static fn(array $log): array => ['level' => $log['level'], 'message' => $log['message']],
+            $testLogger->getLogs(),
+        ));
     }
 
     private function driverThatThrows(\Throwable $exception): DriverInterface

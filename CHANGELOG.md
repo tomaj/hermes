@@ -73,6 +73,7 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 * Improved JSON serialization error handling in `MessageSerializer`
 * Removed implicitly nullable parameters for better type safety
 * **BREAKING CHANGE**: `RedisSetDriver` and `PredisSetDriver` poll priority queues by priority number, highest first. They polled in reverse registration order, so the default priority 100 (registered in the constructor) always came last ([#50](https://github.com/tomaj/hermes/issues/50)). Workers that relied on the old order now process queues in a different order.
+* **BREAKING CHANGE**: an `Exception` from the driver in `Dispatcher::handle()` is now logged at `error` (`Exiting hermes dispatcher - driver error: ...`) and rethrown, so the worker exits non-zero instead of returning silently with status 0 ([#113](https://github.com/tomaj/hermes/issues/113))
 
 
 ## 4.2.0 - 2024-04-29

@@ -78,7 +78,11 @@ final class Dispatcher implements DispatcherInterface
      * Method is blocking, so when you call it all processing will stop.
      * WARNING! Don't use it on web server calls. Run it only with cli.
      *
+     * An Exception from the driver is logged at error and rethrown, so the worker exits non-zero.
+     *
      * @param int[] $priorities
+     *
+     * @throws Exception
      */
     #[\Override]
     public function handle(array $priorities = []): void
@@ -102,9 +106,16 @@ final class Dispatcher implements DispatcherInterface
         } catch (ShutdownException) {
             $this->log(LogLevel::NOTICE, 'Exiting hermes dispatcher - shutdown');
         } catch (Exception $exception) {
+            // a driver failure (lost connection, broken payload): log it and let the worker exit non-zero
+            $this->log(
+                LogLevel::ERROR,
+                'Exiting hermes dispatcher - driver error: ' . $exception::class . " - {$exception->getMessage()}",
+                ['exception' => $exception],
+            );
             if (Debugger::isEnabled()) {
                 Debugger::log($exception, Debugger::EXCEPTION);
             }
+            throw $exception;
         }
     }
 
