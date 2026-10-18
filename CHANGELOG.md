@@ -4,19 +4,13 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ## [Unreleased][unreleased]
 
+Hermes 6.0. Upgrade steps for every breaking change are in [UPGRADE-6.0.md](https://github.com/tomaj/hermes/blob/master/UPGRADE-6.0.md).
+
 ### Added
 
 * Integration tests run against Redis, RabbitMQ and moto (SQS) in CI. `HERMES_REQUIRE_SERVICES=1` turns a skipped integration test into a failure; `compose.yaml` and `composer test:integration` run them locally. The README shows Coveralls coverage ([#74](https://github.com/tomaj/hermes/issues/74))
 * `Dispatcher` takes an optional fourth argument `?Random\Randomizer $randomizer` for the retry jitter. Pass one with a seeded engine for reproducible retry times. The default `new Randomizer()` replaces the global `rand()`, so `mt_srand()` no longer makes the retry times reproducible: pass a seeded `Randomizer` instead ([#82](https://github.com/tomaj/hermes/issues/82)).
-* Enhanced PHPStan configuration with strict rules and additional type checking
-* Added `phpstan/phpstan-strict-rules` extension for improved code quality analysis
 * PHPStan also runs with bleeding edge, `phpstan/phpstan-deprecation-rules`, `phpstan/phpstan-phpunit`, `checkUninitializedProperties` and `reportUnmatchedIgnoredErrors`, without a baseline or ignored errors ([#85](https://github.com/tomaj/hermes/issues/85))
-* Improved type safety with PHP 7.4+ typed properties in core classes
-* Added comprehensive GitHub Actions workflows with PHP 7.4+ support
-* Added security audit workflow with weekly vulnerability scanning
-* Added composer validation and dependency caching in CI
-* Added local code coverage reporting with HTML and Clover XML output
-* Added GitHub Pages deployment for coverage reports
 * Infection fails below 85% MSI and 90% covered code MSI, up from 65% for both. New tests cover the logger context arrays, every `MessageSerializer` field, the exact Redis commands of `PredisSetDriver` and `RedisSetDriver`, SQS queue attributes, and an SQS receive with no messages ([#86](https://github.com/tomaj/hermes/issues/86)).
 * Rector configuration (`rector.php`) with the PHP 8.4 set and the dead code, code quality, type declaration and early return sets. `composer rector` reports changes and `composer check` runs it; `composer rector-fix` applies them. `src` and `tests` follow it ([#84](https://github.com/tomaj/hermes/issues/84)).
 * PHPUnit fails the run on notices, deprecations, PHPUnit notices, deprecations and warnings, and an empty test suite, besides risky tests and warnings. A mock without expectations, which PHPUnit reports as a notice, fails the build; use `createStub()` instead. Deprecations that one dependency triggers in another dependency are ignored, so the run with the lowest dependencies passes ([#109](https://github.com/tomaj/hermes/issues/109)).
@@ -45,6 +39,39 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 * `ramsey/uuid` now requires `^4.7`, so it installs on PHP 8.4 and 8.5. Tracy (suggested, see above) is tested with `^2.10.10`.
 * **BREAKING CHANGE**: `psr/log` now requires `^2 || ^3`; 1.x has no native types. `ext-json` is no longer listed, because PHP 8 always has it. `composer.json` fixes the `suggest` texts, drops the duplicate `cs` script, adds `composer test` and `composer check` (code style, PHPStan, tests), runs `composer phpunit` without coverage so it works without Xdebug or PCOV, sets `XDEBUG_MODE` for `composer coverage` and `composer infection` with `@putenv` so they also run on Windows, and sorts and normalizes the file ([#87](https://github.com/tomaj/hermes/issues/87)).
 * **BREAKING CHANGE**: every concrete class in `src/` is `final` (`HermesException` stays open). Extend Hermes through its interfaces; [UPGRADE-6.0.md](UPGRADE-6.0.md) shows how. Methods that implement an interface carry `#[\Override]`, and PHPStan checks for it ([#81](https://github.com/tomaj/hermes/issues/81)).
+* **BREAKING CHANGE**: `AmazonSqsDriver` deletes a message only after it was handled, not right after `receiveMessage`. A worker crash or an exception from the callback leaves the message in SQS for the visibility timeout or a dead-letter queue. Delivery is at least once, so set `VisibilityTimeout` above your slowest handler ([#69](https://github.com/tomaj/hermes/issues/69)).
+* **BREAKING CHANGE**: `ShutdownInterface::shouldShutdown()` and `shutdown()` take `DateTimeInterface` instead of `DateTime`. `Dispatcher` and `ShutdownTrait` keep the worker start time as a `DateTimeImmutable`, so a shutdown can no longer shift the dispatcher's own start time by modifying it. Callers can pass `DateTime` or `DateTimeImmutable`; custom implementations must change their parameter types ([#108](https://github.com/tomaj/hermes/issues/108)).
+
+### Removed
+
+* `.scrutinizer.yml`, `coverage.sh` and the root `Makefile`. Use `composer phpunit` and `composer coverage` instead. The Composer dist archive now contains only `src/`, the license, README, CHANGELOG, UPGRADE-6.0.md and `composer.json` ([#88](https://github.com/tomaj/hermes/issues/88)).
+* The private `AmazonSqsDriver::$sleepInterval` and the empty-queue sleep that used it. Nothing could set it, so the branch never ran; long polling (`WaitTimeSeconds`) paces the loop as before ([#110](https://github.com/tomaj/hermes/issues/110)).
+
+### Fixed
+
+* **BREAKING CHANGE**: `Dispatcher` now catches any `Throwable` thrown by a handler, not only `Exception`. A PHP `Error` (for example `TypeError`) is logged, counts as a failed message and follows the normal retry rules instead of killing the worker ([#112](https://github.com/tomaj/hermes/issues/112))
+* `SharedFileShutdown`, `RedisShutdown` and `PredisShutdown` store the shutdown time with microseconds and stop only workers that started before it. A worker started in the same second as `hermes:restart` no longer exits at once. `SharedFileShutdown` ignores a future time, like the Redis shutdowns. See UPGRADE-6.0.md ([#115](https://github.com/tomaj/hermes/issues/115)).
+* `RedisSetDriver` delivers delayed messages and retries again. Due entries are removed from the schedule sorted set with `ZREM`, and only the worker that removed an entry re-sends it. It used `SPOP`, which does not work on a sorted set, so they stayed in the schedule forever ([#95](https://github.com/tomaj/hermes/issues/95)).
+* **BREAKING CHANGE**: `RedisSetDriver` and `PredisSetDriver` poll priority queues by priority number, highest first. They polled in reverse registration order, so the default priority 100 (registered in the constructor) always came last ([#50](https://github.com/tomaj/hermes/issues/50)). Workers that relied on the old order now process queues in a different order.
+* **BREAKING CHANGE**: an `Exception` from the driver in `Dispatcher::handle()` is now logged at `error` (`Exiting hermes dispatcher - driver error: ...`) and rethrown, so the worker exits non-zero instead of returning silently with status 0 ([#113](https://github.com/tomaj/hermes/issues/113))
+
+## 5.0.0 - 2025-11-19
+
+### Added
+
+* Enhanced PHPStan configuration with strict rules and additional type checking
+* Added `phpstan/phpstan-strict-rules` extension for improved code quality analysis
+* Improved type safety with PHP 7.4+ typed properties in core classes
+* Added comprehensive GitHub Actions workflows with PHP 7.4+ support
+* Added security audit workflow with weekly vulnerability scanning
+* Added composer validation and dependency caching in CI
+* Added local code coverage reporting with HTML and Clover XML output
+* Added GitHub Pages deployment for coverage reports
+* Added `coverage.sh` helper script for generating coverage reports
+* Added Makefile with coverage target
+
+### Changed
+
 * **BREAKING CHANGE**: Updated minimum PHP version requirement to PHP 7.4+ with full PHP 8.0+ support
 * **BREAKING CHANGE**: Removed PHP 7.2 and 7.3 support from CI/CD workflows
 * Enhanced `Message` class with strict typing and improved type annotations
@@ -59,27 +86,15 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 * Removed Scrutinizer Code Coverage integration in favor of local reporting
 * Enabled Xdebug coverage mode in PHPUnit workflow for accurate coverage metrics
 * Updated test coverage check to use `johanvanhelden/gha-clover-test-coverage-check@v1`
-* **BREAKING CHANGE**: `AmazonSqsDriver` deletes a message only after it was handled, not right after `receiveMessage`. A worker crash or an exception from the callback leaves the message in SQS for the visibility timeout or a dead-letter queue. Delivery is at least once, so set `VisibilityTimeout` above your slowest handler ([#69](https://github.com/tomaj/hermes/issues/69)).
 * Coverage reports are now automatically published to GitHub Pages after successful test runs
-* **BREAKING CHANGE**: `ShutdownInterface::shouldShutdown()` and `shutdown()` take `DateTimeInterface` instead of `DateTime`. `Dispatcher` and `ShutdownTrait` keep the worker start time as a `DateTimeImmutable`, so a shutdown can no longer shift the dispatcher's own start time by modifying it. Callers can pass `DateTime` or `DateTimeImmutable`; custom implementations must change their parameter types ([#108](https://github.com/tomaj/hermes/issues/108)).
-
-### Removed
-
-* `.scrutinizer.yml`, `coverage.sh` and the root `Makefile`. Use `composer phpunit` and `composer coverage` instead. The Composer dist archive now contains only `src/`, the license, README, CHANGELOG, UPGRADE-6.0.md and `composer.json` ([#88](https://github.com/tomaj/hermes/issues/88)).
-* The private `AmazonSqsDriver::$sleepInterval` and the empty-queue sleep that used it. Nothing could set it, so the branch never ran; long polling (`WaitTimeSeconds`) paces the loop as before ([#110](https://github.com/tomaj/hermes/issues/110)).
 
 ### Fixed
 
-* **BREAKING CHANGE**: `Dispatcher` now catches any `Throwable` thrown by a handler, not only `Exception`. A PHP `Error` (for example `TypeError`) is logged, counts as a failed message and follows the normal retry rules instead of killing the worker ([#112](https://github.com/tomaj/hermes/issues/112))
-* `SharedFileShutdown`, `RedisShutdown` and `PredisShutdown` store the shutdown time with microseconds and stop only workers that started before it. A worker started in the same second as `hermes:restart` no longer exits at once. `SharedFileShutdown` ignores a future time, like the Redis shutdowns. See UPGRADE-6.0.md ([#115](https://github.com/tomaj/hermes/issues/115)).
 * Fixed strict comparison issues in `Message` constructor
 * Fixed boolean condition checks for better PHP 8+ compatibility
-* `RedisSetDriver` delivers delayed messages and retries again. Due entries are removed from the schedule sorted set with `ZREM`, and only the worker that removed an entry re-sends it. It used `SPOP`, which does not work on a sorted set, so they stayed in the schedule forever ([#95](https://github.com/tomaj/hermes/issues/95)).
 * Added proper return type hints to anonymous functions
 * Improved JSON serialization error handling in `MessageSerializer`
 * Removed implicitly nullable parameters for better type safety
-* **BREAKING CHANGE**: `RedisSetDriver` and `PredisSetDriver` poll priority queues by priority number, highest first. They polled in reverse registration order, so the default priority 100 (registered in the constructor) always came last ([#50](https://github.com/tomaj/hermes/issues/50)). Workers that relied on the old order now process queues in a different order.
-* **BREAKING CHANGE**: an `Exception` from the driver in `Dispatcher::handle()` is now logged at `error` (`Exiting hermes dispatcher - driver error: ...`) and rethrown, so the worker exits non-zero instead of returning silently with status 0 ([#113](https://github.com/tomaj/hermes/issues/113))
 
 
 ## 4.2.0 - 2024-04-29
