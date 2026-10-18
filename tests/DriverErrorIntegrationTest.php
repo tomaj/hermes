@@ -7,6 +7,7 @@ namespace Tomaj\Hermes\Test;
 use PhpAmqpLib\Connection\AMQPConnectionConfig;
 use PhpAmqpLib\Connection\AMQPConnectionFactory;
 use PhpAmqpLib\Exception\AMQPProtocolChannelException;
+use PhpAmqpLib\Wire\AMQPTable;
 use PHPUnit\Framework\TestCase;
 use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\Driver\LazyRabbitMqDriver;
@@ -28,8 +29,11 @@ class DriverErrorIntegrationTest extends TestCase
         $config->setHost($host);
         $config->setIsLazy(true);
 
-        // a 5.x style non-durable queue; the 6.0 worker declares it durable
-        AMQPConnectionFactory::create($config)->channel()->queue_declare($queue, false, false, false, false);
+        // A durable queue that someone declared with an argument the driver does not send. The driver
+        // redeclares it without arguments, so RabbitMQ answers PRECONDITION_FAILED (inequivalent arg).
+        // A 5.x style non-durable queue would show the same, but RabbitMQ 4.3 no longer lets a client
+        // create one by default (deprecated feature transient_nonexcl_queues).
+        AMQPConnectionFactory::create($config)->channel()->queue_declare($queue, false, true, false, false, false, new AMQPTable(['x-max-length' => 10]));
 
         $logger = new TestLogger();
         $dispatcher = new Dispatcher(new LazyRabbitMqDriver(AMQPConnectionFactory::create($config), $queue), $logger);
@@ -39,6 +43,7 @@ class DriverErrorIntegrationTest extends TestCase
             self::fail('handle() must rethrow the driver exception');
         } catch (AMQPProtocolChannelException $e) {
             self::assertStringContainsString('PRECONDITION_FAILED', $e->getMessage());
+            self::assertStringContainsString("inequivalent arg 'x-max-length'", $e->getMessage());
         } finally {
             AMQPConnectionFactory::create($config)->channel()->queue_delete($queue);
         }

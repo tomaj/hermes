@@ -17,7 +17,7 @@ The message format is unchanged: 5.x and 6.0 read each other's messages. On Redi
 
 RabbitMQ is the exception, because 6.0 declares the queue durable. Read the [RabbitMQ](#rabbitmq-durable-queue-and-acknowledgements) section before you deploy.
 
-To roll back to 5.x, deploy 5.x again. A 5.x `RedisSetDriver` worker stops delivering the schedule set again. A 5.x process cannot declare a durable RabbitMQ queue, so a rollback needs the same drain and delete as the upgrade. If you need a quick rollback, deploy 6.0 with `durable: false` first.
+To roll back to 5.x, deploy 5.x again. A 5.x `RedisSetDriver` worker stops delivering the schedule set again. A 5.x process cannot declare a durable RabbitMQ queue, so a rollback needs the same drain and delete as the upgrade. If you need a quick rollback, deploy 6.0 with `durable: false` first. On RabbitMQ 4.3 and newer neither 5.x nor `durable: false` works without the `deprecated_features.permit.transient_nonexcl_queues` setting (see [RabbitMQ](#rabbitmq-durable-queue-and-acknowledgements)).
 
 ## Driver behavior
 
@@ -49,13 +49,21 @@ The due entries are delayed messages and retries that 5.x never delivered. Remov
 
 Pick one way:
 
-- **No downtime:** deploy 6.0 with `durable: false` on every emitter and worker ([RabbitMQ driver](docs/guide/drivers/rabbitmq.md#upgrading-a-5x-queue)). 5.x and 6.0 then share the queue.
+- **No downtime:** deploy 6.0 with `durable: false` on every emitter and worker ([RabbitMQ driver](docs/guide/drivers/rabbitmq.md#upgrading-a-5x-queue)). 5.x and 6.0 then share the queue. This needs a broker that still allows non-durable queues (below).
 - **Durable queue:** stop the producers, let the 5.x workers empty the queue, stop them, delete the queue and deploy 6.0. `--if-empty` refuses to delete a queue that still has messages:
 
 ```bash
 rabbitmqctl list_queues -p / name durable messages
 rabbitmqctl delete_queue -p / --if-empty hermes
 ```
+
+**RabbitMQ 4.3 and newer:** the broker no longer lets clients create non-durable, non-exclusive queues by default (deprecated feature `transient_nonexcl_queues`; 4.3.6 refuses them, 4.0.5 still allowed them with a warning). The declaration fails with `INTERNAL_ERROR` and the broker closes the connection. That breaks a 5.x emitter or worker, which declares a non-durable queue, and 6.0 with `durable: false`. Non-durable queues also disappear when the broker restarts, so after the upgrade to 4.3 no old queue is left to share. Either deploy 6.0 with the default durable queue, or allow the feature again in `rabbitmq.conf` until every process runs 6.0 with durable queues:
+
+```ini
+deprecated_features.permit.transient_nonexcl_queues = true
+```
+
+The setting takes effect after a broker restart, and a restart deletes non-durable queues with their messages: drain them first.
 
 Messages are acknowledged after the dispatcher callback returns, so a crashed worker gets the message again. A body that cannot be unserialized is rejected without requeue ([#70](https://github.com/tomaj/hermes/issues/70)). To keep such messages, add a dead-letter exchange with a policy:
 

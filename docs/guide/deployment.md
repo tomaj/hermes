@@ -132,7 +132,7 @@ Readiness probes do not fit a process that never opens a port. Leave the worker 
 - Emitter and worker use the same driver, key, schedule key, and priority map.
 - `handle()` is not on the web path.
 - The process manager restarts on any exit code: max items and shutdown return normally (status 0), and a driver error is logged and rethrown (non-zero status).
-- RabbitMQ queues from this library are durable from 6.0. A queue created by 5.x is non-durable; recreate it or pass `durable: false` on emitters and workers (see [RabbitMQ](/guide/drivers/rabbitmq#upgrading-a-5-x-queue)).
+- RabbitMQ queues from this library are durable from 6.0. A queue created by 5.x is non-durable; recreate it or pass `durable: false` on emitters and workers (see [RabbitMQ](/guide/drivers/rabbitmq#upgrading-a-5-x-queue)). RabbitMQ 4.3 and newer refuse non-durable queues by default, so there only the durable queue works unless you set `deprecated_features.permit.transient_nonexcl_queues = true`.
 - SQS credentials can `createQueue`, because the driver constructor does.
 - Logs go to a PSR-3 logger. `EchoHandler` stdout is only the two lines it `echo`s.
 
