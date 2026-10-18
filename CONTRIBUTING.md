@@ -31,6 +31,13 @@ composer rector
 
 PHPUnit fails on any notice, deprecation or warning, including PHPUnit's own (for example a mock without expectations: use `createStub()`). Deprecations that one dependency raises inside another are ignored, so the lowest supported dependencies still pass.
 
+Integration tests talk to real brokers and are skipped unless their variable is set: `HERMES_TEST_REDIS` (`tcp://127.0.0.1:6379`), `HERMES_TEST_RABBITMQ` (host, port 5672, user `guest`) and `HERMES_TEST_SQS` (an SQS endpoint such as moto on `http://127.0.0.1:4566`). With `HERMES_REQUIRE_SERVICES=1` a missing or unreachable broker fails the test instead of skipping it. `compose.yaml` starts the same broker versions as CI, and `composer test:integration` sets all four variables:
+
+```bash
+docker compose up -d --wait
+composer test:integration
+```
+
 To generate an HTML and Clover coverage report (requires Xdebug or PCOV):
 
 ```bash

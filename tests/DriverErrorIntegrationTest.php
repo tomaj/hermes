@@ -22,10 +22,7 @@ class DriverErrorIntegrationTest extends TestCase
 {
     public function testRabbitMqPreconditionFailedIsLoggedAndRethrown(): void
     {
-        $host = getenv('HERMES_TEST_RABBITMQ');
-        if ($host === false || $host === '') {
-            self::markTestSkipped('Set HERMES_TEST_RABBITMQ to run the RabbitMQ integration tests.');
-        }
+        $host = IntegrationServices::get('HERMES_TEST_RABBITMQ');
         $queue = 'hermes-it-' . bin2hex(random_bytes(4));
         $config = new AMQPConnectionConfig();
         $config->setHost($host);

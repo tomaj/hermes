@@ -59,10 +59,7 @@ class HandlerErrorIntegrationTest extends TestCase
 
     public function testRabbitMqWorkerSurvivesAnErrorAndAcknowledgesTheMessage(): void
     {
-        $host = getenv('HERMES_TEST_RABBITMQ');
-        if ($host === false || $host === '') {
-            self::markTestSkipped('Set HERMES_TEST_RABBITMQ to run the RabbitMQ integration tests.');
-        }
+        $host = IntegrationServices::get('HERMES_TEST_RABBITMQ');
         $queue = 'hermes-it-' . bin2hex(random_bytes(4));
         $config = new AMQPConnectionConfig();
         $config->setHost($host);
@@ -86,10 +83,7 @@ class HandlerErrorIntegrationTest extends TestCase
 
     public function testSqsWorkerSurvivesAnErrorAndDeletesTheMessage(): void
     {
-        $endpoint = getenv('HERMES_TEST_SQS');
-        if ($endpoint === false || $endpoint === '') {
-            self::markTestSkipped('Set HERMES_TEST_SQS to run the SQS integration tests.');
-        }
+        $endpoint = IntegrationServices::get('HERMES_TEST_SQS');
         $client = new SqsClient([
             'region' => 'us-east-1',
             'version' => '2012-11-05',

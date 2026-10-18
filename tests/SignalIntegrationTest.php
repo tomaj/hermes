@@ -118,12 +118,7 @@ class SignalIntegrationTest extends TestCase
 
     private function env(string $name): string
     {
-        $value = getenv($name);
-        if ($value === false || $value === '') {
-            self::markTestSkipped("Set {$name} to run this integration test.");
-        }
-
-        return $value;
+        return IntegrationServices::get($name);
     }
 
     /**

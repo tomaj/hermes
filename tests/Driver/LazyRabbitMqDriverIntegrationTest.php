@@ -13,6 +13,7 @@ use RuntimeException;
 use Tomaj\Hermes\Driver\LazyRabbitMqDriver;
 use Tomaj\Hermes\Message;
 use Tomaj\Hermes\MessageInterface;
+use Tomaj\Hermes\Test\IntegrationServices;
 
 /**
  * Runs against a real RabbitMQ. Set HERMES_TEST_RABBITMQ to the
@@ -28,10 +29,7 @@ class LazyRabbitMqDriverIntegrationTest extends TestCase
     #[\Override]
     protected function setUp(): void
     {
-        $host = getenv('HERMES_TEST_RABBITMQ');
-        if ($host === false || $host === '') {
-            self::markTestSkipped('Set HERMES_TEST_RABBITMQ to run the RabbitMQ integration tests.');
-        }
+        $host = IntegrationServices::get('HERMES_TEST_RABBITMQ');
         $this->host = $host;
         $this->queue = 'hermes-it-' . bin2hex(random_bytes(4));
     }

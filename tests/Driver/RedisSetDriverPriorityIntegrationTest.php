@@ -11,6 +11,7 @@ use Redis;
 use Tomaj\Hermes\Driver\RedisSetDriver;
 use Tomaj\Hermes\Message;
 use Tomaj\Hermes\MessageInterface;
+use Tomaj\Hermes\Test\IntegrationServices;
 use Tomaj\Hermes\Test\Shutdown\PollBudgetShutdown;
 
 /**
@@ -28,10 +29,7 @@ class RedisSetDriverPriorityIntegrationTest extends TestCase
     #[\Override]
     protected function setUp(): void
     {
-        $url = getenv('HERMES_TEST_REDIS');
-        if (!is_string($url) || $url === '') {
-            self::markTestSkipped('Set HERMES_TEST_REDIS to run the Redis integration tests.');
-        }
+        $url = IntegrationServices::get('HERMES_TEST_REDIS');
         $parts = parse_url($url);
         $this->redis = new Redis();
         $this->redis->connect($parts['host'] ?? '127.0.0.1', $parts['port'] ?? 6379);

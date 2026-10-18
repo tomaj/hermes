@@ -11,6 +11,7 @@ use Redis;
 use Tomaj\Hermes\Shutdown\PredisShutdown;
 use Tomaj\Hermes\Shutdown\RedisShutdown;
 use Tomaj\Hermes\Shutdown\ShutdownInterface;
+use Tomaj\Hermes\Test\IntegrationServices;
 
 /**
  * A restart right after a shutdown, against a real Redis, with both clients (#115).
@@ -30,10 +31,7 @@ class RedisShutdownIntegrationTest extends TestCase
     #[\Override]
     protected function setUp(): void
     {
-        $url = getenv('HERMES_TEST_REDIS');
-        if (!is_string($url) || $url === '') {
-            self::markTestSkipped('Set HERMES_TEST_REDIS to run the Redis integration tests.');
-        }
+        $url = IntegrationServices::get('HERMES_TEST_REDIS');
         $parts = parse_url($url);
         $this->host = is_array($parts) && isset($parts['host']) ? $parts['host'] : '127.0.0.1';
         $this->port = is_array($parts) && isset($parts['port']) ? $parts['port'] : 6379;

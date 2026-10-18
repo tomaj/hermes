@@ -6,6 +6,7 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ### Added
 
+* Integration tests run against Redis, RabbitMQ and moto (SQS) in CI. `HERMES_REQUIRE_SERVICES=1` turns a skipped integration test into a failure; `compose.yaml` and `composer test:integration` run them locally. The README shows Coveralls coverage ([#74](https://github.com/tomaj/hermes/issues/74))
 * `Dispatcher` takes an optional fourth argument `?Random\Randomizer $randomizer` for the retry jitter. Pass one with a seeded engine for reproducible retry times. The default `new Randomizer()` replaces the global `rand()`, so `mt_srand()` no longer makes the retry times reproducible: pass a seeded `Randomizer` instead ([#82](https://github.com/tomaj/hermes/issues/82)).
 * Enhanced PHPStan configuration with strict rules and additional type checking
 * Added `phpstan/phpstan-strict-rules` extension for improved code quality analysis
