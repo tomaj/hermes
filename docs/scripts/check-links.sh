@@ -7,7 +7,7 @@ cd "$(dirname "$0")/.."
 port="${DOCS_LINK_PORT:-4173}"
 base="/hermes/"
 
-# Generated diagrams must match their docs/diagrams/*.mmd sources.
+# Generated diagrams must match their docs/diagrams/*.json sources.
 npm run diagrams:check
 
 python3 scripts/check-snippets.py
