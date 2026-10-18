@@ -33,6 +33,8 @@ final class LazyRabbitMqDriver implements DriverInterface
      * @param array<string, mixed> $amqpMessageProperties
      * @param bool $durable Declare a durable queue and publish persistent messages (delivery_mode 2).
      *                      Pass false to keep using a queue that was declared non-durable by Hermes 5.x.
+     *                      RabbitMQ 4.3+ refuses non-durable queues unless
+     *                      deprecated_features.permit.transient_nonexcl_queues is set.
      */
     public function __construct(
         private readonly AbstractConnection $connection,

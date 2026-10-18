@@ -68,7 +68,7 @@ With `$durable = true` the driver also publishes persistent messages (`delivery_
 
 ### Upgrading a 5.x queue
 
-Hermes 5.x declared the queue non-durable. RabbitMQ refuses to redeclare an existing queue with different flags and closes the channel with `PRECONDITION_FAILED`. The emitter and the worker both declare the queue: `emit()` throws, and the worker exits with status 0 without a log line, because `Dispatcher::handle()` catches the exception. You have two options:
+Hermes 5.x declared the queue non-durable. RabbitMQ refuses to redeclare an existing queue with different flags and closes the channel with `PRECONDITION_FAILED`. The emitter and the worker both declare the queue: `emit()` throws, and the worker logs `Exiting hermes dispatcher - driver error: ...` at `error` and exits non-zero, because `Dispatcher::handle()` rethrows driver errors. You have two options:
 
 - Stop the producers, let the workers drain the old queue, delete it (`rabbitmqctl delete_queue --if-empty hermes_queue`), and let 6.0 declare it durable. A 5.x process cannot use the durable queue, so rolling back needs the same steps.
 - Keep the old queue and opt out:
@@ -78,6 +78,14 @@ $driver = new LazyRabbitMqDriver($connection, 'hermes_queue', [], 0, 'hermes', d
 ```
 
 With `durable: false` the queue is non-durable and messages are not marked persistent, as in 5.x. Acknowledgements stay manual.
+
+**RabbitMQ 4.3 and newer:** the broker no longer lets clients create non-durable, non-exclusive queues by default (deprecated feature `transient_nonexcl_queues`; 4.3.6 refuses them, 4.0.5 still allowed them with a warning). The declaration fails with `INTERNAL_ERROR` and the broker closes the connection. That breaks a 5.x emitter or worker, which declares a non-durable queue, and Hermes with `durable: false`. Non-durable queues also disappear when the broker restarts, so after the upgrade to 4.3 no old queue is left to share. Either deploy 6.0 with the default durable queue, or allow the feature again in `rabbitmq.conf` until every process runs 6.0 with durable queues:
+
+```ini
+deprecated_features.permit.transient_nonexcl_queues = true
+```
+
+The setting takes effect after a broker restart, and a restart deletes non-durable queues with their messages: drain them first.
 
 `executeAt` is serialized and then ignored. The publish happens immediately. [Retry](/guide/retry) on this driver republishes immediately too.
 
@@ -110,7 +118,7 @@ When max items is reached, both loops break, then the driver closes the channel 
 
 ### Are messages persistent?
 
-Yes, from 6.0. The queue is durable and messages are published with `delivery_mode` 2. Pass `durable: false` to keep a 5.x non-durable queue. On 5.x the queue was non-durable ([issue #70](https://github.com/tomaj/hermes/issues/70)).
+Yes, from 6.0. The queue is durable and messages are published with `delivery_mode` 2. Pass `durable: false` to keep a 5.x non-durable queue, on a broker that still allows non-durable queues (RabbitMQ 4.3 does not by default, see [Upgrading a 5.x queue](#upgrading-a-5-x-queue)). On 5.x the queue was non-durable ([issue #70](https://github.com/tomaj/hermes/issues/70)).
 
 ### Does the driver acknowledge messages?
 
