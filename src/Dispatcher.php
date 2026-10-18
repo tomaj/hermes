@@ -115,10 +115,18 @@ final class Dispatcher implements DispatcherInterface
                 'Exiting hermes dispatcher - driver error: ' . $exception::class . " - {$exception->getMessage()}",
                 ['exception' => $exception],
             );
-            if (Debugger::isEnabled()) {
-                Debugger::log($exception, Debugger::EXCEPTION);
-            }
+            $this->reportToTracy($exception);
             throw $exception;
+        }
+    }
+
+    /**
+     * Tracy is optional (suggest): write to it only when it is installed and already enabled.
+     */
+    private function reportToTracy(Throwable $exception): void
+    {
+        if (class_exists(Debugger::class) && Debugger::isEnabled()) {
+            Debugger::log($exception, Debugger::EXCEPTION);
         }
     }
 
@@ -178,9 +186,7 @@ final class Dispatcher implements DispatcherInterface
                 'Handler ' . $handler::class . " throws exception - {$e->getMessage()}",
                 ['error' => $e, 'message' => $this->messageLoggerContext($message), 'exception' => $e],
             );
-            if (Debugger::isEnabled()) {
-                Debugger::log($e, Debugger::EXCEPTION);
-            }
+            $this->reportToTracy($e);
 
             $this->retryMessage($message, $handler, $e);
 
