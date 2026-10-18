@@ -11,6 +11,7 @@ use RuntimeException;
 use Tomaj\Hermes\Driver\AmazonSqsDriver;
 use Tomaj\Hermes\Message;
 use Tomaj\Hermes\MessageInterface;
+use Tomaj\Hermes\Test\IntegrationServices;
 
 /**
  * Runs against an SQS-compatible endpoint (LocalStack, ElasticMQ, moto). Set HERMES_TEST_SQS to the
@@ -26,10 +27,7 @@ class AmazonSqsDriverIntegrationTest extends TestCase
     #[\Override]
     protected function setUp(): void
     {
-        $endpoint = getenv('HERMES_TEST_SQS');
-        if ($endpoint === false || $endpoint === '') {
-            self::markTestSkipped('Set HERMES_TEST_SQS to run the SQS integration tests.');
-        }
+        $endpoint = IntegrationServices::get('HERMES_TEST_SQS');
         $this->client = new SqsClient([
             'region' => 'us-east-1',
             'version' => '2012-11-05',

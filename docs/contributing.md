@@ -25,13 +25,20 @@ composer phpstan
 composer rector
 ```
 
+Integration tests talk to real brokers and are skipped unless their variable is set: `HERMES_TEST_REDIS` (`tcp://127.0.0.1:6379`), `HERMES_TEST_RABBITMQ` (host, port 5672, user `guest`) and `HERMES_TEST_SQS` (an SQS endpoint such as moto on `http://127.0.0.1:4566`). With `HERMES_REQUIRE_SERVICES=1` a missing or unreachable broker fails the test instead of skipping it. `compose.yaml` starts the same broker versions as CI, and `composer test:integration` sets all four variables:
+
+```bash
+docker compose up -d --wait
+composer test:integration
+```
+
 Coverage:
 
 ```bash
 composer coverage
 ```
 
-GitHub Actions runs PHPUnit on PHP 8.4, 8.4 with the lowest dependencies, and 8.5, plus code style, PHPStan level max, `composer audit`, Infection, CodeQL, OpenSSF Scorecard, and the documentation diagram and link checks.
+GitHub Actions runs PHPUnit with Redis, RabbitMQ and moto (SQS) on PHP 8.4, 8.4 with the lowest dependencies, and 8.5, so no integration test is skipped, plus code style, Rector, PHPStan level max, `composer audit`, Infection, CodeQL, OpenSSF Scorecard, and the documentation diagram and link checks.
 
 ## Diagrams
 
@@ -63,7 +70,7 @@ Contributions are under the [MIT license](https://github.com/tomaj/hermes/blob/m
 
 ### Which checks must pass?
 
-PHPUnit, PHP-CS-Fixer, PHPStan level max, `composer audit`, Infection, and the docs diagram and link checks.
+PHPUnit (with every integration test running), PHP-CS-Fixer, PHPStan level max, Rector, `composer audit`, Infection, and the docs diagram and link checks.
 
 ### How do I change a diagram?
 

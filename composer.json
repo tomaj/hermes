@@ -86,6 +86,13 @@
         "phpunit": "phpunit --no-coverage",
         "rector": "rector --dry-run",
         "rector-fix": "rector",
-        "test": "@phpunit"
+        "test": "@phpunit",
+        "test:integration": [
+            "@putenv HERMES_TEST_REDIS=tcp://127.0.0.1:6379",
+            "@putenv HERMES_TEST_RABBITMQ=127.0.0.1",
+            "@putenv HERMES_TEST_SQS=http://127.0.0.1:4566",
+            "@putenv HERMES_REQUIRE_SERVICES=1",
+            "phpunit --no-coverage"
+        ]
     }
 }

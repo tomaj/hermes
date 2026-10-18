@@ -11,6 +11,7 @@
 [Getting started](https://tomaj.github.io/hermes/guide/getting-started) · [API reference](https://tomaj.github.io/hermes/api/reference) · [Changelog](https://tomaj.github.io/hermes/changelog)
 
 [![Latest Stable Version](https://img.shields.io/packagist/v/tomaj/hermes.svg)](https://packagist.org/packages/tomaj/hermes)
+[![Coverage Status](https://coveralls.io/repos/github/tomaj/hermes/badge.svg?branch=master)](https://coveralls.io/github/tomaj/hermes?branch=master)
 [![PHPStan](https://img.shields.io/badge/PHPStan-level%20max-brightgreen.svg)](https://phpstan.org/)
 [![Documentation](https://img.shields.io/badge/docs-5.x-4f46e5.svg)](https://tomaj.github.io/hermes/)
 

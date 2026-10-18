@@ -1,0 +1,20 @@
+# Brokers for the integration tests: docker compose up -d --wait, then composer test:integration.
+# The images match the services of the GitHub Actions workflow.
+services:
+  redis:
+    image: redis:8.8.3-alpine@sha256:0b2b77d3ea5078274795e3177cdbdada8b96316684a38911d528534ed679b5ec
+    ports: ["6379:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      retries: 30
+  rabbitmq:
+    image: rabbitmq:4.3.6-alpine@sha256:6931816af1a943f471c038b278835d36692d55dec769232739296bb91b7de0f5
+    ports: ["5672:5672"]
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      retries: 30
+  sqs:
+    image: motoserver/moto:5.2.4@sha256:120b1589c6df7e35d2092935f6ff724486bb2c4189d0e36ce795baba1400ffd2
+    ports: ["4566:5000"]

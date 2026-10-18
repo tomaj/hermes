@@ -11,6 +11,7 @@ use Predis\Connection\ConnectionException;
 use Tomaj\Hermes\Driver\PredisSetDriver;
 use Tomaj\Hermes\Message;
 use Tomaj\Hermes\MessageInterface;
+use Tomaj\Hermes\Test\IntegrationServices;
 use Tomaj\Hermes\Test\Shutdown\PollBudgetShutdown;
 
 /**
@@ -27,15 +28,12 @@ class PredisSetDriverIntegrationTest extends TestCase
     #[\Override]
     protected function setUp(): void
     {
-        $url = getenv('HERMES_TEST_REDIS');
-        if (!is_string($url) || $url === '') {
-            self::markTestSkipped('Set HERMES_TEST_REDIS to run the Predis integration tests.');
-        }
+        $url = IntegrationServices::get('HERMES_TEST_REDIS');
         $this->redis = new Client($url);
         try {
             $this->redis->ping();
         } catch (ConnectionException $e) {
-            self::markTestSkipped("Redis is not reachable at {$url}: {$e->getMessage()}");
+            IntegrationServices::unavailable("Redis is not reachable at {$url}: {$e->getMessage()}");
         }
         $this->prefix = 'hermes_test_' . bin2hex(random_bytes(4));
     }
