@@ -146,7 +146,7 @@ All four `use` `MaxItemsTrait`, `ShutdownTrait`, and `SerializerAwareTrait`.
 | Class | Extends | When |
 | --- | --- | --- |
 | `HermesException` | `\Exception` | Base type. |
-| `SerializeException` | `HermesException` | JSON encode or decode failed. |
+| `SerializeException` | `HermesException` | JSON encode or decode failed. The message never contains the serialized string, only the reason, its length and a SHA-256 prefix. |
 | `Shutdown\ShutdownException` | `HermesException` | A shutdown check asked the worker to stop. |
 | `Driver\UnknownPriorityException` | `HermesException` | `send()` or `wait()` used an integer that `setupPriorityQueue()` never stored. Message: `Unknown priority <n>`. |
 | `Driver\NotSupportedException` | `HermesException` | Priority queues on RabbitMQ or SQS. |
@@ -169,7 +169,7 @@ Both may throw `SerializeException`.
 
 `serialize()` JSON-encodes `message.id`, `message.type`, `message.created`, `message.payload`, `message.execute_at`, and `message.retries`, with `JSON_INVALID_UTF8_IGNORE`.
 
-`unserialize()` requires an array with a `message` object that has `type`, `id`, and `created`. `execute_at` is used when it is numeric. `retries` is used when it is numeric, otherwise `0`. `payload` is used when it is an array, otherwise `null`. The return value is a `Message`.
+`unserialize()` requires an array with a `message` object that has `type`, `id`, and `created`. `execute_at` is used when it is numeric. `retries` is used when it is numeric, otherwise `0`. `payload` is used when it is an array, otherwise `null`. The return value is a `Message`. Otherwise it throws `SerializeException` with the reason, the length and `substr(hash('sha256', $string), 0, 16)`: `Cannot unserialize message: invalid JSON (<error>)`, `Cannot unserialize message: no "message" key`, `Invalid message format: "message" needs type, id and created` or `Invalid message format: type and id must be strings and created a number`. Invalid JSON keeps the `JsonException` as `previous`.
 
 ## Tomaj\Hermes\Handler\HandlerInterface
 
