@@ -45,7 +45,7 @@ Priority is not one of them. An empty id becomes a UUID v4 from `ramsey/uuid`. `
 }
 ```
 
-Encoding uses `JSON_INVALID_UTF8_IGNORE`. A `false` return from `json_encode()` throws `SerializeException`. Decoding requires `message.type`, `message.id`, and `message.created`. A payload that is present but not an array becomes `null`.
+Encoding uses `JSON_INVALID_UTF8_IGNORE`. A JSON error in `json_encode()` throws `SerializeException`. Decoding requires `message.type`, `message.id`, and `message.created`. A payload that is present but not an array becomes `null`. A string that cannot be decoded throws `SerializeException`; its message gives the reason, the length and a SHA-256 prefix, never the string itself.
 
 The message does not remember which priority it was sent with. Priority exists only as the argument to `send()` / `emit()`.
 

@@ -265,6 +265,19 @@ What to check:
 - If your bootstrap wraps `handle()` in its own `try`/`catch`, it now receives driver exceptions. Log and exit non-zero there rather than swallowing them.
 - Framework commands (Symfony, Laravel, Nette) print the exception and return a non-zero status.
 
+## Serializer exceptions no longer contain the message
+
+In 5.x `MessageSerializer::unserialize()` put the whole serialized string into the exception message (`Cannot unserialize message from '<string>'`, `Invalid message format in '<string>'`), so payloads with personal data or tokens ended up in logs, Tracy and error trackers ([#71](https://github.com/tomaj/hermes/issues/71)). From 6.0 the message names the problem, the length and the first 16 hex digits of the SHA-256 of the string. For the strings `{"message":` and `{"message":{"id":"1"}}`:
+
+```text
+Cannot unserialize message: invalid JSON (Syntax error) (11 bytes, sha256 846579511e89879b)
+Invalid message format: "message" needs type, id and created (22 bytes, sha256 689d9dd54d900a86)
+```
+
+`hash('sha256', $body)` on the stored message gives the same prefix, so you can still find it in the queue or a dead-letter queue. Invalid JSON keeps the `JsonException` as `getPrevious()`, and its code (`JSON_ERROR_*`) is the exception code. `serialize()` failures append the JSON error (`Cannot serialize message <id>: Type is not supported`).
+
+What to check: log searches or alerts that match `Cannot unserialize message from` or `Invalid message format in`. Match `Cannot unserialize message` and `Invalid message format` instead. A custom serializer is not affected.
+
 ## Private state is readonly
 
 Constructor arguments are promoted to `readonly` properties in `Message`, `Dispatcher`, `Emitter`, the drivers and the shutdowns ([#78](https://github.com/tomaj/hermes/issues/78)). The public API is unchanged, but:
