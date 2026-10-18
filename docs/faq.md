@@ -75,7 +75,7 @@ You cannot, with the Redis drivers, keep the broker copy until `handle()` return
 
 ## What happens when the handler throws?
 
-`Dispatcher` catches any `Throwable` per handler, including PHP `Error`s such as `TypeError`. It logs an error. If Tracy's debugger is already enabled, it also writes the exception there. It then calls `retryMessage()`. Later handlers for the same type still run. The exception does not by itself stop the worker. See [Retry](/guide/retry).
+`Dispatcher` catches any `Throwable` per handler, including PHP `Error`s such as `TypeError`. It logs an error. If Tracy is installed and its debugger is already enabled, it also writes the exception there. It then calls `retryMessage()`. Later handlers for the same type still run. The exception does not by itself stop the worker. See [Retry](/guide/retry).
 
 ## Does a worker stop cleanly on SIGTERM or Ctrl+C?
 
@@ -115,7 +115,7 @@ There is no metrics port and no health URL. The PSR-3 lines are the built-in sig
 
 ## Should I use Tracy or a PSR-3 logger?
 
-Both, for different things. The logger is the normal trail and is injected into handlers that have `setLogger()`. Tracy receives the exception only when `Debugger::isEnabled()` is already true. Hermes never calls `Debugger::enable()`. With a null logger, the info and error lines are skipped. Tracy can still record the exception if you enabled it yourself.
+Both, for different things, and Tracy is optional (`composer require tracy/tracy`). The logger is the normal trail and is injected into handlers that have `setLogger()`. Tracy receives the exception only when `Debugger::isEnabled()` is already true. Hermes never calls `Debugger::enable()`. With a null logger, the info and error lines are skipped. Tracy can still record the exception if you enabled it yourself.
 
 ## How does this compare with Symfony Messenger or Laravel queues?
 

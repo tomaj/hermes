@@ -23,8 +23,7 @@
     "require": {
         "php": "^8.4",
         "psr/log": "^2 || ^3",
-        "ramsey/uuid": "^4.7",
-        "tracy/tracy": "^2.10.10"
+        "ramsey/uuid": "^4.7"
     },
     "require-dev": {
         "ext-redis": "*",
@@ -38,7 +37,8 @@
         "phpstan/phpstan-strict-rules": "^2.0",
         "phpunit/phpunit": "^13.2",
         "predis/predis": "^2.3 || ^3.0",
-        "rector/rector": "2.7.0"
+        "rector/rector": "2.7.0",
+        "tracy/tracy": "^2.10.10"
     },
     "suggest": {
         "ext-pcntl": "Lets the worker finish the current message and stop on SIGTERM and SIGINT",
@@ -46,7 +46,8 @@
         "aws/aws-sdk-php": "Needed for AmazonSqsDriver (Amazon SQS)",
         "monolog/monolog": "A PSR-3 logger to pass to Emitter and Dispatcher",
         "php-amqplib/php-amqplib": "Needed for LazyRabbitMqDriver (RabbitMQ)",
-        "predis/predis": "Needed for PredisSetDriver and PredisShutdown (Redis without the extension)"
+        "predis/predis": "Needed for PredisSetDriver and PredisShutdown (Redis without the extension)",
+        "tracy/tracy": "Dispatcher also writes handler and driver exceptions to Tracy when Debugger is enabled"
     },
     "minimum-stability": "stable",
     "autoload": {

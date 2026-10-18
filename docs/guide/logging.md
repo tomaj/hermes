@@ -78,7 +78,7 @@ class SendEmailHandler implements HandlerInterface
 
 ## Tracy
 
-`tracy/tracy` is a required dependency. Hermes writes to it only when `Debugger::isEnabled()` is already true:
+`tracy/tracy` is optional (`suggest`); install it with `composer require tracy/tracy`. Hermes writes to it only when it is installed and `Debugger::isEnabled()` is already true:
 
 - the exception caught inside `handleMessage()`
 - any other `Exception` that escapes `Driver::wait()`, except `ShutdownException`; it is then rethrown
@@ -101,7 +101,11 @@ Implement `setLogger()`, for example with `LoggerAwareTrait`. The dispatcher inj
 
 ### Where do handler exceptions go?
 
-They are logged at `error` with the exception in the context, and passed to Tracy when `Debugger::isEnabled()` is true.
+They are logged at `error` with the exception in the context, and passed to Tracy when Tracy is installed and `Debugger::isEnabled()` is true.
+
+### Do I need Tracy?
+
+No. It is only suggested. Without it Hermes logs through the PSR-3 logger alone.
 
 ### Why does the emitter log the word Dispatcher?
 

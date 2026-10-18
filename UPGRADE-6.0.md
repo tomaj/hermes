@@ -6,7 +6,8 @@ This file lists the changes in 6.0 that may need work in your application, and t
 
 - PHP 8.4 or newer.
 - `predis/predis` `^2.3 || ^3.0` if you use `PredisSetDriver` or `PredisShutdown`. Predis is only a suggested package, so Composer does not enforce this: upgrade it yourself.
-- `ramsey/uuid` `^4.7` and `tracy/tracy` `^2.10.10`. Composer resolves these unless your project pins older versions.
+- `ramsey/uuid` `^4.7`. Composer resolves it unless your project pins an older version.
+- `tracy/tracy` is no longer required, only suggested. If you use Tracy, require it yourself (`composer require tracy/tracy`). See [Tracy is optional](#tracy-is-optional).
 - `psr/log` `^2 || ^3`. psr/log 1.x (no native types) is no longer allowed; a project that pins `psr/log` 1.x must upgrade it.
 - `ext-json` is no longer listed in `require`: it is always enabled since PHP 8.0.
 - Optional: `ext-pcntl` (listed under `suggest`) lets the worker finish its message and stop on `SIGTERM`/`SIGINT`. See [SIGTERM and SIGINT stop the worker gracefully](#sigterm-and-sigint-stop-the-worker-gracefully).
@@ -285,6 +286,17 @@ Constructor arguments are promoted to `readonly` properties in `Message`, `Dispa
 - Code that changes these private properties through reflection or `Closure::bind()` after construction gets an `Error`.
 - PHP `serialize()` and `var_export()` list the `Message` properties in a different order. A `Message` serialized by 5.x still unserializes. `MessageSerializer` (JSON) output is unchanged.
 - `Message`, `Emitter`, `SharedFileShutdown`, `RedisShutdown` and `PredisShutdown` are declared `final readonly class` ([#83](https://github.com/tomaj/hermes/issues/83)). Setting an undeclared property on them (`$message->foo = 1`) throws `Error: Cannot create dynamic property` instead of a deprecation. Test doubles still work: PHPUnit mocks of the interfaces and `dg/bypass-finals` doubles with PHPUnit or Mockery were checked.
+
+## Tracy is optional
+
+5.x required `tracy/tracy`, although Hermes only calls `Debugger::log()` when the application has already enabled Tracy ([#72](https://github.com/tomaj/hermes/issues/72)). 6.0 lists it under `suggest`. `Dispatcher` writes handler and driver exceptions to Tracy exactly as before when Tracy is installed and `Debugger::isEnabled()` is true, and skips Tracy when it is not installed. The PSR-3 logger gets every error either way.
+
+What to check:
+
+- If your application uses Tracy (`Debugger::enable()`, `TracyToPsrLoggerAdapter`, Nette's `enableTracy()`) and does not require `tracy/tracy` itself, add it: `composer require tracy/tracy`. Otherwise `composer update` may remove it. A `nette/web-project` application already requires it.
+- Applications that never enabled Tracy need no change; Composer can remove the package.
+
+There is no 5.x deprecation for this: the Hermes API does not change, only the Composer dependency.
 
 ## SIGTERM and SIGINT stop the worker gracefully
 

@@ -75,7 +75,7 @@ When `$shutdown` is not `null` and the driver has `setShutdown()`, the construct
 | Method | Behavior |
 | --- | --- |
 | `emit(MessageInterface $message, int $priority = self::DEFAULT_PRIORITY): DispatcherInterface` | Deprecated. Sends through the driver and logs. Prefer `Emitter`. |
-| `handle(array $priorities = []): void` | Blocks in `Driver::wait`. Catches `ShutdownException` and logs a notice. Catches other `Exception`s and, if Tracy is enabled, logs them. |
+| `handle(array $priorities = []): void` | Blocks in `Driver::wait`. Catches `ShutdownException` and logs a notice. Catches other `Exception`s, logs them at `error`, writes them to Tracy when Tracy is installed and enabled, and rethrows them. |
 | `registerHandler(string $type, HandlerInterface $handler): DispatcherInterface` | Appends one handler for `$type`. |
 | `registerHandlers(string $type, array $handlers): DispatcherInterface` | Calls `registerHandler` for each. |
 | `unregisterHandler(string $type, HandlerInterface $handler): DispatcherInterface` | Drops that instance for that type. |
