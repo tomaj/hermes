@@ -12,6 +12,8 @@
 
 [![Latest Stable Version](https://img.shields.io/packagist/v/tomaj/hermes.svg)](https://packagist.org/packages/tomaj/hermes)
 [![Coverage Status](https://coveralls.io/repos/github/tomaj/hermes/badge.svg?branch=master)](https://coveralls.io/github/tomaj/hermes?branch=master)
+[![CI](https://github.com/tomaj/hermes/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/tomaj/hermes/actions/workflows/ci.yml?query=branch%3Amaster)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/tomaj/hermes/badge)](https://scorecard.dev/viewer/?uri=github.com/tomaj/hermes)
 [![PHPStan](https://img.shields.io/badge/PHPStan-level%20max-brightgreen.svg)](https://phpstan.org/)
 [![Documentation](https://img.shields.io/badge/docs-5.x-4f46e5.svg)](https://tomaj.github.io/hermes/)
 
