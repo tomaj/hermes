@@ -26,6 +26,33 @@ jobs:
           - php: '8.4'
             dependency-version: '--prefer-lowest'
 
+    services:
+      redis:
+        image: redis:8.8.3-alpine@sha256:0b2b77d3ea5078274795e3177cdbdada8b96316684a38911d528534ed679b5ec
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 30
+      rabbitmq:
+        image: rabbitmq:4.3.6-alpine@sha256:6931816af1a943f471c038b278835d36692d55dec769232739296bb91b7de0f5
+        ports: ['5672:5672']
+        options: >-
+          --health-cmd "rabbitmq-diagnostics -q ping"
+          --health-interval 5s
+          --health-timeout 10s
+          --health-retries 30
+      sqs:
+        image: motoserver/moto:5.2.4@sha256:120b1589c6df7e35d2092935f6ff724486bb2c4189d0e36ce795baba1400ffd2
+        ports: ['4566:5000']
+
+    env:
+      HERMES_TEST_REDIS: tcp://127.0.0.1:6379
+      HERMES_TEST_RABBITMQ: 127.0.0.1
+      HERMES_TEST_SQS: http://127.0.0.1:4566
+      HERMES_REQUIRE_SERVICES: '1'
+
     steps:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -50,10 +77,13 @@ jobs:
     - name: Install dependencies
       run: composer update ${{ matrix.dependency-version }} --prefer-dist --no-progress --no-interaction
 
+    - name: Wait for moto
+      run: curl --silent --show-error --fail --retry 30 --retry-delay 1 --retry-all-errors --output /dev/null http://127.0.0.1:4566/moto-api/
+
     - name: Run tests
       run: XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-clover build/logs/clover.xml --coverage-html build/coverage
 
-    - name: Require 65% statement coverage
+    - name: Require 95% statement coverage
       if: matrix.php == '8.4' && matrix.dependency-version == ''
       run: |
         php -r '
@@ -63,11 +93,20 @@ jobs:
           $covered = (int) $metrics["coveredstatements"];
           $percent = $statements === 0 ? 0 : ($covered / $statements) * 100;
           echo sprintf("Statements: %d/%d (%.2f%%)\n", $covered, $statements, $percent);
-          if ($percent < 65) {
-              fwrite(STDERR, "Statement coverage is below 65%.\n");
+          if ($percent < 95) {
+              fwrite(STDERR, "Statement coverage is below 95%.\n");
               exit(1);
           }
         '
+
+    - name: Upload coverage to Coveralls
+      if: matrix.php == '8.4' && matrix.dependency-version == ''
+      uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        file: build/logs/clover.xml
+        format: clover
+        fail-on-error: false
 
     - name: Upload coverage reports
       uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -118,6 +157,27 @@ jobs:
     - name: Run PHPStan
       run: vendor/bin/phpstan analyse --memory-limit=1G
 
+  rector:
+    name: Rector
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+      with:
+        php-version: '8.4'
+        extensions: mbstring, xml, redis
+
+    - name: Install dependencies
+      run: composer update --prefer-dist --no-progress --no-interaction
+
+    - name: Run Rector
+      run: vendor/bin/rector --dry-run --no-progress-bar
+
   security:
     name: Security Audit
     runs-on: ubuntu-latest
@@ -145,6 +205,33 @@ jobs:
     permissions:
       contents: read
 
+    services:
+      redis:
+        image: redis:8.8.3-alpine@sha256:0b2b77d3ea5078274795e3177cdbdada8b96316684a38911d528534ed679b5ec
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 30
+      rabbitmq:
+        image: rabbitmq:4.3.6-alpine@sha256:6931816af1a943f471c038b278835d36692d55dec769232739296bb91b7de0f5
+        ports: ['5672:5672']
+        options: >-
+          --health-cmd "rabbitmq-diagnostics -q ping"
+          --health-interval 5s
+          --health-timeout 10s
+          --health-retries 30
+      sqs:
+        image: motoserver/moto:5.2.4@sha256:120b1589c6df7e35d2092935f6ff724486bb2c4189d0e36ce795baba1400ffd2
+        ports: ['4566:5000']
+
+    env:
+      HERMES_TEST_REDIS: tcp://127.0.0.1:6379
+      HERMES_TEST_RABBITMQ: 127.0.0.1
+      HERMES_TEST_SQS: http://127.0.0.1:4566
+      HERMES_REQUIRE_SERVICES: '1'
+
     steps:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -158,5 +245,8 @@ jobs:
     - name: Install dependencies
       run: composer update --prefer-dist --no-progress --no-interaction
 
+    - name: Wait for moto
+      run: curl --silent --show-error --fail --retry 30 --retry-delay 1 --retry-all-errors --output /dev/null http://127.0.0.1:4566/moto-api/
+
     - name: Run Infection
-      run: XDEBUG_MODE=coverage vendor/bin/infection --min-msi=65 --min-covered-msi=65 --threads=1 --logger-github
+      run: XDEBUG_MODE=coverage vendor/bin/infection --threads=1 --logger-github
