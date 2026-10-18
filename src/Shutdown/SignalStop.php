@@ -13,7 +13,7 @@ namespace Tomaj\Hermes\Shutdown;
  * SIGKILL still ends the process at once.
  *
  * Signals belong to the process, so the flag is static. The object returned by install()
- * restores the previous handlers when it is destroyed.
+ * restores the previous handlers and clears the flag when it is destroyed.
  *
  * @internal
  */
@@ -32,6 +32,8 @@ final class SignalStop
 
     public function __destruct()
     {
+        // a signal stops only the handle() call it arrived in; drivers used afterwards run normally
+        self::$signal = null;
         foreach ($this->previous as $signal => $handler) {
             pcntl_signal($signal, $handler);
         }

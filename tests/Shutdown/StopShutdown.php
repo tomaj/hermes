@@ -9,25 +9,25 @@ use Tomaj\Hermes\Shutdown\ShutdownInterface;
 
 class StopShutdown implements ShutdownInterface
 {
-    private static ?int $eventsStop = null;
+    private ?int $eventsStop = null;
 
     #[\Override]
     public function shouldShutdown(DateTimeInterface $startTime): bool
     {
-        if (self::$eventsStop === null) {
+        if ($this->eventsStop === null) {
             return false;
         }
-        if (self::$eventsStop === 1) {
+        if ($this->eventsStop === 1) {
             return true;
         }
-        self::$eventsStop--;
+        $this->eventsStop--;
         return false;
     }
 
     #[\Override]
     public function shutdown(?DateTimeInterface $shutdownTime = null): bool
     {
-        self::$eventsStop = 1;
+        $this->eventsStop = 1;
         return true;
     }
 }

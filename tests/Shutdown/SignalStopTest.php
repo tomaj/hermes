@@ -27,12 +27,21 @@ class SignalStopTest extends TestCase
     /** @var list<array{0: string, 1: callable|int}> */
     private array $handlerSeen = [];
 
+    private bool $async = false;
+
+    #[\Override]
+    protected function setUp(): void
+    {
+        // PHPUnit itself may switch async signals on; start every test from synchronous delivery
+        $this->async = pcntl_async_signals(false);
+    }
+
     #[\Override]
     protected function tearDown(): void
     {
         pcntl_signal(SIGTERM, SIG_DFL);
         pcntl_signal(SIGINT, SIG_DFL);
-        pcntl_async_signals(false);
+        pcntl_async_signals($this->async);
     }
 
     public function testSigtermFinishesTheCurrentMessageAndStops(): void
@@ -142,7 +151,7 @@ class SignalStopTest extends TestCase
         $dispatcher = new Dispatcher($driver);
         $dispatcher->registerHandler('job', $this->handler(SIGTERM, 'a'));
         $dispatcher->handle();
-        self::assertSame(SIGTERM, SignalStop::received());
+        self::assertNull(SignalStop::received(), 'the flag ends with the handle() call it stopped');
 
         $logger = new TestLogger();
         $next = new Dispatcher($driver, $logger);
@@ -152,6 +161,23 @@ class SignalStopTest extends TestCase
         self::assertNull(SignalStop::received());
         $ends = array_filter($logger->getLogs(), static fn(array $log): bool => str_starts_with((string) $log['message'], 'End handle'));
         self::assertCount(3, $ends, 'the second run handles every message the driver delivers');
+    }
+
+    public function testADriverUsedAfterASignalledHandleDoesNotStop(): void
+    {
+        $dispatcher = new Dispatcher(new DummyDriver([new Message('job', [], 'a')]));
+        $dispatcher->registerHandler('job', $this->handler(SIGTERM));
+        $dispatcher->handle();
+
+        $driver = new class {
+            use ShutdownTrait;
+
+            public function stops(): bool
+            {
+                return $this->shouldShutdown();
+            }
+        };
+        self::assertFalse($driver->stops(), 'the signal belonged to the handle() call that already returned');
     }
 
     public function testNothingIsDispatchedAfterHandleReturns(): void

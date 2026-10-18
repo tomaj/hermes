@@ -28,6 +28,7 @@ With `ext-pcntl` loaded, `handle()` stops gracefully on `SIGTERM` and `SIGINT` (
 - `handle()` logs `Exiting hermes dispatcher - received SIGTERM` (or `SIGINT`) at `notice` and returns normally, so the process exits with status 0.
 - Signals are dispatched only at those safe points, never in the middle of your handler code. A blocking call such as `sleep()` in a handler still returns early when the signal arrives, as it does in any PHP process with a signal handler.
 - Further `SIGTERM`/`SIGINT` while the message runs change nothing. `SIGKILL` still ends the process at once, which is what process managers send after their stop timeout.
+- A signal stops only the `handle()` call it arrived in. Calling `handle()` again, or using the driver directly afterwards, runs normally.
 - The handlers and the `pcntl_async_signals()` setting that were active before `handle()` come back when it returns or throws. Framework consoles (Symfony, Laravel) that install their own signal handlers get them back after `handle()`.
 
 Without `ext-pcntl` (for example on Windows) nothing changes: a signal ends the process with its default action. A shutdown object and max items work with or without it. Set the process manager's stop timeout longer than your slowest message; see [Production deployment](/guide/deployment).

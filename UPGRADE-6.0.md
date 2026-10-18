@@ -276,6 +276,7 @@ What to check:
 - If you installed your own `SIGTERM`/`SIGINT` handler, it does not run while `handle()` runs. It is restored when `handle()` returns. The same applies to framework console signal handling (Symfony `SignalableCommandInterface`, Laravel `trap()`).
 - A `sleep()` in a handler returns early when a signal arrives.
 - `pcntl_async_signals()` is switched off while `handle()` runs and restored after it.
+- A signal stops only the `handle()` call it arrived in; a later `handle()` call, or a driver used directly afterwards in the same process, runs normally.
 
 ## Priorities stay plain integers
 
