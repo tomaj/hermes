@@ -44,7 +44,7 @@ GitHub Actions runs PHPUnit with Redis, RabbitMQ and moto (SQS) on PHP 8.4, 8.4 
 
 The hand-drawn diagrams are generated. Do not edit the SVG files by hand.
 
-- `docs/diagrams/<name>.json` is the source: a hand-placed list of shapes, text, arrows, and small icons with exact coordinates. A `docs/diagrams/<name>.mmd` source in [Mermaid](https://mermaid.js.org/) flowchart or sequence syntax also works and is laid out automatically.
+- `docs/diagrams/<name>.json` is the source: a hand-placed list of shapes, text, arrows, and small icons with exact coordinates.
 - `npm run diagrams` in `docs/` turns each source into an [Excalidraw](https://excalidraw.com/) scene (`docs/diagrams/<name>.excalidraw`) and into `docs/public/diagrams/<name>-light.svg` and `<name>-dark.svg`. The Excalifont handwriting font is embedded in each SVG.
 - A page shows a diagram with `<Diagram name="<name>" alt="What the diagram shows" />`. The light or dark file follows the site theme. The page shows it at most 420 pixels high, and a click opens it full screen.
 - The script needs Chrome or Chromium. Set `CHROME_PATH` when it is installed somewhere unusual.
@@ -56,7 +56,7 @@ npm ci
 npm run diagrams
 ```
 
-The `.excalidraw` file can be opened on excalidraw.com to look at a diagram, but changes made there are overwritten on the next run. Change the `.json` or `.mmd` source instead.
+The `.excalidraw` file can be opened on excalidraw.com to look at a diagram, but changes made there are overwritten on the next run. Change the `.json` source instead.
 
 ## Security
 
@@ -74,7 +74,7 @@ PHPUnit (with every integration test running), PHP-CS-Fixer, PHPStan level max, 
 
 ### How do I change a diagram?
 
-Edit `docs/diagrams/<name>.json` or `.mmd`, run `npm run diagrams` in `docs/`, and commit the source and the three generated files.
+Edit `docs/diagrams/<name>.json`, run `npm run diagrams` in `docs/`, and commit the source and the three generated files.
 
 ### Can I document a planned 6.x feature?
 
