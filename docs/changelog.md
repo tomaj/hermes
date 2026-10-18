@@ -5,9 +5,15 @@ description: "All notable changes to Hermes, release by release, since 2015."
 
 # Changelog
 
-Notable changes from [CHANGELOG.md](https://github.com/tomaj/hermes/blob/master/CHANGELOG.md) and the [GitHub releases](https://github.com/tomaj/hermes/releases). The 5.0.0 notes are still under the `Unreleased` heading in `CHANGELOG.md`. The [5.0.0 release](https://github.com/tomaj/hermes/releases/tag/5.0.0) publishes those same notes.
+Notable changes from [CHANGELOG.md](https://github.com/tomaj/hermes/blob/master/CHANGELOG.md) and the [GitHub releases](https://github.com/tomaj/hermes/releases). The [5.0.0 release](https://github.com/tomaj/hermes/releases/tag/5.0.0) notes are the `5.0.0` section of `CHANGELOG.md`. The `Unreleased` section collects 6.0.
 
 Upgrading from 5.x to 6.0? The steps are in [UPGRADE-6.0.md](https://github.com/tomaj/hermes/blob/master/UPGRADE-6.0.md).
+
+## 6.0.0 (unreleased)
+
+Minimum PHP is 8.4. CI runs 8.4, 8.4 with the lowest dependencies, and 8.5.
+
+Delivery is at least once on every broker: RabbitMQ acknowledges after the handler and declares a durable queue, SQS deletes after the handler, and the Redis drivers deliver delayed messages and retries again and poll priorities highest first. Retries need `RetryableHandlerInterface` or `RetryTrait`. `SIGTERM` and `SIGINT` stop the worker after the current message. Driver errors are logged and rethrown. `tracy/tracy` is only suggested, and serializer exceptions no longer contain the message. Classes are `final` and `readonly` where possible. Every breaking change and its migration step is in [UPGRADE-6.0.md](https://github.com/tomaj/hermes/blob/master/UPGRADE-6.0.md).
 
 ## 5.0.0
 
