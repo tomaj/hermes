@@ -44,4 +44,6 @@ To generate an HTML and Clover coverage report (requires Xdebug or PCOV):
 composer coverage
 ```
 
+Maintainers publish releases by pushing a version tag; see [RELEASING.md](RELEASING.md).
+
 By contributing, you agree that your contributions are licensed under the MIT License.

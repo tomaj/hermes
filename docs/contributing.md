@@ -58,6 +58,10 @@ npm run diagrams
 
 The `.excalidraw` file can be opened on excalidraw.com to look at a diagram, but changes made there are overwritten on the next run. Change the `.json` source instead.
 
+## Releases
+
+A version tag (`6.0.0`, no `v` prefix) starts the release workflow: it takes the release notes from the `CHANGELOG.md` section of that version, builds the source archives, attests their build provenance and publishes the GitHub release. The steps are in [RELEASING.md](https://github.com/tomaj/hermes/blob/master/RELEASING.md).
+
 ## Security
 
 Do not open a public issue for a vulnerability. Use [private vulnerability reporting](https://github.com/tomaj/hermes/security/advisories/new), or email [tomasmajer@gmail.com](mailto:tomasmajer@gmail.com) when that form is not available. Supported versions are listed in [SECURITY.md](https://github.com/tomaj/hermes/blob/master/SECURITY.md). 5.x is the supported line until 6.0 is released.
@@ -83,6 +87,10 @@ Not on the 5.x pages. See [Versioning docs](/guide/versioning).
 ### Which branch should a pull request come from?
 
 A feature branch, one change per pull request.
+
+### How is a release published?
+
+By pushing a version tag. The release workflow publishes the GitHub release with attested archives; see [RELEASING.md](https://github.com/tomaj/hermes/blob/master/RELEASING.md).
 
 ### Where do I preview the docs?
 
