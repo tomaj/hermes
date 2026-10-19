@@ -11,7 +11,7 @@ Security vulnerabilities are reported in private. See [SECURITY.md](SECURITY.md)
 - Follow [PER Coding Style](https://www.php-fig.org/per/coding-style/). `composer phpcs` checks `src`, `tests`, and `examples`.
 - Add tests for every behaviour change. A patch without tests will not be accepted.
 - Document behaviour changes in `README.md` and `CHANGELOG.md`.
-- Follow [Semantic Versioning](https://semver.org/). The current stable line is 5.x. Breaking changes belong in the planned 6.0 release.
+- Follow [Semantic Versioning](https://semver.org/). The current stable line is 6.x. Breaking changes wait for the next major version.
 - Open one pull request per change, from a feature branch. Do not ask us to pull from your `master` branch.
 - Keep the history coherent. Squash work-in-progress commits before submitting.
 

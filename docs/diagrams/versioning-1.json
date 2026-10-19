@@ -62,7 +62,7 @@
    "t": "text",
    "x": 56.0,
    "y": 70.5,
-   "text": "5.x pages at\nthe site root",
+   "text": "6.x pages at\nthe site root",
    "size": 18,
    "align": "left"
   },
@@ -127,7 +127,7 @@
    "t": "text",
    "x": 341.04,
    "y": 14.0,
-   "text": "copy them to\ndocs/5.x",
+   "text": "copy them to\ndocs/6.x",
    "size": 18,
    "align": "left"
   },
@@ -192,7 +192,7 @@
    "t": "text",
    "x": 624.9775,
    "y": 14.0,
-   "text": "write 6.x at the\nroot",
+   "text": "write 7.x at the\nroot",
    "size": 18,
    "align": "left"
   },

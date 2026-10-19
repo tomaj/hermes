@@ -4,7 +4,7 @@ layout: home
 hero:
   name: Hermes
   text: Background jobs for PHP
-  tagline: Emit a message from the request, and let a CLI worker run the slow part. Redis, Predis, RabbitMQ, and Amazon SQS in version 5.x.
+  tagline: Emit a message from the request, and let a CLI worker run the slow part. Redis, Predis, RabbitMQ, and Amazon SQS in version 6.x.
   image:
     src: /illustrations/hero-light.svg
     alt: A web app emits a message into a queue that a worker handles
@@ -65,7 +65,7 @@ features:
 
 ## Where to go next
 
-- [Getting started](/guide/getting-started) installs 5.x and runs one worker.
+- [Getting started](/guide/getting-started) installs 6.x and runs one worker.
 - [Examples](/examples/) are complete recipes, starting with a [welcome email tutorial](/examples/welcome-email) from an empty folder.
 - [Concepts](/guide/concepts) defines Message, Emitter, Dispatcher, Handler, and Driver.
 - [Driver comparison](/guide/drivers/) shows priority, delay, persistence, and ack side by side.

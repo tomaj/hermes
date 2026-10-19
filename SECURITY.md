@@ -6,11 +6,11 @@ Security fixes are provided for the lines below.
 
 | Version | Supported |
 | ------- | --------- |
-| 6.x     | Fully supported once 6.0 is released |
-| 5.x     | Fully supported until 6.0 is released |
-| < 5.0   | Not supported |
+| 6.x     | Yes: bug fixes and security fixes |
+| 5.x     | Security fixes only, until 2027-04-19 |
+| < 5.0   | No |
 
-5.x is the current stable line. It stays fully supported, including security fixes, until 6.0 is published. Versions older than 5.0 do not receive security updates.
+6.x is the current stable line. 5.x gets fixes for security vulnerabilities only, for six months after the 6.0.0 release (until 2027-04-19); there is no 5.x maintenance branch, so a fix is released from one created from the `5.0.0` tag. Upgrade to 6.x with [UPGRADE-6.0.md](UPGRADE-6.0.md). Versions older than 5.0 do not receive security updates.
 
 ## Reporting a Vulnerability
 

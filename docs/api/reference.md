@@ -1,11 +1,11 @@
 ---
 title: "API reference"
-description: "Every public class, interface, trait, and exception in Hermes 5.x with its signature."
+description: "Every public class, interface, trait, and exception in Hermes 6.x with its signature."
 ---
 
 # API reference
 
-Public types in `src/` for 5.x. Paths are relative to the package root. Examples elsewhere in this guide are the place for full scripts.
+Public types in `src/` for 6.x. Paths are relative to the package root. Examples elsewhere in this guide are the place for full scripts.
 
 <Diagram name="api-reference-1" alt="Message implements MessageInterface, Emitter sends through DriverInterface, and Dispatcher calls HandlerInterface" />
 

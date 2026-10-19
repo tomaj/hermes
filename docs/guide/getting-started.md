@@ -1,11 +1,11 @@
 ---
 title: "Getting started"
-description: "Install Hermes 5.x, emit a message from a web request, and run a PHP worker that handles it."
+description: "Install Hermes 6.x, emit a message from a web request, and run a PHP worker that handles it."
 ---
 
 # Getting started
 
-Hermes 5.x is a PHP library. There is no Hermes binary. A web request constructs a `Message` and passes it to `Emitter`. A separate PHP CLI process constructs a `Dispatcher`, registers handlers, and calls `handle()`, which blocks.
+Hermes 6.x is a PHP library. There is no Hermes binary. A web request constructs a `Message` and passes it to `Emitter`. A separate PHP CLI process constructs a `Dispatcher`, registers handlers, and calls `handle()`, which blocks.
 
 <Diagram name="getting-started-1" alt="Sequence: the app emits a message, the emitter sends it to the driver, and the dispatcher waits, receives it, and calls the handler" />
 

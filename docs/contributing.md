@@ -11,8 +11,8 @@ Pull requests are welcome on [tomaj/hermes](https://github.com/tomaj/hermes). [C
 
 - Follow [PER Coding Style](https://www.php-fig.org/per/coding-style/). `composer phpcs` checks `src`, `tests`, and `examples`.
 - Add tests for every behaviour change.
-- Document behaviour changes in `README.md`, `CHANGELOG.md`, and this guide. Keep examples on the signatures in `src/`. A 6.x behavior should not be written into the 5.x pages. [Versioning docs](/guide/versioning) says where a later version goes.
-- [Semantic Versioning](https://semver.org/). The current stable line is 5.x. Breaking changes belong in the planned 6.0 release.
+- Document behaviour changes in `README.md`, `CHANGELOG.md`, and this guide. Keep examples on the signatures in `src/`, and describe what that code does, not a planned later version. [Versioning docs](/guide/versioning) says where a later version goes.
+- [Semantic Versioning](https://semver.org/). The current stable line is 6.x. Breaking changes wait for the next major version.
 - One pull request per change, from a feature branch. Do not open it from `master`.
 
 ## Checks
@@ -64,7 +64,7 @@ A version tag (`6.0.0`, no `v` prefix) starts the release workflow: it takes the
 
 ## Security
 
-Do not open a public issue for a vulnerability. Use [private vulnerability reporting](https://github.com/tomaj/hermes/security/advisories/new), or email [tomasmajer@gmail.com](mailto:tomasmajer@gmail.com) when that form is not available. Supported versions are listed in [SECURITY.md](https://github.com/tomaj/hermes/blob/master/SECURITY.md). 5.x is the supported line until 6.0 is released.
+Do not open a public issue for a vulnerability. Use [private vulnerability reporting](https://github.com/tomaj/hermes/security/advisories/new), or email [tomasmajer@gmail.com](mailto:tomasmajer@gmail.com) when that form is not available. Supported versions are listed in [SECURITY.md](https://github.com/tomaj/hermes/blob/master/SECURITY.md). 6.x is the supported line; 5.x gets security fixes only, until 2027-04-19.
 
 ## License
 
@@ -80,9 +80,9 @@ PHPUnit (with every integration test running), PHP-CS-Fixer, PHPStan level max, 
 
 Edit `docs/diagrams/<name>.json`, run `npm run diagrams` in `docs/`, and commit the source and the three generated files.
 
-### Can I document a planned 6.x feature?
+### Can I document a planned feature of a later major version?
 
-Not on the 5.x pages. See [Versioning docs](/guide/versioning).
+Not on these pages: they describe the code in `src/`. See [Versioning docs](/guide/versioning).
 
 ### Which branch should a pull request come from?
 

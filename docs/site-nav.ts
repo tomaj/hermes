@@ -4,7 +4,7 @@ export interface DocsNavItem {
   items?: DocsNavItem[]
 }
 
-export const currentVersion = '5.x'
+export const currentVersion = '6.x'
 
 const coverageLink = 'https://tomaj.github.io/hermes/coverage/'
 const releasesLink = 'https://github.com/tomaj/hermes/releases'
@@ -17,7 +17,7 @@ export const navEn: DocsNavItem[] = [
   {
     text: currentVersion,
     items: [
-      { text: '5.x (latest)', link: '/' },
+      { text: '6.x (latest)', link: '/' },
       { text: 'Versioning', link: '/guide/versioning' },
     ],
   },
@@ -25,7 +25,7 @@ export const navEn: DocsNavItem[] = [
   { text: 'Releases', link: releasesLink },
 ]
 
-export const sidebar5x: DocsNavItem[] = [
+export const sidebarEn: DocsNavItem[] = [
   {
     text: 'Introduction',
     items: [

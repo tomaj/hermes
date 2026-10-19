@@ -1,26 +1,28 @@
 ---
 title: "Versioning docs"
-description: "Which Hermes version these docs describe and how 6.x and a Slovak translation will be added."
+description: "Which Hermes version these docs describe and how a later version and a Slovak translation will be added."
 ---
 
 # Versioning docs
 
-These pages describe Hermes 5.x, the current code in `src/`. They are the site root (`/hermes/` on GitHub Pages).
+These pages describe Hermes 6.x, the current code in `src/`. They are the site root (`/hermes/` on GitHub Pages).
 
-<Diagram name="versioning-1" alt="The 5.x pages at the site root are copied to docs/5.x, 6.x is written at the root, and docs/sk can be added as a locale" />
+There is no separate 5.x site. Hermes 5.0.0 was released before this site existed; its documentation is the [README at the `5.0.0` tag](https://github.com/tomaj/hermes/blob/5.0.0/README.md). [UPGRADE-6.0.md](https://github.com/tomaj/hermes/blob/master/UPGRADE-6.0.md) lists every difference from 5.x.
 
-## Adding 6.x later
+<Diagram name="versioning-1" alt="The 6.x pages at the site root are copied to docs/6.x, 7.x is written at the root, and docs/sk can be added as a locale" />
 
-Keep the published URLs for 5.x stable:
+## Adding the next major version
 
-1. Copy this English tree to `docs/5.x/` (`index.md`, `guide/`, `api/`, `faq.md`, `changelog.md`, `contributing.md`).
-2. Point the `5.x` item in `docs/site-nav.ts` at `/5.x/`.
-3. Add a `sidebar` entry for `/5.x/` in `docs/.vitepress/config.mts`.
-4. Write the 6.x pages at the site root and switch `currentVersion` to `6.x`.
+Keep the published URLs for 6.x stable:
 
-`docs/.vitepress/theme/index.ts` already treats a `/6.x/` path as the 6.x label in the nav. The version menu is the `5.x` dropdown. Add the new item beside `5.x (latest)` and `Versioning`.
+1. Copy this English tree to `docs/6.x/` (`index.md`, `guide/`, `api/`, `faq.md`, `changelog.md`, `contributing.md`).
+2. Add a `6.x` item in `docs/site-nav.ts` that points at `/6.x/`.
+3. Add a `sidebar` entry for `/6.x/` in `docs/.vitepress/config.mts`.
+4. Write the new pages at the site root and switch `currentVersion` in `docs/site-nav.ts`.
 
-Do not invent 6.x APIs on these pages. When the code changes, update the page that cites `src/` and keep the old behavior under `docs/5.x/`.
+`versionLabel()` in `docs/.vitepress/theme/index.ts` shows the version from a path such as `/6.x/` in the nav, and `currentVersion` everywhere else. The version menu is the `6.x` dropdown, with `6.x (latest)` and `Versioning`.
+
+Do not invent APIs of a later version on these pages. When the code changes, update the page that cites `src/`, and keep the old behavior in the archived tree.
 
 ## Adding Slovak later
 
@@ -28,23 +30,23 @@ English is the only locale. `defineConfig` sets `locales.root` to `en-US`. Add S
 
 1. Mirror the pages under `docs/sk/`.
 2. Add a `sk` locale in `docs/.vitepress/config.mts` with `lang: 'sk'` and `link: '/sk/'`.
-3. Export `navSk` and a Slovak sidebar from `docs/site-nav.ts`, next to `navEn` and `sidebar5x`.
+3. Export `navSk` and a Slovak sidebar from `docs/site-nav.ts`, next to `navEn` and `sidebarEn`.
 
 The theme, the diagram component, and the SVG files are shared. Translated pages can keep the same diagrams. Light and dark SVG variants do not need a Slovak copy.
 
 ## What not to duplicate
 
-The coverage report is not a VitePress page. The CI workflow uploads `coverage-report`, and `.github/workflows/docs.yml` copies it to `dist/coverage/` at deploy time. A 6.x or Slovak tree should keep linking to `https://tomaj.github.io/hermes/coverage/` rather than embedding the HTML report.
+The coverage report is not a VitePress page. The CI workflow uploads `coverage-report`, and `.github/workflows/docs.yml` copies it to `dist/coverage/` at deploy time. An archived or Slovak tree should keep linking to `https://tomaj.github.io/hermes/coverage/` rather than embedding the HTML report.
 
 ## FAQ
 
 ### Which version do these pages describe?
 
-Hermes 5.x, the code in `src/` on the default branch.
+Hermes 6.x, the code in `src/` on the default branch.
 
-### Where will 6.x documentation go?
+### Where will the next major version's documentation go?
 
-At the site root, with the 5.x pages copied to `docs/5.x/` so their URLs stay stable.
+At the site root, with the 6.x pages copied to `docs/6.x/` so their URLs stay stable. 5.x has no pages of its own: see the README at the `5.0.0` tag.
 
 ### Is there a Slovak translation?
 
