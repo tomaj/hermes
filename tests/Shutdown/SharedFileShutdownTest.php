@@ -54,10 +54,11 @@ class SharedFileShutdownTest extends TestCase
 
     public function testShouldShutdownWhenFileIsNewer(): void
     {
-        $startTime = new DateTime();
-        sleep(1); // Wait a bit to ensure file is newer
+        // touch() stores the whole second of the kernel's coarse clock, which can lag the wall clock by a
+        // few milliseconds. Taking the start time and sleeping one second failed when the start fell in
+        // the first milliseconds of a second: the touch could still land in the start's second.
+        $startTime = new DateTime('-2 seconds');
 
-        // Create file after start time
         touch($this->tempFile);
 
         $shutdown = new SharedFileShutdown($this->tempFile);
