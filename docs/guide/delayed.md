@@ -13,7 +13,7 @@ $message = new Message('send-email', [
     'to' => 'test@test.com',
     'subject' => 'Later',
     'message' => 'Hello from hermes!',
-], null, null, $executeAt);
+], executeAt: $executeAt);
 
 $emitter->emit($message);
 ```

@@ -62,7 +62,7 @@ class PredisSetDriverIntegrationTest extends TestCase
     public function testDelayedMessageIsMovedToTheQueueWhenDue(): void
     {
         $driver = $this->driver();
-        $driver->send(new Message('reminder', null, null, null, microtime(true) + 1.5));
+        $driver->send(new Message('reminder', executeAt: microtime(true) + 1.5));
 
         self::assertSame(1, $this->redis->zcard($this->prefix . '_schedule'));
         self::assertSame(0, $this->redis->scard($this->prefix));
