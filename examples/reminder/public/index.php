@@ -14,9 +14,7 @@ $remindAt = (float) (getenv('REMIND_IN') ? time() + (int) getenv('REMIND_IN') : 
 Hermes::emitter()->emit(new Message(
     'reservation.remind',
     ['reservation_id' => $reservation['id'], 'email' => $reservation['email']],
-    null,      // message id, generated
-    null,      // created, now
-    $remindAt, // executeAt: the worker will not run it before this time
+    executeAt: $remindAt, // the worker will not run it before this time; id and created are generated
 ));
 
 echo 'Reminder scheduled for ' . date('Y-m-d H:i:s', (int) $remindAt) . "\n";

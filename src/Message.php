@@ -16,6 +16,7 @@ final readonly class Message implements MessageInterface
      * Native implementation of message.
      *
      * @param array<mixed>|null $payload
+     * @param string|null $messageId null (the default) and '' both generate a UUID 4; any other string, including "0", is kept
      * @param float|null $created timestamp (microtime(true))
      * @param float|null $executeAt timestamp (microtime(true))
      */

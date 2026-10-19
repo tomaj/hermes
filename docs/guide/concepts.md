@@ -28,7 +28,7 @@ public function __construct(
 )
 ```
 
-Priority is not one of them. An empty id becomes a UUID v4 from `ramsey/uuid`. `created` defaults to `microtime(true)`. `executeAt` stays `null` unless you pass a timestamp. `retries` starts at `0`.
+Priority is not one of them. A `null` id (the default) and an empty string `''` both become a UUID v4 from `ramsey/uuid`. Any other string, including `"0"`, is kept as the id. `created` defaults to `microtime(true)`. `executeAt` stays `null` unless you pass a timestamp. `retries` starts at `0`.
 
 `getPayload()` is `array|null`. The payload has to survive JSON. Do not put resources, sockets, or a live database connection in it. `MessageSerializer` stores this shape:
 

@@ -26,7 +26,7 @@ public function __construct(
 
 | Method | Returns |
 | --- | --- |
-| `getId()` | `string`. UUID v4 when the constructor id was `null` or `''`. |
+| `getId()` | `string`. UUID v4 when the constructor id was `null` (the default) or `''`; any other string, including `"0"`, is returned as given. |
 | `getCreated()` | `float`. `microtime(true)` when omitted. |
 | `getExecuteAt()` | `float\|null` |
 | `getType()` | `string` |
