@@ -5,11 +5,11 @@ description: "All notable changes to Hermes, release by release, since 2015."
 
 # Changelog
 
-Notable changes from [CHANGELOG.md](https://github.com/tomaj/hermes/blob/master/CHANGELOG.md) and the [GitHub releases](https://github.com/tomaj/hermes/releases). The [5.0.0 release](https://github.com/tomaj/hermes/releases/tag/5.0.0) notes are the `5.0.0` section of `CHANGELOG.md`. The `Unreleased` section collects 6.0.
+Notable changes from [CHANGELOG.md](https://github.com/tomaj/hermes/blob/master/CHANGELOG.md) and the [GitHub releases](https://github.com/tomaj/hermes/releases). The [5.0.0 release](https://github.com/tomaj/hermes/releases/tag/5.0.0) notes are the `5.0.0` section of `CHANGELOG.md`. The 6.0.0 release notes are the `6.0.0` section.
 
 Upgrading from 5.x to 6.0? The steps are in [UPGRADE-6.0.md](https://github.com/tomaj/hermes/blob/master/UPGRADE-6.0.md).
 
-## 6.0.0 (unreleased)
+## 6.0.0
 
 Minimum PHP is 8.4. CI runs 8.4, 8.4 with the lowest dependencies, and 8.5.
 

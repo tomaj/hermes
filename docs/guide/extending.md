@@ -1,6 +1,6 @@
 ---
 title: "Extending Hermes"
-description: "Write your own Hermes driver, handler, serializer, or shutdown signal against the 5.x interfaces."
+description: "Write your own Hermes driver, handler, serializer, or shutdown signal against the 6.x interfaces."
 ---
 
 # Extending Hermes

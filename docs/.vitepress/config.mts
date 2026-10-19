@@ -1,5 +1,5 @@
 import { defineConfig } from 'vitepress'
-import { navEn, sidebar5x } from '../site-nav'
+import { navEn, sidebarEn } from '../site-nav'
 import { seoHead, siteUrl } from './seo'
 
 const descriptionEn = 'PHP library for background jobs on Redis, RabbitMQ, and Amazon SQS'
@@ -45,7 +45,7 @@ export default defineConfig({
     nav: navEn,
 
     sidebar: {
-      '/': sidebar5x,
+      '/': sidebarEn,
     },
 
     socialLinks: [

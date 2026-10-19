@@ -4,7 +4,9 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ## [Unreleased][unreleased]
 
-Hermes 6.0. Upgrade steps for every breaking change are in [UPGRADE-6.0.md](https://github.com/tomaj/hermes/blob/master/UPGRADE-6.0.md).
+## 6.0.0 - 2026-10-19
+
+Hermes 6.0. Upgrade steps for every breaking change are in [UPGRADE-6.0.md](UPGRADE-6.0.md).
 
 ### Added
 
@@ -230,3 +232,5 @@ Hermes 6.0. Upgrade steps for every breaking change are in [UPGRADE-6.0.md](http
 ### Added
 
 * initial version with 2 drivers
+
+[unreleased]: https://github.com/tomaj/hermes/compare/6.0.0...HEAD

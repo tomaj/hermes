@@ -109,4 +109,4 @@ No. It is only suggested. Without it Hermes logs through the PSR-3 logger alone.
 
 ### Why does the emitter log the word Dispatcher?
 
-That is the exact string `Emitter::emit()` writes in 5.x. Search your logs for it as it is.
+It does not from 6.0: `Emitter::emit()` logs `Emitter send message #<id> to driver <class>`. 5.x wrote `Dispatcher send message …`, so update log searches and alerts that match the old text. Only the deprecated `Dispatcher::emit()` keeps it.

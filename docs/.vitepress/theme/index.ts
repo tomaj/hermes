@@ -9,19 +9,18 @@ import AuthorsPage from './AuthorsPage.vue'
 import ProjectSource from './ProjectSource.vue'
 import LinkCards from './LinkCards.vue'
 import './custom.css'
+import { currentVersion } from '../../site-nav'
 
+// An archived tree such as docs/6.x/ shows its own version; everything else is the current one.
 function versionLabel(path: string): string {
-  if (path.includes('/6.x/')) {
-    return '6.x'
-  }
-  return '5.x'
+  return path.match(/\/(\d+\.x)\//)?.[1] ?? currentVersion
 }
 
 function showVersion(path: string): void {
   const label = versionLabel(path)
   document.querySelectorAll('.VPNavBarMenu .text, .VPNavBarExtra .text').forEach((node) => {
     const text = node.textContent?.trim()
-    if (text === '5.x' || text === '6.x') {
+    if (text !== undefined && /^\d+\.x$/.test(text)) {
       node.textContent = label
     }
   })
