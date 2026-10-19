@@ -1,0 +1,65 @@
+name: Release
+
+# Pushing a version tag (6.0.0, no "v" prefix) publishes a GitHub release with the
+# CHANGELOG.md section as notes and a source archive with build provenance attestations.
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+-*'
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: Publish release
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write      # create the release
+      id-token: write      # sign the attestation (Sigstore)
+      attestations: write  # store the attestation
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Release notes from CHANGELOG.md
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: .github/scripts/release-notes.sh "$VERSION" > "$RUNNER_TEMP/notes.md"
+
+      - name: Build the source archives
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: |
+          mkdir dist
+          # git archive honours export-ignore in .gitattributes, like the Composer dist archive
+          git archive --format=tar.gz --prefix="hermes-$VERSION/" -o "dist/hermes-$VERSION.tar.gz" "$GITHUB_SHA"
+          git archive --format=zip --prefix="hermes-$VERSION/" -o "dist/hermes-$VERSION.zip" "$GITHUB_SHA"
+          (cd dist && sha256sum -- * > SHA256SUMS)
+          cat dist/SHA256SUMS
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: |
+            dist/hermes-*.tar.gz
+            dist/hermes-*.zip
+
+      - name: Create the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ github.ref_name }}
+        run: |
+          prerelease=()
+          if [[ "$VERSION" == *-* ]]; then prerelease=(--prerelease); fi
+          gh release create "$VERSION" dist/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --verify-tag \
+            --title "$VERSION" \
+            --notes-file "$RUNNER_TEMP/notes.md" \
+            "${prerelease[@]}"
