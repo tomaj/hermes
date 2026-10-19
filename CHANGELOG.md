@@ -17,6 +17,7 @@ Hermes 6.0. Upgrade steps for every breaking change are in [UPGRADE-6.0.md](UPGR
 * Rector configuration (`rector.php`) with the PHP 8.4 set and the dead code, code quality, type declaration and early return sets. `composer rector` reports changes and `composer check` runs it; `composer rector-fix` applies them. `src` and `tests` follow it ([#84](https://github.com/tomaj/hermes/issues/84)).
 * PHPUnit fails the run on notices, deprecations, PHPUnit notices, deprecations and warnings, and an empty test suite, besides risky tests and warnings. A mock without expectations, which PHPUnit reports as a notice, fails the build; use `createStub()` instead. Deprecations that one dependency triggers in another dependency are ignored, so the run with the lowest dependencies passes ([#109](https://github.com/tomaj/hermes/issues/109)).
 * With `ext-pcntl`, `Dispatcher::handle()` stops gracefully on `SIGTERM` and `SIGINT`: it finishes the current message, logs `Exiting hermes dispatcher - received SIGTERM` and returns. The signal stops only that `handle()` call. `ext-pcntl` is suggested in `composer.json` ([#116](https://github.com/tomaj/hermes/issues/116))
+* CI runs the `e2e.sh` of every recipe in `examples/` and of the Laravel, Symfony and Nette integrations against the code of each pull request. `examples/ci/` holds the scripts; they install Hermes from the checkout through a Composer path repository ([#96](https://github.com/tomaj/hermes/issues/96)).
 
 ### Changed
 
