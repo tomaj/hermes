@@ -21,9 +21,13 @@ Start with the tutorial. It explains every step, and the other recipes build on 
 
 Every recipe requires `tomaj/hermes:dev-master`, the upcoming 6.0, and PHP 8.4 or newer. The code was run against Redis 8, RabbitMQ 4, and Mailpit.
 
-Each recipe is a runnable project in [`examples/`](https://github.com/tomaj/hermes/tree/master/examples) with a `Makefile` and an `e2e.sh` that checks the whole flow. The code on these pages is imported from those files at build time, so it is the code that the checks run.
+Each recipe is a runnable project in [`examples/`](https://github.com/tomaj/hermes/tree/master/examples) with a `Makefile` and an `e2e.sh` that checks the whole flow. The code on these pages is imported from those files at build time, so it is the code that the checks run. CI runs every `e2e.sh`, and the framework integrations, against the code of each pull request.
 
 ## FAQ
+
+### Are the examples tested?
+
+Yes. The `Examples` workflow runs each recipe's `e2e.sh` with Redis, RabbitMQ and Mailpit, and the [framework integrations](/frameworks/) in fresh Laravel, Symfony and Nette projects with all four drivers. It installs Hermes from the pull request through a Composer path repository, so a change that breaks a recipe fails the pull request. [`examples/README.md`](https://github.com/tomaj/hermes/blob/master/examples/README.md#running-the-checks-against-this-checkout) shows how to run the same scripts locally.
 
 ### Do the examples use the released package?
 
