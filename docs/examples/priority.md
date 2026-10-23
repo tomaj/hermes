@@ -60,7 +60,7 @@ It handles the password reset and leaves the other four in Redis for a normal wo
 - **No order inside one priority.** The three newsletters come out in random order, because a Redis set has none.
 - **Retries go to the default priority.** The dispatcher sends a retry copy without a priority, so a failed password reset is retried at 100, behind receipts.
 - **Low priority can wait forever.** While high messages keep arriving, a worker that reads all queues never reaches the low ones. Add a worker for low work if newsletters must go out.
-- **Only the Redis drivers have priorities.** On RabbitMQ, SQS and Kafka, `setupPriorityQueue()` throws `NotSupportedException`. Use separate queues and workers there.
+- **Priorities are on the Redis drivers and `FileSystemDriver`.** On RabbitMQ, SQS and Kafka, `setupPriorityQueue()` throws `NotSupportedException`. Use separate queues and workers there.
 
 ## Full source
 

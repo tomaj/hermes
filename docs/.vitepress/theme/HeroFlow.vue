@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { withBase } from 'vitepress'
+import { useStrings } from './i18n'
+
+const t = useStrings()
 </script>
 
 <template>
   <figure class="hero-sketch" role="img"
-    aria-label="A web app on a web server emits a message into a queue and answers the user at once. A background worker, in its own process, takes the message from the queue and does the slow work.">
+    :aria-label="t.heroAria">
     <img class="hero-sketch-art hero-sketch-light" :src="withBase('/diagrams/home-hero-light.svg')" alt="" width="700" height="400">
     <img class="hero-sketch-art hero-sketch-dark" :src="withBase('/diagrams/home-hero-dark.svg')" alt="" width="700" height="400">
     <!-- Moving parts. Same 700x400 coordinates as the drawing underneath. -->
@@ -18,17 +21,17 @@ import { withBase } from 'vitepress'
       </g>
       <g class="hs-toast">
         <rect x="190" y="166" width="82" height="32" rx="8" />
-        <text x="231" y="188">queued ✓</text>
+        <text x="231" y="188">{{ t.heroToast }}</text>
       </g>
       <g class="hs-envelope">
         <rect x="-16" y="-11" width="32" height="22" rx="3" />
         <path d="M-16 -9 L0 3 L16 -9" />
       </g>
       <g class="hs-log">
-        <text class="l1" x="512" y="262">← invoice #42</text>
-        <text class="l2" x="512" y="286">rendering PDF…</text>
-        <text class="l3" x="512" y="310">sending email…</text>
-        <text class="l4" x="512" y="334">✓ done in 1.4 s</text>
+        <text class="l1" x="512" y="262">{{ t.heroLog[0] }}</text>
+        <text class="l2" x="512" y="286">{{ t.heroLog[1] }}</text>
+        <text class="l3" x="512" y="310">{{ t.heroLog[2] }}</text>
+        <text class="l4" x="512" y="334">{{ t.heroLog[3] }}</text>
       </g>
     </svg>
   </figure>

@@ -1,27 +1,19 @@
 <script setup lang="ts">
 import { withBase } from 'vitepress'
 
-const cases = [
-  { icon: 'email', title: 'Send emails', text: 'Signup, password reset, or order mails go out from the worker. The request returns before the SMTP server even answers.' },
-  { icon: 'invoice', title: 'Invoices and PDFs', text: 'Render the PDF, store it, and attach it to an email in the background. The user clicks once and moves on.' },
-  { icon: 'thumbnails', title: 'Images and video', text: 'Resize uploads, cut thumbnails, or start a transcode. Heavy CPU work stays off the web servers.' },
-  { icon: 'data', title: 'Data processing', text: 'Recalculate stats, aggregate reports, or clean up records in small messages that several workers share.' },
-  { icon: 'csv', title: 'Imports and exports', text: 'Parse a large CSV or build an export file row by row. Tell the user when it is ready instead of making them wait.' },
-  { icon: 'webhooks', title: 'Webhooks', text: 'Deliver outgoing webhooks from a worker. RetryTrait tries again with a growing delay when the receiver is down.' },
-  { icon: 'sync', title: 'Third-party APIs', text: 'Sync orders to an ERP, push contacts to a CRM, or call a slow payment API without holding a PHP-FPM process.' },
-  { icon: 'notify', title: 'Notifications', text: 'Fan out push, SMS, or in-app notifications to many users from one emitted message.' },
-  { icon: 'search', title: 'Search indexing', text: 'Update Elasticsearch, Meilisearch, or a search table after a save, so the write itself stays fast.' },
-  { icon: 'cache', title: 'Cache warming', text: 'Rebuild expensive cache entries after a deploy or a content change, before the next visitor asks for them.' },
-  { icon: 'reminder', title: 'Delayed jobs', text: 'Send a reminder in 24 hours or expire a reservation in 15 minutes with executeAt on Redis or Predis.' },
-  { icon: 'jobs', title: 'Any slow task', text: 'If it does not have to finish before the response, emit a message and let a handler do it.' },
-]
+import { computed } from 'vue'
+import { useStrings } from './i18n'
+
+const icons = ['email', 'invoice', 'thumbnails', 'data', 'csv', 'webhooks', 'sync', 'notify', 'search', 'cache', 'reminder', 'jobs']
+const t = useStrings()
+const cases = computed(() => icons.map((icon) => ({ icon, title: t.value.useCases[icon][0], text: t.value.useCases[icon][1] })))
 </script>
 
 <template>
   <section class="use-cases" aria-labelledby="use-cases-title">
     <div class="container">
-      <h2 id="use-cases-title">What people use it for</h2>
-      <p class="lead">The web request emits a message and answers right away. A worker does the slow part.</p>
+      <h2 id="use-cases-title">{{ t.useCasesTitle }}</h2>
+      <p class="lead">{{ t.useCasesLead }}</p>
       <ul class="grid">
         <li v-for="c in cases" :key="c.icon" class="card">
           <span class="icon">

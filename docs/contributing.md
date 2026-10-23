@@ -11,7 +11,7 @@ Pull requests are welcome on [tomaj/hermes](https://github.com/tomaj/hermes). [C
 
 - Follow [PER Coding Style](https://www.php-fig.org/per/coding-style/). `composer phpcs` checks `src`, `tests`, and `examples`.
 - Add tests for every behaviour change.
-- Document behaviour changes in `README.md`, `CHANGELOG.md`, and this guide. Keep examples on the signatures in `src/`, and describe what that code does, not a planned later version. [Versioning docs](/guide/versioning) says where a later version goes.
+- Document behaviour changes in `README.md`, `CHANGELOG.md`, and this guide (in English and in Slovak under `docs/sk/`). Keep examples on the signatures in `src/`, and describe what that code does, not a planned later version. [Versioning docs](/guide/versioning) says where a later version goes.
 - [Semantic Versioning](https://semver.org/). The current stable line is 6.x. Breaking changes wait for the next major version.
 - One pull request per change, from a feature branch. Do not open it from `master`.
 
@@ -25,7 +25,7 @@ composer phpstan
 composer rector
 ```
 
-Integration tests talk to real brokers and are skipped unless their variable is set: `HERMES_TEST_REDIS` (`tcp://127.0.0.1:6379`), `HERMES_TEST_RABBITMQ` (host, port 5672, user `guest`) and `HERMES_TEST_SQS` (an SQS endpoint such as moto on `http://127.0.0.1:4566`). With `HERMES_REQUIRE_SERVICES=1` a missing or unreachable broker fails the test instead of skipping it. `compose.yaml` starts the same broker versions as CI, and `composer test:integration` sets all four variables:
+Integration tests talk to real brokers and are skipped unless their variable is set: `HERMES_TEST_REDIS` (`tcp://127.0.0.1:6379`), `HERMES_TEST_RABBITMQ` (host, port 5672, user `guest`), `HERMES_TEST_SQS` (an SQS endpoint such as moto on `http://127.0.0.1:4566`) and `HERMES_TEST_KAFKA` (bootstrap servers, `127.0.0.1:9092`; the Kafka tests also need `ext-rdkafka`). With `HERMES_REQUIRE_SERVICES=1` a missing or unreachable broker fails the test instead of skipping it. `compose.yaml` starts the same broker versions as CI, and `composer test:integration` sets all five variables:
 
 ```bash
 docker compose up -d --wait

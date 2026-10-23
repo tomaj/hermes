@@ -273,7 +273,7 @@
    "t": "text",
    "x": 430.00124999999997,
    "y": 127.0,
-   "text": "add docs/sk as a locale\nwhen a translation exists",
+   "text": "docs/sk mirrors the root\nand each archive",
    "size": 18,
    "align": "left"
   },

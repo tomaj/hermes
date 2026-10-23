@@ -1,19 +1,21 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useStrings } from './i18n'
 
 interface Row { label: string, cells: string[] }
 
 const props = defineProps<{ columns: string[], rows: Row[], corner?: string }>()
 
-const marks: Record<string, { cls: string, name: string }> = {
-  '✓': { cls: 'yes', name: 'Yes' },
-  '✗': { cls: 'no', name: 'No' },
-  '~': { cls: 'partly', name: 'Partly' },
-}
+const t = useStrings()
+const marks = computed<Record<string, { cls: string, name: string }>>(() => ({
+  '✓': { cls: 'yes', name: t.value.yes },
+  '✗': { cls: 'no', name: t.value.no },
+  '~': { cls: 'partly', name: t.value.partly },
+}))
 
 function split(cell: string) {
-  const mark = Object.keys(marks).find((m) => cell.startsWith(m + ' ') || cell === m)
-  return mark ? { mark, ...marks[mark], text: cell.slice(mark.length).trim() } : { mark: '', cls: '', name: '', text: cell }
+  const mark = Object.keys(marks.value).find((m) => cell.startsWith(m + ' ') || cell === m)
+  return mark ? { mark, ...marks.value[mark], text: cell.slice(mark.length).trim() } : { mark: '', cls: '', name: '', text: cell }
 }
 
 const table = computed(() => props.rows.map((row) => ({ label: row.label, cells: row.cells.map(split) })))

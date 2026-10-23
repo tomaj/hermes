@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { withBase } from 'vitepress'
 import data from '../../data/authors.json'
+import { useStrings } from './i18n'
+
+const t = useStrings()
 
 const m = data.maintainer
 const others = data.contributors.filter((c) => c.login !== m.login)
@@ -9,15 +12,15 @@ const own = data.contributors.find((c) => c.login === m.login)
 
 <template>
   <section class="authors-maintainer">
-    <img :src="m.avatar" :alt="`${m.name} on GitHub`" width="96" height="96" loading="lazy">
+    <img :src="m.avatar" :alt="t.onGitHub(m.name)" width="96" height="96" loading="lazy">
     <div>
-      <p class="authors-role">Creator and maintainer</p>
+      <p class="authors-role">{{ t.maintainer }}</p>
       <h3 class="authors-name">{{ m.name }} <a :href="m.url">@{{ m.login }}</a></h3>
       <ul class="authors-facts">
-        <li v-if="m.company">Works at {{ m.company }}</li>
+        <li v-if="m.company">{{ t.worksAt(m.company) }}</li>
         <li v-if="m.location">{{ m.location }}</li>
-        <li>On GitHub since {{ m.githubSince }}</li>
-        <li v-if="own">{{ own.commits }} commits to Hermes</li>
+        <li>{{ t.githubSince(m.githubSince) }}</li>
+        <li v-if="own">{{ t.commitsToHermes(own.commits) }}</li>
       </ul>
       <p class="authors-links">
         <a :href="m.url">GitHub</a>
@@ -30,16 +33,16 @@ const own = data.contributors.find((c) => c.login === m.login)
   <ul class="authors-grid">
     <li v-for="c in others" :key="c.login" class="authors-card">
       <a :href="c.url">
-        <img :src="c.avatar" :alt="`${c.login} on GitHub`" width="48" height="48" loading="lazy">
+        <img :src="c.avatar" :alt="t.onGitHub(c.login)" width="48" height="48" loading="lazy">
         <span class="authors-login">{{ c.login }}</span>
-        <span class="authors-commits">{{ c.commits }} {{ c.commits === 1 ? 'commit' : 'commits' }}</span>
+        <span class="authors-commits">{{ t.commits(c.commits) }}</span>
       </a>
     </li>
     <li class="authors-card authors-you">
-      <a :href="withBase('/contributing')">
+      <a :href="withBase(t.contributingLink)">
         <span class="authors-plus" aria-hidden="true">+</span>
-        <span class="authors-login">You?</span>
-        <span class="authors-commits">How to contribute</span>
+        <span class="authors-login">{{ t.you }}</span>
+        <span class="authors-commits">{{ t.howToContribute }}</span>
       </a>
     </li>
   </ul>

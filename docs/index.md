@@ -22,7 +22,7 @@ features:
       alt: Queue
       width: 42px
       height: 42px
-    title: Four built-in drivers
+    title: Six built-in drivers
     details: Redis via ext-redis, Predis, lazy RabbitMQ, Amazon SQS, Kafka, and the filesystem. Each one implements DriverInterface.
   - icon:
       src: /icons/retry.svg
@@ -30,14 +30,14 @@ features:
       width: 42px
       height: 42px
     title: Retries on failure
-    details: RetryTrait schedules another attempt when a handler throws. The delay is real on Redis and Predis.
+    details: RetryTrait schedules another attempt when a handler throws. The delay is real on Redis, Predis and the filesystem.
   - icon:
       src: /icons/priority.svg
       alt: Priority
       width: 42px
       height: 42px
     title: Priority queues
-    details: Redis drivers keep a separate set per priority and always poll the highest priority first.
+    details: Redis and FileSystem drivers keep a separate queue per priority and always poll the highest priority first.
   - icon:
       src: /icons/shutdown.svg
       alt: Shutdown

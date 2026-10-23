@@ -12,7 +12,7 @@ Run the worker as a CLI process that is allowed to block. Keep the web nodes on 
   { label: 'Restart on deploy', name: 'deployment-1', alt: 'Web replicas emit into one broker. Supervisor, systemd template units, or Kubernetes replicas run the workers, and a shutdown signal makes the manager start the new process' },
 ]" />
 
-Each worker is the same script. Redis `SPOP` gives a member to one connection. RabbitMQ, SQS and Kafka do that inside the broker. Hermes does not elect a leader.
+Each worker is the same script. Redis `SPOP` gives a member to one connection. RabbitMQ, SQS and Kafka do that inside the broker; `FileSystemDriver` uses an atomic `rename()`. Hermes does not elect a leader.
 
 Scale by adding processes. A worker pinned to one priority with `handle([110])` can have a different replica count from a worker pinned to `100`. See [Priority](/guide/priority).
 
