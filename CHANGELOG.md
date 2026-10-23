@@ -4,6 +4,16 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ## [Unreleased][unreleased]
 
+### Added
+
+* The documentation site has a Slovak translation of every page under `/sk/`, with a language menu, `hreflang` links and Slovak structured data. English stays the default at the site root. `npm run docs:links` fails when a page exists in only one language ([#76](https://github.com/tomaj/hermes/issues/76)).
+* The documentation site has a version menu. The root documents the latest version; older major versions are archived in a subfolder. 5.x, which had no site, is archived at `/5.x/` as its 5.0.0 README with a list of the known mistakes in its examples ([#76](https://github.com/tomaj/hermes/issues/76)).
+
+### Fixed
+
+* Docs: the HowTo structured data no longer contains the `<<<` snippet import lines, and two FAQ answers no longer say that RabbitMQ and SQS remove a message before the handler runs ([#76](https://github.com/tomaj/hermes/issues/76)).
+* Docs: after FileSystem and Kafka landed, the home page, delayed and drivers overview FAQs, deployment note, and priority example name all six drivers instead of the older four; the contributing page documents `HERMES_TEST_KAFKA` and five integration env vars to match `composer test:integration`; the Slovak examples index includes the "are the examples tested?" FAQ ([#76](https://github.com/tomaj/hermes/issues/76)).
+
 ## 6.0.0 - 2026-10-19
 
 Hermes 6.0. Upgrade steps for every breaking change are in [UPGRADE-6.0.md](UPGRADE-6.0.md).

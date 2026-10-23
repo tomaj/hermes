@@ -78,11 +78,11 @@ No. They must use the same driver class with the same queue names and priority q
 
 ### Which driver supports delayed messages and retries?
 
-`PredisSetDriver` and, from 6.0, `RedisSetDriver`. In 5.x `RedisSetDriver` writes delayed messages to the sorted set but does not move them back to the queue. RabbitMQ, SQS and Kafka deliver at once. See [Delayed execution](/guide/delayed).
+`PredisSetDriver`, from 6.0 also `RedisSetDriver`, and `FileSystemDriver`. In 5.x `RedisSetDriver` writes delayed messages to the sorted set but does not move them back to the queue. RabbitMQ, SQS and Kafka deliver at once. See [Delayed execution](/guide/delayed).
 
 ### Does the driver acknowledge a message after the handler succeeds?
 
-The Redis drivers remove the message before the handler runs, so a worker that dies in `handle()` loses it. RabbitMQ, SQS and Kafka remove it only after the callback returns. See the Ack row in the [comparison](/guide/drivers/).
+The Redis drivers remove the message before the handler runs, so a worker that dies in `handle()` loses it. RabbitMQ, SQS, Kafka and `FileSystemDriver` remove it only after the callback returns. See the Ack row in the [comparison](/guide/drivers/).
 
 ### Can I store messages in something other than JSON?
 

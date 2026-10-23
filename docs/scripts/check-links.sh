@@ -11,6 +11,7 @@ base="/hermes/"
 npm run diagrams:check
 
 python3 scripts/check-snippets.py
+python3 scripts/check-locales.py
 
 npm run docs:build
 python3 scripts/check-svg.py .vitepress/dist

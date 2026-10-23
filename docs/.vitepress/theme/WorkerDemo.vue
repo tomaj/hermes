@@ -1,34 +1,40 @@
+<script setup lang="ts">
+import { useStrings } from './i18n'
+
+const t = useStrings()
+</script>
+
 <template>
   <div class="worker-demo" role="img"
-    aria-label="Left: a user clicks Register on a web page and sees a confirmation in 38 milliseconds. Right: a terminal running php bin/worker.php receives the message, fails once on an SMTP timeout, retries, and finishes.">
+    :aria-label="t.demoAria">
     <div class="pane web" aria-hidden="true">
       <div class="bar"><i /><i /><i /><span class="url">app.example.com/register</span></div>
       <div class="page">
-        <h4>Create an account</h4>
+        <h4>{{ t.demoTitle }}</h4>
         <div class="field">jane@example.com</div>
         <div class="field dots">••••••••</div>
         <div class="button">
-          <span class="label">Register</span>
+          <span class="label">{{ t.demoButton }}</span>
           <span class="spinner" />
         </div>
-        <div class="ok">✓ Welcome, Jane! Check your inbox.</div>
-        <div class="timing">response in 38 ms · the email is sent later</div>
+        <div class="ok">{{ t.demoOk }}</div>
+        <div class="timing">{{ t.demoTiming }}</div>
         <svg class="cursor" viewBox="0 0 20 28"><path d="M1 1 L1 23 L7 17 L12 27 L16 25 L11 15 L19 15 Z" /></svg>
       </div>
-      <p class="caption">web request</p>
+      <p class="caption">{{ t.demoWebCaption }}</p>
     </div>
     <div class="pane term" aria-hidden="true">
       <div class="bar"><i /><i /><i /><span class="url">worker</span></div>
       <pre class="screen"><span class="ln l0"><b>$</b> php bin/worker.php</span>
-<span class="ln l1"><em>[09:41:02]</em> waiting for messages…</span>
+<span class="ln l1"><em>[09:41:02]</em> {{ t.demoLines[0] }}</span>
 <span class="ln l2"><em>[09:41:05]</em> <b>←</b> user.registered  id=1f3a</span>
-<span class="ln l3"><em>[09:41:05]</em> SendWelcomeEmail: sending…</span>
-<span class="ln l4 bad"><em>[09:41:06]</em> ✗ SMTP timeout, retry 1 in 15 s</span>
+<span class="ln l3"><em>[09:41:05]</em> {{ t.demoLines[1] }}</span>
+<span class="ln l4 bad"><em>[09:41:06]</em> {{ t.demoLines[2] }}</span>
 <span class="ln l5"><em>[09:41:21]</em> <b>←</b> user.registered  id=1f3a  retry=1</span>
-<span class="ln l6"><em>[09:41:21]</em> SendWelcomeEmail: sending…</span>
-<span class="ln l7 good"><em>[09:41:22]</em> ✓ done, handler returned true</span>
-<span class="ln l8"><em>[09:41:22]</em> waiting for messages…<span class="caret">▍</span></span></pre>
-      <p class="caption">background worker</p>
+<span class="ln l6"><em>[09:41:21]</em> {{ t.demoLines[1] }}</span>
+<span class="ln l7 good"><em>[09:41:22]</em> {{ t.demoLines[3] }}</span>
+<span class="ln l8"><em>[09:41:22]</em> {{ t.demoLines[0] }}<span class="caret">▍</span></span></pre>
+      <p class="caption">{{ t.demoWorkerCaption }}</p>
     </div>
   </div>
 </template>

@@ -1,6 +1,6 @@
 ---
 title: "Delayed execution"
-description: "Run a message later with executeAt on Redis and Predis, and why RabbitMQ, SQS and Kafka deliver at once."
+description: "Run a message later with executeAt on Redis, Predis and the filesystem, and why RabbitMQ, SQS and Kafka deliver at once."
 ---
 
 # Delayed execution
@@ -58,11 +58,11 @@ Pass a Unix timestamp as the fifth `Message` argument, `executeAt`, for example 
 
 ### Which drivers support delays?
 
-`RedisSetDriver` and `PredisSetDriver`. Both promote due messages with `ZREM`. In 5.x `RedisSetDriver` never promoted them ([issue #95](https://github.com/tomaj/hermes/issues/95)), so use Predis there. RabbitMQ, SQS and Kafka deliver at once.
+`RedisSetDriver`, `PredisSetDriver` and `FileSystemDriver`. The Redis drivers promote due messages with `ZREM`. In 5.x `RedisSetDriver` never promoted them ([issue #95](https://github.com/tomaj/hermes/issues/95)), so use Predis there. `FileSystemDriver` encodes the due time in the file name. RabbitMQ, SQS and Kafka deliver at once.
 
 ### Where are delayed messages stored?
 
-In the sorted set `hermes_schedule` by default, scored by `executeAt`. The emitter and the worker must use the same schedule key.
+On Redis and Predis, in the sorted set `hermes_schedule` by default, scored by `executeAt`. The emitter and the worker must use the same schedule key. On `FileSystemDriver`, delayed messages stay in `new/` of their priority folder until the due time in the file name.
 
 ### Does a delayed message keep its priority?
 

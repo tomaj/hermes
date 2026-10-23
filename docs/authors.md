@@ -21,7 +21,7 @@ The first commit is from 12 October 2015. Dates are the release tags.
 | 3.0.0 | 2020-10-13 | Graceful shutdown through Redis. The ZeroMQ driver moved to [its own package](https://github.com/tomaj/hermes-zmq-driver) |
 | 4.0.0 | 2021-02-02 | `Restart` renamed to `Shutdown`, `PredisSetDriver` split from `RedisSetDriver`, `LazyRabbitMqDriver` only |
 | 4.2.0 | 2024-04-29 | `unregisterHandler()` and `unregisterAllHandlers()` |
-| 5.0.0 | 2025-11-19 | Current major version, documented on this site |
+| 5.0.0 | 2025-11-19 | Latest release; its documentation is the [5.x archive](/5.x/) |
 
 The full list is in the [Changelog](/changelog) and on [GitHub releases](https://github.com/tomaj/hermes/releases).
 

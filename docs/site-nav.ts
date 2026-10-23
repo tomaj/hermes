@@ -18,6 +18,7 @@ export const navEn: DocsNavItem[] = [
     text: currentVersion,
     items: [
       { text: '6.x (latest)', link: '/' },
+      { text: '5.x', link: '/5.x/' },
       { text: 'Versioning', link: '/guide/versioning' },
     ],
   },
@@ -96,6 +97,121 @@ export const sidebarEn: DocsNavItem[] = [
       { text: 'Changelog', link: '/changelog' },
       { text: 'Contributing', link: '/contributing' },
       { text: 'Authors', link: '/authors' },
+    ],
+  },
+]
+
+export const navSk: DocsNavItem[] = [
+  { text: 'Domov', link: '/sk/' },
+  { text: 'Príručka', link: '/sk/guide/getting-started' },
+  { text: 'Príklady', link: '/sk/examples/' },
+  { text: 'API', link: '/sk/api/reference' },
+  {
+    text: currentVersion,
+    items: [
+      { text: '6.x (aktuálna)', link: '/sk/' },
+      { text: '5.x', link: '/sk/5.x/' },
+      { text: 'Verzie', link: '/sk/guide/versioning' },
+    ],
+  },
+  { text: 'Pokrytie', link: coverageLink },
+  { text: 'Vydania', link: releasesLink },
+]
+
+export const sidebarSk: DocsNavItem[] = [
+  {
+    text: 'Úvod',
+    items: [
+      { text: 'Začíname', link: '/sk/guide/getting-started' },
+      { text: 'Pojmy', link: '/sk/guide/concepts' },
+      { text: 'Architektúra', link: '/sk/guide/architecture' },
+    ],
+  },
+  {
+    text: 'Príklady',
+    items: [
+      { text: 'Prehľad', link: '/sk/examples/' },
+      { text: 'Uvítací e-mail od nuly', link: '/sk/examples/welcome-email' },
+      { text: 'Faktúra v PDF', link: '/sk/examples/invoice-pdf' },
+      { text: 'Webhooky s opakovaním', link: '/sk/examples/webhooks' },
+      { text: 'Import CSV po častiach', link: '/sk/examples/csv-import' },
+      { text: 'Náhľady obrázkov', link: '/sk/examples/thumbnails' },
+      { text: 'Odložená pripomienka', link: '/sk/examples/reminder' },
+      { text: 'Prioritné fronty', link: '/sk/examples/priority' },
+    ],
+  },
+  {
+    text: 'Integrácia do frameworkov',
+    items: [
+      { text: 'Prehľad', link: '/sk/frameworks/' },
+      { text: 'Nette', link: '/sk/frameworks/nette' },
+      { text: 'Laravel', link: '/sk/frameworks/laravel' },
+      { text: 'Symfony', link: '/sk/frameworks/symfony' },
+    ],
+  },
+  {
+    text: 'Drivery',
+    items: [
+      { text: 'Prehľad', link: '/sk/guide/drivers/overview' },
+      { text: 'Porovnanie', link: '/sk/guide/drivers/' },
+      { text: 'Redis (ext-redis)', link: '/sk/guide/drivers/redis' },
+      { text: 'Predis', link: '/sk/guide/drivers/predis' },
+      { text: 'RabbitMQ', link: '/sk/guide/drivers/rabbitmq' },
+      { text: 'Amazon SQS', link: '/sk/guide/drivers/sqs' },
+      { text: 'FileSystem', link: '/sk/guide/drivers/filesystem' },
+      { text: 'Kafka', link: '/sk/guide/drivers/kafka' },
+    ],
+  },
+  {
+    text: 'Za behu',
+    items: [
+      { text: 'Opakovanie', link: '/sk/guide/retry' },
+      { text: 'Odložené spracovanie', link: '/sk/guide/delayed' },
+      { text: 'Priorita', link: '/sk/guide/priority' },
+      { text: 'Ukončenie a limit správ', link: '/sk/guide/shutdown' },
+      { text: 'Logovanie', link: '/sk/guide/logging' },
+    ],
+  },
+  {
+    text: 'Prevádzka',
+    items: [
+      { text: 'Testovanie', link: '/sk/guide/testing' },
+      { text: 'Nasadenie do produkcie', link: '/sk/guide/deployment' },
+      { text: 'Rozširovanie Hermesu', link: '/sk/guide/extending' },
+      { text: 'Verzie dokumentácie', link: '/sk/guide/versioning' },
+    ],
+  },
+  {
+    text: 'Referencia',
+    items: [
+      { text: 'Referencia API', link: '/sk/api/reference' },
+      { text: 'Časté otázky', link: '/sk/faq' },
+      { text: 'Zoznam zmien', link: '/sk/changelog' },
+      { text: 'Ako prispieť', link: '/sk/contributing' },
+      { text: 'Autori', link: '/sk/authors' },
+    ],
+  },
+]
+
+// Hermes 5.x has a single archived page: its README at the 5.0.0 tag. See guide/versioning.
+export const sidebar5x: DocsNavItem[] = [
+  {
+    text: 'Hermes 5.x (archive)',
+    items: [
+      { text: 'Hermes 5.x', link: '/5.x/' },
+      { text: 'Upgrade to 6.x', link: '/guide/versioning#upgrading-from-5-x' },
+      { text: 'Current docs (6.x)', link: '/' },
+    ],
+  },
+]
+
+export const sidebar5xSk: DocsNavItem[] = [
+  {
+    text: 'Hermes 5.x (archív)',
+    items: [
+      { text: 'Hermes 5.x', link: '/sk/5.x/' },
+      { text: 'Prechod na 6.x', link: '/sk/guide/versioning#prechod-z-5-x' },
+      { text: 'Aktuálna dokumentácia (6.x)', link: '/sk/' },
     ],
   },
 ]
