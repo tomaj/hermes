@@ -2,7 +2,39 @@
 All notable changes to this project will be documented in this file.
 Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
-## [Unreleased][unreleased]
+## [Unreleased]
+
+## 5.1.0 - unreleased
+
+5.1.0 is a bridge to 6.0. It changes no behaviour unless you opt in; it reports, as `E_USER_DEPRECATED` notices, the code that 6.0 will treat differently. The notices are silenced with `@` (as Symfony does), so they show only in error handlers that collect deprecations (PHPUnit, Symfony's ErrorHandler, a custom `set_error_handler`).
+
+### Added
+
+* `Tomaj\Hermes\Handler\RetryableHandlerInterface` with the 6.0 signature. A handler that implements it gets the 6.0 retry rules now: `canRetry($message, $exception)` is called and the retry is skipped when it returns false
+* `RetryTrait::canRetry()` accepts the optional `$message` and `$exception` arguments that 6.0 passes
+* `LazyRabbitMqDriver` takes a sixth argument `bool $durable = false`. `true` declares a durable queue and publishes persistent messages (unless `delivery_mode` is set in the message properties), as 6.0 does by default
+
+### Deprecated
+
+* Extending `Dispatcher`, `Emitter`, `Message`, the drivers and the shutdowns: these classes are `final` in 6.0 (annotated `@final` in 5.1)
+* A shutdown whose `shouldShutdown()` or `shutdown()` takes `DateTime`: 6.0 passes `DateTimeInterface`
+* Registering Redis/Predis priorities in an order that the 6.0 driver polls differently (6.0 polls the highest number first)
+* Handlers that are retried only because they have `canRetry()` and `maxRetry()`, and `RetryTrait` users that override `canRetry()`: 6.0 retries only handlers that implement `RetryableHandlerInterface` or use `RetryTrait`, and honours `canRetry()`
+* Creating `LazyRabbitMqDriver` without the `$durable` argument: 6.0 defaults to a durable queue
+
+### Not deprecated
+
+These 6.0 changes have no notice in 5.1 because 5.x cannot detect them or cannot offer the new behaviour without breaking the old one. Read UPGRADE-6.0.md before upgrading:
+
+* RabbitMQ messages are acknowledged after the handler finishes; SQS messages are deleted after handling
+* `Dispatcher` catches `Throwable`; driver errors are rethrown instead of being logged
+* Changed log and serializer exception messages
+* Shutdown timestamps with microseconds and the handling of a shutdown time in the future
+* `tracy/tracy` moves to `suggest`; PHP 8.4, `psr/log` and `predis/predis` version requirements
+* `readonly` properties and `never` return types
+* Redis message ordering, beyond the priority order notice above
+
+## 5.0.0 - 2025-11-19
 
 ### Added
 

@@ -7,6 +7,9 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Tomaj\Hermes\Driver\DriverInterface;
 
+/**
+ * @final since 5.1, final in 6.0: wrap the class or implement its interface instead of extending it
+ */
 class Emitter implements EmitterInterface
 {
     private DriverInterface $driver;
@@ -21,6 +24,7 @@ class Emitter implements EmitterInterface
      */
     public function __construct(DriverInterface $driver, ?LoggerInterface $logger = null)
     {
+        Deprecation::subclass($this, self::class);
         $this->driver = $driver;
         $this->logger = $logger;
     }

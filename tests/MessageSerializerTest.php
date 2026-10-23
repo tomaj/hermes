@@ -9,6 +9,7 @@ use Tomaj\Hermes\SerializeException;
 
 /**
  * @covers \Tomaj\Hermes\MessageSerializer
+ * @uses \Tomaj\Hermes\Deprecation
  */
 class MessageSerializerTest extends TestCase
 {

@@ -3,12 +3,16 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes\Driver;
 
+use Tomaj\Hermes\Deprecation;
 use Closure;
 use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
 use Aws\Sqs\SqsClient;
 
+/**
+ * @final since 5.1, final in 6.0: wrap the class or implement its interface instead of extending it
+ */
 class AmazonSqsDriver implements DriverInterface
 {
     use MaxItemsTrait;
@@ -73,6 +77,7 @@ class AmazonSqsDriver implements DriverInterface
      */
     public function __construct(SqsClient $client, string $queueName, array $queueAttributes = [])
     {
+        Deprecation::subclass($this, self::class);
         $this->client = $client;
         $this->queueName = $queueName;
         $this->serializer = new MessageSerializer();

@@ -3,14 +3,19 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes\Shutdown;
 
+use Tomaj\Hermes\Deprecation;
 use DateTime;
 
+/**
+ * @final since 5.1, final in 6.0: wrap the class or implement its interface instead of extending it
+ */
 class SharedFileShutdown implements ShutdownInterface
 {
     private string $filePath;
 
     public function __construct(string $filePath)
     {
+        Deprecation::subclass($this, self::class);
         $this->filePath = $filePath;
     }
 

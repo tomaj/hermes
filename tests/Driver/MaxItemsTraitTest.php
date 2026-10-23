@@ -8,6 +8,7 @@ use Tomaj\Hermes\Driver\MaxItemsTrait;
 
 /**
  * @covers \Tomaj\Hermes\Driver\MaxItemsTrait
+ * @uses \Tomaj\Hermes\Deprecation
  */
 class MaxItemsTraitTest extends TestCase
 {

@@ -13,6 +13,7 @@ use Tomaj\Hermes\Handler\EchoHandler;
  * @package Tomaj\Hermes\Test\Handler
  * @covers \Tomaj\Hermes\Handler\EchoHandler
  * @covers \Tomaj\Hermes\Message
+ * @uses \Tomaj\Hermes\Deprecation
  */
 class EchoHandlerTest extends TestCase
 {

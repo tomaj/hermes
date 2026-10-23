@@ -14,6 +14,7 @@ use Tomaj\Hermes\SerializerInterface;
  * @covers \Tomaj\Hermes\Driver\AmazonSqsDriver
  * @covers \Tomaj\Hermes\Message
  * @covers \Tomaj\Hermes\MessageSerializer
+ * @uses \Tomaj\Hermes\Deprecation
  */
 class AmazonSqsDriverTest extends TestCase
 {

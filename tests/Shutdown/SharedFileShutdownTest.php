@@ -9,6 +9,7 @@ use DateTime;
 
 /**
  * @covers \Tomaj\Hermes\Shutdown\SharedFileShutdown
+ * @uses \Tomaj\Hermes\Deprecation
  */
 class SharedFileShutdownTest extends TestCase
 {

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes\Driver;
 
+use Tomaj\Hermes\Deprecation;
 use Closure;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AMQPLazyConnection;
@@ -12,6 +13,9 @@ use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
 use Tomaj\Hermes\Shutdown\ShutdownException;
 
+/**
+ * @final since 5.1, final in 6.0: wrap the class or implement its interface instead of extending it
+ */
 class LazyRabbitMqDriver implements DriverInterface
 {
     use MaxItemsTrait;
@@ -36,15 +40,29 @@ class LazyRabbitMqDriver implements DriverInterface
     /** @var string */
     private $consumerTag;
 
+    /** @var bool */
+    private $durable;
+
     /**
      * @param AMQPLazyConnection $connection
      * @param string $queue
      * @param array<string, mixed> $amqpMessageProperties
      * @param int $refreshInterval
      * @param string $consumerTag
+     * @param bool $durable declare a durable queue and publish persistent messages (delivery_mode 2). The default
+     *                      false keeps the 5.0 behaviour; 6.0 defaults to true. Pass it explicitly so the code
+     *                      means the same on 6.0.
      */
-    public function __construct(AMQPLazyConnection $connection, string $queue, array $amqpMessageProperties = [], int $refreshInterval = 0, string $consumerTag = 'hermes')
+    public function __construct(AMQPLazyConnection $connection, string $queue, array $amqpMessageProperties = [], int $refreshInterval = 0, string $consumerTag = 'hermes', bool $durable = false)
     {
+        Deprecation::subclass($this, self::class);
+        if (func_num_args() < 6) {
+            Deprecation::trigger('LazyRabbitMqDriver declares a non-durable queue; 6.0 declares a durable queue and publishes persistent messages unless you pass $durable = false. Pass $durable explicitly: false keeps the queue created by 5.x, true matches the 6.0 default.');
+        }
+        $this->durable = $durable;
+        if ($durable && !array_key_exists('delivery_mode', $amqpMessageProperties)) {
+            $amqpMessageProperties['delivery_mode'] = AMQPMessage::DELIVERY_MODE_PERSISTENT;
+        }
         $this->connection = $connection;
         $this->queue = $queue;
         $this->amqpMessageProperties = $amqpMessageProperties;
@@ -56,9 +74,7 @@ class LazyRabbitMqDriver implements DriverInterface
     /**
      * {@inheritdoc}
      *
-     * @throws \PhpAmqpLib\Exception\AMQPChannelClosedException
-     * @throws \PhpAmqpLib\Exception\AMQPConnectionBlockedException
-     * @throws \PhpAmqpLib\Exception\AMQPConnectionClosedException
+     * @throws \PhpAmqpLib\Exception\AMQPRuntimeException closed or blocked channel or connection
      * @throws \PhpAmqpLib\Exception\AMQPTimeoutException
      */
     public function send(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): bool
@@ -130,7 +146,7 @@ class LazyRabbitMqDriver implements DriverInterface
             return $this->channel;
         }
         $this->channel = $this->connection->channel();
-        $this->channel->queue_declare($this->queue, false, false, false, false);
+        $this->channel->queue_declare($this->queue, false, $this->durable, false, false);
         return $this->channel;
     }
 }

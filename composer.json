@@ -57,5 +57,13 @@
         "phpstan": "phpstan analyse",
         "phpcs": "phpcs --standard=PSR2 src tests examples -n",
         "coverage": "XDEBUG_MODE=coverage phpunit --coverage-clover build/logs/clover.xml --coverage-html build/coverage"
+    },
+    "config": {
+        "audit": {
+            "ignore": {
+                "PKSA-4t1p-xpk2-nsss": "CloudFront signed policies, not used by Hermes; the fix needs PHP 8.1",
+                "PKSA-dxyf-6n16-t87m": "S3 encryption client, not used by Hermes; the fix needs PHP 8.1"
+            }
+        }
     }
 }

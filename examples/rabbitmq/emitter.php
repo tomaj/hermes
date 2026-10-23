@@ -11,7 +11,7 @@ require_once __DIR__.'/../../vendor/autoload.php';
 
 $queueName = 'hermes_queue';
 $connection = new AMQPLazyConnection('localhost', '5672', 'guest', 'guest', '/');
-$driver = new LazyRabbitMqDriver($connection, $queueName);
+$driver = new LazyRabbitMqDriver($connection, $queueName, [], 0, 'hermes', false);
 
 $emitter = new Emitter($driver);
 

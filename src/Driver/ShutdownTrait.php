@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Tomaj\Hermes\Driver;
 
 use DateTime;
+use Tomaj\Hermes\Deprecation;
 use Tomaj\Hermes\Shutdown\ShutdownException;
 use Tomaj\Hermes\Shutdown\ShutdownInterface;
 
@@ -15,6 +16,7 @@ trait ShutdownTrait
 
     public function setShutdown(ShutdownInterface $shutdown): void
     {
+        Deprecation::shutdown($shutdown);
         $this->shutdown = $shutdown;
         $this->startTime = new DateTime();
     }
