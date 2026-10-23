@@ -1,0 +1,13 @@
+{
+    "require": {
+        "php": ">=8.4",
+        "tomaj/hermes": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

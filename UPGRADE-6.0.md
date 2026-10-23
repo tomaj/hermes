@@ -202,7 +202,7 @@ An implementation that called `DateTime` methods such as `modify()` on `$startTi
 
 ## Classes are final
 
-Every concrete class in `src/` is `final` ([#81](https://github.com/tomaj/hermes/issues/81)): `Message`, `MessageSerializer`, `Emitter`, `Dispatcher`, `EchoHandler`, the four drivers, the three shutdowns, and the exceptions `SerializeException`, `ShutdownException`, `NotSupportedException` and `UnknownPriorityException`. `HermesException` stays open, because the other exceptions extend it, and so can yours.
+Every concrete class in `src/` is `final` ([#81](https://github.com/tomaj/hermes/issues/81)): `Message`, `MessageSerializer`, `Emitter`, `Dispatcher`, `EchoHandler`, the five drivers, the three shutdowns, and the exceptions `SerializeException`, `ShutdownException`, `NotSupportedException`, `UnknownPriorityException` and `FileSystemDriverException`. `HermesException` stays open, because the other exceptions extend it, and so can yours.
 
 If you extended one of these classes, switch to the interface it implements and wrap the built-in class:
 
@@ -360,3 +360,7 @@ Log levels are not wrapped either. Hermes passes the PSR-3 `Psr\Log\LogLevel` st
 ## `Emitter` logs "Emitter send message"
 
 `Emitter::emit()` logs `Emitter send message #<id> to driver <class>` instead of `Dispatcher send message #<id> to driver <class>` ([#111](https://github.com/tomaj/hermes/issues/111)). The level (`info`) and the context are unchanged. Update log searches and alerts that match the old text. The deprecated `Dispatcher::emit()` still logs `Dispatcher send message #<id> with priority <n> to driver <class>`.
+
+## New driver: `FileSystemDriver`
+
+6.0 adds `FileSystemDriver`, a queue in a local directory for one server without a broker. It is opt-in and changes nothing for existing code. To move a worker to it from another driver, stop the emitters, let the workers empty the old queue, then deploy the emitters and the workers with the new driver together: queued messages are not migrated between drivers. See [FileSystem driver](https://tomaj.github.io/hermes/guide/drivers/filesystem) ([#17](https://github.com/tomaj/hermes/issues/17)).

@@ -144,11 +144,11 @@ Returning `false` does not put the message back. The Redis driver has already re
 
 ### Does Hermes need a server or daemon of its own?
 
-No. Hermes is a PHP library. Your web code emits messages, and a PHP CLI script that you write runs the worker with `Dispatcher::handle()`. The only shared piece is the broker: Redis, RabbitMQ, or SQS.
+No. Hermes is a PHP library. Your web code emits messages, and a PHP CLI script that you write runs the worker with `Dispatcher::handle()`. The only shared piece is the queue backend: Redis, RabbitMQ, SQS, or a local directory with `FileSystemDriver`.
 
 ### Which driver should I start with?
 
-Use `PredisSetDriver` if you cannot install a PHP extension, or `RedisSetDriver` if you already have phpredis. Both support priorities. On 5.x only Predis moves delayed messages and retries back to the queue; `RedisSetDriver` does too from 6.0. See the [driver comparison](/guide/drivers/).
+Use `PredisSetDriver` if you cannot install a PHP extension, or `RedisSetDriver` if you already have phpredis. Both support priorities. On 5.x only Predis moves delayed messages and retries back to the queue; `RedisSetDriver` does too from 6.0. On one server with no broker, use [`FileSystemDriver`](/guide/drivers/filesystem). See the [driver comparison](/guide/drivers/).
 
 ### Can I call `handle()` from a web request?
 

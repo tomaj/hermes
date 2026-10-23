@@ -1,0 +1,243 @@
+{
+ "padding": 10,
+ "elements": [
+  {
+   "t": "rect",
+   "x": 0,
+   "y": 40,
+   "w": 130,
+   "h": 60
+  },
+  {
+   "t": "text",
+   "x": 65.0,
+   "y": 59.375,
+   "text": "send()",
+   "size": 17
+  },
+  {
+   "t": "rect",
+   "x": 180,
+   "y": 40,
+   "w": 120,
+   "h": 60
+  },
+  {
+   "t": "text",
+   "x": 240.0,
+   "y": 59.375,
+   "text": "tmp/",
+   "size": 17,
+   "mono": true
+  },
+  {
+   "t": "rect",
+   "x": 350,
+   "y": 40,
+   "w": 150,
+   "h": 60
+  },
+  {
+   "t": "text",
+   "x": 425.0,
+   "y": 59.375,
+   "text": "new/",
+   "size": 17,
+   "mono": true
+  },
+  {
+   "t": "rect",
+   "x": 550,
+   "y": 40,
+   "w": 150,
+   "h": 60
+  },
+  {
+   "t": "text",
+   "x": 625.0,
+   "y": 59.375,
+   "text": "processing/",
+   "size": 17,
+   "mono": true
+  },
+  {
+   "t": "ellipse",
+   "x": 750,
+   "y": 48,
+   "w": 100,
+   "h": 44,
+   "dashed": true
+  },
+  {
+   "t": "text",
+   "x": 800.0,
+   "y": 60.0,
+   "text": "deleted",
+   "size": 16
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     130,
+     70
+    ],
+    [
+     180,
+     70
+    ]
+   ]
+  },
+  {
+   "t": "text",
+   "x": 155,
+   "y": 16,
+   "text": "write",
+   "size": 14,
+   "align": "center",
+   "color": "muted"
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     300,
+     70
+    ],
+    [
+     350,
+     70
+    ]
+   ]
+  },
+  {
+   "t": "text",
+   "x": 325,
+   "y": 16,
+   "text": "rename",
+   "size": 14,
+   "align": "center",
+   "color": "muted"
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     500,
+     70
+    ],
+    [
+     550,
+     70
+    ]
+   ]
+  },
+  {
+   "t": "text",
+   "x": 525,
+   "y": 16,
+   "text": "rename\n= claim",
+   "size": 14,
+   "align": "center",
+   "color": "muted"
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     700,
+     70
+    ],
+    [
+     750,
+     70
+    ]
+   ]
+  },
+  {
+   "t": "text",
+   "x": 725,
+   "y": 10,
+   "text": "handled:\nunlink",
+   "size": 14,
+   "align": "center",
+   "color": "muted"
+  },
+  {
+   "t": "text",
+   "x": 385,
+   "y": 108,
+   "text": "sorted by due time",
+   "size": 14,
+   "align": "center",
+   "color": "muted"
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     600,
+     100
+    ],
+    [
+     600,
+     170
+    ],
+    [
+     480,
+     170
+    ],
+    [
+     480,
+     100
+    ]
+   ]
+  },
+  {
+   "t": "text",
+   "x": 540,
+   "y": 178,
+   "text": "callback threw, or the worker died\nand the visibility timeout passed",
+   "size": 14,
+   "align": "center",
+   "color": "muted"
+  },
+  {
+   "t": "rect",
+   "x": 560,
+   "y": 250,
+   "w": 130,
+   "h": 54
+  },
+  {
+   "t": "text",
+   "x": 625.0,
+   "y": 266.375,
+   "text": "failed/",
+   "size": 17,
+   "mono": true
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     660,
+     100
+    ],
+    [
+     660,
+     250
+    ]
+   ]
+  },
+  {
+   "t": "text",
+   "x": 672,
+   "y": 200,
+   "text": "cannot\nunserialize",
+   "size": 14,
+   "align": "left",
+   "color": "muted"
+  }
+ ]
+}

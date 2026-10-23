@@ -5,18 +5,19 @@ description: "What a Hermes driver does between Emitter and Dispatcher: send, wa
 
 <script setup>
 const cards = [
-  { title: 'Comparison', text: 'Priority, delay, persistence, and ack for all four drivers in one table.', link: '/guide/drivers/' },
+  { title: 'Comparison', text: 'Priority, delay, persistence, and ack for all five drivers in one table.', link: '/guide/drivers/' },
   { title: 'Redis (ext-redis)', text: 'RedisSetDriver on the phpredis extension. Priorities and delayed messages.', link: '/guide/drivers/redis' },
   { title: 'Predis', text: 'PredisSetDriver, plain PHP. Priorities, delayed messages, and retries.', link: '/guide/drivers/predis' },
   { title: 'RabbitMQ', text: 'LazyRabbitMqDriver on php-amqplib. One queue, no priorities, no delay.', link: '/guide/drivers/rabbitmq' },
   { title: 'Amazon SQS', text: 'AmazonSqsDriver on the AWS SDK. Managed storage, no priorities, no delay.', link: '/guide/drivers/sqs' },
+  { title: 'FileSystem', text: 'FileSystemDriver, a queue in a local directory. No broker, FIFO, priorities, delayed messages.', link: '/guide/drivers/filesystem' },
   { title: 'Write your own', text: 'Implement DriverInterface for another broker or database.', link: '/guide/extending#a-driver' },
 ]
 </script>
 
 # Drivers overview
 
-A driver is the only part of Hermes that talks to a queue. `Emitter` and `Dispatcher` know nothing about Redis, RabbitMQ, or SQS. They call a `DriverInterface`, and the driver turns that into commands for its broker.
+A driver is the only part of Hermes that talks to a queue. `Emitter` and `Dispatcher` know nothing about Redis, RabbitMQ, SQS, or a local directory. They call a `DriverInterface`, and the driver turns that into commands for its backend.
 
 <Diagram name="drivers-overview-1" alt="The Emitter in the web process calls send() on the driver. The driver stores the message as JSON in Redis, RabbitMQ, or SQS. The Dispatcher in the worker calls wait() with a callback and runs the handler for each message." />
 
@@ -46,16 +47,17 @@ The priority is not part of the JSON. It only decides which queue `send()` write
 
 The drivers differ in what they do with these:
 
-- **Priority.** `RedisSetDriver` and `PredisSetDriver` keep one Redis set per priority. `LazyRabbitMqDriver` and `AmazonSqsDriver` throw `NotSupportedException` from `setupPriorityQueue()`. See [Priority](/guide/priority).
-- **Delay.** The Redis drivers put a message with a future `executeAt` in a sorted set and move it to the queue when it is due. On 5.x only `PredisSetDriver` does that move correctly ([#95](https://github.com/tomaj/hermes/issues/95)). RabbitMQ and SQS deliver at once. See [Delayed execution](/guide/delayed).
-- **Shutdown and max items.** All four drivers use `ShutdownTrait` and `MaxItemsTrait`. `wait()` checks the shutdown signal and the processed count, and stops the worker cleanly. See [Shutdown and max items](/guide/shutdown).
+- **Priority.** `RedisSetDriver` and `PredisSetDriver` keep one Redis set per priority. `FileSystemDriver` keeps one folder per priority. `LazyRabbitMqDriver` and `AmazonSqsDriver` throw `NotSupportedException` from `setupPriorityQueue()`. See [Priority](/guide/priority).
+- **Delay.** The Redis drivers put a message with a future `executeAt` in a sorted set and move it to the queue when it is due. On 5.x only `PredisSetDriver` does that move correctly ([#95](https://github.com/tomaj/hermes/issues/95)). `FileSystemDriver` puts the due time in the file name and skips files that are not due. RabbitMQ and SQS deliver at once. See [Delayed execution](/guide/delayed).
+- **Shutdown and max items.** All five drivers use `ShutdownTrait` and `MaxItemsTrait`. `wait()` checks the shutdown signal and the processed count, and stops the worker cleanly. See [Shutdown and max items](/guide/shutdown).
 
 ## How to choose
 
 - **You already run Redis:** use `PredisSetDriver`. It needs no PHP extension and works with delayed messages and retries on every version.
-- **You need priorities:** use `PredisSetDriver` or `RedisSetDriver`. The other two have one queue.
+- **You need priorities:** use `PredisSetDriver`, `RedisSetDriver` or `FileSystemDriver`. RabbitMQ and SQS have one queue.
 - **You already run RabbitMQ:** use `LazyRabbitMqDriver`. Delay and retry need your own design.
 - **You are on AWS and want managed storage:** use `AmazonSqsDriver`. It deletes the message only after the handler finished, so a crash leaves it for redelivery.
+- **One server and no broker:** use `FileSystemDriver`. It keeps the queue in a local directory, in FIFO order, and redelivers the message of a crashed worker.
 - **Something else:** write a driver. It is three methods and three traits.
 
 ## Driver pages
@@ -64,7 +66,7 @@ The drivers differ in what they do with these:
 
 ## In a framework
 
-To pick the driver from config in an application, see [Framework integration](/frameworks/). The [Nette](/frameworks/nette), [Laravel](/frameworks/laravel) and [Symfony](/frameworks/symfony) pages use one `DriverFactory` that builds any of the four drivers.
+To pick the driver from config in an application, see [Framework integration](/frameworks/). The [Nette](/frameworks/nette), [Laravel](/frameworks/laravel) and [Symfony](/frameworks/symfony) pages use one `DriverFactory` that builds the Redis, RabbitMQ and SQS drivers.
 
 ## FAQ
 
