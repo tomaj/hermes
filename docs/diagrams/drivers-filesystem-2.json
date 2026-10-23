@@ -1,0 +1,199 @@
+{
+ "padding": 10,
+ "elements": [
+  {
+   "t": "rect",
+   "x": 260,
+   "y": 0,
+   "w": 300,
+   "h": 50
+  },
+  {
+   "t": "text",
+   "x": 410.0,
+   "y": 14.375,
+   "text": "new/",
+   "size": 17,
+   "mono": true
+  },
+  {
+   "t": "rect",
+   "x": 250,
+   "y": 70,
+   "w": 320,
+   "h": 40
+  },
+  {
+   "t": "text",
+   "x": 410.0,
+   "y": 80.625,
+   "text": "1700000000.250000-3f\u2026json",
+   "size": 15,
+   "mono": true
+  },
+  {
+   "t": "rect",
+   "x": 250,
+   "y": 120,
+   "w": 320,
+   "h": 40
+  },
+  {
+   "t": "text",
+   "x": 410.0,
+   "y": 130.625,
+   "text": "1700000001.000000-a1\u2026json",
+   "size": 15,
+   "mono": true
+  },
+  {
+   "t": "rect",
+   "x": 250,
+   "y": 170,
+   "w": 320,
+   "h": 40,
+   "dashed": true
+  },
+  {
+   "t": "text",
+   "x": 410.0,
+   "y": 180.625,
+   "text": "1800000000.000000-9c\u2026json",
+   "size": 15,
+   "mono": true
+  },
+  {
+   "t": "text",
+   "x": 580,
+   "y": 180,
+   "text": "not due yet:\nthe scan stops here",
+   "size": 14,
+   "align": "left",
+   "color": "muted"
+  },
+  {
+   "t": "rect",
+   "x": 0,
+   "y": 70,
+   "w": 150,
+   "h": 50
+  },
+  {
+   "t": "text",
+   "x": 75.0,
+   "y": 84.375,
+   "text": "worker A",
+   "size": 17
+  },
+  {
+   "t": "rect",
+   "x": 0,
+   "y": 150,
+   "w": 150,
+   "h": 50
+  },
+  {
+   "t": "text",
+   "x": 75.0,
+   "y": 164.375,
+   "text": "worker B",
+   "size": 17
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     150,
+     95
+    ],
+    [
+     250,
+     90
+    ]
+   ]
+  },
+  {
+   "t": "text",
+   "x": 200,
+   "y": 58,
+   "text": "rename wins",
+   "size": 14,
+   "align": "center",
+   "color": "muted"
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     150,
+     170
+    ],
+    [
+     250,
+     95
+    ]
+   ],
+   "dashed": true,
+   "color": "muted"
+  },
+  {
+   "t": "text",
+   "x": 20,
+   "y": 126,
+   "text": "B: rename fails",
+   "size": 14,
+   "align": "left",
+   "color": "muted"
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     150,
+     180
+    ],
+    [
+     250,
+     140
+    ]
+   ]
+  },
+  {
+   "t": "text",
+   "x": 20,
+   "y": 208,
+   "text": "B: takes the next file",
+   "size": 14,
+   "align": "left",
+   "color": "muted"
+  },
+  {
+   "t": "rect",
+   "x": 660,
+   "y": 70,
+   "w": 160,
+   "h": 50
+  },
+  {
+   "t": "text",
+   "x": 740.0,
+   "y": 84.375,
+   "text": "processing/",
+   "size": 17,
+   "mono": true
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     570,
+     90
+    ],
+    [
+     660,
+     95
+    ]
+   ]
+  }
+ ]
+}

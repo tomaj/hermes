@@ -1,22 +1,22 @@
 ---
 title: "Drivers"
-description: "Compare the Hermes drivers for Redis, Predis, RabbitMQ, and Amazon SQS: priority, delay, persistence, and ack."
+description: "Compare the Hermes drivers for Redis, Predis, RabbitMQ, Amazon SQS, and the filesystem: priority, delay, persistence, and ack."
 ---
 
 <script setup>
-const drivers = ['Redis <code>ext-redis</code>', 'Predis', 'RabbitMQ lazy', 'Amazon SQS']
+const drivers = ['Redis <code>ext-redis</code>', 'Predis', 'RabbitMQ lazy', 'Amazon SQS', 'FileSystem']
 const comparison = [
-  { label: 'Class', cells: ['<code>RedisSetDriver</code>', '<code>PredisSetDriver</code>', '<code>LazyRabbitMqDriver</code>', '<code>AmazonSqsDriver</code>'] },
-  { label: 'Priority', cells: ['✓ set per priority', '✓ set per priority', '✗ throws <code>NotSupportedException</code>', '✗ throws <code>NotSupportedException</code>'] },
-  { label: 'Delay', cells: ['✓ sorted set', '✓ sorted set', '✗ published at once', '✗ sent at once'] },
-  { label: 'Persistence', cells: ['~ Redis RDB or AOF config', '~ Redis RDB or AOF config', '✓ durable queue', '✓ stored by SQS'] },
-  { label: 'Ack', cells: ['✗ removed before the handler', '✗ removed before the handler', '✓ ack after the handler', '✓ deleted after the handler'] },
+  { label: 'Class', cells: ['<code>RedisSetDriver</code>', '<code>PredisSetDriver</code>', '<code>LazyRabbitMqDriver</code>', '<code>AmazonSqsDriver</code>', '<code>FileSystemDriver</code>'] },
+  { label: 'Priority', cells: ['✓ set per priority', '✓ set per priority', '✗ throws <code>NotSupportedException</code>', '✗ throws <code>NotSupportedException</code>', '✓ folder per priority'] },
+  { label: 'Delay', cells: ['✓ sorted set', '✓ sorted set', '✗ published at once', '✗ sent at once', '✓ due time in the file name'] },
+  { label: 'Persistence', cells: ['~ Redis RDB or AOF config', '~ Redis RDB or AOF config', '✓ durable queue', '✓ stored by SQS', '~ files on one local disk'] },
+  { label: 'Ack', cells: ['✗ removed before the handler', '✗ removed before the handler', '✓ ack after the handler', '✓ deleted after the handler', '✓ deleted after the handler'] },
 ]
 </script>
 
 # Drivers
 
-The four classes in `src/Driver` all implement `DriverInterface`. Pick one for the emitter and the same one for the dispatcher. They must agree on the queue name, the priority keys, and the schedule key, because those strings are the queue.
+The five classes in `src/Driver` all implement `DriverInterface`. Pick one for the emitter and the same one for the dispatcher. They must agree on the queue name, the priority keys, and the schedule key, because those strings are the queue.
 
 <Diagram name="drivers-1" alt="Choosing a driver: phpredis gives RedisSetDriver, Predis gives PredisSetDriver, RabbitMQ and SQS have their own drivers" />
 
@@ -54,6 +54,13 @@ The four classes in `src/Driver` all implement `DriverInterface`. Pick one for t
 - **Persistence.** SQS stores the body until this driver deletes it. The driver deletes after the callback returns. A failed handler leaves the message to reappear after the visibility timeout.
 - **Ack.** `deleteMessage` runs after unserialize and the callback succeed. Delivery is at least once. 5.x deleted before the handler ([#69](https://github.com/tomaj/hermes/issues/69)).
 
+### FileSystem notes
+
+- **Priority.** Each priority is a folder in the directory. `wait()` polls the highest number first.
+- **Delay.** The file name starts with the due time. `wait()` skips files that are not due yet.
+- **Persistence.** Plain files, on one local filesystem. Not on NFS.
+- **Ack.** A worker renames the file into `processing/` and deletes it after the callback. A crashed worker's message is delivered again after the visibility timeout.
+
 Within one Redis or Predis priority, order is not FIFO. A set has no order, and `SPOP` returns one random member.
 
 ## Which file to copy
@@ -64,6 +71,7 @@ Within one Redis or Predis priority, order is not FIFO. A set has no order, and 
 | Predis | [Predis](/guide/drivers/predis), `examples/predis` |
 | RabbitMQ | [RabbitMQ](/guide/drivers/rabbitmq), `examples/rabbitmq` |
 | AWS SQS | [Amazon SQS](/guide/drivers/sqs), `examples/sqs` |
+| One server, no broker | [FileSystem](/guide/drivers/filesystem), `examples/filesystem` |
 
 Shutdown helpers are not drivers. `SharedFileShutdown` works with any driver. `RedisShutdown` needs ext-redis. `PredisShutdown` needs Predis. They are documented on [Shutdown and max items](/guide/shutdown).
 
@@ -75,7 +83,7 @@ Shutdown helpers are not drivers. `SharedFileShutdown` works with any driver. `R
 
 ### Which driver keeps messages if a worker crashes?
 
-From 6.0, `LazyRabbitMqDriver` and `AmazonSqsDriver`: they remove the message only after the handler finished. The Redis drivers pop it first. On 5.x none of them did. See [Architecture](/guide/architecture).
+From 6.0, `LazyRabbitMqDriver`, `AmazonSqsDriver` and `FileSystemDriver`: they remove the message only after the handler finished. The Redis drivers pop it first. On 5.x none of them did. See [Architecture](/guide/architecture).
 
 ### Can the emitter and the worker use different drivers?
 
@@ -83,7 +91,7 @@ No. They must use the same driver class with the same keys, because the keys are
 
 ### Does any driver support acknowledgements?
 
-From 6.0, RabbitMQ acknowledges after the handler and SQS deletes after the handler. Redis pops the member first.
+From 6.0, RabbitMQ acknowledges after the handler, and SQS and the filesystem delete after the handler. Redis pops the member first.
 
 ### Is there a ZeroMQ driver?
 

@@ -111,10 +111,11 @@ public function wait(Closure $callback, array $priorities): void;
 | `PredisSetDriver` | `src/Driver/PredisSetDriver.php` | `(Client $redis, string $key = 'hermes', int $refreshInterval = 1, string $scheduleKey = 'hermes_schedule')` |
 | `LazyRabbitMqDriver` | `src/Driver/LazyRabbitMqDriver.php` | `(AbstractConnection $connection, string $queue, array $amqpMessageProperties = [], int $refreshInterval = 0, string $consumerTag = 'hermes', bool $durable = true)` |
 | `AmazonSqsDriver` | `src/Driver/AmazonSqsDriver.php` | `(SqsClient $client, string $queueName, array $queueAttributes = [])` |
+| `FileSystemDriver` | `src/Driver/FileSystemDriver.php` | `(string $directory, string $queue = 'hermes', int $refreshInterval = 1, int $visibilityTimeout = 300)` |
 
-`RedisSetDriver::setupPriorityQueue` and `PredisSetDriver::setupPriorityQueue` store `$name` at `$priority`. The other two always throw `NotSupportedException` and declare the `never` return type.
+`RedisSetDriver::setupPriorityQueue`, `PredisSetDriver::setupPriorityQueue` and `FileSystemDriver::setupPriorityQueue` store `$name` at `$priority`; `FileSystemDriver` throws `InvalidArgumentException` for a name that is not a safe folder name. The other two always throw `NotSupportedException` and declare the `never` return type.
 
-All four `use` `MaxItemsTrait`, `ShutdownTrait`, and `SerializerAwareTrait`.
+All five `use` `MaxItemsTrait`, `ShutdownTrait`, and `SerializerAwareTrait`.
 
 ## Traits
 
@@ -150,6 +151,7 @@ All four `use` `MaxItemsTrait`, `ShutdownTrait`, and `SerializerAwareTrait`.
 | `Shutdown\ShutdownException` | `HermesException` | A shutdown check asked the worker to stop. |
 | `Driver\UnknownPriorityException` | `HermesException` | `send()` or `wait()` used an integer that `setupPriorityQueue()` never stored. Message: `Unknown priority <n>`. |
 | `Driver\NotSupportedException` | `HermesException` | Priority queues on RabbitMQ or SQS. |
+| `Driver\FileSystemDriverException` | `HermesException` | `FileSystemDriver` cannot create a folder, or write, move or read a message file. |
 
 ## Tomaj\Hermes\SerializerInterface
 
@@ -239,7 +241,7 @@ It works but is deprecated. Use `Emitter`.
 
 ### Which traits do the built-in drivers use?
 
-`MaxItemsTrait`, `ShutdownTrait`, and `SerializerAwareTrait`, on all four.
+`MaxItemsTrait`, `ShutdownTrait`, and `SerializerAwareTrait`, on all five.
 
 ### Where are complete usage examples?
 

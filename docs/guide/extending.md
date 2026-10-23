@@ -89,7 +89,7 @@ Call `$callback($message, $priority)`. The dispatcher logs that integer. If you 
 
 `MaxItemsTrait` and `ShutdownTrait` are optional. Use them if `wait()` loops. `Dispatcher` will call `setShutdown()` only when the method exists.
 
-If you remove the message before the callback, document that, because the Redis and RabbitMQ drivers do and callers assume a crash loses the delivery. `AmazonSqsDriver` removes it only after the callback returns without an exception. If you remove it only after a `true` return, you are stricter than the built-in drivers. The dispatcher still ignores the boolean on the way back, so your driver has to read the callback's return value itself. The built-in drivers do not.
+If you remove the message before the callback, document that, because the Redis drivers do and callers assume a crash loses the delivery. `LazyRabbitMqDriver`, `AmazonSqsDriver` and `FileSystemDriver` remove it only after the callback returns without an exception. If you remove it only after a `true` return, you are stricter than the built-in drivers. The dispatcher still ignores the boolean on the way back, so your driver has to read the callback's return value itself. The built-in drivers do not.
 
 ## A handler
 
@@ -182,7 +182,7 @@ class ExtraFieldSerializer implements SerializerInterface
 $driver->setSerializer(new ExtraFieldSerializer());
 ```
 
-`setSerializer()` is not on `DriverInterface`. It exists on drivers that `use SerializerAwareTrait`. All four built-in drivers do.
+`setSerializer()` is not on `DriverInterface`. It exists on drivers that `use SerializerAwareTrait`. All five built-in drivers do.
 
 ## A shutdown signal
 
@@ -210,4 +210,4 @@ Ignore signals older than the worker's start time, like the built-in ones, so a 
 
 ### Can I sort priorities numerically in my driver?
 
-Yes. Sort the queue map with `krsort` before polling, as in the example on this page and in the built-in Redis drivers.
+Yes. Sort the queue map with `krsort` before polling, as in the example on this page and in the built-in Redis and FileSystem drivers.

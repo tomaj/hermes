@@ -9,7 +9,7 @@ Hermes can leave `Dispatcher::handle()`. It cannot start the process again. Supe
 
 <Diagram name="shutdown-1" alt="The worker loop checks the shutdown signal and max items, then exits so the process manager starts it again" />
 
-Pass the shutdown object to the dispatcher. If the driver has `setShutdown()`, the constructor calls it, so both checks run. The four built-in drivers use `ShutdownTrait`.
+Pass the shutdown object to the dispatcher. If the driver has `setShutdown()`, the constructor calls it, so both checks run. The five built-in drivers use `ShutdownTrait`.
 
 ```php
 $dispatcher = new Dispatcher($driver, $logger, $shutdown);
@@ -100,7 +100,7 @@ All three shutdowns compare the stored time with the worker host's clock. Keep t
 
 ## Max items
 
-`MaxItemsTrait` is on all four drivers.
+`MaxItemsTrait` is on all five drivers.
 
 ```php
 $driver->setMaxProcessItems(1000);

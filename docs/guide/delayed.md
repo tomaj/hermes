@@ -20,7 +20,7 @@ $emitter->emit($message);
 
 <Diagram name="delayed-1" alt="Driver.send checks executeAt: Redis and Predis put future messages in the schedule set, the worker moves them to the live queue when due" />
 
-Supported drivers are `RedisSetDriver` and `PredisSetDriver`. `LazyRabbitMqDriver::send()` and `AmazonSqsDriver::send()` do not read `getExecuteAt()`.
+Supported drivers are `RedisSetDriver`, `PredisSetDriver` and `FileSystemDriver`. `LazyRabbitMqDriver::send()` and `AmazonSqsDriver::send()` do not read `getExecuteAt()`.
 
 ## Redis extension
 
@@ -42,9 +42,13 @@ After a successful `ZREM` the driver unserializes it and calls `send()` with no 
 
 `wait()` reads with `zrangebyscore` and `LIMIT OFFSET 0 COUNT 1`, then `zrem`s that exact member, then `send()`s it. That `zrem` is the 4.0.1 fix for [issue #48](https://github.com/tomaj/hermes/issues/48). Promotion still uses `send()` without a priority, so the due message joins the default set.
 
+## FileSystem
+
+`FileSystemDriver::send()` names the file after `executeAt`, or after the creation time when there is none. `wait()` reads the files in name order and stops at the first one that is not due, so a delayed message stays in `new/` of its own priority folder until then. See [FileSystem](/guide/drivers/filesystem#order-delay-and-several-workers).
+
 ## Retry uses the same field
 
-`Dispatcher` sets `executeAt` from `nextRetry()` and calls `send()`. On Redis and Predis the retry waits. On RabbitMQ and SQS it does not. The formula is on the [Retry](/guide/retry) page.
+`Dispatcher` sets `executeAt` from `nextRetry()` and calls `send()`. On Redis, Predis and the filesystem the retry waits. On RabbitMQ and SQS it does not. The formula is on the [Retry](/guide/retry) page.
 
 ## FAQ
 

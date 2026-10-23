@@ -4,7 +4,7 @@ Runnable recipes for Hermes. Each recipe folder has its own `composer.json`, `Ma
 
 Until Hermes 6.0 is tagged, the recipes require `tomaj/hermes: dev-master` with `"minimum-stability": "dev"` and `"prefer-stable": true`, and the framework guides use `composer require tomaj/hermes:dev-master`. This is temporary: after the 6.0 release they switch to `^6.0`.
 
-`redis/`, `predis/`, `rabbitmq/` and `sqs/` are single-file snippets that load the root `vendor/autoload.php`; run `composer install` in the repository root first.
+`redis/`, `predis/`, `rabbitmq/` and `sqs/` are single-file snippets that load the root `vendor/autoload.php`; run `composer install` in the repository root first. `filesystem/` is a small project with its own `composer.json` and `e2e.sh` that needs no services.
 
 ## Running the checks against this checkout
 
@@ -12,8 +12,8 @@ Until Hermes 6.0 is tagged, the recipes require `tomaj/hermes: dev-master` with 
 
 ```bash
 examples/ci/recipe.sh welcome-email                            # one recipe; needs its services from `make up`
+examples/ci/recipe.sh filesystem                               # no services
 examples/ci/framework.sh laravel redis predis rabbitmq sqs     # a fresh Laravel (current major), Symfony 7.4 or Nette project
 ```
 
 `recipe.sh` copies the recipe to a temporary directory and `framework.sh` creates a new project there, so the checkout stays untouched. Both call `ci/use-local-hermes.sh`, which adds a Composer path repository for the repository root and fails when `vendor/tomaj/hermes` is not this checkout. `framework.sh` needs Redis, RabbitMQ and an SQS endpoint (`HERMES_SQS_ENDPOINT`, for example moto) for the drivers you name.
-

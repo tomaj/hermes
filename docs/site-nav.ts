@@ -65,6 +65,7 @@ export const sidebarEn: DocsNavItem[] = [
       { text: 'Predis', link: '/guide/drivers/predis' },
       { text: 'RabbitMQ', link: '/guide/drivers/rabbitmq' },
       { text: 'Amazon SQS', link: '/guide/drivers/sqs' },
+      { text: 'FileSystem', link: '/guide/drivers/filesystem' },
     ],
   },
   {

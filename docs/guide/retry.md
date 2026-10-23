@@ -56,7 +56,7 @@ The new message keeps the original id, type, payload, and `created`. `retries` b
 
 `HandleTest` covers the boundary. A message that already has `retries = 5` and a handler whose `maxRetry()` is `25` is republished with `retries = 6`. The same message with `maxRetry()` of `5` is not republished, because the test is `getRetries() < maxRetry()`. `RetryPolicyTest` covers `canRetry()`, the interface and the trait. A handler without the interface or the trait is not republished.
 
-The copy is one `send()`. On Redis and Predis that `executeAt` parks the copy in the sorted set. On RabbitMQ and SQS the publish is immediate, so the backoff number is stored and not waited on.
+The copy is one `send()`. On Redis and Predis that `executeAt` parks the copy in the sorted set; `FileSystemDriver` leaves the file in `new/` until it is due. On RabbitMQ and SQS the publish is immediate, so the backoff number is stored and not waited on.
 
 <Diagram name="retry-2" alt="Sequence of a retry: the dispatcher sends a copy with retries plus one, Redis schedules it, RabbitMQ and SQS publish it at once" />
 
@@ -78,7 +78,7 @@ return microtime(true) + $retries ** 4 + 15 + $this->randomizer->getInt(1, 30) *
 | 2 | 31 + a random integer from 3 to 90 |
 | n | `n^4 + 15 + jitter(1, 30) * (n + 1)` |
 
-Redis and Predis will wait, because `executeAt` is in the future. RabbitMQ and SQS publish the copy immediately. The timestamp is still inside the JSON, and the next failure still increments `retries`, but the worker can see the copy on the next poll. On those two drivers a failing handler can spin until `maxRetry()` is reached.
+Redis, Predis and the filesystem will wait, because `executeAt` is in the future. RabbitMQ and SQS publish the copy immediately. The timestamp is still inside the JSON, and the next failure still increments `retries`, but the worker can see the copy on the next poll. On those two drivers a failing handler can spin until `maxRetry()` is reached.
 
 ### Reproducible retry times
 
