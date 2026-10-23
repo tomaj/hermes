@@ -66,7 +66,7 @@ After a successful CI run on `master`, the documentation workflow publishes that
 
 `DummyDriver::setupPriorityQueue()` sorts keys numerically before `wait()` reverses them. That is why `HandleTest::testPriorityProcessing()` sees the higher priority first, which matches the Redis drivers from 6.0. On 5.x the Redis drivers did not sort. [Issue #50](https://github.com/tomaj/hermes/issues/50) is the Redis behavior.
 
-Driver tests that need a server mock the client (`Redis`, `Predis\Client`, `SqsClient`, the php-amqplib `AbstractConnection`). A green PHPUnit run does not require a local Redis, RabbitMQ, or AWS account.
+Driver tests that need a server mock the client (`Redis`, `Predis\Client`, `SqsClient`, the php-amqplib `AbstractConnection`, and for Kafka the rdkafka stubs). A green PHPUnit run does not require a local Redis, RabbitMQ, Kafka, or AWS account; integration tests skip without the matching env and extension.
 
 ## CI workflows
 

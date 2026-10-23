@@ -1,0 +1,13 @@
+<?php
+
+namespace RdKafka;
+
+class Message
+{
+    /**
+     * null for a tombstone (a message without a value); the bundled stub says string
+     *
+     * @var string|null
+     */
+    public $payload;
+}

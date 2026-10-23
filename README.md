@@ -22,7 +22,7 @@
 Hermes is a lightweight PHP library for background job processing. When you need to handle time-consuming tasks outside of HTTP requests—such as sending emails, calling external APIs, or processing data—Hermes provides a clean, efficient solution.
 
 Key features:
-- **Multiple queue backends**: Support for Redis, RabbitMQ, Amazon SQS, a local directory, and more
+- **Multiple queue backends**: Support for Redis, RabbitMQ, Amazon SQS, Kafka, a local directory, and more
 - **Simple integration**: Easy to add to existing projects with minimal setup
 - **Extensible architecture**: Create custom drivers and handlers for your specific needs
 - **Production-ready**: Built-in support for priorities, retries, and graceful shutdown
@@ -63,11 +63,13 @@ Hermes includes built-in support for multiple queue backends:
  * **[Amazon SQS][]** - AWS Simple Queue Service integration
  * **[RabbitMQ][]** - Industry-standard message broker
  * **FileSystem** - A queue in a local directory, for one server without a broker ([docs](https://tomaj.github.io/hermes/guide/drivers/filesystem))
+ * **[Apache Kafka][]** - Topics and consumer groups through [ext-rdkafka](https://github.com/arnaud-lb/php-rdkafka) ([docs](https://tomaj.github.io/hermes/guide/drivers/kafka))
  * **[ZeroMQ][]** - Available as a separate package: [tomaj/hermes-zmq-driver](https://github.com/tomaj/hermes-zmq-driver)
 
 **Note:** You need to install the corresponding client libraries for your chosen driver. For example, to use Redis with Predis, add `predis/predis` to your `composer.json` and configure your Redis connection.
 
 [Amazon SQS]: https://aws.amazon.com/sqs/
+[Apache Kafka]: https://kafka.apache.org/
 [php-zmq]: https://zeromq.org/
 [phpredis]: https://github.com/phpredis/phpredis
 [Redis]: https://redis.io/
@@ -327,7 +329,7 @@ $shutdown->shutdown();
 Hermes can easily scale to handle high message volumes. Simply run multiple worker instances—either on the same machine or distributed across multiple servers.
 
 Requirements for scaling:
-1. **Network-capable driver**: Your driver must support remote connections (Redis, RabbitMQ, and Amazon SQS all support this)
+1. **Network-capable driver**: Your driver must support remote connections (Redis, RabbitMQ, Amazon SQS and Kafka all support this)
 2. **At-most-once delivery**: Each message should be delivered to only one worker
 
 Both Redis and RabbitMQ drivers satisfy these requirements and are designed for high-throughput scenarios.

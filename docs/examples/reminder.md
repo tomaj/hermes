@@ -40,7 +40,7 @@ The message waits in `hermes_schedule` with the reminder time as its score. Abou
 
 ## Pitfalls
 
-- **On 5.x only Predis delays reliably.** `RedisSetDriver` (ext-redis) 5.x writes the sorted set but never moves due messages back ([#95](https://github.com/tomaj/hermes/issues/95), fixed in 6.0). RabbitMQ and SQS ignore `executeAt` and deliver at once. See [Delayed execution](/guide/delayed).
+- **On 5.x only Predis delays reliably.** `RedisSetDriver` (ext-redis) 5.x writes the sorted set but never moves due messages back ([#95](https://github.com/tomaj/hermes/issues/95), fixed in 6.0). RabbitMQ, SQS and Kafka ignore `executeAt` and deliver at once. See [Delayed execution](/guide/delayed).
 - **Check the state when the message runs.** A day is long: the reservation can be cancelled or moved. Load it again in the handler and do nothing if it no longer applies.
 - **A worker must be running.** Due messages move only inside `wait()`. If no worker runs at the reminder time, the reminder is late, not lost.
 - **`executeAt` is a Unix timestamp in seconds, as a float.** Compute it in UTC, for example with `strtotime()` or `DateTimeImmutable::getTimestamp()`, so time zones cannot shift it.

@@ -144,7 +144,7 @@ Returning `false` does not put the message back. The Redis driver has already re
 
 ### Does Hermes need a server or daemon of its own?
 
-No. Hermes is a PHP library. Your web code emits messages, and a PHP CLI script that you write runs the worker with `Dispatcher::handle()`. The only shared piece is the queue backend: Redis, RabbitMQ, SQS, or a local directory with `FileSystemDriver`.
+No. Hermes is a PHP library. Your web code emits messages, and a PHP CLI script that you write runs the worker with `Dispatcher::handle()`. The only shared piece is the queue backend: Redis, RabbitMQ, SQS, Kafka, or a local directory with `FileSystemDriver`.
 
 ### Which driver should I start with?
 

@@ -42,6 +42,7 @@
     },
     "suggest": {
         "ext-pcntl": "Lets the worker finish the current message and stop on SIGTERM and SIGINT",
+        "ext-rdkafka": "Needed for KafkaDriver (Apache Kafka, ext-rdkafka 6 with librdkafka)",
         "ext-redis": "Needed for RedisSetDriver and RedisShutdown (native Redis extension)",
         "aws/aws-sdk-php": "Needed for AmazonSqsDriver (Amazon SQS)",
         "monolog/monolog": "A PSR-3 logger to pass to Emitter and Dispatcher",
@@ -92,6 +93,7 @@
             "@putenv HERMES_TEST_REDIS=tcp://127.0.0.1:6379",
             "@putenv HERMES_TEST_RABBITMQ=127.0.0.1",
             "@putenv HERMES_TEST_SQS=http://127.0.0.1:4566",
+            "@putenv HERMES_TEST_KAFKA=127.0.0.1:9092",
             "@putenv HERMES_REQUIRE_SERVICES=1",
             "phpunit --no-coverage"
         ]

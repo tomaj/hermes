@@ -1,0 +1,203 @@
+{
+ "padding": 10,
+ "elements": [
+  {
+   "t": "rect",
+   "x": 0,
+   "y": 60,
+   "w": 150,
+   "h": 60
+  },
+  {
+   "t": "text",
+   "x": 75.0,
+   "y": 70.0,
+   "text": "Emitter\nsend()",
+   "size": 16
+  },
+  {
+   "t": "rect",
+   "x": 240,
+   "y": 0,
+   "w": 260,
+   "h": 180
+  },
+  {
+   "t": "text",
+   "x": 370,
+   "y": 8,
+   "text": "topic \"orders\"",
+   "size": 16,
+   "align": "center"
+  },
+  {
+   "t": "rect",
+   "x": 260,
+   "y": 45,
+   "w": 220,
+   "h": 34
+  },
+  {
+   "t": "text",
+   "x": 370.0,
+   "y": 53.25,
+   "text": "partition 0",
+   "size": 14,
+   "mono": true
+  },
+  {
+   "t": "rect",
+   "x": 260,
+   "y": 90,
+   "w": 220,
+   "h": 34
+  },
+  {
+   "t": "text",
+   "x": 370.0,
+   "y": 98.25,
+   "text": "partition 1",
+   "size": 14,
+   "mono": true
+  },
+  {
+   "t": "rect",
+   "x": 260,
+   "y": 135,
+   "w": 220,
+   "h": 34
+  },
+  {
+   "t": "text",
+   "x": 370.0,
+   "y": 143.25,
+   "text": "partition 2",
+   "size": 14,
+   "mono": true
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     150,
+     90
+    ],
+    [
+     240,
+     90
+    ]
+   ]
+  },
+  {
+   "t": "text",
+   "x": 195,
+   "y": 34,
+   "text": "produce,\nkey = id",
+   "size": 14,
+   "align": "center",
+   "color": "muted"
+  },
+  {
+   "t": "rect",
+   "x": 590,
+   "y": 10,
+   "w": 170,
+   "h": 190,
+   "dashed": true
+  },
+  {
+   "t": "text",
+   "x": 675,
+   "y": 18,
+   "text": "group.id",
+   "size": 15,
+   "align": "center",
+   "color": "muted"
+  },
+  {
+   "t": "rect",
+   "x": 610,
+   "y": 45,
+   "w": 130,
+   "h": 50
+  },
+  {
+   "t": "text",
+   "x": 675.0,
+   "y": 59.375,
+   "text": "worker A",
+   "size": 17
+  },
+  {
+   "t": "rect",
+   "x": 610,
+   "y": 125,
+   "w": 130,
+   "h": 50
+  },
+  {
+   "t": "text",
+   "x": 675.0,
+   "y": 139.375,
+   "text": "worker B",
+   "size": 17
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     480,
+     62
+    ],
+    [
+     610,
+     65
+    ]
+   ]
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     480,
+     107
+    ],
+    [
+     610,
+     80
+    ]
+   ]
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     480,
+     152
+    ],
+    [
+     610,
+     150
+    ]
+   ]
+  },
+  {
+   "t": "text",
+   "x": 545,
+   "y": 212,
+   "text": "each partition goes to\none worker of the group",
+   "size": 14,
+   "align": "center",
+   "color": "muted"
+  },
+  {
+   "t": "text",
+   "x": -40,
+   "y": 140,
+   "text": "flush(): send() returns\nonly after Kafka confirmed",
+   "size": 14,
+   "align": "left",
+   "color": "muted"
+  }
+ ]
+}

@@ -1,6 +1,6 @@
 ---
 title: "Delayed execution"
-description: "Run a message later with executeAt on Redis and Predis, and why RabbitMQ and SQS deliver at once."
+description: "Run a message later with executeAt on Redis and Predis, and why RabbitMQ, SQS and Kafka deliver at once."
 ---
 
 # Delayed execution
@@ -20,7 +20,7 @@ $emitter->emit($message);
 
 <Diagram name="delayed-1" alt="Driver.send checks executeAt: Redis and Predis put future messages in the schedule set, the worker moves them to the live queue when due" />
 
-Supported drivers are `RedisSetDriver`, `PredisSetDriver` and `FileSystemDriver`. `LazyRabbitMqDriver::send()` and `AmazonSqsDriver::send()` do not read `getExecuteAt()`.
+Supported drivers are `RedisSetDriver`, `PredisSetDriver` and `FileSystemDriver`. `LazyRabbitMqDriver::send()`, `AmazonSqsDriver::send()` and `KafkaDriver::send()` do not read `getExecuteAt()`.
 
 ## Redis extension
 
@@ -48,7 +48,7 @@ After a successful `ZREM` the driver unserializes it and calls `send()` with no 
 
 ## Retry uses the same field
 
-`Dispatcher` sets `executeAt` from `nextRetry()` and calls `send()`. On Redis, Predis and the filesystem the retry waits. On RabbitMQ and SQS it does not. The formula is on the [Retry](/guide/retry) page.
+`Dispatcher` sets `executeAt` from `nextRetry()` and calls `send()`. On Redis, Predis and the filesystem the retry waits. On RabbitMQ, SQS and Kafka it does not. The formula is on the [Retry](/guide/retry) page.
 
 ## FAQ
 
@@ -58,7 +58,7 @@ Pass a Unix timestamp as the fifth `Message` argument, `executeAt`, for example 
 
 ### Which drivers support delays?
 
-`RedisSetDriver` and `PredisSetDriver`. Both promote due messages with `ZREM`. In 5.x `RedisSetDriver` never promoted them ([issue #95](https://github.com/tomaj/hermes/issues/95)), so use Predis there. RabbitMQ and SQS deliver at once.
+`RedisSetDriver` and `PredisSetDriver`. Both promote due messages with `ZREM`. In 5.x `RedisSetDriver` never promoted them ([issue #95](https://github.com/tomaj/hermes/issues/95)), so use Predis there. RabbitMQ, SQS and Kafka deliver at once.
 
 ### Where are delayed messages stored?
 
