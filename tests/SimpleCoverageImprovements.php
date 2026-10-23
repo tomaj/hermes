@@ -34,6 +34,7 @@ use Tomaj\Hermes\Test\Driver\DummyDriver;
  * @covers \Tomaj\Hermes\MessageSerializer
  * @covers \Tomaj\Hermes\Shutdown\PredisShutdown
  * @covers \Tomaj\Hermes\Shutdown\RedisShutdown
+ * @uses \Tomaj\Hermes\Deprecation
  */
 class SimpleCoverageImprovements extends TestCase
 {

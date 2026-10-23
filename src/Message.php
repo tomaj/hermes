@@ -5,6 +5,9 @@ namespace Tomaj\Hermes;
 
 use Ramsey\Uuid\Uuid;
 
+/**
+ * @final since 5.1, final in 6.0: wrap the class or implement its interface instead of extending it
+ */
 class Message implements MessageInterface
 {
     private string $type;
@@ -34,6 +37,7 @@ class Message implements MessageInterface
      */
     public function __construct(string $type, ?array $payload = null, ?string $messageId = null, ?float $created = null, ?float $executeAt = null, int $retries = 0)
     {
+        Deprecation::subclass($this, self::class);
         $this->messageId = ($messageId === null || $messageId === '')
             ? Uuid::uuid4()->toString()
             : $messageId;

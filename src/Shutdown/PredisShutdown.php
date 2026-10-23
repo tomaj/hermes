@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes\Shutdown;
 
+use Tomaj\Hermes\Deprecation;
 use DateTime;
 use Predis\Client;
 
@@ -10,6 +11,8 @@ use Predis\Client;
  * Class PredisShutdown provides predis implementation of Tomaj\Hermes\Shutdown\ShutdownInterface
  *
  * Set UNIX timestamp (as `string`) to key `$key` (default `hermes_shutdown`) to shutdown Hermes worker.
+ *
+ * @final since 5.1, final in 6.0: wrap the class or implement its interface instead of extending it
  */
 class PredisShutdown implements ShutdownInterface
 {
@@ -19,6 +22,7 @@ class PredisShutdown implements ShutdownInterface
 
     public function __construct(Client $redis, string $key = 'hermes_shutdown')
     {
+        Deprecation::subclass($this, self::class);
         $this->redis = $redis;
         $this->key = $key;
     }

@@ -14,6 +14,7 @@ use Tomaj\Hermes\SerializerInterface;
  * @covers \Tomaj\Hermes\Driver\LazyRabbitMqDriver
  * @covers \Tomaj\Hermes\Message
  * @covers \Tomaj\Hermes\MessageSerializer
+ * @uses \Tomaj\Hermes\Deprecation
  */
 class LazyRabbitMqDriverTest extends TestCase
 {

@@ -21,6 +21,7 @@ use Tomaj\Hermes\Dispatcher;
  * @covers \Tomaj\Hermes\Emitter
  * @covers \Tomaj\Hermes\Driver\MaxItemsTrait
  * @covers \Tomaj\Hermes\Handler\RetryTrait
+ * @uses \Tomaj\Hermes\Deprecation
  */
 class HandleTest extends TestCase
 {

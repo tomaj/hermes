@@ -11,6 +11,7 @@ use DateTime;
 
 /**
  * @covers \Tomaj\Hermes\Driver\ShutdownTrait
+ * @uses \Tomaj\Hermes\Deprecation
  */
 class ShutdownTraitTest extends TestCase
 {

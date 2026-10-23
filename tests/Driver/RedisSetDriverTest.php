@@ -15,6 +15,7 @@ use Tomaj\Hermes\SerializerInterface;
  * @covers \Tomaj\Hermes\Message
  * @covers \Tomaj\Hermes\MessageSerializer
  * @requires extension redis
+ * @uses \Tomaj\Hermes\Deprecation
  */
 class RedisSetDriverTest extends TestCase
 {

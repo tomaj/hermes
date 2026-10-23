@@ -11,6 +11,7 @@ use Tomaj\Hermes\Message;
  *
  * @package Tomaj\Hermes\Test
  * @covers \Tomaj\Hermes\Message
+ * @uses \Tomaj\Hermes\Deprecation
  */
 class MessageTest extends TestCase
 {

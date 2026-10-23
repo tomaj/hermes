@@ -14,6 +14,7 @@ use Closure;
 
 /**
  * @covers \Tomaj\Hermes\Dispatcher
+ * @uses \Tomaj\Hermes\Deprecation
  */
 class DispatcherConstructorTest extends TestCase
 {

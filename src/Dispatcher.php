@@ -9,10 +9,14 @@ use Psr\Log\LogLevel;
 use Psr\Log\LoggerInterface;
 use Tomaj\Hermes\Driver\DriverInterface;
 use Tomaj\Hermes\Handler\HandlerInterface;
+use Tomaj\Hermes\Handler\RetryableHandlerInterface;
 use Tomaj\Hermes\Shutdown\ShutdownException;
 use Tomaj\Hermes\Shutdown\ShutdownInterface;
 use Tracy\Debugger;
 
+/**
+ * @final since 5.1, final in 6.0: wrap the class or implement its interface instead of extending it
+ */
 class Dispatcher implements DispatcherInterface
 {
     public const DEFAULT_PRIORITY = 100;
@@ -45,10 +49,14 @@ class Dispatcher implements DispatcherInterface
         $this->logger = $logger;
         $this->shutdown = $shutdown;
         $this->startTime = new DateTime();
+        Deprecation::subclass($this, self::class);
 
         // check if driver use ShutdownTrait
         if ($shutdown !== null && method_exists($this->driver, 'setShutdown')) {
+            // ShutdownTrait::setShutdown() reports a DateTime shutdown
             $this->driver->setShutdown($shutdown);
+        } elseif ($shutdown !== null) {
+            Deprecation::shutdown($shutdown);
         }
     }
 
@@ -169,7 +177,7 @@ class Dispatcher implements DispatcherInterface
                 Debugger::log($e, Debugger::EXCEPTION);
             }
 
-            $this->retryMessage($message, $handler);
+            $this->retryMessage($message, $handler, $e);
 
             $result = false;
         }
@@ -181,16 +189,30 @@ class Dispatcher implements DispatcherInterface
      *
      * @param MessageInterface $message
      * @param HandlerInterface $handler
+     * @param Exception $exception
      */
-    private function retryMessage(MessageInterface $message, HandlerInterface $handler): void
+    private function retryMessage(MessageInterface $message, HandlerInterface $handler, Exception $exception): void
     {
+        if ($handler instanceof RetryableHandlerInterface) {
+            // the 6.0 rules: canRetry() can skip the retry
+            if ($message->getRetries() < $handler->maxRetry() && $handler->canRetry($message, $exception)) {
+                $this->sendRetry($message);
+            }
+            return;
+        }
         if (method_exists($handler, 'canRetry') && method_exists($handler, 'maxRetry')) {
+            Deprecation::retry($handler);
             if ($message->getRetries() < $handler->maxRetry()) {
-                $executeAt = $this->nextRetry($message);
-                $newMessage = new Message($message->getType(), $message->getPayload(), $message->getId(), $message->getCreated(), $executeAt, $message->getRetries() + 1);
-                $this->driver->send($newMessage);
+                $this->sendRetry($message);
             }
         }
+    }
+
+    private function sendRetry(MessageInterface $message): void
+    {
+        $executeAt = $this->nextRetry($message);
+        $newMessage = new Message($message->getType(), $message->getPayload(), $message->getId(), $message->getCreated(), $executeAt, $message->getRetries() + 1);
+        $this->driver->send($newMessage);
     }
 
     /**

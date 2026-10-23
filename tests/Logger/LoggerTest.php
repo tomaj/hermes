@@ -19,6 +19,7 @@ use Tomaj\Hermes\Dispatcher;
  * @covers \Tomaj\Hermes\MessageSerializer
  * @covers \Tomaj\Hermes\Dispatcher
  * @covers \Tomaj\Hermes\Driver\MaxItemsTrait
+ * @uses \Tomaj\Hermes\Deprecation
  */
 class LoggerTest extends TestCase
 {

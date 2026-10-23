@@ -5,12 +5,16 @@ namespace Tomaj\Hermes\Driver;
 
 use Closure;
 use Predis\Client;
+use Tomaj\Hermes\Deprecation;
 use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
 use Tomaj\Hermes\Shutdown\ShutdownException;
 use Tomaj\Hermes\SerializeException;
 
+/**
+ * @final since 5.1, final in 6.0: wrap the class or implement its interface instead of extending it
+ */
 class PredisSetDriver implements DriverInterface
 {
     use MaxItemsTrait;
@@ -55,6 +59,7 @@ class PredisSetDriver implements DriverInterface
      */
     public function __construct(Client $redis, string $key = 'hermes', int $refreshInterval = 1, string $scheduleKey = 'hermes_schedule')
     {
+        Deprecation::subclass($this, self::class);
         $this->setupPriorityQueue($key, Dispatcher::DEFAULT_PRIORITY);
 
         $this->scheduleKey = $scheduleKey;
@@ -112,6 +117,7 @@ class PredisSetDriver implements DriverInterface
     public function wait(Closure $callback, array $priorities = []): void
     {
         $queues = array_reverse($this->queues, true);
+        Deprecation::priorityOrder(self::class, array_keys($queues));
         while (true) {
             $this->checkShutdown();
             if (!$this->shouldProcessNext()) {

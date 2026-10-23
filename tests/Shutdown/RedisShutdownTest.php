@@ -13,6 +13,7 @@ use Tomaj\Hermes\Shutdown\RedisShutdown;
  * @package Tomaj\Hermes\Test\Shutdown
  * @covers \Tomaj\Hermes\Shutdown\RedisShutdown
  * @requires extension redis
+ * @uses \Tomaj\Hermes\Deprecation
  */
 class RedisShutdownTest extends TestCase
 {

@@ -223,7 +223,7 @@ class SendEmailHandlerWithLogger implements HandlerInterface
 
 ## Retry
 
-If your handler fails, you can automatically retry by adding the `RetryTrait` to your handler class. Override the `maxRetry()` method to control the number of retry attempts (default is 25).
+If your handler fails, you can automatically retry by implementing `RetryableHandlerInterface` and adding the `RetryTrait` to your handler class. Override the `maxRetry()` method to control the number of retry attempts (default is 25).
 
 **Note:** Retry functionality requires a driver that supports delayed execution (the `$executeAt` message parameter). 
 
@@ -234,7 +234,7 @@ namespace Tomaj\Hermes\Handler;
 
 use Tomaj\Hermes\MessageInterface;
 
-class EchoHandler implements HandlerInterface
+class EchoHandler implements RetryableHandlerInterface
 {
     use RetryTrait;
 
@@ -250,6 +250,12 @@ class EchoHandler implements HandlerInterface
     }
 }
 ```
+
+Since 5.1, a handler that implements `RetryableHandlerInterface` follows the 6.0 rules: `canRetry($message, $exception)` is called and returning `false` skips the retry.
+
+## Preparing for 6.0
+
+Hermes 5.1 reports code that behaves differently in 6.0 as `E_USER_DEPRECATED` notices (silenced with `@`, so they reach deprecation collectors such as PHPUnit or Symfony's error handler, not your logs). Fix the notices before upgrading; [CHANGELOG.md](CHANGELOG.md) lists them, together with the 6.0 changes that cannot be reported in 5.x.
 
 ## Priorities
 

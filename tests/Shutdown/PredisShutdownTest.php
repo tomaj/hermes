@@ -13,6 +13,7 @@ use Tomaj\Hermes\Shutdown\PredisShutdown;
  *
  * @package Tomaj\Hermes\Test\Shutdown
  * @covers \Tomaj\Hermes\Shutdown\PredisShutdown
+ * @uses \Tomaj\Hermes\Deprecation
  */
 class PredisShutdownTest extends TestCase
 {

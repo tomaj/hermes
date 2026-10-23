@@ -5,6 +5,7 @@ namespace Tomaj\Hermes\Test\Handler;
 
 /**
  * @covers \Tomaj\Hermes\Handler\RetryTrait
+ * @uses \Tomaj\Hermes\Deprecation
  */
 class RetryTraitTest extends \PHPUnit\Framework\TestCase
 {
