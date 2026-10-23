@@ -46,11 +46,32 @@ jobs:
       sqs:
         image: motoserver/moto:5.2.4@sha256:120b1589c6df7e35d2092935f6ff724486bb2c4189d0e36ce795baba1400ffd2
         ports: ['4566:5000']
+      kafka:
+        image: apache/kafka:4.3.1@sha256:77e3df9054047a88b520d0cc46e16696d3b22022e1d580aeccd2632df6532837
+        ports: ['9092:9092']
+        env:
+          KAFKA_NODE_ID: 1
+          KAFKA_PROCESS_ROLES: broker,controller
+          KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://127.0.0.1:9092
+          KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+          KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+          KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+          KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+          KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+          KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+        options: >-
+          --health-cmd "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server 127.0.0.1:9092"
+          --health-interval 5s
+          --health-timeout 20s
+          --health-retries 30
 
     env:
       HERMES_TEST_REDIS: tcp://127.0.0.1:6379
       HERMES_TEST_RABBITMQ: 127.0.0.1
       HERMES_TEST_SQS: http://127.0.0.1:4566
+      HERMES_TEST_KAFKA: 127.0.0.1:9092
       HERMES_REQUIRE_SERVICES: '1'
 
     steps:
@@ -60,7 +81,7 @@ jobs:
       uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
       with:
         php-version: ${{ matrix.php }}
-        extensions: mbstring, xml, redis
+        extensions: mbstring, xml, redis, rdkafka
         coverage: xdebug
 
     - name: Validate composer.json
@@ -76,6 +97,10 @@ jobs:
 
     - name: Install dependencies
       run: composer update ${{ matrix.dependency-version }} --prefer-dist --no-progress --no-interaction
+
+    - name: Require ext-rdkafka
+      # the Kafka tests skip without the extension; fail instead
+      run: php --ri rdkafka
 
     - name: Wait for moto
       run: curl --silent --show-error --fail --retry 30 --retry-delay 1 --retry-all-errors --output /dev/null http://127.0.0.1:4566/moto-api/
@@ -225,11 +250,32 @@ jobs:
       sqs:
         image: motoserver/moto:5.2.4@sha256:120b1589c6df7e35d2092935f6ff724486bb2c4189d0e36ce795baba1400ffd2
         ports: ['4566:5000']
+      kafka:
+        image: apache/kafka:4.3.1@sha256:77e3df9054047a88b520d0cc46e16696d3b22022e1d580aeccd2632df6532837
+        ports: ['9092:9092']
+        env:
+          KAFKA_NODE_ID: 1
+          KAFKA_PROCESS_ROLES: broker,controller
+          KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://127.0.0.1:9092
+          KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+          KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+          KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+          KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+          KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+          KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+        options: >-
+          --health-cmd "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server 127.0.0.1:9092"
+          --health-interval 5s
+          --health-timeout 20s
+          --health-retries 30
 
     env:
       HERMES_TEST_REDIS: tcp://127.0.0.1:6379
       HERMES_TEST_RABBITMQ: 127.0.0.1
       HERMES_TEST_SQS: http://127.0.0.1:4566
+      HERMES_TEST_KAFKA: 127.0.0.1:9092
       HERMES_REQUIRE_SERVICES: '1'
 
     steps:
@@ -239,11 +285,15 @@ jobs:
       uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
       with:
         php-version: '8.4'
-        extensions: mbstring, xml, redis
+        extensions: mbstring, xml, redis, rdkafka
         coverage: xdebug
 
     - name: Install dependencies
       run: composer update --prefer-dist --no-progress --no-interaction
+
+    - name: Require ext-rdkafka
+      # the Kafka tests skip without the extension; fail instead
+      run: php --ri rdkafka
 
     - name: Wait for moto
       run: curl --silent --show-error --fail --retry 30 --retry-delay 1 --retry-all-errors --output /dev/null http://127.0.0.1:4566/moto-api/
