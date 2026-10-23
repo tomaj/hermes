@@ -4,7 +4,7 @@ layout: home
 hero:
   name: Hermes
   text: Background jobs for PHP
-  tagline: Emit a message from the request, and let a CLI worker run the slow part. Redis, Predis, RabbitMQ, Amazon SQS, and a local directory in version 6.x.
+  tagline: Emit a message from the request, and let a CLI worker run the slow part. Redis, Predis, RabbitMQ, Amazon SQS, Kafka, and a local directory in version 6.x.
   image:
     src: /illustrations/hero-light.svg
     alt: A web app emits a message into a queue that a worker handles
@@ -23,7 +23,7 @@ features:
       width: 42px
       height: 42px
     title: Four built-in drivers
-    details: Redis via ext-redis, Predis, lazy RabbitMQ, Amazon SQS, and the filesystem. Each one implements DriverInterface.
+    details: Redis via ext-redis, Predis, lazy RabbitMQ, Amazon SQS, Kafka, and the filesystem. Each one implements DriverInterface.
   - icon:
       src: /icons/retry.svg
       alt: Retry

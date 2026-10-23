@@ -13,7 +13,7 @@ The supported extension points are `DriverInterface`, `HandlerInterface`, `Seria
 
 ## A driver
 
-`send()` must be safe to call from a web request. `wait()` may block. Throw `UnknownPriorityException` for a priority you did not register. Throw `NotSupportedException` from `setupPriorityQueue()` if you only have one queue, the way RabbitMQ and SQS do.
+`send()` must be safe to call from a web request. `wait()` may block. Throw `UnknownPriorityException` for a priority you did not register. Throw `NotSupportedException` from `setupPriorityQueue()` if you only have one queue, the way RabbitMQ, SQS and Kafka do.
 
 This driver sorts priorities with `krsort` so a larger integer is popped first. The built-in Redis drivers do the same from 6.0 ([issue #50](https://github.com/tomaj/hermes/issues/50)).
 
@@ -89,7 +89,7 @@ Call `$callback($message, $priority)`. The dispatcher logs that integer. If you 
 
 `MaxItemsTrait` and `ShutdownTrait` are optional. Use them if `wait()` loops. `Dispatcher` will call `setShutdown()` only when the method exists.
 
-If you remove the message before the callback, document that, because the Redis drivers do and callers assume a crash loses the delivery. `LazyRabbitMqDriver`, `AmazonSqsDriver` and `FileSystemDriver` remove it only after the callback returns without an exception. If you remove it only after a `true` return, you are stricter than the built-in drivers. The dispatcher still ignores the boolean on the way back, so your driver has to read the callback's return value itself. The built-in drivers do not.
+If you remove the message before the callback, document that, because the Redis drivers do and callers assume a crash loses the delivery. `LazyRabbitMqDriver`, `AmazonSqsDriver`, `KafkaDriver` and `FileSystemDriver` remove it only after the callback returns without an exception. If you remove it only after a `true` return, you are stricter than the built-in drivers. The dispatcher still ignores the boolean on the way back, so your driver has to read the callback's return value itself. The built-in drivers do not.
 
 ## A handler
 
@@ -182,7 +182,7 @@ class ExtraFieldSerializer implements SerializerInterface
 $driver->setSerializer(new ExtraFieldSerializer());
 ```
 
-`setSerializer()` is not on `DriverInterface`. It exists on drivers that `use SerializerAwareTrait`. All five built-in drivers do.
+`setSerializer()` is not on `DriverInterface`. It exists on drivers that `use SerializerAwareTrait`. All six built-in drivers do.
 
 ## A shutdown signal
 

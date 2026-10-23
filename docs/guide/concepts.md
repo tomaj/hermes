@@ -128,7 +128,7 @@ public function setupPriorityQueue(string $name, int $priority): void;
 public function wait(Closure $callback, array $priorities): void;
 ```
 
-`send()` must return quickly. It runs in the web process. `wait()` blocks. It runs in the worker. The `$priorities` list is a filter of **priority integers**. An empty array means "every queue this driver knows". A non-empty array skips priorities that are not in the list. RabbitMQ and SQS accept the argument and do not use it.
+`send()` must return quickly. It runs in the web process. `wait()` blocks. It runs in the worker. The `$priorities` list is a filter of **priority integers**. An empty array means "every queue this driver knows". A non-empty array skips priorities that are not in the list. RabbitMQ, SQS and Kafka accept the argument and do not use it.
 
 `setupPriorityQueue()` on `LazyRabbitMqDriver` throws `NotSupportedException` with `LazyRabbitMqDriver is not supporting priority queues now`. `AmazonSqsDriver` throws `AmazonSQS is not supporting priority queues now`.
 

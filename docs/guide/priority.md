@@ -7,7 +7,7 @@ description: "Priority queues on the Redis drivers, their numeric polling order,
 
 Priority is an integer you pass to `emit()` or `send()`, and a name you bind to that integer with `setupPriorityQueue()`. Higher numbers are the ones you intend to run first. `Dispatcher::DEFAULT_PRIORITY` is `100`.
 
-The Redis drivers and `FileSystemDriver` implement it. RabbitMQ and SQS throw from `setupPriorityQueue()` and ignore the integer on `send()`.
+The Redis drivers and `FileSystemDriver` implement it. RabbitMQ, SQS and Kafka throw from `setupPriorityQueue()` and ignore the integer on `send()`.
 
 ```php
 $driver->setupPriorityQueue('hermes_low', Dispatcher::DEFAULT_PRIORITY - 10);
@@ -72,7 +72,7 @@ Give the 110 process more replicas than the others. Each process only `SPOP`s it
 
 ### Which drivers support priorities?
 
-`RedisSetDriver`, `PredisSetDriver` and `FileSystemDriver`. RabbitMQ and SQS throw `NotSupportedException` from `setupPriorityQueue()`.
+`RedisSetDriver`, `PredisSetDriver` and `FileSystemDriver`. RabbitMQ, SQS and Kafka throw `NotSupportedException` from `setupPriorityQueue()`.
 
 ### Why did a lower priority run first?
 

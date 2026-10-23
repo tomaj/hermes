@@ -4,7 +4,7 @@ Runnable recipes for Hermes. Each recipe folder has its own `composer.json`, `Ma
 
 Until Hermes 6.0 is tagged, the recipes require `tomaj/hermes: dev-master` with `"minimum-stability": "dev"` and `"prefer-stable": true`, and the framework guides use `composer require tomaj/hermes:dev-master`. This is temporary: after the 6.0 release they switch to `^6.0`.
 
-`redis/`, `predis/`, `rabbitmq/` and `sqs/` are single-file snippets that load the root `vendor/autoload.php`; run `composer install` in the repository root first. `filesystem/` is a small project with its own `composer.json` and `e2e.sh` that needs no services.
+`redis/`, `predis/`, `rabbitmq/` and `sqs/` are single-file snippets that load the root `vendor/autoload.php`; run `composer install` in the repository root first. `filesystem/` is a small project with its own `composer.json` and `e2e.sh` that needs no services. `kafka/` is a small project with its own `composer.json`, `docker-compose.yml` and `e2e.sh`; it needs `ext-rdkafka`.
 
 ## Running the checks against this checkout
 
@@ -13,6 +13,7 @@ Until Hermes 6.0 is tagged, the recipes require `tomaj/hermes: dev-master` with 
 ```bash
 examples/ci/recipe.sh welcome-email                            # one recipe; needs its services from `make up`
 examples/ci/recipe.sh filesystem                               # no services
+examples/ci/recipe.sh kafka                                    # needs ext-rdkafka and Kafka from examples/kafka/docker-compose.yml or compose.yaml
 examples/ci/framework.sh laravel redis predis rabbitmq sqs     # a fresh Laravel (current major), Symfony 7.4 or Nette project
 ```
 

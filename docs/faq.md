@@ -19,11 +19,11 @@ An integer in the id position does not set a priority. With `declare(strict_type
 
 From 6.0 `RedisSetDriver` and `PredisSetDriver` poll queues by priority number, highest first. Up to 5.x they polled in reverse registration order, so the default priority `100`, registered in the constructor, was polled last ([issue #50](https://github.com/tomaj/hermes/issues/50)). On 5.x, [Priority](/guide/priority) shows a `handle([110])` worker as the way to pin one integer.
 
-RabbitMQ and SQS do not implement priority. `setupPriorityQueue()` throws `NotSupportedException`.
+RabbitMQ, SQS and Kafka do not implement priority. `setupPriorityQueue()` throws `NotSupportedException`.
 
 ## Why was retry instant on RabbitMQ or SQS?
 
-`executeAt` is honored by the two Redis drivers and by `FileSystemDriver`. RabbitMQ and SQS publish immediately. The retry copy still increments `retries` and still stops after `maxRetry()`.
+`executeAt` is honored by the two Redis drivers and by `FileSystemDriver`. RabbitMQ, SQS and Kafka publish immediately. The retry copy still increments `retries` and still stops after `maxRetry()`.
 
 ## I returned `false` and the message disappeared
 
@@ -71,7 +71,7 @@ The HTML report is now published at [https://tomaj.github.io/hermes/coverage/](h
 
 ## How do I stop a message from disappearing?
 
-You cannot, with the Redis drivers, keep the broker copy until `handle()` returns: Redis and Predis `SPOP` first, so a crash after that removal and before the handler finishes drops that delivery. From 6.0 RabbitMQ acknowledges only after the callback ([#70](https://github.com/tomaj/hermes/issues/70)), SQS calls `deleteMessage` only after the callback returns ([#69](https://github.com/tomaj/hermes/issues/69)), and `FileSystemDriver` deletes the file only after the callback, so a failed or crashed handler leaves the message to be redelivered. A retry copy is published only when the handler throws and still has retries. The practical controls are a short handler, `setMaxProcessItems()` so the process restarts cleanly, and a handler that can run twice safely.
+You cannot, with the Redis drivers, keep the broker copy until `handle()` returns: Redis and Predis `SPOP` first, so a crash after that removal and before the handler finishes drops that delivery. From 6.0 RabbitMQ acknowledges only after the callback ([#70](https://github.com/tomaj/hermes/issues/70)), SQS calls `deleteMessage` only after the callback returns ([#69](https://github.com/tomaj/hermes/issues/69)), Kafka commits the offset only after the callback, and `FileSystemDriver` deletes the file only after the callback, so a failed or crashed handler leaves the message to be redelivered. A retry copy is published only when the handler throws and still has retries. The practical controls are a short handler, `setMaxProcessItems()` so the process restarts cleanly, and a handler that can run twice safely.
 
 ## What happens when the handler throws?
 
@@ -83,7 +83,7 @@ Yes, when `ext-pcntl` is loaded. It finishes the current message, logs `Exiting 
 
 ## How do I run more than one worker?
 
-Start the same CLI script more than once. Supervisor `numprocs`, several systemd units, or a Kubernetes replica count are enough. The workers do not elect a leader. Redis `SPOP`, the brokers, and `FileSystemDriver`'s atomic `rename()` give each delivery to one consumer. [Production deployment](/guide/deployment) shows the shape.
+Start the same CLI script more than once. Supervisor `numprocs`, several systemd units, or a Kubernetes replica count are enough. The workers do not elect a leader. Redis `SPOP`, the brokers, Kafka consumer groups, and `FileSystemDriver`'s atomic `rename()` give each delivery to one consumer. [Production deployment](/guide/deployment) shows the shape.
 
 ## How do I restart workers after a deploy?
 
@@ -99,7 +99,7 @@ Hermes stores the handler objects and a processed-item counter. It does not pool
 
 ## Are messages FIFO?
 
-Not on Redis or Predis: live queues are sets, and `SPOP` returns one random member. Two messages with the same priority have no order. Across priorities, `wait()` walks queues from the highest number down (5.x used reverse insertion order, [issue #50](https://github.com/tomaj/hermes/issues/50)). `FileSystemDriver` is FIFO within each priority folder. RabbitMQ and SQS order is whatever those brokers do with a single queue. Hermes does not set a FIFO SQS queue or a message group.
+Not on Redis or Predis: live queues are sets, and `SPOP` returns one random member. Two messages with the same priority have no order. Across priorities, `wait()` walks queues from the highest number down (5.x used reverse insertion order, [issue #50](https://github.com/tomaj/hermes/issues/50)). `FileSystemDriver` is FIFO within each priority folder. RabbitMQ, SQS and Kafka order is whatever those brokers do with a single queue (Kafka: one partition is ordered). Hermes does not set a FIFO SQS queue or a message group.
 
 ## Can the same work run twice?
 
@@ -119,4 +119,4 @@ Both, for different things, and Tracy is optional (`composer require tracy/tracy
 
 ## How does this compare with Symfony Messenger or Laravel queues?
 
-Those frameworks ack after the handler, store failed jobs, and ship a consumer command. The Redis drivers remove the delivery before `handle()` returns; RabbitMQ, SQS and `FileSystemDriver` remove it only after. Hermes has no failed-job table and no `bin/console` command. You write `worker.php`. Delay is `executeAt` on the Redis drivers and on `FileSystemDriver`. Retry is `RetryTrait` plus the formula in `Dispatcher::nextRetry()`, not a transport retry policy. Middleware, stamps, and a separate failure transport are not part of this library. Use Hermes when you want that smaller loop. Use Messenger or Laravel queues when you want ack-after-success and their retry stacks.
+Those frameworks ack after the handler, store failed jobs, and ship a consumer command. The Redis drivers remove the delivery before `handle()` returns; RabbitMQ, SQS, Kafka and `FileSystemDriver` remove it only after. Hermes has no failed-job table and no `bin/console` command. You write `worker.php`. Delay is `executeAt` on the Redis drivers and on `FileSystemDriver`. Retry is `RetryTrait` plus the formula in `Dispatcher::nextRetry()`, not a transport retry policy. Middleware, stamps, and a separate failure transport are not part of this library. Use Hermes when you want that smaller loop. Use Messenger or Laravel queues when you want ack-after-success and their retry stacks.

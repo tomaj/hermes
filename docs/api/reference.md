@@ -112,10 +112,11 @@ public function wait(Closure $callback, array $priorities): void;
 | `LazyRabbitMqDriver` | `src/Driver/LazyRabbitMqDriver.php` | `(AbstractConnection $connection, string $queue, array $amqpMessageProperties = [], int $refreshInterval = 0, string $consumerTag = 'hermes', bool $durable = true)` |
 | `AmazonSqsDriver` | `src/Driver/AmazonSqsDriver.php` | `(SqsClient $client, string $queueName, array $queueAttributes = [])` |
 | `FileSystemDriver` | `src/Driver/FileSystemDriver.php` | `(string $directory, string $queue = 'hermes', int $refreshInterval = 1, int $visibilityTimeout = 300)` |
+| `KafkaDriver` | `src/Driver/KafkaDriver.php` | `(Producer $producer, ?KafkaConsumer $consumer = null, string $topic = 'hermes', int $consumeTimeout = 1000, int $flushTimeout = 10000)` |
 
-`RedisSetDriver::setupPriorityQueue`, `PredisSetDriver::setupPriorityQueue` and `FileSystemDriver::setupPriorityQueue` store `$name` at `$priority`; `FileSystemDriver` throws `InvalidArgumentException` for a name that is not a safe folder name. The other two always throw `NotSupportedException` and declare the `never` return type.
+`RedisSetDriver::setupPriorityQueue`, `PredisSetDriver::setupPriorityQueue` and `FileSystemDriver::setupPriorityQueue` store `$name` at `$priority`; `FileSystemDriver` throws `InvalidArgumentException` for a name that is not a safe folder name. `LazyRabbitMqDriver`, `AmazonSqsDriver` and `KafkaDriver` always throw `NotSupportedException` and declare the `never` return type.
 
-All five `use` `MaxItemsTrait`, `ShutdownTrait`, and `SerializerAwareTrait`.
+All six `use` `MaxItemsTrait`, `ShutdownTrait`, and `SerializerAwareTrait`.
 
 ## Traits
 
@@ -150,8 +151,9 @@ All five `use` `MaxItemsTrait`, `ShutdownTrait`, and `SerializerAwareTrait`.
 | `SerializeException` | `HermesException` | JSON encode or decode failed. The message never contains the serialized string, only the reason, its length and a SHA-256 prefix. |
 | `Shutdown\ShutdownException` | `HermesException` | A shutdown check asked the worker to stop. |
 | `Driver\UnknownPriorityException` | `HermesException` | `send()` or `wait()` used an integer that `setupPriorityQueue()` never stored. Message: `Unknown priority <n>`. |
-| `Driver\NotSupportedException` | `HermesException` | Priority queues on RabbitMQ or SQS. |
+| `Driver\NotSupportedException` | `HermesException` | Priority queues on RabbitMQ, SQS or Kafka. |
 | `Driver\FileSystemDriverException` | `HermesException` | `FileSystemDriver` cannot create a folder, or write, move or read a message file. |
+| `Driver\KafkaDriverException` | `HermesException` | Kafka did not confirm a sent message, the consumer reported an error, or `wait()` has no consumer. |
 
 ## Tomaj\Hermes\SerializerInterface
 
@@ -241,7 +243,7 @@ It works but is deprecated. Use `Emitter`.
 
 ### Which traits do the built-in drivers use?
 
-`MaxItemsTrait`, `ShutdownTrait`, and `SerializerAwareTrait`, on all five.
+`MaxItemsTrait`, `ShutdownTrait`, and `SerializerAwareTrait`, on all six.
 
 ### Where are complete usage examples?
 

@@ -1,0 +1,232 @@
+{
+ "padding": 10,
+ "elements": [
+  {
+   "t": "rect",
+   "x": 0,
+   "y": 40,
+   "w": 130,
+   "h": 50
+  },
+  {
+   "t": "text",
+   "x": 65.0,
+   "y": 54.375,
+   "text": "consume()",
+   "size": 17
+  },
+  {
+   "t": "rect",
+   "x": 200,
+   "y": 40,
+   "w": 140,
+   "h": 50
+  },
+  {
+   "t": "text",
+   "x": 270.0,
+   "y": 54.375,
+   "text": "unserialize",
+   "size": 17
+  },
+  {
+   "t": "rect",
+   "x": 410,
+   "y": 40,
+   "w": 130,
+   "h": 50
+  },
+  {
+   "t": "text",
+   "x": 475.0,
+   "y": 54.375,
+   "text": "handler",
+   "size": 17
+  },
+  {
+   "t": "rect",
+   "x": 610,
+   "y": 40,
+   "w": 130,
+   "h": 50
+  },
+  {
+   "t": "text",
+   "x": 675.0,
+   "y": 54.375,
+   "text": "commit()",
+   "size": 17
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     130,
+     65
+    ],
+    [
+     200,
+     65
+    ]
+   ]
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     340,
+     65
+    ],
+    [
+     410,
+     65
+    ]
+   ]
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     540,
+     65
+    ],
+    [
+     610,
+     65
+    ]
+   ]
+  },
+  {
+   "t": "text",
+   "x": 575,
+   "y": 15,
+   "text": "returned",
+   "size": 14,
+   "align": "center",
+   "color": "muted"
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     675,
+     90
+    ],
+    [
+     675,
+     140
+    ],
+    [
+     65,
+     140
+    ],
+    [
+     65,
+     90
+    ]
+   ],
+   "color": "muted"
+  },
+  {
+   "t": "text",
+   "x": 370,
+   "y": 150,
+   "text": "next message",
+   "size": 14,
+   "align": "center",
+   "color": "muted"
+  },
+  {
+   "t": "rect",
+   "x": 410,
+   "y": 200,
+   "w": 130,
+   "h": 50
+  },
+  {
+   "t": "text",
+   "x": 475.0,
+   "y": 214.375,
+   "text": "worker stops",
+   "size": 17
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     475,
+     90
+    ],
+    [
+     475,
+     200
+    ]
+   ],
+   "dashed": true
+  },
+  {
+   "t": "text",
+   "x": 485,
+   "y": 160,
+   "text": "callback throws",
+   "size": 14,
+   "align": "left",
+   "color": "muted"
+  },
+  {
+   "t": "text",
+   "x": 475,
+   "y": 262,
+   "text": "not committed: the next worker\nof the group gets it again",
+   "size": 14,
+   "align": "center",
+   "color": "muted"
+  },
+  {
+   "t": "rect",
+   "x": 200,
+   "y": 200,
+   "w": 140,
+   "h": 50
+  },
+  {
+   "t": "text",
+   "x": 270.0,
+   "y": 215.625,
+   "text": "commit, rethrow",
+   "size": 15
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     270,
+     90
+    ],
+    [
+     270,
+     200
+    ]
+   ],
+   "dashed": true
+  },
+  {
+   "t": "text",
+   "x": 262,
+   "y": 160,
+   "text": "bad JSON",
+   "size": 14,
+   "align": "right",
+   "color": "muted"
+  },
+  {
+   "t": "text",
+   "x": 270,
+   "y": 262,
+   "text": "skipped, so it cannot\nblock its partition",
+   "size": 14,
+   "align": "center",
+   "color": "muted"
+  }
+ ]
+}

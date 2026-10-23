@@ -108,9 +108,9 @@ Create new queues (for example in development) with the same attributes, using `
 
 ### At-least-once delivery and handler errors
 
-RabbitMQ and SQS now deliver at least once, so their handlers should be idempotent. The Redis drivers still remove a message before the handler runs.
+RabbitMQ, SQS and Kafka now deliver at least once, so their handlers should be idempotent. The Redis drivers still remove a message before the handler runs.
 
-`Dispatcher` catches any `Throwable` from a handler ([#112](https://github.com/tomaj/hermes/issues/112)). In 5.x a PHP `Error`, such as a `TypeError`, was not caught and killed the worker; with RabbitMQ and SQS the message then came back and killed the next worker too. Now an `Error` is handled like an `Exception`: it is logged at `error`, the message counts as handled, is acknowledged (RabbitMQ) or deleted (SQS), and the handler's [retry](docs/guide/retry.md) settings decide whether a retry copy is sent. If you relied on an `Error` stopping the worker, catch it in the handler and stop the worker yourself through a shutdown. Handlers that converted `Error` to an exception keep working; the conversion is no longer needed.
+`Dispatcher` catches any `Throwable` from a handler ([#112](https://github.com/tomaj/hermes/issues/112)). In 5.x a PHP `Error`, such as a `TypeError`, was not caught and killed the worker; with RabbitMQ, SQS and Kafka the message then came back and killed the next worker too. Now an `Error` is handled like an `Exception`: it is logged at `error`, the message counts as handled, is acknowledged (RabbitMQ), deleted (SQS) or committed (Kafka), and the handler's [retry](docs/guide/retry.md) settings decide whether a retry copy is sent. If you relied on an `Error` stopping the worker, catch it in the handler and stop the worker yourself through a shutdown. Handlers that converted `Error` to an exception keep working; the conversion is no longer needed.
 
 A message whose body cannot be unserialized still stops the worker. On SQS, a redrive policy stops that loop: after `maxReceiveCount` receives, SQS moves the message to the dead-letter queue. Set it on the queue, as above:
 
@@ -202,7 +202,7 @@ An implementation that called `DateTime` methods such as `modify()` on `$startTi
 
 ## Classes are final
 
-Every concrete class in `src/` is `final` ([#81](https://github.com/tomaj/hermes/issues/81)): `Message`, `MessageSerializer`, `Emitter`, `Dispatcher`, `EchoHandler`, the five drivers, the three shutdowns, and the exceptions `SerializeException`, `ShutdownException`, `NotSupportedException`, `UnknownPriorityException` and `FileSystemDriverException`. `HermesException` stays open, because the other exceptions extend it, and so can yours.
+Every concrete class in `src/` is `final` ([#81](https://github.com/tomaj/hermes/issues/81)): `Message`, `MessageSerializer`, `Emitter`, `Dispatcher`, `EchoHandler`, the six drivers, the three shutdowns, and the exceptions `SerializeException`, `ShutdownException`, `NotSupportedException`, `UnknownPriorityException`, `FileSystemDriverException` and `KafkaDriverException`. `HermesException` stays open, because the other exceptions extend it, and so can yours.
 
 If you extended one of these classes, switch to the interface it implements and wrap the built-in class:
 
@@ -265,9 +265,9 @@ Doubling a final class fails in PHPUnit (`ClassIsFinalException`), Mockery and P
 
 All methods that implement an interface method carry `#[\Override]`, and PHPStan (`checkMissingOverrideMethodAttribute`) enforces it in `src/` and `tests/`.
 
-## `setupPriorityQueue()` on RabbitMQ and SQS returns `never`
+## `setupPriorityQueue()` on RabbitMQ, SQS and Kafka returns `never`
 
-`LazyRabbitMqDriver::setupPriorityQueue()` and `AmazonSqsDriver::setupPriorityQueue()` always threw `NotSupportedException`. They now declare it with the `never` return type ([#83](https://github.com/tomaj/hermes/issues/83)). Runtime behavior is the same. If your code calls the method on one of these concrete types, PHPStan reports the code after the call as unreachable. Remove the call, or call it through `DriverInterface`.
+`LazyRabbitMqDriver::setupPriorityQueue()`, `AmazonSqsDriver::setupPriorityQueue()` and `KafkaDriver::setupPriorityQueue()` always threw `NotSupportedException`. They now declare it with the `never` return type ([#83](https://github.com/tomaj/hermes/issues/83)). Runtime behavior is the same. If your code calls the method on one of these concrete types, PHPStan reports the code after the call as unreachable. Remove the call, or call it through `DriverInterface`.
 
 ## Driver errors stop the worker with an error
 
@@ -342,7 +342,7 @@ The value is the same.
 - The integer is the ordering key. The Redis drivers poll from the highest number down ([#50](https://github.com/tomaj/hermes/issues/50)). A value object would only wrap that integer.
 - Changing the parameter type of the driver interface would break every custom driver and every call site, with no new safety. An unknown priority still has to be checked at runtime, because it depends on what was registered.
 
-The runtime check stays: on the Redis and Predis drivers, sending with a priority that was not registered throws `UnknownPriorityException`. The RabbitMQ and SQS drivers have no priority queues and ignore the priority argument of `send()`. To name your priorities, use your own typed constants:
+The runtime check stays: on the Redis and Predis drivers, sending with a priority that was not registered throws `UnknownPriorityException`. The RabbitMQ, SQS and Kafka drivers have no priority queues and ignore the priority argument of `send()`. To name your priorities, use your own typed constants:
 
 ```php
 final class Priority
@@ -364,3 +364,7 @@ Log levels are not wrapped either. Hermes passes the PSR-3 `Psr\Log\LogLevel` st
 ## New driver: `FileSystemDriver`
 
 6.0 adds `FileSystemDriver`, a queue in a local directory for one server without a broker. It is opt-in and changes nothing for existing code. To move a worker to it from another driver, stop the emitters, let the workers empty the old queue, then deploy the emitters and the workers with the new driver together: queued messages are not migrated between drivers. See [FileSystem driver](https://tomaj.github.io/hermes/guide/drivers/filesystem) ([#17](https://github.com/tomaj/hermes/issues/17)).
+
+## New driver: `KafkaDriver`
+
+6.0 adds `KafkaDriver` for Apache Kafka. It needs `ext-rdkafka` 6, which `tomaj/hermes` only suggests, so nothing changes for existing installs. Create the consumer with `enable.auto.commit=false` and a `group.id`. Queued messages are not migrated between drivers: drain the old queue before you switch. See [Kafka driver](https://tomaj.github.io/hermes/guide/drivers/kafka) ([#14](https://github.com/tomaj/hermes/issues/14)).

@@ -56,9 +56,9 @@ The new message keeps the original id, type, payload, and `created`. `retries` b
 
 `HandleTest` covers the boundary. A message that already has `retries = 5` and a handler whose `maxRetry()` is `25` is republished with `retries = 6`. The same message with `maxRetry()` of `5` is not republished, because the test is `getRetries() < maxRetry()`. `RetryPolicyTest` covers `canRetry()`, the interface and the trait. A handler without the interface or the trait is not republished.
 
-The copy is one `send()`. On Redis and Predis that `executeAt` parks the copy in the sorted set; `FileSystemDriver` leaves the file in `new/` until it is due. On RabbitMQ and SQS the publish is immediate, so the backoff number is stored and not waited on.
+The copy is one `send()`. On Redis and Predis that `executeAt` parks the copy in the sorted set; `FileSystemDriver` leaves the file in `new/` until it is due. On RabbitMQ, SQS and Kafka the publish is immediate, so the backoff number is stored and not waited on.
 
-<Diagram name="retry-2" alt="Sequence of a retry: the dispatcher sends a copy with retries plus one, Redis schedules it, RabbitMQ and SQS publish it at once" />
+<Diagram name="retry-2" alt="Sequence of a retry: the dispatcher sends a copy with retries plus one, Redis schedules it, RabbitMQ, SQS and Kafka publish it at once" />
 
 ## The delay
 
@@ -78,7 +78,7 @@ return microtime(true) + $retries ** 4 + 15 + $this->randomizer->getInt(1, 30) *
 | 2 | 31 + a random integer from 3 to 90 |
 | n | `n^4 + 15 + jitter(1, 30) * (n + 1)` |
 
-Redis, Predis and the filesystem will wait, because `executeAt` is in the future. RabbitMQ and SQS publish the copy immediately. The timestamp is still inside the JSON, and the next failure still increments `retries`, but the worker can see the copy on the next poll. On those two drivers a failing handler can spin until `maxRetry()` is reached.
+Redis, Predis and the filesystem will wait, because `executeAt` is in the future. RabbitMQ, SQS and Kafka publish the copy immediately. The timestamp is still inside the JSON, and the next failure still increments `retries`, but the worker can see the copy on the next poll. On those drivers a failing handler can spin until `maxRetry()` is reached.
 
 ### Reproducible retry times
 
@@ -91,7 +91,7 @@ use Random\Randomizer;
 $dispatcher = new Dispatcher($driver, $logger, null, new Randomizer(new Mt19937(42)));
 ```
 
-Keep the default in production. Workers started with the same seed compute the same delays, so when an outage makes them all fail at once, their retries come back together on Redis and Predis. RabbitMQ and SQS ignore `executeAt`, so the jitter does not spread their retries in any case. `mt_srand()` does not affect the jitter any more, because it only seeds the global `rand()` that 5.x used.
+Keep the default in production. Workers started with the same seed compute the same delays, so when an outage makes them all fail at once, their retries come back together on Redis and Predis. RabbitMQ, SQS and Kafka ignore `executeAt`, so the jitter does not spread their retries in any case. `mt_srand()` does not affect the jitter any more, because it only seeds the global `rand()` that 5.x used.
 
 A container that autowires `Dispatcher` injects a `Random\Randomizer` service if you registered one, for example a seeded one meant for something else. Pass `null` to keep the default. In Symfony, in `config/services.yaml`:
 
