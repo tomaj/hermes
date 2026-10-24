@@ -78,7 +78,7 @@ Workery s tým istým `group.id` zdieľajú particie. Topic s tromi particiami u
 
 ## Obmedzenia
 
-- **Bez priorít.** `setupPriorityQueue()` vyhodí `NotSupportedException`, rovnako ako RabbitMQ a SQS. `send()` ignoruje `$priority` a `wait()` ignoruje `$priorities`. Ak potrebujete pruhy, použite jeden topic a driver na prioritu. Pozrite [Priorita](/sk/guide/priority).
+- **Bez priorít.** `setupPriorityQueue()` vyhodí `NotSupportedException`, rovnako ako RabbitMQ a SQS. `send()` ignoruje `$priority` a `wait()` ignoruje `$priorities`, takže `Dispatcher::handle([200])` spracuje každú správu v topicu. Ak potrebujete pruhy, použite jeden topic a driver na prioritu. Pozrite [Priorita](/sk/guide/priority).
 - **Bez oneskorenia.** Správa s budúcim `executeAt` sa doručí hneď, rovnako ako opakovania. Zlyhávajúci handler sa opakuje, kým nedosiahne `maxRetry()`. Pozrite [Odložené spracovanie](/sk/guide/delayed).
 - **Commit na správu.** Každá spracovaná správa stojí synchronný commit. Pri veľmi vysokom throughput-e dávkujte mimo Hermesu.
 - **Nastavenie topicu.** Driver topicy nevytvára. Kafka jeden vytvorí pri prvom použití, keď je zapnuté `auto.create.topics.enable`. V produkcii si topic vytvorte sami s particiami a retenciou, ktoré potrebujete.

@@ -5,7 +5,7 @@ description: "AmazonSqsDriver pre Hermes: vytvorenie fronty, príjem a mazanie, 
 
 # Amazon SQS
 
-`Tomaj\Hermes\Driver\AmazonSqsDriver` potrebuje `aws/aws-sdk-php` 3.x. `composer.json` ho uvádza v `suggest` („Needed for AmazonSqsDriver“) a testy bežia proti `^3.337`. Docblock triedy stále ukazuje príklady `SqsClient::factory()` a `Aws\Common\Aws` z AWS SDK v2. Kód aj `examples/sqs` používajú klienta SDK v3.
+`Tomaj\Hermes\Driver\AmazonSqsDriver` potrebuje `aws/aws-sdk-php` 3.x. `composer.json` ho uvádza v `suggest` („Needed for AmazonSqsDriver“) a testy bežia proti `^3.337`. Docblock konštruktora, kód aj `examples/sqs` používajú klienta SDK v3 (`new SqsClient([...])`).
 
 ```php
 public function __construct(SqsClient $client, string $queueName, array $queueAttributes = [])
@@ -75,7 +75,7 @@ Dispatcher výnimky handlerov zachytáva, takže handler, ktorý vyhodí výnimk
 
 To platí aj pre PHP `Error` (napríklad `TypeError`) z handlera ([#112](https://github.com/tomaj/hermes/issues/112)). Telo, ktoré sa nedá deserializovať, sa nezmaže: worker skončí a správa sa vráti po uplynutí visibility timeoutu. Pridajte redrive policy, aby takéto správy skončili v dead-letter fronte. Na existujúcej fronte ju nastavte cez `aws sqs set-queue-attributes`, nie cez konštruktor: konštruktor volá `CreateQueue`, ktoré zlyhá s `QueueAlreadyExists`, keď sa jeho atribúty líšia od atribútov fronty.
 
-`$priorities` sa nepoužíva.
+`$priorities` vo `wait()` sa nepoužíva: `Dispatcher::handle([200])` spracuje každú správu vo fronte, nielen prioritu `200`, a nič nevyhodí.
 
 `SharedFileShutdown` tu funguje. Odovzdajte ho konštruktoru `Dispatcher`a. Driver používa `ShutdownTrait`, takže konštruktor ho prepošle a `wait()` ho kontroluje na začiatku každej slučky.
 

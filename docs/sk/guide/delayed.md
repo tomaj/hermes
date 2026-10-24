@@ -34,7 +34,7 @@ Predvolený kľúč plánovača je `hermes_schedule`. Ak je už obsadený, zmeň
 
 Každá iterácia `wait()` zavolá `zRangeByScore($scheduleKey, '-inf', $now, ['limit' => [0, 1]])`. Pre každý vrátený prvok zavolá `zRem()`. Driver ho pošle znova, len keď `ZREM` oznámi, že prvok odstránil, takže dva workery nikdy nepresunú ten istý záznam. Do verzie 5.x tento krok používal `SPOP`, ktorý na zoradenej množine nefunguje, takže splatné správy zostávali v pláne ([issue #95](https://github.com/tomaj/hermes/issues/95)).
 
-Po úspešnom `ZREM` ju driver deserializuje a zavolá `send()` bez priority. `send()` uvidí to isté `executeAt`. Ak je časová značka stále v budúcnosti, payload sa vráti do zoradenej množiny. Keď je splatná, `send()` ju zapíše do množiny predvolenej priority (`hermes`, ak ste kľúč nezmenili). Pôvodná priorita sa v správe neukladá, takže odložená správa sa do `hermes_high` nevráti.
+Po úspešnom `ZREM` ju driver deserializuje a zavolá `send()` bez priority. `send()` uvidí to isté `executeAt` a porovná ho s časom načítaným až po `ZRANGEBYSCORE`, takže správa je splatná a `send()` ju zapíše do množiny predvolenej priority (`hermes`, ak ste kľúč nezmenili). Pôvodná priorita sa v správe neukladá, takže odložená správa sa do `hermes_high` nevráti.
 
 ## Predis
 

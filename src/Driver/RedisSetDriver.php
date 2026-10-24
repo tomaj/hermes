@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tomaj\Hermes\Driver;
 
 use Closure;
+use InvalidArgumentException;
 use Redis;
 use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\MessageInterface;
@@ -32,6 +33,10 @@ final class RedisSetDriver implements DriverInterface
      * of this class. You have to have enabled native Redis php extension.
      *
      * @see examples/redis
+     *
+     * @param int $refreshInterval seconds to sleep when no message is due; 0 polls without sleeping
+     *
+     * @throws InvalidArgumentException when $refreshInterval is negative
      */
     public function __construct(
         private readonly Redis $redis,
@@ -39,6 +44,9 @@ final class RedisSetDriver implements DriverInterface
         private readonly int $refreshInterval = 1,
         private readonly string $scheduleKey = 'hermes_schedule',
     ) {
+        if ($refreshInterval < 0) {
+            throw new InvalidArgumentException('refreshInterval must not be negative');
+        }
         $this->setupPriorityQueue($key, Dispatcher::DEFAULT_PRIORITY);
         $this->serializer = new MessageSerializer();
     }
@@ -100,7 +108,7 @@ final class RedisSetDriver implements DriverInterface
 
             // check schedule
             /** @var list<string> $messageStrings */
-            $messageStrings = $this->redis->zRangeByScore($this->scheduleKey, '-inf', (string) microtime(true), ['limit' => [0, 1]]);
+            $messageStrings = $this->redis->zRangeByScore($this->scheduleKey, '-inf', sprintf('%.6F', microtime(true)), ['limit' => [0, 1]]);
             foreach ($messageStrings as $messageString) {
                 // ZREM is atomic: only the worker that actually removed the entry re-sends it
                 if ($this->redis->zRem($this->scheduleKey, $messageString) === 1) {

@@ -110,7 +110,7 @@ new LazyRabbitMqDriver($connection, 'hermes_queue', [], 5, 'hermes-worker-1');
 
 Before 6.0 the loop polled without blocking and slept `$refreshInterval` seconds after every wait, so `0` spun one CPU core on an idle queue and any other value delayed every message.
 
-`$priorities` on `wait()` is unused.
+`$priorities` on `wait()` is unused: `Dispatcher::handle([200])` consumes every message in the queue, not only priority `200`, and throws nothing.
 
 When max items is reached, both loops break, then the driver closes the channel and the connection. A shutdown throws `ShutdownException` before that close. `Dispatcher::handle()` catches it, logs `Exiting hermes dispatcher - shutdown`, and returns.
 

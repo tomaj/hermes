@@ -22,31 +22,18 @@ final class AmazonSqsDriver implements DriverInterface
     /**
      * Create new Amazon SQS driver.
      *
-     * You have to create aws client instnace and provide it to this driver.
-     * You can use service builder or factory method.
+     * You have to create the AWS SDK v3 client and provide it to this driver.
      *
      * <code>
      *  use Aws\Sqs\SqsClient;
      *
-     *  $client = SqsClient::factory(array(
+     *  $client = new SqsClient([
      *    'profile' => '<profile in your aws credentials file>',
-     *    'region'  => '<region name>'
-     *  ));
+     *    'region'  => '<region name>',
+     *  ]);
      * </code>
      *
-     * or
-     *
-     * <code>
-     * use Aws\Common\Aws;
-     *
-     * // Create a service builder using a configuration file
-     * $aws = Aws::factory('/path/to/my_config.json');
-     *
-     * // Get the client from the builder by namespace
-     * $client = $aws->get('Sqs');
-     * </code>
-     *
-     * More examples see: https://docs.aws.amazon.com/aws-sdk-php/v2/guide/service-sqs.html
+     * More examples see: https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/sqs-examples.html
      *
      * @see examples/sqs folder
      *

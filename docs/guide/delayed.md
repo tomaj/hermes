@@ -34,7 +34,7 @@ The default schedule key is `hermes_schedule`. Change it with the fourth constru
 
 Each `wait()` iteration calls `zRangeByScore($scheduleKey, '-inf', $now, ['limit' => [0, 1]])`. For each returned member it calls `zRem()`. Only when `ZREM` reports that it removed the member does the driver re-send it, so two workers never promote the same entry. Up to 5.x this step used `SPOP`, which does not work on a sorted set, so due messages stayed in the schedule ([issue #95](https://github.com/tomaj/hermes/issues/95)).
 
-After a successful `ZREM` the driver unserializes it and calls `send()` with no priority. `send()` sees the same `executeAt`. When that timestamp is still in the future the payload goes back to the sorted set. When it is due, `send()` writes the default priority set (`hermes` unless you changed the key). The original priority is not stored on the message, so a delayed message does not return to `hermes_high`.
+After a successful `ZREM` the driver unserializes it and calls `send()` with no priority. `send()` sees the same `executeAt` and compares it with a clock read taken after `ZRANGEBYSCORE`, so the message is due and `send()` writes it to the default priority set (`hermes` unless you changed the key). The original priority is not stored on the message, so a delayed message does not return to `hermes_high`.
 
 ## Predis
 
