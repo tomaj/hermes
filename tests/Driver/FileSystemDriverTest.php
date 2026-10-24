@@ -29,17 +29,31 @@ final class FileSystemDriverTest extends TestCase
 {
     private string $dir;
 
+    private string $sandbox;
+
+    private string $cwd;
+
     #[\Override]
     protected function setUp(): void
     {
         $this->dir = sys_get_temp_dir() . '/hermes-fs-' . bin2hex(random_bytes(6));
+        // run from a scratch directory, so a path bug (or an Infection mutant) writes there, not into the repository
+        $cwd = getcwd();
+        self::assertIsString($cwd);
+        $this->cwd = $cwd;
+        $this->sandbox = sys_get_temp_dir() . '/hermes-fs-cwd-' . bin2hex(random_bytes(6));
+        mkdir($this->sandbox);
+        chdir($this->sandbox);
     }
 
     #[\Override]
     protected function tearDown(): void
     {
-        if (is_dir($this->dir)) {
-            $this->remove($this->dir);
+        chdir($this->cwd);
+        foreach ([$this->dir, $this->sandbox] as $directory) {
+            if (is_dir($directory)) {
+                $this->remove($directory);
+            }
         }
     }
 

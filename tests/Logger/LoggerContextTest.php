@@ -25,12 +25,19 @@ class LoggerContextTest extends TestCase
     public function testEmitterLogsTheMessageContext(): void
     {
         $logger = new TestLogger();
-        $message = new Message('type', ['a' => 'b'], 'id-1', 1700000000.5);
+        $message = new Message('type', ['a' => 'b'], 'id-1', 1700000000.5, 1700000100.25, 3);
 
         new Emitter(new DummyDriver(), $logger)->emit($message);
 
         self::assertSame(
-            ['id' => 'id-1', 'created' => 1700000000.5, 'type' => 'type', 'payload' => ['a' => 'b']],
+            [
+                'id' => 'id-1',
+                'created' => 1700000000.5,
+                'type' => 'type',
+                'payload' => ['a' => 'b'],
+                'retries' => 3,
+                'execute_at' => 1700000100.25,
+            ],
             $logger->getLogs()[0]['context'],
         );
     }

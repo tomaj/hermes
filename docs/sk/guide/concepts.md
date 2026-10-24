@@ -65,7 +65,7 @@ public function emit(MessageInterface $message, int $priority = Dispatcher::DEFA
 Emitter send message #<id> to driver <driver class>
 ```
 
-Pole kontextu obsahuje `id`, `created`, `type` a `payload`. Hermes 5.x tu písal `Dispatcher send message …`. Metóda vracia `$this`.
+Pole kontextu obsahuje `id`, `created`, `type`, `payload`, `retries` a `execute_at`, vrátane celého payloadu (pozri [Logovanie](/sk/guide/logging)). Hermes 5.x tu písal `Dispatcher send message …`. Metóda vracia `$this`.
 
 `UnknownPriorityException` vyhodí driver, keď `$priority` nikdy nebola zaregistrovaná cez `setupPriorityQueue()`.
 

@@ -38,7 +38,11 @@ Levels are PSR-3 strings (`Psr\Log\LogLevel`).
 | `Dispatcher` on `ShutdownException` | `notice` | `Exiting hermes dispatcher - shutdown` |
 | `Dispatcher` when the driver throws, before rethrowing | `error` | `Exiting hermes dispatcher - driver error: <class> - <exception message>` |
 
-Emitter context is `id`, `created`, `type`, `payload`. Dispatcher context adds `retries` and `execute_at`. The handler error context also includes `error`, `message` (the array above), and `exception`. The driver error context is only `exception`.
+Emitter and Dispatcher message context is `id`, `created`, `type`, `payload`, `retries`, `execute_at` (before 6.0 the Emitter left out `retries` and `execute_at`). The handler error context is `error`, `message` (the array above), and `exception`. `error` and `exception` hold the same throwable: `exception` is the PSR-3 key, `error` stays for log processors that already read it. The driver error context is only `exception`.
+
+::: warning Payload in logs
+Every `info` line above carries the full `payload`, so with a logger at `info` each message's payload ends up in your logs. If payloads hold personal data, tokens, or large blobs, raise the logger's level to `notice` for Hermes, or add a processor that removes or masks `context.payload`.
+:::
 
 A type with no registered handler still logs the start line. It does not log the end line, because `handleMessage()` is never called.
 

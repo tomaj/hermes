@@ -38,7 +38,11 @@ Ak emitter a dispatcher bežia v rôznych procesoch, dajte každému vlastnú in
 | `Dispatcher` pri `ShutdownException` | `notice` | `Exiting hermes dispatcher - shutdown` |
 | `Dispatcher`, keď driver vyhodí výnimku, pred jej opätovným vyhodením | `error` | `Exiting hermes dispatcher - driver error: <class> - <exception message>` |
 
-Kontext emittera tvoria `id`, `created`, `type` a `payload`. Kontext dispatchera pridáva `retries` a `execute_at`. Kontext chyby handlera obsahuje aj `error`, `message` (pole vyššie) a `exception`. Kontext chyby drivera je len `exception`.
+Kontext správy emittera aj dispatchera tvoria `id`, `created`, `type`, `payload`, `retries` a `execute_at` (pred 6.0 emitter `retries` a `execute_at` vynechával). Kontext chyby handlera tvoria `error`, `message` (pole vyššie) a `exception`. `error` a `exception` obsahujú tú istú výnimku: `exception` je kľúč podľa PSR-3, `error` ostáva pre log procesory, ktoré ho už čítajú. Kontext chyby drivera je len `exception`.
+
+::: warning Payload v logoch
+Každý `info` riadok vyššie nesie celý `payload`, takže pri loggeri na úrovni `info` skončí payload každej správy v logoch. Ak payloady obsahujú osobné údaje, tokeny alebo veľké dáta, zvýšte úroveň loggera pre Hermes na `notice` alebo pridajte procesor, ktorý `context.payload` odstráni alebo zamaskuje.
+:::
 
 Typ bez zaregistrovaného handlera zaloguje začiatočný riadok. Koncový nie, pretože `handleMessage()` sa vôbec nezavolá.
 
