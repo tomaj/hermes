@@ -36,7 +36,7 @@ The six classes in `src/Driver` all implement `DriverInterface`. Pick one for th
 ### Predis notes
 
 - **Priority.** Same as Redis.
-- **Delay.** A future `executeAt` goes into a sorted set. Promotion uses `ZREM` on the member it just read.
+- **Delay.** A future `executeAt` goes into a sorted set. Promotion uses `ZREM` on the member it just read, and only the worker whose `ZREM` removed it re-sends it.
 - **Persistence.** Same as Redis.
 - **Ack.** The same `SPOP` on the live set.
 

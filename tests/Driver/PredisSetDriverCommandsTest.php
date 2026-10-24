@@ -10,7 +10,9 @@ use Tomaj\Hermes\Driver\PredisSetDriver;
 use Tomaj\Hermes\Message;
 use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
+use Tomaj\Hermes\Shutdown\ShutdownException;
 use Tomaj\Hermes\Test\Double\PredisClientDouble;
+use Tomaj\Hermes\Test\Shutdown\PollBudgetShutdown;
 
 /**
  * The exact Redis commands PredisSetDriver sends.
@@ -64,7 +66,7 @@ class PredisSetDriverCommandsTest extends TestCase
                 ['LIMIT' => ['OFFSET' => 0, 'COUNT' => 1]],
             )
             ->willReturn([$due]);
-        $redis->expects(self::once())->method('zrem')->with('hermes_schedule', $due);
+        $redis->expects(self::once())->method('zrem')->with('hermes_schedule', $due)->willReturn(1);
         $redis->expects(self::once())->method('sadd')->with('hermes', [$due]);
         $redis->expects(self::once())->method('spop')->with('hermes')->willReturn($due);
 
@@ -77,5 +79,29 @@ class PredisSetDriverCommandsTest extends TestCase
         });
 
         self::assertSame(['due'], $received);
+    }
+
+    public function testWaitSkipsADueMessageAnotherWorkerAlreadyRemoved(): void
+    {
+        $due = new MessageSerializer()->serialize(new Message('type', [], 'due', null, microtime(true) - 60));
+        $redis = $this->redis();
+        $redis->expects(self::once())->method('zrangebyscore')->willReturn([$due]);
+        $redis->expects(self::once())->method('zrem')->with('hermes_schedule', $due)->willReturn(0);
+        $redis->expects(self::never())->method('sadd');
+        $redis->expects(self::once())->method('spop')->with('hermes')->willReturn(null);
+
+        $driver = new PredisSetDriver($redis, 'hermes', 0);
+        $driver->setShutdown(new PollBudgetShutdown(1));
+
+        $received = [];
+        try {
+            $driver->wait(static function (MessageInterface $message) use (&$received): void {
+                $received[] = $message->getId();
+            });
+            self::fail('The shutdown should stop the worker');
+        } catch (ShutdownException) {
+        }
+
+        self::assertSame([], $received);
     }
 }
