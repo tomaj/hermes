@@ -11,6 +11,7 @@ use Tomaj\Hermes\Driver\UnknownPriorityException;
 use Tomaj\Hermes\Message;
 use Tomaj\Hermes\SerializerInterface;
 use Tomaj\Hermes\Test\Double\PredisClientDouble;
+use Tomaj\Hermes\Test\Shutdown\PollBudgetShutdown;
 
 /**
  * @covers \Tomaj\Hermes\Driver\PredisSetDriver
@@ -72,6 +73,20 @@ class PredisSetDriverTest extends TestCase
         $this->expectExceptionMessageIs('Unknown priority 999');
 
         $driver->send($message, 999);
+    }
+
+    public function testWaitWithUnknownPriority(): void
+    {
+        $redis = self::createStub(PredisClient::class);
+        // PollBudgetShutdown: if validation is skipped Infection kills the mutant via
+        // ShutdownException instead of busy-waiting (maxProcessItems 0 means unlimited)
+        $driver = new PredisSetDriver($redis, 'test_key', 0);
+        $driver->setShutdown(new PollBudgetShutdown());
+
+        $this->expectException(UnknownPriorityException::class);
+        $this->expectExceptionMessageIs('Unknown priority 999');
+
+        $driver->wait(static function (): void {}, [999]);
     }
 
     public function testSendWithValidPriority(): void
