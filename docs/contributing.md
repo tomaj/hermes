@@ -40,7 +40,7 @@ Coverage:
 composer coverage
 ```
 
-GitHub Actions runs PHPUnit with Redis, RabbitMQ, moto (SQS) and Kafka on PHP 8.4, 8.4 with the lowest dependencies, and 8.5, so no integration test is skipped, plus code style, Rector, PHPStan level max, `composer audit`, Infection, CodeQL, OpenSSF Scorecard, and the documentation diagram and link checks.
+GitHub Actions runs PHPUnit with Redis, RabbitMQ, moto (SQS) and Kafka on PHP 8.4, 8.4 with the lowest dependencies, and 8.5 (with the 95% coverage check), so no integration test is skipped. A nightly PHP 8.6 build runs too, but its failure does not fail the workflow. CI also runs code style, Rector, PHPStan level max, `composer audit`, Infection, CodeQL, OpenSSF Scorecard, and the documentation diagram and link checks.
 
 ## Diagrams
 

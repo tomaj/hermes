@@ -13,6 +13,8 @@ jobs:
   tests:
     name: PHP ${{ matrix.php }} ${{ matrix.dependency-version }}
     runs-on: ubuntu-latest
+    # PHP 8.6 is a nightly build: it runs to show problems early but does not fail the workflow
+    continue-on-error: ${{ matrix.php == '8.6' }}
     permissions:
       contents: read
       actions: write
@@ -20,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['8.4', '8.5']
+        php: ['8.4', '8.5', '8.6']
         dependency-version: ['']
         include:
           - php: '8.4'
@@ -82,7 +84,7 @@ jobs:
       with:
         php-version: ${{ matrix.php }}
         extensions: mbstring, xml, redis, rdkafka
-        coverage: xdebug
+        coverage: ${{ matrix.php == '8.5' && matrix.dependency-version == '' && 'xdebug' || 'none' }}
 
     - name: Validate composer.json
       run: composer validate --strict
@@ -106,10 +108,15 @@ jobs:
       run: curl --silent --show-error --fail --retry 30 --retry-delay 1 --retry-all-errors --output /dev/null http://127.0.0.1:4566/moto-api/
 
     - name: Run tests
+      if: matrix.php != '8.5' || matrix.dependency-version != ''
+      run: vendor/bin/phpunit --no-coverage
+
+    - name: Run tests with coverage
+      if: matrix.php == '8.5' && matrix.dependency-version == ''
       run: XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-clover build/logs/clover.xml --coverage-html build/coverage
 
     - name: Require 95% statement coverage
-      if: matrix.php == '8.4' && matrix.dependency-version == ''
+      if: matrix.php == '8.5' && matrix.dependency-version == ''
       run: |
         php -r '
           $xml = simplexml_load_file("build/logs/clover.xml");
@@ -125,7 +132,7 @@ jobs:
         '
 
     - name: Upload coverage to Coveralls
-      if: matrix.php == '8.4' && matrix.dependency-version == ''
+      if: matrix.php == '8.5' && matrix.dependency-version == ''
       uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -135,7 +142,7 @@ jobs:
 
     - name: Upload coverage reports
       uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-      if: github.event_name == 'push' && github.ref == 'refs/heads/master' && matrix.php == '8.4' && matrix.dependency-version == ''
+      if: github.event_name == 'push' && github.ref == 'refs/heads/master' && matrix.php == '8.5' && matrix.dependency-version == ''
       with:
         name: coverage-report
         path: build/coverage
@@ -284,7 +291,7 @@ jobs:
     - name: Setup PHP
       uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
       with:
-        php-version: '8.4'
+        php-version: '8.5'
         extensions: mbstring, xml, redis, rdkafka
         coverage: xdebug
 

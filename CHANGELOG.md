@@ -58,6 +58,7 @@ Hermes 6.0. Upgrade steps for every breaking change are in [UPGRADE-6.0.md](UPGR
 * `DispatcherInterface::registerHandlers()` names its second parameter `$handlers`, like `Dispatcher` and the API reference. No code change is needed: named arguments resolve against the concrete class, which already used `$handlers`, and implementations may keep their own parameter name.
 * **BREAKING CHANGE**: `AmazonSqsDriver` deletes a message only after it was handled, not right after `receiveMessage`. A worker crash or an exception from the callback leaves the message in SQS for the visibility timeout or a dead-letter queue. Delivery is at least once, so set `VisibilityTimeout` above your slowest handler ([#69](https://github.com/tomaj/hermes/issues/69)).
 * **BREAKING CHANGE**: `ShutdownInterface::shouldShutdown()` and `shutdown()` take `DateTimeInterface` instead of `DateTime`. `Dispatcher` and `ShutdownTrait` keep the worker start time as a `DateTimeImmutable`, so a shutdown can no longer shift the dispatcher's own start time by modifying it. Callers can pass `DateTime` or `DateTimeImmutable`; custom implementations must change their parameter types ([#108](https://github.com/tomaj/hermes/issues/108)).
+* CI measures coverage and runs Infection on PHP 8.5 instead of 8.4; the other PHPUnit jobs run with `--no-coverage`. A nightly PHP 8.6 job runs with `continue-on-error`, so its failure does not fail the workflow.
 
 ### Removed
 
