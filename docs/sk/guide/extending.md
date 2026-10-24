@@ -5,7 +5,7 @@ description: "Napíšte vlastný driver, handler, serializér alebo signál na u
 
 # Rozširovanie Hermesu
 
-Podporované body rozšírenia sú `DriverInterface`, `HandlerInterface`, `SerializerInterface` a `ShutdownInterface`. Od 6.0 je každá konkrétna trieda v balíku `final` (otvorená zostáva len `HermesException` ako základná výnimka), takže Hermes rozširujete implementáciou týchto rozhraní alebo obalením vstavanej triedy, nie dedením. Obaľujúci driver musí preposielať `setShutdown()`, pretože `Dispatcher` odovzdá objekt na ukončenie len driverom, ktoré túto metódu majú. Svoje implementácie označte `#[\Override]`, aby PHP nahlásilo metódu, ktorá už nezodpovedá rozhraniu. Náčrt Gearman v README nezodpovedá aktuálnym signatúram metód (`$serialier` nie je definované a `wait()` teraz vyžaduje zoznam priorít). Používajte signatúry zo `src/Driver/DriverInterface.php`.
+Podporované body rozšírenia sú `DriverInterface`, `HandlerInterface`, `SerializerInterface` a `ShutdownInterface`. Od 6.0 je každá konkrétna trieda v balíku `final` (otvorená zostáva len `HermesException` ako základná výnimka), takže Hermes rozširujete implementáciou týchto rozhraní alebo obalením vstavanej triedy, nie dedením. Obaľujúci driver musí preposielať `setShutdown()`, pretože `Dispatcher` odovzdá objekt na ukončenie len driverom, ktoré túto metódu majú. Svoje implementácie označte `#[\Override]`, aby PHP nahlásilo metódu, ktorá už nezodpovedá rozhraniu.
 
 <Diagram name="extending-1" alt="Vlastné triedy implementujúce DriverInterface, SerializerInterface, ShutdownInterface a HandlerInterface" />
 

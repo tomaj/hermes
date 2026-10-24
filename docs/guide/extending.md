@@ -5,7 +5,7 @@ description: "Write your own Hermes driver, handler, serializer, or shutdown sig
 
 # Extending Hermes
 
-The supported extension points are `DriverInterface`, `HandlerInterface`, `SerializerInterface`, and `ShutdownInterface`. From 6.0 every concrete class in the package is `final` (only `HermesException` stays open as the base exception), so extend Hermes by implementing these interfaces or by wrapping a built-in class, not by subclassing it. A wrapping driver must forward `setShutdown()`, because `Dispatcher` only hands its shutdown to drivers that have that method. Mark your implementations with `#[\Override]` so PHP reports a method that no longer matches the interface. The Gearman sketch in the README does not match the current method signatures (`$serialier` is not defined, and `wait()` now requires a priority list). Use the signatures from `src/Driver/DriverInterface.php`.
+The supported extension points are `DriverInterface`, `HandlerInterface`, `SerializerInterface`, and `ShutdownInterface`. From 6.0 every concrete class in the package is `final` (only `HermesException` stays open as the base exception), so extend Hermes by implementing these interfaces or by wrapping a built-in class, not by subclassing it. A wrapping driver must forward `setShutdown()`, because `Dispatcher` only hands its shutdown to drivers that have that method. Mark your implementations with `#[\Override]` so PHP reports a method that no longer matches the interface.
 
 <Diagram name="extending-1" alt="Your own classes implementing DriverInterface, SerializerInterface, ShutdownInterface, and HandlerInterface" />
 
