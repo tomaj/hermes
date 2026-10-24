@@ -78,7 +78,7 @@ Workers that use the same `group.id` share the partitions. A topic with three pa
 
 ## Limits
 
-- **No priorities.** `setupPriorityQueue()` throws `NotSupportedException`, like RabbitMQ and SQS. `send()` ignores `$priority` and `wait()` ignores `$priorities`. Use one topic and driver per priority if you need lanes. See [Priority](/guide/priority).
+- **No priorities.** `setupPriorityQueue()` throws `NotSupportedException`, like RabbitMQ and SQS. `send()` ignores `$priority` and `wait()` ignores `$priorities`, so `Dispatcher::handle([200])` consumes every message on the topic. Use one topic and driver per priority if you need lanes. See [Priority](/guide/priority).
 - **No delay.** A message with a future `executeAt` is delivered at once, and so are retries. A failing handler retries until `maxRetry()`. See [Delayed execution](/guide/delayed).
 - **Commit per message.** Each handled message costs a synchronous commit. For very high throughput, batch outside Hermes.
 - **Topic settings.** The driver does not create topics. Kafka creates one on first use when `auto.create.topics.enable` is on. In production, create the topic yourself with the partitions and retention you need.

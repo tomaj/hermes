@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tomaj\Hermes\Driver;
 
 use Closure;
+use InvalidArgumentException;
 use Predis\Client;
 use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\MessageInterface;
@@ -32,6 +33,10 @@ final class PredisSetDriver implements DriverInterface
      * of this class. You will need to install predis php package.
      *
      * @see examples/redis
+     *
+     * @param int $refreshInterval seconds to sleep when no message is due; 0 polls without sleeping
+     *
+     * @throws InvalidArgumentException when $refreshInterval is negative
      */
     public function __construct(
         private readonly Client $redis,
@@ -39,6 +44,9 @@ final class PredisSetDriver implements DriverInterface
         private readonly int $refreshInterval = 1,
         private readonly string $scheduleKey = 'hermes_schedule',
     ) {
+        if ($refreshInterval < 0) {
+            throw new InvalidArgumentException('refreshInterval must not be negative');
+        }
         $this->setupPriorityQueue($key, Dispatcher::DEFAULT_PRIORITY);
         $this->serializer = new MessageSerializer();
     }

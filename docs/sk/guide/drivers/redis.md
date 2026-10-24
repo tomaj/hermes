@@ -16,7 +16,7 @@ public function __construct(
 )
 ```
 
-Konštruktor zaregistruje `$key` s prioritou `Dispatcher::DEFAULT_PRIORITY` (`100`). `$refreshInterval` je počet sekúnd, ktoré `wait()` spí, keď sú všetky vybrané množiny prázdne. `0` toto spanie vypne. `$scheduleKey` je zoradená množina, ktorú používa [odložené spracovanie](/sk/guide/delayed).
+Konštruktor zaregistruje `$key` s prioritou `Dispatcher::DEFAULT_PRIORITY` (`100`). `$refreshInterval` je počet sekúnd, ktoré `wait()` spí, keď sú všetky vybrané množiny prázdne. `0` toto spanie vypne a záporná hodnota vyhodí `InvalidArgumentException`. `$scheduleKey` je zoradená množina, ktorú používa [odložené spracovanie](/sk/guide/delayed).
 
 ## Vloženie a spracovanie
 
@@ -91,6 +91,10 @@ Pri prázdnom prechode, a keď `$refreshInterval` nie je `0`, driver spí daný 
 Čítanie priorít zoradí fronty cez `krsort($queues, SORT_NUMERIC)`, takže najvyššie číslo priority sa číta ako prvé bez ohľadu na poradie registrácie. Verzia 5.x namiesto toho otáčala poradie vkladania ([issue #50](https://github.com/tomaj/hermes/issues/50)). Pozrite [Priorita](/sk/guide/priority).
 
 `wait()` odovzdá callbacku dispatchera prioritu, z ktorej správu vybral. Návratová hodnota callbacku sa ignoruje. `incrementProcessedItems()` beží po návrate callbacku. `ShutdownException` vyhodená v callbacku toto zvýšenie preskočí a ukončí `handle()`.
+
+::: warning Poškodená správa sa stratí
+`spop` odstráni správu z množiny priority a `zrem` odloženú správu z plánu ešte pred deserializáciou. Ak telo nejde deserializovať, `wait()` vyhodí `SerializeException`, správa už v Redise nie je a výnimka telo neobsahuje. Worker sa zastaví. Hermes takú správu neobnoví, preto vkladajte správy len cez Hermes alebo serializér, ktorý máte pod kontrolou, a správy, o ktoré nesmiete prísť, si uložte aj inde.
+:::
 
 ## Traity
 

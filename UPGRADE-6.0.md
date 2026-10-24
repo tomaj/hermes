@@ -8,11 +8,11 @@ A checklist of everything that can need work, in the order of this file. Most ap
 
 - PHP 8.4, `psr/log` 2 or 3, Predis 2.3 or 3, and `tracy/tracy` only if you use it: [Requirements](#requirements), [Tracy is optional](#tracy-is-optional).
 - RabbitMQ queues become durable and messages are acknowledged after the handler; plan the deploy: [Deploy order and rollback](#deploy-order-and-rollback), [RabbitMQ](#rabbitmq-durable-queue-and-acknowledgements).
-- Redis delivers old scheduled entries on the first 6.0 start and polls priorities highest first: [Redis schedule set](#redis-clear-old-entries-from-the-schedule-set-before-you-deploy), [Priority order](#redis-and-predis-priority-order).
+- Redis delivers old scheduled entries on the first 6.0 start and polls priorities highest first: [Redis schedule set](#redis-clear-old-entries-from-the-schedule-set-before-you-deploy), [Priority order](#redis-and-predis-priority-order). A negative `$refreshInterval` is rejected: [Negative refresh interval](#redis-and-predis-negative-refreshinterval).
 - SQS deletes after the handler: [Amazon SQS](#amazon-sqs-delete-after-handling).
 - Handlers: any `Throwable` is a failed message, retries need `RetryableHandlerInterface` or `RetryTrait`, and jitter uses `Random\Randomizer`: [Handler errors](#at-least-once-delivery-and-handler-errors), [Retries](#retries-follow-retryablehandlerinterface-and-canretry), [Retry jitter](#retry-jitter-no-longer-uses-rand).
 - Shutdown: `DateTimeInterface`, microsecond times, `SIGTERM`/`SIGINT`: [Shutdown times](#shutdown-times-keep-microseconds), [`ShutdownInterface`](#shutdowninterface-takes-datetimeinterface), [Signals](#sigterm-and-sigint-stop-the-worker-gracefully).
-- API: final and readonly classes, `never` return types, plain integer priorities: [Final classes](#classes-are-final), [`never`](#setuppriorityqueue-on-rabbitmq-and-sqs-returns-never), [Readonly](#private-state-is-readonly), [Priorities](#priorities-stay-plain-integers).
+- API: final and readonly classes, `never` return types, plain integer priorities: [Final classes](#classes-are-final), [`never`](#setuppriorityqueue-on-rabbitmq-sqs-and-kafka-returns-never), [Readonly](#private-state-is-readonly), [Priorities](#priorities-stay-plain-integers).
 - Logs and exit codes: driver errors are logged and rethrown, serializer exceptions no longer contain the message, and the emitter logs `Emitter send message`: [Driver errors](#driver-errors-stop-the-worker-with-an-error), [Serializer exceptions](#serializer-exceptions-no-longer-contain-the-message), [Emitter log](#emitter-logs-emitter-send-message).
 
 None of these changes has a deprecation notice in 5.x: there is no 5.x maintenance branch to release one from. The reason for each change is in its section.
@@ -55,6 +55,10 @@ The due entries are delayed messages and retries that 5.x never delivered. Remov
 ### Redis and Predis: priority order
 
 `RedisSetDriver` and `PredisSetDriver` poll priority queues from the highest priority number down, not in reverse registration order ([#50](https://github.com/tomaj/hermes/issues/50)).
+
+### Redis and Predis: negative `$refreshInterval`
+
+The `RedisSetDriver` and `PredisSetDriver` constructors throw `InvalidArgumentException` when `$refreshInterval` is negative. 5.x accepted the value and failed only on the first idle pass of `wait()`, where `sleep()` throws `ValueError` on PHP 8. Pass `0` to poll without sleeping.
 
 ### RabbitMQ: durable queue and acknowledgements
 
@@ -346,7 +350,7 @@ The value is the same.
 - The integer is the ordering key. The Redis drivers poll from the highest number down ([#50](https://github.com/tomaj/hermes/issues/50)). A value object would only wrap that integer.
 - Changing the parameter type of the driver interface would break every custom driver and every call site, with no new safety. An unknown priority still has to be checked at runtime, because it depends on what was registered.
 
-The runtime check stays: on the Redis and Predis drivers, sending with a priority that was not registered throws `UnknownPriorityException`, and so does `wait()` (and `Dispatcher::handle()`) when its priority list contains one; 5.x skipped it silently. The RabbitMQ, SQS and Kafka drivers have no priority queues and ignore the priority argument of `send()`. To name your priorities, use your own typed constants:
+The runtime check stays: on the Redis and Predis drivers, sending with a priority that was not registered throws `UnknownPriorityException`, and so does `wait()` (and `Dispatcher::handle()`) when its priority list contains one; 5.x skipped it silently. The RabbitMQ, SQS and Kafka drivers have no priority queues and ignore the priority argument of `send()` and the priority list of `wait()`: `Dispatcher::handle([200])` on them consumes every message in the queue, not only priority `200`, and throws nothing. Run one queue per priority if you need lanes. To name your priorities, use your own typed constants:
 
 ```php
 final class Priority

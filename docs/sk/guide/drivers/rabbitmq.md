@@ -110,7 +110,7 @@ new LazyRabbitMqDriver($connection, 'hermes_queue', [], 5, 'hermes-worker-1');
 
 Pred 6.0 slučka pollovala bez blokovania a po každom čakaní spala `$refreshInterval` sekúnd, takže `0` na nečinnej fronte vyťažilo jedno jadro CPU a každá iná hodnota zdržala každú správu.
 
-`$priorities` vo `wait()` sa nepoužíva.
+`$priorities` vo `wait()` sa nepoužíva: `Dispatcher::handle([200])` spracuje každú správu vo fronte, nielen prioritu `200`, a nič nevyhodí.
 
 Po dosiahnutí limitu správ sa prerušia obe slučky a driver potom zatvorí kanál aj pripojenie. Ukončenie vyhodí `ShutdownException` ešte pred zatvorením. `Dispatcher::handle()` ju zachytí, zaloguje `Exiting hermes dispatcher - shutdown` a vráti sa.
 

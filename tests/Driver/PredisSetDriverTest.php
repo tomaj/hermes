@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes\Test\Driver;
 
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Predis\Client as PredisClient;
 use Tomaj\Hermes\Driver\PredisSetDriver;
@@ -28,6 +29,18 @@ class PredisSetDriverTest extends TestCase
         // Test that we can setup a priority queue
         self::expectNotToPerformAssertions();
         $driver->setupPriorityQueue('high_priority', 200);
+    }
+
+    public function testNegativeRefreshIntervalIsRejected(): void
+    {
+        $redis = self::createStub(PredisClient::class);
+        new PredisSetDriver($redis, 'q', 0);
+        try {
+            new PredisSetDriver($redis, 'q', -1);
+            self::fail('InvalidArgumentException expected');
+        } catch (InvalidArgumentException $e) {
+            self::assertSame('refreshInterval must not be negative', $e->getMessage());
+        }
     }
 
     public function testConstructorSetsDefaults(): void

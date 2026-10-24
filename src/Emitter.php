@@ -20,6 +20,7 @@ final readonly class Emitter implements EmitterInterface
 
     /**
      * @throws Driver\UnknownPriorityException
+     * @throws SerializeException
      */
     #[\Override]
     public function emit(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): EmitterInterface

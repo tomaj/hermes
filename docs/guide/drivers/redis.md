@@ -16,7 +16,7 @@ public function __construct(
 )
 ```
 
-The constructor registers `$key` at `Dispatcher::DEFAULT_PRIORITY` (`100`). `$refreshInterval` is how many seconds `wait()` sleeps when every selected set is empty. `0` disables that sleep. `$scheduleKey` is the sorted set used by [delayed execution](/guide/delayed).
+The constructor registers `$key` at `Dispatcher::DEFAULT_PRIORITY` (`100`). `$refreshInterval` is how many seconds `wait()` sleeps when every selected set is empty. `0` disables that sleep, and a negative value throws `InvalidArgumentException`. `$scheduleKey` is the sorted set used by [delayed execution](/guide/delayed).
 
 ## Emit and handle
 
@@ -91,6 +91,10 @@ On an empty pass, and when `$refreshInterval` is not `0`, the driver sleeps that
 Priority polling sorts the queues with `krsort($queues, SORT_NUMERIC)`, so the highest priority integer is polled first whatever order you registered them in. 5.x reversed insertion order instead ([issue #50](https://github.com/tomaj/hermes/issues/50)). See [Priority](/guide/priority).
 
 `wait()` passes the priority it popped into the dispatcher callback. The callback's boolean is ignored. `incrementProcessedItems()` runs after the callback returns. A `ShutdownException` thrown from inside the callback skips that increment and ends `handle()`.
+
+::: warning A corrupt message is lost
+`spop` removes the message from its priority set, and `zrem` removes a delayed one from the schedule, before it is unserialized. If the body cannot be unserialized, `wait()` throws `SerializeException`, the message is already gone from Redis, and the exception does not contain the body. The worker stops. Hermes cannot recover such a message, so emit only through Hermes or a serializer you control, and keep your own copy of messages you cannot afford to lose.
+:::
 
 ## Traits
 

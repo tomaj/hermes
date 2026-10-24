@@ -101,7 +101,7 @@ public function setupPriorityQueue(string $name, int $priority): void;
 public function wait(Closure $callback, array $priorities): void;
 ```
 
-`send()` môže vyhodiť `SerializeException` alebo `UnknownPriorityException`. `setupPriorityQueue()` môže vyhodiť `NotSupportedException`. `wait()` môže vyhodiť `UnknownPriorityException` alebo `ShutdownException`.
+`send()` môže vyhodiť `SerializeException` alebo `UnknownPriorityException`. `setupPriorityQueue()` môže vyhodiť `NotSupportedException`. `wait()` môže vyhodiť `UnknownPriorityException`, `SerializeException` (telo, ktoré nejde deserializovať) alebo `ShutdownException`.
 
 ## Drivery
 
@@ -115,6 +115,8 @@ public function wait(Closure $callback, array $priorities): void;
 | `KafkaDriver` | `src/Driver/KafkaDriver.php` | `(Producer $producer, ?KafkaConsumer $consumer = null, string $topic = 'hermes', int $consumeTimeout = 1000, int $flushTimeout = 10000)` |
 
 `RedisSetDriver::setupPriorityQueue`, `PredisSetDriver::setupPriorityQueue` a `FileSystemDriver::setupPriorityQueue` uložia `$name` pod `$priority`; `FileSystemDriver` vyhodí `InvalidArgumentException` pre názov, ktorý nie je bezpečný názov priečinka. `LazyRabbitMqDriver`, `AmazonSqsDriver` a `KafkaDriver` vždy vyhodia `NotSupportedException` a deklarujú návratový typ `never`.
+
+`RedisSetDriver`, `PredisSetDriver` a `FileSystemDriver` vyhodia v konštruktore `InvalidArgumentException` pre záporné `$refreshInterval` a `FileSystemDriver` aj pre záporné `$visibilityTimeout`.
 
 Všetkých šesť používa (`use`) `MaxItemsTrait`, `ShutdownTrait` a `SerializerAwareTrait`.
 

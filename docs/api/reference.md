@@ -101,7 +101,7 @@ public function setupPriorityQueue(string $name, int $priority): void;
 public function wait(Closure $callback, array $priorities): void;
 ```
 
-`send()` may throw `SerializeException` or `UnknownPriorityException`. `setupPriorityQueue()` may throw `NotSupportedException`. `wait()` may throw `UnknownPriorityException` or `ShutdownException`.
+`send()` may throw `SerializeException` or `UnknownPriorityException`. `setupPriorityQueue()` may throw `NotSupportedException`. `wait()` may throw `UnknownPriorityException`, `SerializeException` (a body that cannot be unserialized) or `ShutdownException`.
 
 ## Drivers
 
@@ -115,6 +115,8 @@ public function wait(Closure $callback, array $priorities): void;
 | `KafkaDriver` | `src/Driver/KafkaDriver.php` | `(Producer $producer, ?KafkaConsumer $consumer = null, string $topic = 'hermes', int $consumeTimeout = 1000, int $flushTimeout = 10000)` |
 
 `RedisSetDriver::setupPriorityQueue`, `PredisSetDriver::setupPriorityQueue` and `FileSystemDriver::setupPriorityQueue` store `$name` at `$priority`; `FileSystemDriver` throws `InvalidArgumentException` for a name that is not a safe folder name. `LazyRabbitMqDriver`, `AmazonSqsDriver` and `KafkaDriver` always throw `NotSupportedException` and declare the `never` return type.
+
+`RedisSetDriver`, `PredisSetDriver` and `FileSystemDriver` throw `InvalidArgumentException` from the constructor for a negative `$refreshInterval`, and `FileSystemDriver` also for a negative `$visibilityTimeout`.
 
 All six `use` `MaxItemsTrait`, `ShutdownTrait`, and `SerializerAwareTrait`.
 

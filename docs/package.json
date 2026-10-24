@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Documentation for tomaj/hermes",
   "private": true,
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
