@@ -4,17 +4,7 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ## [Unreleased][unreleased]
 
-### Added
-
-* The documentation site has a Slovak translation of every page under `/sk/`, with a language menu, `hreflang` links and Slovak structured data. English stays the default at the site root. `npm run docs:links` fails when a page exists in only one language ([#76](https://github.com/tomaj/hermes/issues/76)).
-* The documentation site has a version menu. The root documents the latest version; older major versions are archived in a subfolder. 5.x, which had no site, is archived at `/5.x/` as its 5.0.0 README with a list of the known mistakes in its examples ([#76](https://github.com/tomaj/hermes/issues/76)).
-
-### Fixed
-
-* Docs: the HowTo structured data no longer contains the `<<<` snippet import lines, and two FAQ answers no longer say that RabbitMQ and SQS remove a message before the handler runs ([#76](https://github.com/tomaj/hermes/issues/76)).
-* Docs: after FileSystem and Kafka landed, the home page, delayed and drivers overview FAQs, deployment note, and priority example name all six drivers instead of the older four; the contributing page documents `HERMES_TEST_KAFKA` and five integration env vars to match `composer test:integration`; the Slovak examples index includes the "are the examples tested?" FAQ ([#76](https://github.com/tomaj/hermes/issues/76)).
-
-## 6.0.0 - 2026-10-19
+## [6.0.0] - 2026-10-19
 
 Hermes 6.0. Upgrade steps for every breaking change are in [UPGRADE-6.0.md](UPGRADE-6.0.md).
 
@@ -30,6 +20,8 @@ Hermes 6.0. Upgrade steps for every breaking change are in [UPGRADE-6.0.md](UPGR
 * CI runs the `e2e.sh` of every recipe in `examples/` and of the Laravel, Symfony and Nette integrations against the code of each pull request. `examples/ci/` holds the scripts; they install Hermes from the checkout through a Composer path repository ([#96](https://github.com/tomaj/hermes/issues/96)).
 * `FileSystemDriver`: a queue in a local directory, for one server without a broker. One JSON file per message, written to `tmp/` and renamed into `new/`; workers claim a message with an atomic rename into `processing/` and delete it after the handler. FIFO order per queue, a folder per priority, delayed messages and retries through the due time in the file name, a visibility timeout that redelivers the message of a crashed worker, and `failed/` for messages that cannot be unserialized. Docs: [FileSystem driver](https://tomaj.github.io/hermes/guide/drivers/filesystem), example: `examples/filesystem` ([#17](https://github.com/tomaj/hermes/issues/17))
 * `KafkaDriver` for Apache Kafka through `ext-rdkafka` 6 (a `suggest`): `send()` produces to one topic keyed by the message id and waits for the confirmation; `wait()` consumes in a consumer group and commits the offset after the handler, so delivery is at least once. No priorities and no delay, like RabbitMQ and SQS. Integration tests run against Kafka 4.3.1 (`compose.yaml`, `HERMES_TEST_KAFKA`). Docs: [Kafka driver](https://tomaj.github.io/hermes/guide/drivers/kafka), example: `examples/kafka` ([#14](https://github.com/tomaj/hermes/issues/14))
+* The documentation site has a Slovak translation of every page under `/sk/`, with a language menu, `hreflang` links and Slovak structured data. English stays the default at the site root. `npm run docs:links` fails when a page exists in only one language ([#76](https://github.com/tomaj/hermes/issues/76)).
+* The documentation site has a version menu. The root documents the latest version; older major versions are archived in a subfolder. 5.x, which had no site, is archived at `/5.x/` as its 5.0.0 README with a list of the known mistakes in its examples ([#76](https://github.com/tomaj/hermes/issues/76)).
 
 ### Changed
 
@@ -67,6 +59,8 @@ Hermes 6.0. Upgrade steps for every breaking change are in [UPGRADE-6.0.md](UPGR
 
 ### Fixed
 
+* Docs: the HowTo structured data no longer contains the `<<<` snippet import lines, and two FAQ answers no longer say that RabbitMQ and SQS remove a message before the handler runs ([#76](https://github.com/tomaj/hermes/issues/76)).
+* Docs: after FileSystem and Kafka landed, the home page, delayed and drivers overview FAQs, deployment note, and priority example name all six drivers instead of the older four; the contributing page documents `HERMES_TEST_KAFKA` and five integration env vars to match `composer test:integration`; the Slovak examples index includes the "are the examples tested?" FAQ ([#76](https://github.com/tomaj/hermes/issues/76)).
 * **BREAKING CHANGE**: `Dispatcher` now catches any `Throwable` thrown by a handler, not only `Exception`. A PHP `Error` (for example `TypeError`) is logged, counts as a failed message and follows the normal retry rules instead of killing the worker ([#112](https://github.com/tomaj/hermes/issues/112))
 * `SharedFileShutdown`, `RedisShutdown` and `PredisShutdown` store the shutdown time with microseconds and stop only workers that started before it. A worker started in the same second as `hermes:restart` no longer exits at once. `SharedFileShutdown` ignores a future time, like the Redis shutdowns. See UPGRADE-6.0.md ([#115](https://github.com/tomaj/hermes/issues/115)).
 * `RedisSetDriver` delivers delayed messages and retries again. Due entries are removed from the schedule sorted set with `ZREM`, and only the worker that removed an entry re-sends it. It used `SPOP`, which does not work on a sorted set, so they stayed in the schedule forever ([#95](https://github.com/tomaj/hermes/issues/95)).
@@ -75,7 +69,7 @@ Hermes 6.0. Upgrade steps for every breaking change are in [UPGRADE-6.0.md](UPGR
 * **BREAKING CHANGE**: an `Exception` from the driver in `Dispatcher::handle()` is now logged at `error` (`Exiting hermes dispatcher - driver error: ...`) and rethrown, so the worker exits non-zero instead of returning silently with status 0 ([#113](https://github.com/tomaj/hermes/issues/113))
 * README graceful-shutdown examples: add the missing `new`, use the phpredis `Redis` client with `RedisShutdown`, add `PredisShutdown` for `Predis\Client` (passing it to `RedisShutdown` is a `TypeError`), and fix the `ShutdownInterface` typo.
 
-## 5.0.0 - 2025-11-19
+## [5.0.0] - 2025-11-19
 
 ### Added
 
@@ -117,28 +111,28 @@ Hermes 6.0. Upgrade steps for every breaking change are in [UPGRADE-6.0.md](UPGR
 * Removed implicitly nullable parameters for better type safety
 
 
-## 4.2.0 - 2024-04-29
+## [4.2.0] - 2024-04-29
 
 ### Added
 
 * **BREAKING CHANGE**: changed interface for Dispatcher - added ability to unregister handlers
 
 
-## 4.1.0 - 2023-12-17
+## [4.1.0] - 2023-12-17
 
 ### Changed
 
 - RedisSetDriver - add atomicity to scheduled set
 
 
-## 4.0.1 - 2021-11-23
+## [4.0.1] - 2021-11-23
 
 ### Changed
 
 * Fixed Predis driver when retry is being scheduled [#48](https://github.com/tomaj/hermes/issues/48)
 
 
-## 4.0.0 - 2021-02-02
+## [4.0.0] - 2021-02-02
 
 ### Changed
 
@@ -149,7 +143,7 @@ Hermes 6.0. Upgrade steps for every breaking change are in [UPGRADE-6.0.md](UPGR
 
 
 
-## 3.1.0 - 2020-10-22
+## [3.1.0] - 2020-10-22
 
 ### Changed
 
@@ -159,7 +153,7 @@ Hermes 6.0. Upgrade steps for every breaking change are in [UPGRADE-6.0.md](UPGR
 * updated restart policy for AmazonSQS Driver  
 
 
-## 3.0.1 - 2020-10-16
+## [3.0.1] - 2020-10-16
 
 ### Changed
 
@@ -167,7 +161,7 @@ Hermes 6.0. Upgrade steps for every breaking change are in [UPGRADE-6.0.md](UPGR
 * Deprecated `RabbitMqDriver` (will be removed in 4.0.0) - use `LazyRabbitMqDriver` instead
 * Fixed error while parsing message with invalid UTF8 character
 
-## 3.0.0 - 2020-10-13
+## [3.0.0] - 2020-10-13
 
 ### Added
 
@@ -177,14 +171,14 @@ Hermes 6.0. Upgrade steps for every breaking change are in [UPGRADE-6.0.md](UPGR
 * Upgraded phpunit and tests
 * **BREAKING CHANGE** Drop support for php 7.1
 
-## 2.2.0 - 2019-07-12
+## [2.2.0] - 2019-07-12
 
 ### Added
 
 * Ability to register multiple handlers at once for one key (`registerHandlers` in `DispatcherInterface`)
 * Fixed loss of messages when the handler crashes and mechanism of retries for RabbitMQ Drivers 
 
-## 2.1.0 - 2019-07-06
+## [2.1.0] - 2019-07-06
 
 ### Added
 
@@ -194,7 +188,7 @@ Hermes 6.0. Upgrade steps for every breaking change are in [UPGRADE-6.0.md](UPGR
 
 * Added missing handle() method to DispatcherInterface
 
-## 2.0.0 - 2018-08-14
+## [2.0.0] - 2018-08-14
 
 ### Added
 
@@ -206,49 +200,68 @@ Hermes 6.0. Upgrade steps for every breaking change are in [UPGRADE-6.0.md](UPGR
 * Dropped support for php 5.4
 * Deprecated emit() in Disapatcher - introduced Emitter
 
-## 1.2.0 - 2016-09-26
+## [1.2.0] - 2016-09-26
 
 ### Updated
 
 * Amazon aws library updated to version 3 in composer - still works with v2 but you have to initialize Sqs client in v2 style
 
-## 1.1.0 - 2016-09-05
+## [1.1.0] - 2016-09-05
 
 ### Added
 
 * Amazon SQS driver
 
-## 1.0.0 - 2016-09-02
+## [1.0.0] - 2016-09-02
 
 ### Added
 
 * First stable version
 * Added ACK to rabbitmq driver
 
-## 0.4.0 - 2016-04-26
+## [0.4.0] - 2016-04-26
 
 ### Added
 
 * Added RabbitMQ Lazy driver
 
-## 0.3.0 - 2016-03-23
+## [0.3.0] - 2016-03-23
 
 ### Added
 
 * Added possibility to gracefull restart worker with RestartInterface
 * Added Tracy debugger log when error occured
 
-## 0.2.0 - 2015-10-30
+## [0.2.0] - 2015-10-30
 
 ### Changed
 
 * Handling responses from handlers.
 * Tests structure refactored
 
-## 0.1.0 - 2015-10-28
+## [0.1.0] - 2015-10-28
 
 ### Added
 
 * initial version with 2 drivers
 
 [unreleased]: https://github.com/tomaj/hermes/compare/6.0.0...HEAD
+[6.0.0]: https://github.com/tomaj/hermes/compare/5.0.0...6.0.0
+[5.0.0]: https://github.com/tomaj/hermes/compare/4.2.0...5.0.0
+[4.2.0]: https://github.com/tomaj/hermes/compare/4.1.0...4.2.0
+[4.1.0]: https://github.com/tomaj/hermes/compare/4.0.1...4.1.0
+[4.0.1]: https://github.com/tomaj/hermes/compare/4.0.0...4.0.1
+[4.0.0]: https://github.com/tomaj/hermes/compare/3.1.0...4.0.0
+[3.1.0]: https://github.com/tomaj/hermes/compare/3.0.1...3.1.0
+[3.0.1]: https://github.com/tomaj/hermes/compare/3.0.0...3.0.1
+[3.0.0]: https://github.com/tomaj/hermes/compare/2.2.0...3.0.0
+[2.2.0]: https://github.com/tomaj/hermes/compare/2.1.0...2.2.0
+[2.1.0]: https://github.com/tomaj/hermes/compare/2.0.0...2.1.0
+[2.0.0]: https://github.com/tomaj/hermes/compare/1.2.0...2.0.0
+[1.2.0]: https://github.com/tomaj/hermes/compare/1.1.0...1.2.0
+[1.1.0]: https://github.com/tomaj/hermes/compare/1.0.0...1.1.0
+[1.0.0]: https://github.com/tomaj/hermes/compare/0.4.0...1.0.0
+[0.4.0]: https://github.com/tomaj/hermes/compare/0.3.0...0.4.0
+[0.3.0]: https://github.com/tomaj/hermes/compare/0.2.0...0.3.0
+[0.2.0]: https://github.com/tomaj/hermes/compare/0.1.0...0.2.0
+[0.1.0]: https://github.com/tomaj/hermes/releases/tag/0.1.0

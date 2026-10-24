@@ -4,7 +4,7 @@ Releases are published by `.github/workflows/release.yml` when a version tag is 
 
 ## Steps
 
-1. In a pull request, rename `## [Unreleased][unreleased]` in `CHANGELOG.md` to `## X.Y.Z - YYYY-MM-DD`, add a new empty `## [Unreleased][unreleased]` above it, and update `UPGRADE-*.md` for a major version. Check the section locally; it is the text of the release notes, except that relative links such as `[UPGRADE-6.0.md](UPGRADE-6.0.md)` become absolute links to the file at the tag:
+1. In a pull request, move the `## [Unreleased][unreleased]` entries in `CHANGELOG.md` into a new `## [X.Y.Z] - YYYY-MM-DD` section below it, leave the empty `## [Unreleased][unreleased]` heading in place, and update `UPGRADE-*.md` for a major version. At the bottom, change the `[unreleased]` link to `compare/X.Y.Z...HEAD` and add `[X.Y.Z]: https://github.com/tomaj/hermes/compare/<previous>...X.Y.Z`; each version links to the compare with the version below it. Check the section locally; it is the text of the release notes, except that relative links such as `[UPGRADE-6.0.md](UPGRADE-6.0.md)` become absolute links to the file at the tag:
 
    ```bash
    .github/scripts/release-notes.sh X.Y.Z
@@ -21,7 +21,7 @@ Releases are published by `.github/workflows/release.yml` when a version tag is 
 
 The workflow then:
 
-- fails before publishing anything when `CHANGELOG.md` has no `## X.Y.Z - <date>` section;
+- fails before publishing anything when `CHANGELOG.md` has no `## [X.Y.Z] - <date>` section (the older `## X.Y.Z - <date>` form is still accepted);
 - builds `hermes-X.Y.Z.tar.gz` and `hermes-X.Y.Z.zip` with `git archive`, which leaves out the `export-ignore` paths of `.gitattributes` exactly like the Composer dist archive, plus `SHA256SUMS`;
 - creates build provenance attestations for both archives (`actions/attest-build-provenance`);
 - creates the GitHub release with the CHANGELOG section as notes, marked as a pre-release when the tag has a `-` suffix.
