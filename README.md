@@ -285,15 +285,17 @@ When you provide an implementation of `Tomaj\Hermes\Shutdown\ShutdownInterface` 
 
 **Important:** Hermes handles shutdown, but automatic restart must be managed by your process controller (e.g., supervisord, systemd, or Docker).
 
-Two shutdown implementations are available:
+Three built-in shutdown implementations are available. Use `RedisShutdown` with the phpredis extension (`Redis`) and `PredisShutdown` with `Predis\Client` — the constructors are typed, so mixing them raises a `TypeError`.
 
 ### SharedFileShutdown
 
 Trigger shutdown by creating or touching a specific file:
 
 ```php
+use Tomaj\Hermes\Shutdown\SharedFileShutdown;
+
 $shutdownFile = '/tmp/hermes_shutdown';
-$shutdown = Tomaj\Hermes\Shutdown\SharedFileShutdown($shutdownFile);
+$shutdown = new SharedFileShutdown($shutdownFile);
 
 // $log = ...
 // $driver = ....
@@ -301,18 +303,21 @@ $dispatcher = new Dispatcher($driver, $log, $shutdown);
 
 // ...
 
-// shutdown can be triggered be calling `ShutdownInterface::shutdown()`
+// shutdown can be triggered by calling `ShutdownInterface::shutdown()`
 $shutdown->shutdown();
 ```
 
 ### RedisShutdown
 
-Trigger shutdown by setting a Redis key:
+Trigger shutdown by setting a Redis key (phpredis `Redis` client):
 
 ```php
-$redisClient = new Predis\Client();
-$redisShutdownKey = 'hermes_shutdown'; // can be omitted; default value is `hermes_shutdown`
-$shutdown = Tomaj\Hermes\Shutdown\RedisShutdown($redisClient, $redisShutdownKey);
+use Tomaj\Hermes\Shutdown\RedisShutdown;
+
+$redis = new Redis();
+$redis->connect('127.0.0.1', 6379);
+$redisShutdownKey = 'hermes_shutdown'; // can be omitted; default is `hermes_shutdown`
+$shutdown = new RedisShutdown($redis, $redisShutdownKey);
 
 // $log = ...
 // $driver = ....
@@ -320,7 +325,22 @@ $dispatcher = new Dispatcher($driver, $log, $shutdown);
 
 // ...
 
-// shutdown can be triggered be calling `ShutdownInteface::shutdown()`
+// shutdown can be triggered by calling `ShutdownInterface::shutdown()`
+$shutdown->shutdown();
+```
+
+### PredisShutdown
+
+Same key and rules with a `Predis\Client` (use this with `PredisSetDriver`):
+
+```php
+use Predis\Client;
+use Tomaj\Hermes\Shutdown\PredisShutdown;
+
+$redis = new Client(['scheme' => 'tcp', 'host' => '127.0.0.1', 'port' => 6379]);
+$shutdown = new PredisShutdown($redis); // optional second argument: Redis key, default `hermes_shutdown`
+
+$dispatcher = new Dispatcher($driver, $log, $shutdown);
 $shutdown->shutdown();
 ```
 

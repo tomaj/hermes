@@ -70,6 +70,7 @@ Hermes 6.0. Upgrade steps for every breaking change are in [UPGRADE-6.0.md](UPGR
 * `RedisSetDriver::wait()` and `PredisSetDriver::wait()` throw `UnknownPriorityException` when the priority filter lists a priority that was never registered, like `FileSystemDriver` and as their `@throws` and the API reference say. They skipped unknown priorities silently, so a worker started with a mistyped priority polled nothing for it.
 * **BREAKING CHANGE**: `RedisSetDriver` and `PredisSetDriver` poll priority queues by priority number, highest first. They polled in reverse registration order, so the default priority 100 (registered in the constructor) always came last ([#50](https://github.com/tomaj/hermes/issues/50)). Workers that relied on the old order now process queues in a different order.
 * **BREAKING CHANGE**: an `Exception` from the driver in `Dispatcher::handle()` is now logged at `error` (`Exiting hermes dispatcher - driver error: ...`) and rethrown, so the worker exits non-zero instead of returning silently with status 0 ([#113](https://github.com/tomaj/hermes/issues/113))
+* README graceful-shutdown examples: add the missing `new`, use the phpredis `Redis` client with `RedisShutdown`, add `PredisShutdown` for `Predis\Client` (passing it to `RedisShutdown` is a `TypeError`), and fix the `ShutdownInterface` typo.
 
 ## 5.0.0 - 2025-11-19
 
