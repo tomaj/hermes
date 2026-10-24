@@ -85,11 +85,15 @@
         ],
         "phpcs": "php-cs-fixer fix --dry-run --diff --verbose",
         "phpstan": "phpstan analyse --memory-limit=1G",
-        "phpunit": "phpunit --no-coverage",
+        "phpunit": [
+            "@putenv XDEBUG_MODE=off",
+            "phpunit --no-coverage"
+        ],
         "rector": "rector --dry-run",
         "rector-fix": "rector",
         "test": "@phpunit",
         "test:integration": [
+            "@putenv XDEBUG_MODE=off",
             "@putenv HERMES_TEST_REDIS=tcp://127.0.0.1:6379",
             "@putenv HERMES_TEST_RABBITMQ=127.0.0.1",
             "@putenv HERMES_TEST_SQS=http://127.0.0.1:4566",
