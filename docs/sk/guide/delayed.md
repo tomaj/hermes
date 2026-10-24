@@ -40,7 +40,7 @@ Po úspešnom `ZREM` ju driver deserializuje a zavolá `send()` bez priority. `s
 
 `send()` správu odloží, keď je `getExecuteAt()` pravdivé a väčšie ako teraz. Zápis je `zadd($scheduleKey, [$serialized => $executeAt])`.
 
-`wait()` číta cez `zrangebyscore` s `LIMIT OFFSET 0 COUNT 1`, potom presne tento prvok odstráni cez `zrem` a pošle ho cez `send()`. Toto `zrem` je oprava [issue #48](https://github.com/tomaj/hermes/issues/48) z verzie 4.0.1. Presun stále používa `send()` bez priority, takže splatná správa skončí v predvolenej množine.
+`wait()` číta cez `zrangebyscore` s `LIMIT OFFSET 0 COUNT 1`, potom presne tento prvok odstráni cez `zrem`. Cez `send()` ho pošle, len keď `zrem` vráti `1`, takže dva workery nikdy nepresunú ten istý záznam. Do verzie 5.x Predis výsledok `zrem` ignoroval a súbežné workery mohli jednu odloženú správu doručiť dvakrát. Samotné `zrem` je oprava [issue #48](https://github.com/tomaj/hermes/issues/48) z verzie 4.0.1. Presun stále používa `send()` bez priority, takže splatná správa skončí v predvolenej množine.
 
 ## FileSystem
 

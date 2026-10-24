@@ -108,8 +108,10 @@ final class PredisSetDriver implements DriverInterface
                     if (!is_string($messageString)) {
                         continue;
                     }
-                    $this->redis->zrem($this->scheduleKey, $messageString);
-                    $this->send($this->serializer->unserialize($messageString));
+                    // ZREM is atomic: only the worker that actually removed the entry re-sends it
+                    if ($this->redis->zrem($this->scheduleKey, $messageString) === 1) {
+                        $this->send($this->serializer->unserialize($messageString));
+                    }
                 }
             }
 

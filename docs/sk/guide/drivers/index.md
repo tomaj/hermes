@@ -36,7 +36,7 @@ const comparison = [
 ### Poznámky k Predis
 
 - **Priorita.** Rovnako ako Redis.
-- **Oneskorenie.** Budúce `executeAt` ide do zoradenej množiny. Presun používa `ZREM` na práve prečítaný prvok.
+- **Oneskorenie.** Budúce `executeAt` ide do zoradenej množiny. Presun používa `ZREM` na práve prečítaný prvok a pošle ho znova len worker, ktorého `ZREM` ho odstránil.
 - **Perzistencia.** Rovnako ako Redis.
 - **Ack.** Ten istý `SPOP` zo živej množiny.
 

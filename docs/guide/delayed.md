@@ -40,7 +40,7 @@ After a successful `ZREM` the driver unserializes it and calls `send()` with no 
 
 `send()` delays when `getExecuteAt()` is truthy and greater than now. The write is `zadd($scheduleKey, [$serialized => $executeAt])`.
 
-`wait()` reads with `zrangebyscore` and `LIMIT OFFSET 0 COUNT 1`, then `zrem`s that exact member, then `send()`s it. That `zrem` is the 4.0.1 fix for [issue #48](https://github.com/tomaj/hermes/issues/48). Promotion still uses `send()` without a priority, so the due message joins the default set.
+`wait()` reads with `zrangebyscore` and `LIMIT OFFSET 0 COUNT 1`, then `zrem`s that exact member. Only when `zrem` returns `1` does it `send()` the member, so two workers never promote the same entry. Up to 5.x Predis ignored the `zrem` result, and concurrent workers could deliver one delayed message twice. The `zrem` itself is the 4.0.1 fix for [issue #48](https://github.com/tomaj/hermes/issues/48). Promotion still uses `send()` without a priority, so the due message joins the default set.
 
 ## FileSystem
 

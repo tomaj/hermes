@@ -74,7 +74,7 @@ Táto mapa prvok → skóre je tvar, ktorý Predis očakáva. Je to oprava [issu
 
 <Diagram name="drivers-predis-1" alt="Slučka wait v Predise: ZRANGEBYSCORE a ZREM presunú splatné správy, potom SPOP vyberie jednu z množín priorít" />
 
-`zrangebyscore` číta od `-inf` po aktuálny čas, odovzdaný ako reťazec s mikrosekundami (`sprintf('%.6F', microtime(true))`), pretože Predis 2 a 3 typujú hranicu ako `int|string`. Používa `LIMIT OFFSET 0 COUNT 1`. Každý vrátený prvok sa odstráni cez `zrem` a pošle späť cez `send()`. Ak je stále v budúcnosti, vráti sa do zoradenej množiny. Ak je splatný, `send()` ho cez `sadd` vloží do kľúča **predvolenej** priority, pretože `send()` sa volá bez argumentu priority.
+`zrangebyscore` číta od `-inf` po aktuálny čas, odovzdaný ako reťazec s mikrosekundami (`sprintf('%.6F', microtime(true))`), pretože Predis 2 a 3 typujú hranicu ako `int|string`. Používa `LIMIT OFFSET 0 COUNT 1`. Každý vrátený prvok sa odstráni cez `zrem`. Späť cez `send()` sa pošle, len keď `zrem` vráti `1`, teda keď ho odstránil tento worker; worker, ktorý súboj prehral, ho preskočí. Ak je stále v budúcnosti, vráti sa do zoradenej množiny. Ak je splatný, `send()` ho cez `sadd` vloží do kľúča **predvolenej** priority, pretože `send()` sa volá bez argumentu priority.
 
 Živá fronta je stále množina. `spop` nie je FIFO. Prázdne slučky spia `$refreshInterval` sekúnd, keď táto hodnota nie je `0`.
 

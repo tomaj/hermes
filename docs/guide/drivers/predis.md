@@ -74,7 +74,7 @@ That member-to-score map is the shape Predis expects. It is the fix for [issue #
 
 <Diagram name="drivers-predis-1" alt="Predis wait loop: ZRANGEBYSCORE and ZREM promote due messages, then SPOP takes one from the priority sets" />
 
-`zrangebyscore` reads from `-inf` to the current time, passed as a string with microseconds (`sprintf('%.6F', microtime(true))`) because Predis 2 and 3 type the bound as `int|string`. It uses `LIMIT OFFSET 0 COUNT 1`. Each returned member is removed with `zrem` and passed back through `send()`. If it is still in the future it returns to the sorted set. If it is due, `send()` `sadd`s it onto the **default** priority key, because `send()` is called with no priority argument.
+`zrangebyscore` reads from `-inf` to the current time, passed as a string with microseconds (`sprintf('%.6F', microtime(true))`) because Predis 2 and 3 type the bound as `int|string`. It uses `LIMIT OFFSET 0 COUNT 1`. Each returned member is removed with `zrem`. Only when `zrem` returns `1`, meaning this worker removed it, is it passed back through `send()`; a worker that lost the race skips it. If it is still in the future it returns to the sorted set. If it is due, `send()` `sadd`s it onto the **default** priority key, because `send()` is called with no priority argument.
 
 The live queue is still a set. `spop` is not FIFO. Empty loops sleep `$refreshInterval` seconds when that value is not `0`.
 
