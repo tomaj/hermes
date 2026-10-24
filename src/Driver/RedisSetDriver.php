@@ -112,12 +112,11 @@ final class RedisSetDriver implements DriverInterface
             $foundPriority = null;
 
             foreach ($queues as $priority => $name) {
+                $messageString = $this->pop($this->getKey($priority));
                 if ($messageString !== null) {
+                    $foundPriority = $priority;
                     break;
                 }
-
-                $messageString = $this->pop($this->getKey($priority));
-                $foundPriority = $priority;
             }
 
             if ($messageString !== null) {

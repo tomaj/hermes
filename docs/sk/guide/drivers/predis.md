@@ -94,7 +94,7 @@ Keď nemôžete nainštalovať rozšírenie phpredis. Vo verzii 5.x aj vtedy, ke
 
 ### Ktoré verzie Predisu sú podporované?
 
-Predis 2.3 a novší a Predis 3. Testy bežia proti najnižšej (2.3.0) aj najnovšej verzii. Predis 1.x a 2.0 až 2.2 vypisujú deprecations na PHP 8.4 a už sa netestujú.
+Predis 2.3 a novší a Predis 3. Testy bežia proti najnižšej (2.3.0) aj najnovšej verzii. Predis 1.x a 2.0 až 2.2 vypisujú deprecations na PHP 8.4 a už sa netestujú. `composer.json` uvádza `predis/predis` `<2.3` v sekcii `conflict`, takže Composer odmietne nainštalovať Hermes 6 vedľa staršieho Predisu.
 
 ### Ktorá trieda na ukončenie k nemu patrí?
 

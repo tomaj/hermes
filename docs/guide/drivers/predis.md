@@ -94,7 +94,7 @@ Yes. Sets per priority and one sorted set for the schedule, so the key names and
 
 ### Which Predis versions are supported?
 
-Predis 2.3 and later, and Predis 3. The tests run against both the lowest (2.3.0) and the newest release. Predis 1.x and 2.0 to 2.2 emit PHP 8.4 deprecations and are no longer tested.
+Predis 2.3 and later, and Predis 3. The tests run against both the lowest (2.3.0) and the newest release. Predis 1.x and 2.0 to 2.2 emit PHP 8.4 deprecations and are no longer tested. `composer.json` lists `predis/predis` `<2.3` under `conflict`, so Composer refuses to install Hermes 6 next to an older Predis.
 
 ### Which shutdown class goes with it?
 

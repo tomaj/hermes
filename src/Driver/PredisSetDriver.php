@@ -117,16 +117,11 @@ final class PredisSetDriver implements DriverInterface
             $foundPriority = null;
 
             foreach ($queues as $priority => $name) {
-                if ($messageString !== null) {
-                    break;
-                }
-
-                $key = $this->getKey($priority);
-
-                $popped = $this->redis->spop($key);
+                $popped = $this->redis->spop($this->getKey($priority));
                 if (is_string($popped)) {
                     $messageString = $popped;
                     $foundPriority = $priority;
+                    break;
                 }
             }
 

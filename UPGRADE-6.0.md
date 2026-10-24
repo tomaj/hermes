@@ -20,7 +20,7 @@ None of these changes has a deprecation notice in 5.x: there is no 5.x maintenan
 ## Requirements
 
 - PHP 8.4 or newer.
-- `predis/predis` `^2.3 || ^3.0` if you use `PredisSetDriver` or `PredisShutdown`. Predis is only a suggested package, so Composer does not enforce this: upgrade it yourself.
+- `predis/predis` `^2.3 || ^3.0` if you use `PredisSetDriver` or `PredisShutdown`. Predis is only a suggested package, but `composer.json` declares a `conflict` with `predis/predis` `<2.3`, so Composer refuses to install Hermes 6 next to an older Predis: upgrade it in the same `composer update`.
 - `ramsey/uuid` `^4.7`. Composer resolves it unless your project pins an older version.
 - `tracy/tracy` is no longer required, only suggested. If you use Tracy, require it yourself (`composer require tracy/tracy`). See [Tracy is optional](#tracy-is-optional).
 - `psr/log` `^2 || ^3`. psr/log 1.x (no native types) is no longer allowed; a project that pins `psr/log` 1.x must upgrade it.

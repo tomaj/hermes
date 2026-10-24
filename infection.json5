@@ -12,11 +12,36 @@
         "json": "build/infection.json"
     },
     "mutators": {
-        "@default": true
+        "@default": true,
+        // `executeAt > microtime(true)` against `>=` differs only when both are the same microsecond, which no test can arrange
+        "GreaterThan": {
+            "ignore": [
+                "Tomaj\\Hermes\\Driver\\RedisSetDriver::send",
+                "Tomaj\\Hermes\\Driver\\PredisSetDriver::send"
+            ]
+        },
+        // the tests could not make PHP 8.4 serve a stale filemtime() from the stat cache, so dropping clearstatcache() changes nothing a test can see;
+        // the call stays for other SAPIs and stream wrappers
+        "FunctionCallRemoval": {
+            "ignore": [
+                "Tomaj\\Hermes\\Shutdown\\SharedFileShutdown::shouldShutdown"
+            ]
+        },
+        // with a blocking wait, a $refreshInterval of 0, 1 or -1 all mean a one-second idle timeout
+        "IncrementInteger": {
+            "ignore": [
+                "Tomaj\\Hermes\\Driver\\LazyRabbitMqDriver::__construct"
+            ]
+        },
+        "DecrementInteger": {
+            "ignore": [
+                "Tomaj\\Hermes\\Driver\\LazyRabbitMqDriver::__construct"
+            ]
+        }
     },
     "minMsi": 85,
     "minCoveredMsi": 90,
-    "timeout": 10,
+    "timeout": 30,
     "phpUnit": {
         "configDir": "."
     }

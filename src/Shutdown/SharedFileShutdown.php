@@ -25,7 +25,8 @@ final readonly class SharedFileShutdown implements ShutdownInterface
     #[\Override]
     public function shouldShutdown(DateTimeInterface $startTime): bool
     {
-        clearstatcache(false, $this->filePath);
+        // the file is touched by another process, so do not trust PHP's stat cache
+        clearstatcache();
 
         // a missing file means keep running
         $modified = @filemtime($this->filePath);

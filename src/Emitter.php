@@ -46,6 +46,8 @@ final readonly class Emitter implements EmitterInterface
             'created' => $message->getCreated(),
             'type' => $message->getType(),
             'payload' => $message->getPayload(),
+            'retries' => $message->getRetries(),
+            'execute_at' => $message->getExecuteAt(),
         ];
     }
 

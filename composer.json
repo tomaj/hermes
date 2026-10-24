@@ -50,6 +50,9 @@
         "predis/predis": "Needed for PredisSetDriver and PredisShutdown (Redis without the extension)",
         "tracy/tracy": "Dispatcher also writes handler and driver exceptions to Tracy when Debugger is enabled"
     },
+    "conflict": {
+        "predis/predis": "<2.3"
+    },
     "minimum-stability": "stable",
     "autoload": {
         "psr-4": {
