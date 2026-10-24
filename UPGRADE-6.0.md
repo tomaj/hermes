@@ -342,7 +342,7 @@ The value is the same.
 - The integer is the ordering key. The Redis drivers poll from the highest number down ([#50](https://github.com/tomaj/hermes/issues/50)). A value object would only wrap that integer.
 - Changing the parameter type of the driver interface would break every custom driver and every call site, with no new safety. An unknown priority still has to be checked at runtime, because it depends on what was registered.
 
-The runtime check stays: on the Redis and Predis drivers, sending with a priority that was not registered throws `UnknownPriorityException`. The RabbitMQ, SQS and Kafka drivers have no priority queues and ignore the priority argument of `send()`. To name your priorities, use your own typed constants:
+The runtime check stays: on the Redis and Predis drivers, sending with a priority that was not registered throws `UnknownPriorityException`, and so does `wait()` (and `Dispatcher::handle()`) when its priority list contains one; 5.x skipped it silently. The RabbitMQ, SQS and Kafka drivers have no priority queues and ignore the priority argument of `send()`. To name your priorities, use your own typed constants:
 
 ```php
 final class Priority

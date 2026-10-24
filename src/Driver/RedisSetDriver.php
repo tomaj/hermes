@@ -86,6 +86,12 @@ final class RedisSetDriver implements DriverInterface
         // Highest priority first, regardless of the order the queues were set up in
         $queues = $this->queues;
         krsort($queues, SORT_NUMERIC);
+        if ($priorities !== []) {
+            foreach ($priorities as $priority) {
+                $this->getKey($priority);
+            }
+            $queues = array_filter($queues, static fn(int $priority): bool => in_array($priority, $priorities, true), ARRAY_FILTER_USE_KEY);
+        }
         while (true) {
             $this->checkShutdown();
             if (!$this->shouldProcessNext()) {
@@ -106,9 +112,6 @@ final class RedisSetDriver implements DriverInterface
             $foundPriority = null;
 
             foreach ($queues as $priority => $name) {
-                if ($priorities !== [] && !in_array($priority, $priorities, true)) {
-                    continue;
-                }
                 if ($messageString !== null) {
                     break;
                 }
