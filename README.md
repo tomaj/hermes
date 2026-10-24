@@ -64,7 +64,7 @@ Hermes includes built-in support for multiple queue backends:
  * **[RabbitMQ][]** - Industry-standard message broker
  * **FileSystem** - A queue in a local directory, for one server without a broker ([docs](https://tomaj.github.io/hermes/guide/drivers/filesystem))
  * **[Apache Kafka][]** - Topics and consumer groups through [ext-rdkafka](https://github.com/arnaud-lb/php-rdkafka) ([docs](https://tomaj.github.io/hermes/guide/drivers/kafka))
- * **[ZeroMQ][]** - Available as a separate package: [tomaj/hermes-zmq-driver](https://github.com/tomaj/hermes-zmq-driver)
+ * **[ZeroMQ][]** - Available as a separate package: [tomaj/hermes-zmq-driver](https://github.com/tomaj/hermes-zmq-driver). It requires `tomaj/hermes` `^2.1` and does not install with 6.x
 
 **Note:** You need to install the corresponding client libraries for your chosen driver. For example, to use Redis with Predis, add `predis/predis` to your `composer.json` and configure your Redis connection.
 
@@ -104,7 +104,6 @@ This example demonstrates using the Redis driver to send emails in the backgroun
 Emit messages from anywhere in your application—it's quick and straightforward:
 
 ```php
-use Redis;
 use Tomaj\Hermes\Message;
 use Tomaj\Hermes\Emitter;
 use Tomaj\Hermes\Driver\RedisSetDriver;
@@ -129,20 +128,20 @@ To process messages, create a PHP CLI script that runs continuously. Here's a si
 
 
 ```php
-# file handler.php
-use Redis;
+// file handler.php
 use Tomaj\Hermes\Driver\RedisSetDriver;
 use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\Handler\HandlerInterface;
+use Tomaj\Hermes\MessageInterface;
 
 class SendEmailHandler implements HandlerInterface
 {
     // here you will receive message that was emitted from web application
-    public function handle(MessageInterface $message)
+    public function handle(MessageInterface $message): bool
     {
-    	$payload = $message->getPayload();
-    	mail($payload['to'], $payload['subject'], $payload['message']);
-    	return true;
+        $payload = $message->getPayload();
+        mail($payload['to'], $payload['subject'], $payload['message']);
+        return true;
     }
 }
 
@@ -176,9 +175,9 @@ To enable logging in your handlers, add the `Psr\Log\LoggerAwareTrait` trait (or
 Example using [monolog][]:
 
 ```php
-
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
+use Tomaj\Hermes\Dispatcher;
 
 // create a log channel
 $log = new Logger('hermes');
@@ -192,36 +191,33 @@ $dispatcher = new Dispatcher($driver, $log);
 To add logging within your handlers:
 
 ```php
-use Redis;
-use Tomaj\Hermes\Driver\RedisSetDriver;
-use Tomaj\Hermes\Dispatcher;
-use Tomaj\Hermes\Handler\HandlerInterface;
 use Psr\Log\LoggerAwareTrait;
+use Tomaj\Hermes\Handler\HandlerInterface;
+use Tomaj\Hermes\MessageInterface;
 
 class SendEmailHandlerWithLogger implements HandlerInterface
 {
     // enable logger
     use LoggerAwareTrait;
 
-    public function handle(MessageInterface $message)
+    public function handle(MessageInterface $message): bool
     {
         $payload = $message->getPayload();
 
-        // log info message
-    	$this->logger->info("Trying to send email to {$payload['to']}");
+        // log info message; the logger is null until the Dispatcher injects it
+        $this->logger?->info("Trying to send email to {$payload['to']}");
 
-    	mail($payload['to'], $payload['subject'], $payload['message']);
-    	return true;
+        mail($payload['to'], $payload['subject'], $payload['message']);
+        return true;
     }
 }
-
 ```
 
 ## Retry
 
 If your handler fails, it can be retried automatically: implement `RetryableHandlerInterface` and add `RetryTrait`. Override `maxRetry()` to control the number of retry attempts (default is 25), and `canRetry($message, $exception)` to skip retries for permanent errors.
 
-**Note:** Retry functionality requires a driver that supports delayed execution (the `$executeAt` message parameter). 
+**Note:** The retry waits only on drivers that support delayed execution (the `$executeAt` message parameter): `RedisSetDriver`, `PredisSetDriver` and `FileSystemDriver`. `LazyRabbitMqDriver`, `AmazonSqsDriver` and `KafkaDriver` deliver the retry at once.
 
 ```php
 declare(strict_types=1);
@@ -292,6 +288,7 @@ Three built-in shutdown implementations are available. Use `RedisShutdown` with 
 Trigger shutdown by creating or touching a specific file:
 
 ```php
+use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\Shutdown\SharedFileShutdown;
 
 $shutdownFile = '/tmp/hermes_shutdown';
@@ -312,6 +309,7 @@ $shutdown->shutdown();
 Trigger shutdown by setting a Redis key (phpredis `Redis` client):
 
 ```php
+use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\Shutdown\RedisShutdown;
 
 $redis = new Redis();
@@ -335,6 +333,7 @@ Same key and rules with a `Predis\Client` (use this with `PredisSetDriver`):
 
 ```php
 use Predis\Client;
+use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\Shutdown\PredisShutdown;
 
 $redis = new Client(['scheme' => 'tcp', 'host' => '127.0.0.1', 'port' => 6379]);
@@ -360,88 +359,72 @@ Hermes uses interface-based architecture, making it easy to extend. You can crea
 
 ### Creating a Custom Driver
 
-Each driver must implement `Tomaj\Hermes\Driver\DriverInterface` with two methods: `send()` and `wait()`.
+Each driver implements `Tomaj\Hermes\Driver\DriverInterface`: `send()`, `setupPriorityQueue()` and `wait()`. Every concrete class in the package is `final`, so implement the interface or wrap a built-in driver instead of extending one.
 
-Here's an example driver using [Gearman][]:
-
-```PHP
+```php
 namespace My\Custom\Driver;
 
-use Tomaj\Hermes\Driver\DriverInterface;
-use Tomaj\Hermes\Message;
 use Closure;
+use Tomaj\Hermes\Dispatcher;
+use Tomaj\Hermes\Driver\DriverInterface;
+use Tomaj\Hermes\Driver\NotSupportedException;
+use Tomaj\Hermes\Driver\SerializerAwareTrait;
+use Tomaj\Hermes\Driver\UnknownPriorityException;
+use Tomaj\Hermes\MessageInterface;
+use Tomaj\Hermes\MessageSerializer;
 
-class GearmanDriver implements DriverInterface
+final class InMemoryDriver implements DriverInterface
 {
-	private $client;
+    use SerializerAwareTrait;
 
-	private $worker;
+    /** @var list<string> */
+    private array $items = [];
 
-	private $channel;
+    public function __construct()
+    {
+        $this->serializer = new MessageSerializer();
+    }
 
-	private $serializer;
+    #[\Override]
+    public function send(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): bool
+    {
+        if ($priority !== Dispatcher::DEFAULT_PRIORITY) {
+            throw new UnknownPriorityException("Unknown priority {$priority}");
+        }
+        $this->items[] = $this->serializer->serialize($message);
+        return true;
+    }
 
-	public function __construct(GearmanClient $client, GearmanWorker $worker, $channel = 'hermes')
-	{
-		$this->client = $client;
-		$this->worker = $worker;
-		$this->channel = $channel;
-		$this->serializer = $serialier;
-	}
+    #[\Override]
+    public function setupPriorityQueue(string $name, int $priority): void
+    {
+        throw new NotSupportedException('InMemoryDriver has a single queue');
+    }
 
-	public function send(Message $message)
-	{
-		$this->client->do($this->channel, $this->serializer->serialize($message));
-	}
-
-	public function wait(Closure $callback)
-	{
-		$worker->addFunction($this->channel, function ($gearmanMessage) use ($callback) {
-			$message = $this->serializer->unserialize($gearmanMessage);
-			$callback($message);
-		});
-		while ($this->worker->work());
-	}
+    #[\Override]
+    public function wait(Closure $callback, array $priorities = []): void
+    {
+        if (array_diff($priorities, [Dispatcher::DEFAULT_PRIORITY]) !== []) {
+            throw new UnknownPriorityException('InMemoryDriver has only the default priority');
+        }
+        while (($item = array_shift($this->items)) !== null) {
+            $callback($this->serializer->unserialize($item), Dispatcher::DEFAULT_PRIORITY);
+        }
+    }
 }
 ```
 
-[Gearman]: http://gearman.org/
+A driver with several priorities, shutdown and max-items support is in [Extending Hermes](https://tomaj.github.io/hermes/guide/extending).
 
 ### Creating a Custom Serializer
 
-To use custom serialization, create a class that implements `Tomaj\Hermes\SerializerInterface`. Add the `Tomaj\Hermes\Driver\SerializerAwareTrait` to your driver to enable the `setSerializer()` method.
+To use custom serialization, create a class that implements `Tomaj\Hermes\SerializerInterface`: `serialize(MessageInterface $message): string` and `unserialize(string $string): MessageInterface`, throwing `Tomaj\Hermes\SerializeException` on bad input. Drivers that use `Tomaj\Hermes\Driver\SerializerAwareTrait` (all built-in drivers do) accept it through `setSerializer()`. Use the same serializer on the emitter and the worker side.
 
-Example using [jms/serializer][]:
-
-```php
-namespace My\Custom\Serializer;
-
-use Tomaj\Hermes\SerializerInterface;
-use Tomaj\Hermes\MessageInterface;
-
-class JmsSerializer implements SerializerInterface
-{
-	public function serialize(MessageInterface $message)
-	{
-		$serializer = JMS\Serializer\SerializerBuilder::create()->build();
-		return $serializer->serialize($message, 'json');
-	}
-
-	public function unserialize($string)
-	{
-		$serializer = JMS\Serializer\SerializerBuilder::create()->build();
-		return $serializer->deserialize($message, 'json');
-	}
-}
-```
-
-[jms/serializer]: http://jmsyst.com/libs/serializer
-
-
+A complete JSON serializer is in [Extending Hermes](https://tomaj.github.io/hermes/guide/extending#a-serializer).
 
 ### Scheduled Execution
 
-Since version 2.0, you can schedule messages for future execution by passing a timestamp as the fourth parameter to the `Message` constructor. Currently supported by `RedisSetDriver`, `PredisSetDriver` and `FileSystemDriver`.
+Since version 2.0, you can schedule messages for future execution by passing a timestamp as the fifth parameter (`executeAt`) to the `Message` constructor. Currently supported by `RedisSetDriver`, `PredisSetDriver` and `FileSystemDriver`.
 
 ## Upgrade Guide
 

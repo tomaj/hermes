@@ -103,4 +103,4 @@ From 6.0, RabbitMQ acknowledges after the handler, SQS and the filesystem delete
 
 ### Is there a ZeroMQ driver?
 
-It moved out of the package in 3.0.0, to [tomaj/hermes-zmq-driver](https://github.com/tomaj/hermes-zmq-driver).
+It moved out of the package in 3.0.0, to [tomaj/hermes-zmq-driver](https://github.com/tomaj/hermes-zmq-driver). It requires `tomaj/hermes` `^2.1`, so it does not install with 6.x; implement `DriverInterface` yourself (see [Extending Hermes](/guide/extending)).

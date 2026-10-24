@@ -59,7 +59,7 @@ Nie. Všetky tri ukončenia ukladajú čas s mikrosekundami a `shouldShutdown()`
 
 ## Kam zmizlo ZeroMQ?
 
-V 3.0.0 sa presunulo z tohto balíka do [tomaj/hermes-zmq-driver](https://github.com/tomaj/hermes-zmq-driver). V `src/Driver` nie je.
+V 3.0.0 sa presunulo z tohto balíka do [tomaj/hermes-zmq-driver](https://github.com/tomaj/hermes-zmq-driver). V `src/Driver` nie je. Vyžaduje `tomaj/hermes` `^2.1`, takže sa s 6.x nenainštaluje; implementujte `DriverInterface` sami (pozrite [Rozširovanie Hermesu](/sk/guide/extending)).
 
 ## Ktorý `RabbitMqDriver` mám vytvoriť?
 

@@ -59,7 +59,7 @@ No. All three shutdowns store the time with microseconds, and `shouldShutdown()`
 
 ## Where did ZeroMQ go?
 
-Out of this package in 3.0.0, into [tomaj/hermes-zmq-driver](https://github.com/tomaj/hermes-zmq-driver). It is not in `src/Driver`.
+Out of this package in 3.0.0, into [tomaj/hermes-zmq-driver](https://github.com/tomaj/hermes-zmq-driver). It is not in `src/Driver`. It requires `tomaj/hermes` `^2.1`, so it does not install with 6.x; implement `DriverInterface` yourself (see [Extending Hermes](/guide/extending)).
 
 ## Which `RabbitMqDriver` do I construct?
 

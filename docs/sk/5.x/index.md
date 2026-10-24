@@ -15,6 +15,7 @@ Známe chyby v README 5.0.0:
 - **Ukončenie:** `SharedFileShutdown(...)` a `RedisShutdown(...)` potrebujú `new` a `RedisShutdown` prijíma `Redis` z ext-redis; s `Predis\Client` použite `PredisShutdown`.
 - **Opakovanie:** na RabbitMQ a SQS sa opakovanie pošle okamžite, lebo `executeAt` rešpektujú len Redis drivery. V 5.x `RedisSetDriver` odloženú správu nikdy nevráti do fronty ([#95](https://github.com/tomaj/hermes/issues/95)).
 - **Handlery a drivery:** `handle()` musí byť deklarovaná s `: bool` a príklady s Gearmanom a JMS používajú staršie signatúry bez typov; pozrite `src/` pri [tagu `5.0.0`](https://github.com/tomaj/hermes/tree/5.0.0/src).
+- **Plánované spustenie:** časová značka je piaty parameter konštruktora `Message` (`executeAt`), nie štvrtý; štvrtý je `created`.
 
 <div lang="en">
 

@@ -103,4 +103,4 @@ Od 6.0 RabbitMQ potvrdzuje po handleri, SQS a súborový systém mažú po handl
 
 ### Existuje ZeroMQ driver?
 
-Vo verzii 3.0.0 sa presunul z balíka do [tomaj/hermes-zmq-driver](https://github.com/tomaj/hermes-zmq-driver).
+Vo verzii 3.0.0 sa presunul z balíka do [tomaj/hermes-zmq-driver](https://github.com/tomaj/hermes-zmq-driver). Vyžaduje `tomaj/hermes` `^2.1`, takže sa s 6.x nenainštaluje; implementujte `DriverInterface` sami (pozrite [Rozširovanie Hermesu](/sk/guide/extending)).

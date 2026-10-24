@@ -15,6 +15,7 @@ Known mistakes in the 5.0.0 README:
 - **Shutdown:** `SharedFileShutdown(...)` and `RedisShutdown(...)` need `new`, and `RedisShutdown` takes an ext-redis `Redis`; use `PredisShutdown` with a `Predis\Client`.
 - **Retry:** on RabbitMQ and SQS a retry is sent at once, because only the Redis drivers honour `executeAt`. On 5.x, `RedisSetDriver` never moves a delayed message back to the queue ([#95](https://github.com/tomaj/hermes/issues/95)).
 - **Handlers and drivers:** `handle()` must be declared `: bool`, and the Gearman and JMS examples use older, untyped signatures; see `src/` at the [`5.0.0` tag](https://github.com/tomaj/hermes/tree/5.0.0/src).
+- **Scheduled execution:** the timestamp is the fifth `Message` constructor parameter (`executeAt`), not the fourth; the fourth is `created`.
 
 ## What is Hermes?
 
