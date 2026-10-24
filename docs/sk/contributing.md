@@ -38,7 +38,7 @@ Pokrytie:
 composer coverage
 ```
 
-GitHub Actions spúšťa PHPUnit s Redisom, RabbitMQ, moto (SQS) a Kafka na PHP 8.4, 8.4 s najnižšími závislosťami a 8.5, takže sa nepreskočí žiadny integračný test, plus štýl kódu, Rector, PHPStan na úrovni max, `composer audit`, Infection, CodeQL, OpenSSF Scorecard a kontroly diagramov a odkazov v dokumentácii.
+GitHub Actions spúšťa PHPUnit s Redisom, RabbitMQ, moto (SQS) a Kafka na PHP 8.4, 8.4 s najnižšími závislosťami a 8.5 (s kontrolou 95 % coverage), takže sa nepreskočí žiadny integračný test. Beží aj nočný build PHP 8.6, ale jeho zlyhanie nezhodí workflow. CI ďalej spúšťa štýl kódu, Rector, PHPStan na úrovni max, `composer audit`, Infection, CodeQL, OpenSSF Scorecard a kontroly diagramov a odkazov v dokumentácii.
 
 ## Diagramy
 

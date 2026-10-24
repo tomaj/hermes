@@ -17,7 +17,7 @@ Security vulnerabilities are reported in private. See [SECURITY.md](SECURITY.md)
 
 ## Development
 
-Hermes supports PHP 8.4 and 8.5. Continuous integration runs on PHP 8.4, PHP 8.4 with the lowest dependencies, and PHP 8.5.
+Hermes supports PHP 8.4 and 8.5. Continuous integration runs on PHP 8.4, PHP 8.4 with the lowest dependencies, and PHP 8.5, which also runs the 95% coverage check and Infection. A nightly PHP 8.6 build runs too, but its failure does not fail the workflow.
 
 ```bash
 git clone https://github.com/tomaj/hermes.git
