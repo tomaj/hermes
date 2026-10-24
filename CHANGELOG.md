@@ -69,6 +69,7 @@ Hermes 6.0. Upgrade steps for every breaking change are in [UPGRADE-6.0.md](UPGR
 * `RedisSetDriver` delivers delayed messages and retries again. Due entries are removed from the schedule sorted set with `ZREM`, and only the worker that removed an entry re-sends it. It used `SPOP`, which does not work on a sorted set, so they stayed in the schedule forever ([#95](https://github.com/tomaj/hermes/issues/95)).
 * **BREAKING CHANGE**: `RedisSetDriver` and `PredisSetDriver` poll priority queues by priority number, highest first. They polled in reverse registration order, so the default priority 100 (registered in the constructor) always came last ([#50](https://github.com/tomaj/hermes/issues/50)). Workers that relied on the old order now process queues in a different order.
 * **BREAKING CHANGE**: an `Exception` from the driver in `Dispatcher::handle()` is now logged at `error` (`Exiting hermes dispatcher - driver error: ...`) and rethrown, so the worker exits non-zero instead of returning silently with status 0 ([#113](https://github.com/tomaj/hermes/issues/113))
+* README graceful-shutdown examples: add the missing `new`, use the phpredis `Redis` client with `RedisShutdown`, add `PredisShutdown` for `Predis\Client` (passing it to `RedisShutdown` is a `TypeError`), and fix the `ShutdownInterface` typo.
 
 ## 5.0.0 - 2025-11-19
 
