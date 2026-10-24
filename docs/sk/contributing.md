@@ -32,6 +32,8 @@ docker compose up -d --wait
 composer test:integration
 ```
 
+`composer phpunit` a `composer test:integration` vypínajú Xdebug a nezbierajú coverage, takže lokálny Xdebug v predvolenom režime `develop` beh nespomalí ani nezhodí. `composer coverage` a `composer infection` coverage zapnú, keď ho potrebujete.
+
 Pokrytie:
 
 ```bash

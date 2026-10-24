@@ -32,6 +32,8 @@ docker compose up -d --wait
 composer test:integration
 ```
 
+`composer phpunit` and `composer test:integration` turn Xdebug off and skip coverage collection, so a local Xdebug in its default `develop` mode neither slows the run nor crashes it. `composer coverage` and `composer infection` turn coverage on when you need it.
+
 Coverage:
 
 ```bash
