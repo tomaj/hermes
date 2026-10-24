@@ -22,9 +22,9 @@ interface DispatcherInterface
     /**
      * Register multiple handlers for same type.
      *
-     * @param HandlerInterface[] $handler
+     * @param HandlerInterface[] $handlers
      */
-    public function registerHandlers(string $type, array $handler): DispatcherInterface;
+    public function registerHandlers(string $type, array $handlers): DispatcherInterface;
 
     /**
      * Will unregister all handlers. This method is useful for testing.
