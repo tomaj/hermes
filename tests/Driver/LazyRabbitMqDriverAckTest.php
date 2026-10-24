@@ -7,6 +7,7 @@ namespace Tomaj\Hermes\Test\Driver;
 use Closure;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AbstractConnection;
+use PhpAmqpLib\Exception\AMQPTimeoutException;
 use PhpAmqpLib\Message\AMQPMessage;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
@@ -170,16 +171,65 @@ class LazyRabbitMqDriverAckTest extends TestCase
         return $published;
     }
 
-    public function testDefaultRefreshIntervalDoesNotSleep(): void
+    /**
+     * Runs wait() on an idle queue: every channel wait times out, the second shutdown check stops the worker.
+     *
+     * @return list<array{mixed, mixed, mixed}> the arguments of each channel wait
+     */
+    private function idleWait(int $refreshInterval): array
     {
         $connection = $this->createMock(AbstractConnection::class);
         $channel = $this->createMock(AMQPChannel::class);
         $connection->method('channel')->willReturn($channel);
         $channel->method('is_consuming')->willReturn(true);
+        $calls = [];
+        $channel->expects(self::exactly(2))->method('wait')->willReturnCallback(
+            static function (mixed $allowed, mixed $nonBlocking, mixed $timeout) use (&$calls): never {
+                $calls[] = [$allowed, $nonBlocking, $timeout];
+                throw new AMQPTimeoutException('idle');
+            },
+        );
         $shutdown = $this->createMock(ShutdownInterface::class);
         $shutdown->method('shouldShutdown')->willReturnOnConsecutiveCalls(false, true);
 
-        $driver = new LazyRabbitMqDriver($connection, 'q');
+        $driver = new LazyRabbitMqDriver($connection, 'q', [], $refreshInterval);
+        $driver->setShutdown($shutdown);
+
+        try {
+            $driver->wait(static function (): void {});
+            self::fail('Exception expected');
+        } catch (ShutdownException) {
+        }
+        return $calls;
+    }
+
+    public function testIdleWaitBlocksOneSecondByDefaultAndChecksShutdownOnTimeout(): void
+    {
+        self::assertSame([[null, false, 1], [null, false, 1]], $this->idleWait(0));
+    }
+
+    public function testRefreshIntervalIsTheIdleWaitTimeout(): void
+    {
+        self::assertSame([[null, false, 5], [null, false, 5]], $this->idleWait(5));
+    }
+
+    public function testNegativeRefreshIntervalUsesTheDefaultTimeout(): void
+    {
+        self::assertSame([[null, false, 1], [null, false, 1]], $this->idleWait(-3));
+    }
+
+    public function testRefreshIntervalDoesNotDelayTheNextMessage(): void
+    {
+        $connection = $this->createMock(AbstractConnection::class);
+        $channel = $this->createMock(AMQPChannel::class);
+        $connection->method('channel')->willReturn($channel);
+        $channel->method('is_consuming')->willReturn(true);
+        // Each wait returns at once, as after a delivery: the loop must not sleep between them.
+        $channel->expects(self::exactly(3))->method('wait')->with(null, false, 60)->willReturn(null);
+
+        $driver = new LazyRabbitMqDriver($connection, 'q', [], 60);
+        $shutdown = $this->createMock(ShutdownInterface::class);
+        $shutdown->method('shouldShutdown')->willReturnOnConsecutiveCalls(false, false, true);
         $driver->setShutdown($shutdown);
 
         $start = microtime(true);

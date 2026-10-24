@@ -91,6 +91,10 @@ Replace `hermes` in the pattern with your queue name and `/` with your vhost. De
 
 Use a policy, not queue arguments. The driver declares the queue without arguments, so a queue declared with `x-dead-letter-exchange` or `x-queue-type` fails with `PRECONDITION_FAILED`.
 
+### RabbitMQ: `$refreshInterval` is the idle timeout
+
+The consume loop blocks until a delivery arrives instead of polling. `$refreshInterval` (the fourth constructor argument) is how long one wait blocks on an idle queue before the driver checks shutdown; `0`, the default, means one second. 5.x slept `$refreshInterval` seconds after every wait, so `0` spun a CPU core and `1` delayed every message by a second. No code change is needed. If you passed a value only to stop the CPU spin, you can drop it; a large value only makes an idle worker stop later.
+
 ### Amazon SQS: delete after handling
 
 `AmazonSqsDriver` deletes a message only after it was handled ([#69](https://github.com/tomaj/hermes/issues/69)). Set `VisibilityTimeout` above your slowest handler, or SQS delivers the message again while it is still being handled.

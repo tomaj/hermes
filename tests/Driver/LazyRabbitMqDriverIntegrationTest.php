@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tomaj\Hermes\Test\Driver;
 
+use DateTimeInterface;
 use PhpAmqpLib\Connection\AbstractConnection;
 use PhpAmqpLib\Connection\AMQPConnectionConfig;
 use PhpAmqpLib\Connection\AMQPConnectionFactory;
@@ -13,6 +14,8 @@ use RuntimeException;
 use Tomaj\Hermes\Driver\LazyRabbitMqDriver;
 use Tomaj\Hermes\Message;
 use Tomaj\Hermes\MessageInterface;
+use Tomaj\Hermes\Shutdown\ShutdownException;
+use Tomaj\Hermes\Shutdown\ShutdownInterface;
 use Tomaj\Hermes\Test\IntegrationServices;
 
 /**
@@ -90,5 +93,77 @@ class LazyRabbitMqDriverIntegrationTest extends TestCase
         $declared = $channel->queue_declare($this->queue, false, true, false, false);
         self::assertIsArray($declared);
         self::assertSame(1, $declared[1]);
+    }
+
+    public function testIdleWorkerBlocksInsteadOfSpinningAndStillStops(): void
+    {
+        $driver = new LazyRabbitMqDriver($this->connection(), $this->queue);
+        $deadline = microtime(true) + 2.0;
+        $driver->setShutdown(new readonly class ($deadline) implements ShutdownInterface {
+            public function __construct(private float $deadline) {}
+
+            #[\Override]
+            public function shouldShutdown(DateTimeInterface $startTime): bool
+            {
+                return microtime(true) >= $this->deadline;
+            }
+
+            #[\Override]
+            public function shutdown(?DateTimeInterface $shutdownTime = null): bool
+            {
+                return false;
+            }
+        });
+
+        $start = microtime(true);
+        $cpuStart = $this->cpuSeconds();
+        try {
+            $driver->wait(static function (): void {});
+            self::fail('Exception expected');
+        } catch (ShutdownException) {
+        }
+        $elapsed = microtime(true) - $start;
+        $cpu = $this->cpuSeconds() - $cpuStart;
+
+        // The default one-second idle timeout stops the worker within a second of the shutdown signal.
+        self::assertGreaterThanOrEqual(1.9, $elapsed);
+        self::assertLessThan(3.5, $elapsed);
+        // A busy loop burns about one CPU second per wall second.
+        self::assertLessThan(0.3, $cpu, 'an idle worker must block, not spin');
+    }
+
+    public function testBlockingWaitPicksUpAMessageAtOnce(): void
+    {
+        $driver = new LazyRabbitMqDriver($this->connection(), $this->queue, [], 30);
+        $driver->setMaxProcessItems(3);
+        $producer = new LazyRabbitMqDriver($this->connection(), $this->queue);
+        for ($i = 1; $i <= 3; $i++) {
+            $producer->send(new Message('job', [], 'rmq-fast-' . $i));
+        }
+
+        $ids = [];
+        $start = microtime(true);
+        $driver->wait(static function (MessageInterface $message) use (&$ids): void {
+            $ids[] = $message->getId();
+        });
+
+        self::assertSame(['rmq-fast-1', 'rmq-fast-2', 'rmq-fast-3'], $ids);
+        // A 30 second refresh interval only bounds the idle wait: queued messages are not delayed.
+        self::assertLessThan(5.0, microtime(true) - $start);
+    }
+
+    private function cpuSeconds(): float
+    {
+        $usage = getrusage();
+        self::assertIsArray($usage);
+        $seconds = 0.0;
+        foreach (['ru_utime', 'ru_stime'] as $kind) {
+            $sec = $usage[$kind . '.tv_sec'] ?? null;
+            $usec = $usage[$kind . '.tv_usec'] ?? null;
+            self::assertIsInt($sec);
+            self::assertIsInt($usec);
+            $seconds += $sec + $usec / 1e6;
+        }
+        return $seconds;
     }
 }

@@ -27,6 +27,11 @@ final class LazyRabbitMqDriver implements DriverInterface
     use ShutdownTrait;
     use SerializerAwareTrait;
 
+    /**
+     * Seconds an idle wait() blocks before it checks shutdown, when $refreshInterval is 0.
+     */
+    private const int DEFAULT_IDLE_TIMEOUT = 1;
+
     private ?AMQPChannel $channel = null;
 
     /**
@@ -35,6 +40,8 @@ final class LazyRabbitMqDriver implements DriverInterface
      *                      Pass false to keep using a queue that was declared non-durable by Hermes 5.x.
      *                      RabbitMQ 4.3+ refuses non-durable queues unless
      *                      deprecated_features.permit.transient_nonexcl_queues is set.
+     * @param int $refreshInterval Seconds wait() blocks on an idle queue before it checks shutdown.
+     *                             0 uses DEFAULT_IDLE_TIMEOUT. A delivery wakes the worker at once.
      */
     public function __construct(
         private readonly AbstractConnection $connection,
@@ -100,19 +107,29 @@ final class LazyRabbitMqDriver implements DriverInterface
             );
 
             while ($this->getChannel()->is_consuming()) {
-                $this->getChannel()->wait(null, true);
+                try {
+                    // Block until a delivery arrives, but wake up to check shutdown while the queue is idle.
+                    $this->getChannel()->wait(null, false, $this->idleTimeout());
+                } catch (AMQPTimeoutException) {
+                    // No delivery within the timeout.
+                }
                 $this->checkShutdown();
                 if (!$this->shouldProcessNext()) {
                     break 2;
-                }
-                if ($this->refreshInterval !== 0) {
-                    sleep($this->refreshInterval);
                 }
             }
         }
 
         $this->getChannel()->close();
         $this->connection->close();
+    }
+
+    /**
+     * Seconds one blocking wait lasts on an idle queue before the shutdown check runs.
+     */
+    private function idleTimeout(): int
+    {
+        return $this->refreshInterval > 0 ? $this->refreshInterval : self::DEFAULT_IDLE_TIMEOUT;
     }
 
     /**
