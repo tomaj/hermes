@@ -24,7 +24,7 @@ Príklady volajú aj `$driver->setShutdown()` samy. To stačí na vlastnú kontr
 Keď je načítané `ext-pcntl`, `handle()` sa na `SIGTERM` a `SIGINT` čisto zastaví ([#116](https://github.com/tomaj/hermes/issues/116)). Je to vždy zapnuté; nie je čo konfigurovať.
 
 - Aktuálna správa sa dokončí: handler sa vráti, správa sa potvrdí (RabbitMQ) alebo zmaže (SQS) a potom sa vráti `handle()`.
-- Nečinný worker sa zastaví pri najbližšej kontrole ukončenia v driveri: hneď pri intervale obnovy `0`, inak do jedného intervalu (predvolene jedna sekunda a na SQS jeden long poll).
+- Nečinný worker sa zastaví pri najbližšej kontrole ukončenia v driveri: hneď pri intervale obnovy `0`, inak do jedného intervalu (predvolene jedna sekunda a na SQS jeden long poll). RabbitMQ blokuje počas svojho intervalu obnovy, pri `0` jednu sekundu.
 - `handle()` zaloguje `Exiting hermes dispatcher - received SIGTERM` (alebo `SIGINT`) na úrovni `notice` a normálne sa vráti, takže proces skončí so stavom 0.
 - Signály sa spracúvajú len v týchto bezpečných bodoch, nikdy uprostred kódu vášho handlera. Blokujúce volanie ako `sleep()` v handleri sa po príchode signálu aj tak vráti skôr, ako v každom PHP procese s obsluhou signálu.
 - Ďalšie `SIGTERM`/`SIGINT` počas spracovania správy nič nezmenia. `SIGKILL` stále ukončí proces okamžite, čo správcovia procesov posielajú po uplynutí stop timeoutu.

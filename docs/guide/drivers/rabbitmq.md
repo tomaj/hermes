@@ -102,11 +102,13 @@ The setting takes effect after a broker restart, and a restart deletes non-durab
 
 Delivery is at least once, so handlers should be idempotent. The dispatcher catches handler exceptions itself, so a handler that throws any `Throwable` (an `Exception` or a PHP `Error` such as `TypeError`) is still acknowledged ([#112](https://github.com/tomaj/hermes/issues/112)). [Retry](/guide/retry) publishes a new copy for those.
 
-The consume loop calls `AMQPChannel::wait(null, true)` (non-blocking). When `$refreshInterval` is greater than `0`, it sleeps that many seconds after each wait. The default is `0`, so the loop does not sleep. The example passes `0`. For a quiet queue, pass `1` if you do not want a tight loop:
+The consume loop calls `AMQPChannel::wait(null, false, $timeout)`, which blocks until a delivery arrives or the timeout passes. A delivery is handled at once, so the timeout does not slow a busy queue. On a timeout the driver checks shutdown and waits again, so an idle worker uses no CPU. `$refreshInterval` is that timeout in seconds; `0`, the default, means one second. The example passes `0`. A longer timeout makes an idle worker notice a [shutdown](/guide/shutdown) later:
 
 ```php
-new LazyRabbitMqDriver($connection, 'hermes_queue', [], 1, 'hermes-worker-1');
+new LazyRabbitMqDriver($connection, 'hermes_queue', [], 5, 'hermes-worker-1');
 ```
+
+Before 6.0 the loop polled without blocking and slept `$refreshInterval` seconds after every wait, so `0` spun one CPU core on an idle queue and any other value delayed every message.
 
 `$priorities` on `wait()` is unused.
 
@@ -134,4 +136,4 @@ No. `setupPriorityQueue()` throws `NotSupportedException`. Use separate queues a
 
 ### Why does my worker use 100% CPU?
 
-The default refresh interval is `0`, so the consume loop never sleeps. Pass `1` as the fourth constructor argument.
+On 6.0 it should not: an idle worker blocks in the channel wait. Before 6.0 the default refresh interval `0` made the consume loop poll without a pause; there, pass `1` as the fourth constructor argument.

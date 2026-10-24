@@ -24,7 +24,7 @@ The examples also call `$driver->setShutdown()` themselves. That is enough for t
 With `ext-pcntl` loaded, `handle()` stops gracefully on `SIGTERM` and `SIGINT` ([#116](https://github.com/tomaj/hermes/issues/116)). It is always on; there is nothing to configure.
 
 - The current message finishes: the handler returns, the message is acknowledged (RabbitMQ) or deleted (SQS), then `handle()` returns.
-- An idle worker stops at the driver's next shutdown check: right away with a refresh interval of `0`, otherwise within one interval (one second by default, and one long poll on SQS).
+- An idle worker stops at the driver's next shutdown check: right away with a refresh interval of `0`, otherwise within one interval (one second by default, and one long poll on SQS). RabbitMQ blocks for its refresh interval, one second when it is `0`.
 - `handle()` logs `Exiting hermes dispatcher - received SIGTERM` (or `SIGINT`) at `notice` and returns normally, so the process exits with status 0.
 - Signals are dispatched only at those safe points, never in the middle of your handler code. A blocking call such as `sleep()` in a handler still returns early when the signal arrives, as it does in any PHP process with a signal handler.
 - Further `SIGTERM`/`SIGINT` while the message runs change nothing. `SIGKILL` still ends the process at once, which is what process managers send after their stop timeout.

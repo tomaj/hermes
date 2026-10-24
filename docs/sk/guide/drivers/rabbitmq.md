@@ -102,11 +102,13 @@ Nastavenie začne platiť po reštarte brokera a reštart zmaže non-durable fro
 
 Doručenie je at-least-once, preto majú byť handlery idempotentné. Dispatcher výnimky handlerov zachytáva sám, takže handler, ktorý vyhodí akýkoľvek `Throwable` (`Exception` alebo PHP `Error`, napríklad `TypeError`), sa aj tak potvrdí ([#112](https://github.com/tomaj/hermes/issues/112)). Pre tie [Opakovanie](/sk/guide/retry) publikuje novú kópiu.
 
-Slučka konzumácie volá `AMQPChannel::wait(null, true)` (neblokujúco). Keď je `$refreshInterval` väčší ako `0`, po každom čakaní spí daný počet sekúnd. Predvolená hodnota je `0`, takže slučka nespí. Príklad odovzdáva `0`. Pri tichej fronte odovzdajte `1`, ak nechcete tesnú slučku:
+Slučka konzumácie volá `AMQPChannel::wait(null, false, $timeout)`, ktoré blokuje, kým nepríde doručenie alebo neuplynie timeout. Doručenie sa spracuje hneď, takže timeout nespomalí zaťaženú frontu. Po timeoute driver skontroluje ukončenie a čaká znova, takže nečinný worker nespotrebúva CPU. `$refreshInterval` je tento timeout v sekundách; `0`, predvolená hodnota, znamená jednu sekundu. Príklad odovzdáva `0`. S dlhším timeoutom si nečinný worker [ukončenie](/sk/guide/shutdown) všimne neskôr:
 
 ```php
-new LazyRabbitMqDriver($connection, 'hermes_queue', [], 1, 'hermes-worker-1');
+new LazyRabbitMqDriver($connection, 'hermes_queue', [], 5, 'hermes-worker-1');
 ```
+
+Pred 6.0 slučka pollovala bez blokovania a po každom čakaní spala `$refreshInterval` sekúnd, takže `0` na nečinnej fronte vyťažilo jedno jadro CPU a každá iná hodnota zdržala každú správu.
 
 `$priorities` vo `wait()` sa nepoužíva.
 
@@ -134,4 +136,4 @@ Nie. `setupPriorityQueue()` vyhodí `NotSupportedException`. Namiesto toho použ
 
 ### Prečo môj worker používa 100 % CPU?
 
-Predvolený interval obnovy je `0`, takže slučka konzumácie nikdy nespí. Ako štvrtý argument konštruktora odovzdajte `1`.
+Na 6.0 by nemal: nečinný worker blokuje v čakaní na kanáli. Pred 6.0 predvolený interval obnovy `0` spôsoboval, že slučka konzumácie pollovala bez prestávky; tam ako štvrtý argument konštruktora odovzdajte `1`.
