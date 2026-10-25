@@ -16,7 +16,7 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@excalidraw/utils": "0.1.7",
+    "@excalidraw/utils": "0.1.5",
     "esbuild": "0.28.2",
     "linkinator": "8.1.0",
     "puppeteer-core": "25.15.0",

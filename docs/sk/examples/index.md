@@ -27,7 +27,7 @@ Každý recept je spustiteľný projekt v [`examples/`](https://github.com/tomaj
 
 ### Sú príklady testované?
 
-Áno. Workflow `Examples` spúšťa `e2e.sh` každého receptu (vrátane `filesystem`, ktorý nepotrebuje služby) s Redisom, RabbitMQ a Mailpitom podľa potreby a [integrácie do frameworkov](/sk/frameworks/) v čistých projektoch Laravel, Symfony a Nette s Redisom, Predisom, RabbitMQ a SQS. Hermes inštaluje z pull requestu cez Composer path repository, takže zmena, ktorá recept pokazí, pull request zlyhá. [`examples/README.md`](https://github.com/tomaj/hermes/blob/master/examples/README.md#running-the-checks-against-this-checkout) ukazuje, ako spustiť tie isté skripty lokálne.
+Áno. Workflow `Examples` spúšťa `e2e.sh` každého receptu (vrátane `filesystem` a `emit-after-commit`, ktoré nepotrebujú služby, a `kafka`) s Redisom, RabbitMQ, Kafkou a Mailpitom podľa potreby a [integrácie do frameworkov](/sk/frameworks/) v čistých projektoch Laravel, Symfony a Nette s Redisom, Predisom, RabbitMQ a SQS. Hermes inštaluje z pull requestu cez Composer path repository, takže zmena, ktorá recept pokazí, pull request zlyhá. [`examples/README.md`](https://github.com/tomaj/hermes/blob/master/examples/README.md#running-the-checks-against-this-checkout) ukazuje, ako spustiť tie isté skripty lokálne.
 
 ### Používajú príklady vydaný balík?
 
