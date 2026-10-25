@@ -43,11 +43,25 @@ class MessageSerializerTest extends TestCase
     }
 
     /**
+     * The text of json_last_error_msg() differs between PHP versions
+     * (8.6 appends "near location <line>:<column>"), so take it from the running PHP.
+     */
+    private static function jsonError(string $string): string
+    {
+        try {
+            json_decode($string, flags: JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            return $e->getMessage();
+        }
+        throw new \LogicException('the string must be invalid JSON: ' . $string);
+    }
+
+    /**
      * @return iterable<string, array{string, string}>
      */
     public static function brokenMessages(): iterable
     {
-        yield 'invalid JSON' => ['invalid json secret-token', 'Cannot unserialize message: invalid JSON (Syntax error)'];
+        yield 'invalid JSON' => ['invalid json secret-token', 'Cannot unserialize message: invalid JSON (' . self::jsonError('invalid json secret-token') . ')'];
         yield 'JSON null' => ['null', 'Cannot unserialize message: no "message" key'];
         yield 'scalar' => ['"secret-token"', 'Cannot unserialize message: no "message" key'];
         yield 'no message key' => ['{"data":"secret-token"}', 'Cannot unserialize message: no "message" key'];
@@ -80,7 +94,7 @@ class MessageSerializerTest extends TestCase
     {
         $serializer = new MessageSerializer();
         foreach ([
-            '{"message":' => 'Cannot unserialize message: invalid JSON (Syntax error) (11 bytes, sha256 846579511e89879b)',
+            '{"message":' => 'Cannot unserialize message: invalid JSON (' . self::jsonError('{"message":') . ') (11 bytes, sha256 846579511e89879b)',
             '{"message":{"id":"1"}}' => 'Invalid message format: "message" needs type, id and created (22 bytes, sha256 689d9dd54d900a86)',
         ] as $string => $expected) {
             try {
@@ -100,6 +114,7 @@ class MessageSerializerTest extends TestCase
         } catch (SerializeException $e) {
             self::assertInstanceOf(\JsonException::class, $e->getPrevious());
             self::assertSame(JSON_ERROR_SYNTAX, $e->getCode(), 'the code is the json_last_error() code');
+            self::assertStringStartsWith('Cannot unserialize message: invalid JSON (Syntax error', $e->getMessage());
         }
     }
 
