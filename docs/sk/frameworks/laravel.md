@@ -99,6 +99,42 @@ V kontajneri naviažte mock `EmitterInterface`. Od Hermesu 6.0 je `Emitter` `fin
 
 Handlery testujte samostatne, bez drivera; pozrite [Testovanie](/sk/guide/testing).
 
+## Emitovanie po commite do databázy {#emitovanie-po-commite-do-databazy}
+
+Ak controller vloží riadok v `DB::transaction()` a emitne o ňom správu, zaregistrujte namiesto `Emitter` [`BufferedEmitter`](/sk/guide/buffered-emitter) a nasmerujte naň alias `EmitterInterface`, aby worker nikdy nehľadal riadok, ktorý ešte nie je commitnutý. V `HermesServiceProvider`:
+
+```php
+use Illuminate\Database\Events\TransactionCommitted;
+use Illuminate\Database\Events\TransactionRolledBack;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
+use Tomaj\Hermes\BufferedEmitter;
+
+// register()
+$this->app->singleton(
+    BufferedEmitter::class,
+    static fn(Application $app): BufferedEmitter => new BufferedEmitter(
+        new Emitter($app->make(DriverInterface::class), $app->make(LoggerInterface::class)),
+        static fn(): bool => DB::transactionLevel() > 0,
+    ),
+);
+$this->app->alias(BufferedEmitter::class, EmitterInterface::class);
+
+// boot()
+Event::listen(TransactionCommitted::class, function (TransactionCommitted $event): void {
+    if ($event->connection->transactionLevel() === 0) {
+        $this->app->make(BufferedEmitter::class)->flush();
+    }
+});
+Event::listen(TransactionRolledBack::class, function (TransactionRolledBack $event): void {
+    if ($event->connection->transactionLevel() === 0) {
+        $this->app->make(BufferedEmitter::class)->discard();
+    }
+});
+```
+
+Mimo transakcie predikát odosiela hneď. Kontroly `transactionLevel() === 0` zabezpečia, že vnorená `DB::transaction()` nič neodošle ani nezahodí; robí to len najvonkajšia. Správa emitnutá vo vnorenej transakcii, ktorá sa vráti späť, zostane v bufferi a odošle sa po commite vonkajšej transakcie. Predikát sa pozerá na predvolené spojenie; pri viacerých spojeniach porovnávajte v listeneroch aj `$event->connectionName`. Väzba, alias aj listenery boli overené s Laravel 13.38 na SQLite.
+
 ## Náhodná zložka opakovania a väzba `Random\Randomizer`
 
 Od Hermesu 6.0 `Dispatcher` prijíma ako štvrtý argument voliteľný `?Random\Randomizer` (pozrite [Integrácia do frameworkov](/sk/frameworks/#nahodna-zlozka-opakovania-a-zaregistrovany-random-randomizer)). Provider vyššie volá `new Dispatcher(...)` s tromi argumentmi, takže väzba `Random\Randomizer` inde v aplikácii časy opakovania nezmení.

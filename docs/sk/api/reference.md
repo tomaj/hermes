@@ -55,6 +55,21 @@ Volá `Driver::send`. Ak je nastavený `$logger`, loguje na úrovni `info`. Vrac
 
 `src/EmitterInterface.php`. Metóda `emit()` vyššie.
 
+## Tomaj\Hermes\BufferedEmitter
+
+`src/BufferedEmitter.php`. Od 6.0. Implementuje `EmitterInterface` a `Countable`; dekoruje iný `EmitterInterface`.
+
+```php
+public function __construct(EmitterInterface $emitter, ?callable $shouldBuffer = null)
+
+public function emit(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): EmitterInterface
+public function flush(): void
+public function discard(): int
+public function count(): int
+```
+
+`emit()` správu podrží, keď je `$shouldBuffer` `null` alebo pre `($message, $priority)` vráti `true` (callable bez parametrov sa volá bez argumentov); inak hneď zavolá vnútorný `emit()`. Vracia `$this`. `flush()` odošle podržané správy v poradí s ich prioritami; keď vnútorný emitter vyhodí výnimku, odoslané zostanú odoslané, zvyšok zostane podržaný a výnimka sa vyhodí znova. `flush()` zavolaný počas `flush()` hneď skončí. `discard()` zahodí podržané správy a vráti ich počet. Pozrite [Emitovanie po commite do databázy](/sk/guide/buffered-emitter).
+
 ## Tomaj\Hermes\Dispatcher
 
 `src/Dispatcher.php`. Implementuje `DispatcherInterface`.

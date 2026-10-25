@@ -75,6 +75,7 @@ export const sidebarEn: DocsNavItem[] = [
     items: [
       { text: 'Retry', link: '/guide/retry' },
       { text: 'Delayed execution', link: '/guide/delayed' },
+      { text: 'Emitting after a commit', link: '/guide/buffered-emitter' },
       { text: 'Priority', link: '/guide/priority' },
       { text: 'Shutdown and max items', link: '/guide/shutdown' },
       { text: 'Logging', link: '/guide/logging' },
@@ -167,6 +168,7 @@ export const sidebarSk: DocsNavItem[] = [
     items: [
       { text: 'Opakovanie', link: '/sk/guide/retry' },
       { text: 'Odložené spracovanie', link: '/sk/guide/delayed' },
+      { text: 'Emitovanie po commite', link: '/sk/guide/buffered-emitter' },
       { text: 'Priorita', link: '/sk/guide/priority' },
       { text: 'Ukončenie a limit správ', link: '/sk/guide/shutdown' },
       { text: 'Logovanie', link: '/sk/guide/logging' },

@@ -101,6 +101,10 @@ Hermes uchováva objekty handlerov a počítadlo spracovaných správ. Nespravuj
 
 Nie na Redise ani Predise: živé fronty sú množiny a `SPOP` vráti jeden náhodný prvok. Dve správy s rovnakou prioritou nemajú poradie. Naprieč prioritami `wait()` prechádza fronty od najvyššieho čísla (5.x používala opačné poradie vkladania, [issue #50](https://github.com/tomaj/hermes/issues/50)). `FileSystemDriver` je v rámci každého prioritného priečinka FIFO. Poradie v RabbitMQ, SQS a Kafka je také, aké tieto brokery majú pri jednej fronte (Kafka: jedna particia je usporiadaná). Hermes nenastavuje FIFO frontu SQS ani skupinu správ.
 
+## Môj handler nenájde riadok, ktorý som práve vložil
+
+Správa odišla skôr, ako sa transakcia commitla, a worker bol rýchlejší ako commit. Obaľte emitter do `BufferedEmitter` a odošlite ho z hooku po commite; pozrite [Emitovanie po commite do databázy](/sk/guide/buffered-emitter).
+
 ## Môže tá istá práca prebehnúť dvakrát?
 
 Bežný úspech znova nepublikuje. Opakovanie áno a použije to isté id správy s `retries + 1`. Ak handler už vykonal vedľajší účinok a potom vyhodil výnimku, ďalší pokus ho vykoná znova. Ak proces zomrie po vedľajšom účinku a po odstránení z brokera, pokus sa nezopakuje, lebo nezostalo nič na opakovanie. Ak sa práca nesmie stať dvakrát, berte id správy ako kľúč idempotencie.

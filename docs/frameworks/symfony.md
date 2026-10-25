@@ -79,6 +79,35 @@ Replace `EmitterInterface` in the test container with a mock. From Hermes 6.0 `E
 
 <<< @/../examples/frameworks/symfony/tests/Controller/UserControllerTest.php{php} [tests/Controller/UserControllerTest.php]
 
+## Emitting after a database commit
+
+If a controller inserts a row in a transaction and emits about it, alias `EmitterInterface` to [`BufferedEmitter`](/guide/buffered-emitter), so the worker never looks for a row that is not committed yet. Doctrine DBAL has no commit callbacks, so call `flush()` after `transactional()` returns and `discard()` when it throws:
+
+```yaml
+    Tomaj\Hermes\Emitter: ~
+
+    Tomaj\Hermes\EmitterInterface:
+        class: Tomaj\Hermes\BufferedEmitter
+        arguments:
+            - '@Tomaj\Hermes\Emitter'
+            - ['@doctrine.dbal.default_connection', 'isTransactionActive']
+```
+
+```php
+try {
+    $connection->transactional(function () use ($emitter): void {
+        // INSERT ...
+        $emitter->emit(new Message('user.registered', ['id' => $id]));
+    });
+} catch (\Throwable $e) {
+    $emitter->discard();
+    throw $e;
+}
+$emitter->flush();
+```
+
+`isTransactionActive()` makes the emitter send straight away outside a transaction. The predicate and the `flush()`/`discard()` calls around `transactional()` were checked with Doctrine DBAL 4.5.0; the service definition was not run in a Symfony kernel.
+
 ## Retry jitter and a `Random\Randomizer` service
 
 From Hermes 6.0, `Dispatcher` takes an optional `?Random\Randomizer $randomizer` (see [Framework integration](/frameworks/#retry-jitter-and-a-registered-random-randomizer)). If your app registers a `Random\Randomizer` service, autowiring passes it to the dispatcher, and retry jitter comes from that engine. To keep the default secure engine, add this to the dispatcher service on Hermes 6.0 or newer:

@@ -87,6 +87,20 @@ Pass a mock of `EmitterInterface` to the command. From Hermes 6.0 `Emitter` is `
 
 <<< @/../examples/frameworks/nette/tests/RegisterUserCommandTest.php{php} [tests/RegisterUserCommandTest.php]
 
+## Emitting after a database commit
+
+If a presenter inserts a row in a transaction and emits about it, wrap the emitter in [`BufferedEmitter`](/guide/buffered-emitter), so the worker never looks for a row that is not committed yet. Replace the `- Tomaj\Hermes\Emitter` line in `hermes.neon` with this, where `databaseTransaction` is your service with `isInTransaction()`, `registerOnCommit()` and `registerOnRollback()`:
+
+```yaml
+	hermes.emitter:
+		create: Tomaj\Hermes\BufferedEmitter(Tomaj\Hermes\Emitter(@hermes.driver, @Psr\Log\LoggerInterface), [@databaseTransaction, isInTransaction])
+		setup:
+			- @databaseTransaction::registerOnCommit([@self, flush])
+			- @databaseTransaction::registerOnRollback([@self, discard])
+```
+
+`@self` is the `BufferedEmitter`, so the hooks flush and discard the same instance that producers get for `EmitterInterface`. This was checked on a compiled container with nette/di 3.2.7. Nette Database has no commit callbacks of its own; check that your transaction service calls them only for the outermost transaction.
+
 ## Retry jitter and a `Random\Randomizer` service
 
 From Hermes 6.0, `Dispatcher` takes an optional `?Random\Randomizer $randomizer` (see [Framework integration](/frameworks/#retry-jitter-and-a-registered-random-randomizer)). Nette autowires it: if the container has a `Random\Randomizer` service, the dispatcher gets it. To keep the default secure engine, on Hermes 6.0 or newer write the dispatcher like this:

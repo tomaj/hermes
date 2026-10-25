@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
+use Tomaj\Hermes\BufferedEmitter;
 use Tomaj\Hermes\HermesException;
 
 /**
@@ -74,5 +75,14 @@ class ArchitectureTest extends TestCase
             }
         }
         self::assertSame([], $missing, 'These methods must have #[\\Override]');
+    }
+
+    public function testBufferedEmitterIsFinalWithOverrideOnEmitAndCount(): void
+    {
+        $reflection = new ReflectionClass(BufferedEmitter::class);
+        self::assertTrue($reflection->isFinal());
+        foreach (['emit', 'count'] as $method) {
+            self::assertNotSame([], $reflection->getMethod($method)->getAttributes(\Override::class), "BufferedEmitter::{$method}() must have #[\\Override]");
+        }
     }
 }
