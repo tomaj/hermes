@@ -14,8 +14,18 @@ A checklist of everything that can need work, in the order of this file. Most ap
 - Shutdown: `DateTimeInterface`, microsecond times, `SIGTERM`/`SIGINT`: [Shutdown times](#shutdown-times-keep-microseconds), [`ShutdownInterface`](#shutdowninterface-takes-datetimeinterface), [Signals](#sigterm-and-sigint-stop-the-worker-gracefully).
 - API: final and readonly classes, `never` return types, plain integer priorities: [Final classes](#classes-are-final), [`never`](#setuppriorityqueue-on-rabbitmq-sqs-and-kafka-returns-never), [Readonly](#private-state-is-readonly), [Priorities](#priorities-stay-plain-integers).
 - Logs and exit codes: driver errors are logged and rethrown, serializer exceptions no longer contain the message, and the emitter logs `Emitter send message`: [Driver errors](#driver-errors-stop-the-worker-with-an-error), [Serializer exceptions](#serializer-exceptions-no-longer-contain-the-message), [Emitter log](#emitter-logs-emitter-send-message).
+- Deprecations that 7.0 removes: the 5.x retry rule and `Dispatcher::emit()`: [Deprecated in 6.0, removed in 7.0](#deprecated-in-60-removed-in-70).
 
 None of these changes has a deprecation notice in 5.x: there is no 5.x maintenance branch to release one from. The reason for each change is in its section.
+
+## Deprecated in 6.0, removed in 7.0
+
+These still work in 6.x. Each one triggers `E_USER_DEPRECATED` silenced with `@`, so PHP prints nothing by default, but tools that collect silenced deprecations report it, such as the Symfony deprecation log or PHPUnit with `ignoreSuppressionOfDeprecations="true"`. Each one also logs a `warning` through the `Dispatcher` logger. Fix them during 6.x; 7.0 removes them.
+
+| Deprecated | Replacement | Runtime notice | Details |
+| --- | --- | --- | --- |
+| Retrying a handler that has `canRetry()` and `maxRetry()` but does not implement `RetryableHandlerInterface` (the 5.x rule) | `implements RetryableHandlerInterface` | `E_USER_DEPRECATED` and a `warning`, once per handler class and process | [Retries](#retries-follow-retryablehandlerinterface-and-canretry) |
+| `Dispatcher::emit()` (deprecated since 2.0) | `Emitter::emit()` | `E_USER_DEPRECATED` and a `warning`, on the first call on each `Dispatcher` | [API reference](https://tomaj.github.io/hermes/api/reference#is-dispatcher-emit-still-supported) |
 
 ## Requirements
 

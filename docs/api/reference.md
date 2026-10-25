@@ -89,7 +89,7 @@ When `$shutdown` is not `null` and the driver has `setShutdown()`, the construct
 
 | Method | Behavior |
 | --- | --- |
-| `emit(MessageInterface $message, int $priority = self::DEFAULT_PRIORITY): DispatcherInterface` | Deprecated. Sends through the driver and logs. Prefer `Emitter`. |
+| `emit(MessageInterface $message, int $priority = self::DEFAULT_PRIORITY): DispatcherInterface` | Deprecated since 2.0, removed in 7.0. Sends through the driver and logs; the first call on each instance also triggers `E_USER_DEPRECATED` and logs a `warning`. Use `Emitter`. |
 | `handle(array $priorities = []): void` | Blocks in `Driver::wait`. Catches `ShutdownException` and logs a notice. Catches other `Exception`s, logs them at `error`, writes them to Tracy when Tracy is installed and enabled, and rethrows them. |
 | `registerHandler(string $type, HandlerInterface $handler): DispatcherInterface` | Appends one handler for `$type`. |
 | `registerHandlers(string $type, array $handlers): DispatcherInterface` | Calls `registerHandler` for each. |
@@ -256,7 +256,7 @@ On `Emitter::emit()` and `DriverInterface::send()`, as the second argument. `Mes
 
 ### Is `Dispatcher::emit()` still supported?
 
-It works but is deprecated. Use `Emitter`.
+It works, but it is deprecated since 2.0 and removed in 7.0. The first call on each `Dispatcher` triggers `E_USER_DEPRECATED` and logs a `warning`. Use `Emitter`.
 
 ### Which traits do the built-in drivers use?
 

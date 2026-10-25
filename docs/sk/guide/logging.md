@@ -31,6 +31,7 @@ Ak emitter a dispatcher bežia v rôznych procesoch, dajte každému vlastnú in
 | --- | --- | --- |
 | `Emitter::emit` | `info` | `Emitter send message #<id> to driver <class>` |
 | `Dispatcher::emit` (zastarané) | `info` | `Dispatcher send message #<id> with priority <n> to driver <class>` |
+| `Dispatcher::emit` (zastarané), prvé volanie na každej inštancii | `warning` | `Dispatcher::emit() is deprecated since 2.0 and removed in 7.0. Use Tomaj\Hermes\Emitter::emit().` |
 | `Dispatcher::handle` | `info` | `Start handle message #<id> (<type>) priority:<n>` |
 | `Dispatcher` po návrate handlera | `info` | `End handle message #<id> (<type>)` |
 | `Dispatcher`, keď handler vyhodí výnimku | `error` | `Handler <class> throws exception - <exception message>` |

@@ -15,6 +15,13 @@ Minimálne PHP je 8.4. CI beží na 8.4, na 8.4 s najnižšími závislosťami a
 
 Doručenie je aspoň raz na každom brokeri: RabbitMQ potvrdzuje po handleri a deklaruje trvalú frontu, SQS maže po handleri a Redis drivery znova doručujú odložené správy aj opakovania a prechádzajú priority od najvyššej. Opakovanie riadi `RetryableHandlerInterface` a jeho `canRetry()`; handler z 5.x s `canRetry()` a `maxRetry()`, ale bez rozhrania, sa stále opakuje ako v 5.x, čo je zastarané a 7.0 to odstráni. `SIGTERM` a `SIGINT` zastavia workera po aktuálnej správe. Chyby drivera sa logujú a znova vyhadzujú. `tracy/tracy` je len odporúčaná a výnimky serializéra už neobsahujú správu. Triedy sú `final` a `readonly`, kde sa dá. Každá nekompatibilná zmena a krok migrácie je v [UPGRADE-6.0.md](https://github.com/tomaj/hermes/blob/master/UPGRADE-6.0.md).
 
+### Zastarané v 6.0, odstránené v 7.0
+
+Obe v 6.x stále fungujú a hlásia sa cez `E_USER_DEPRECATED` (potlačené cez `@`) a `warning` v logu `Dispatcher`:
+
+- Handler s `canRetry()` a `maxRetry()`, ktorý neimplementuje `RetryableHandlerInterface`, sa opakuje podľa pravidla z 5.x a `canRetry()` sa nevolá. Implementujte rozhranie. Pozrite [Handlery bez rozhrania](/sk/guide/retry#handlery-bez-rozhrania-zastarane).
+- `Dispatcher::emit()`, zastaraná od 2.0. Používajte `Emitter::emit()`. Pozrite [referenciu API](/sk/api/reference#je-dispatcher-emit-stale-podporovana).
+
 ## 5.0.0
 
 Minimálne PHP je 7.4. PHP 7.2 a 7.3 vypadli z matice CI. Matica obsahuje 8.0, 8.1, 8.2 a 8.3.
