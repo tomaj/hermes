@@ -1,14 +1,14 @@
 ---
 title: "Hermes in Laravel"
-description: "Use Hermes in Laravel 11 and 12: a service provider, config/hermes.php, an Artisan worker command, PSR-3 logging, hermes:restart, and tests with a mocked EmitterInterface."
+description: "Use Hermes in Laravel 11, 12 and 13: a service provider, config/hermes.php, an Artisan worker command, PSR-3 logging, hermes:restart, and tests with a mocked EmitterInterface."
 howto:
   totalTime: PT20M
-  tools: [PHP 8.4, Composer, Laravel 11 or 12, Redis or RabbitMQ or SQS]
+  tools: [PHP 8.4, Composer, Laravel 11, 12 or 13, Redis or RabbitMQ or SQS]
 ---
 
 # Laravel
 
-This page adds Hermes to a fresh Laravel 11 or 12 project. A controller emits `user.registered`, and `php artisan hermes:work` handles it. Read [Framework integration](/frameworks/) first for the parts every framework shares.
+This page adds Hermes to a fresh Laravel 11, 12 or 13 project. A controller emits `user.registered`, and `php artisan hermes:work` handles it. Read [Framework integration](/frameworks/) first for the parts every framework shares.
 
 <ProjectSource name="frameworks/laravel" :files="['app/Providers/HermesServiceProvider.php', 'config/hermes.php', 'app/Console/Commands/HermesWorkCommand.php', 'app/Http/Controllers/UserController.php']" />
 
@@ -69,7 +69,7 @@ The provider builds it with `$app->make()`, so its constructor can ask for any s
 
 ## 6. Run the worker
 
-Laravel 11 and 12 register every command in `app/Console/Commands`.
+Laravel 11, 12 and 13 register every command in `app/Console/Commands`.
 
 <<< @/../examples/frameworks/laravel/app/Console/Commands/HermesWorkCommand.php{php} [app/Console/Commands/HermesWorkCommand.php]
 
@@ -114,7 +114,7 @@ $this->app->when(Dispatcher::class)->needs(Randomizer::class)->give(fn () => nul
 
 ## Full source
 
-Every file, with `install.sh`, `e2e.sh` and the Supervisor program, is in [`examples/frameworks/laravel` on GitHub](https://github.com/tomaj/hermes/tree/master/examples/frameworks/laravel). Verified with Laravel 11.57.0 and 12.70.0 on PHP 8.4, with every driver.
+Every file, with `install.sh`, `e2e.sh` and the Supervisor program, is in [`examples/frameworks/laravel` on GitHub](https://github.com/tomaj/hermes/tree/master/examples/frameworks/laravel). Verified with Laravel 11.57.0, 12.70.0 and 13.38.0 on PHP 8.4, with every driver.
 
 ## FAQ
 

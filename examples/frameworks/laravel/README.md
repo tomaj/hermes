@@ -1,6 +1,6 @@
-# Hermes in Laravel 11 and 12
+# Hermes in Laravel 11, 12 and 13
 
-The files here are the Hermes integration for a fresh Laravel 11 and 12 project, at their paths in that project. Docs: <https://tomaj.github.io/hermes/frameworks/laravel>.
+The files here are the Hermes integration for a fresh Laravel 11, 12 and 13 project, at their paths in that project. Docs: <https://tomaj.github.io/hermes/frameworks/laravel>.
 
 ```bash
 composer create-project laravel/laravel app
