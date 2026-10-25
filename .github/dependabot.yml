@@ -51,3 +51,7 @@ updates:
       docs:
         patterns:
           - "*"
+    ignore:
+      # 0.1.7 no longer exports exportToSvg, which scripts/diagrams-browser.js uses
+      - dependency-name: "@excalidraw/utils"
+        versions: [">0.1.5"]

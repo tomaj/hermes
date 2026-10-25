@@ -27,7 +27,7 @@ Each recipe is a runnable project in [`examples/`](https://github.com/tomaj/herm
 
 ### Are the examples tested?
 
-Yes. The `Examples` workflow runs each recipe's `e2e.sh` (including `filesystem`, which needs no services) with Redis, RabbitMQ and Mailpit where needed, and the [framework integrations](/frameworks/) in fresh Laravel, Symfony and Nette projects with Redis, Predis, RabbitMQ and SQS. It installs Hermes from the pull request through a Composer path repository, so a change that breaks a recipe fails the pull request. [`examples/README.md`](https://github.com/tomaj/hermes/blob/master/examples/README.md#running-the-checks-against-this-checkout) shows how to run the same scripts locally.
+Yes. The `Examples` workflow runs each recipe's `e2e.sh` (including `filesystem` and `emit-after-commit`, which need no services, and `kafka`) with Redis, RabbitMQ, Kafka and Mailpit where needed, and the [framework integrations](/frameworks/) in fresh Laravel, Symfony and Nette projects with Redis, Predis, RabbitMQ and SQS. It installs Hermes from the pull request through a Composer path repository, so a change that breaks a recipe fails the pull request. [`examples/README.md`](https://github.com/tomaj/hermes/blob/master/examples/README.md#running-the-checks-against-this-checkout) shows how to run the same scripts locally.
 
 ### Do the examples use the released package?
 
