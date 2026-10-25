@@ -6,6 +6,7 @@ namespace Tomaj\Hermes\Test\Handler;
 
 use Closure;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LogLevel;
 use RuntimeException;
 use Throwable;
 use Tomaj\Hermes\Dispatcher;
@@ -15,9 +16,11 @@ use Tomaj\Hermes\Handler\RetryableHandlerInterface;
 use Tomaj\Hermes\Handler\RetryTrait;
 use Tomaj\Hermes\Message;
 use Tomaj\Hermes\MessageInterface;
+use Tomaj\Hermes\Test\Logger\TestLogger;
 
 /**
  * Dispatcher retries a failed message only when the handler's retry policy allows it (#107).
+ * A handler with canRetry()/maxRetry() but without RetryableHandlerInterface follows the deprecated 5.x rule.
  *
  * @covers \Tomaj\Hermes\Dispatcher
  * @covers \Tomaj\Hermes\Handler\RetryTrait
@@ -29,7 +32,7 @@ class RetryPolicyTest extends TestCase
      *
      * @return list<MessageInterface>
      */
-    private function retriesAfterFailure(HandlerInterface $handler, int $retries = 0): array
+    private function retriesAfterFailure(HandlerInterface $handler, int $retries = 0, ?TestLogger $logger = null): array
     {
         $driver = new class (new Message('job', ['a' => 1], 'id-1', 1700000000.0, null, $retries)) implements DriverInterface {
             /** @var list<MessageInterface> */
@@ -54,7 +57,7 @@ class RetryPolicyTest extends TestCase
                 $callback($this->message);
             }
         };
-        $dispatcher = new Dispatcher($driver);
+        $dispatcher = new Dispatcher($driver, $logger);
         $dispatcher->registerHandler('job', $handler);
         $dispatcher->handle();
 
@@ -95,30 +98,24 @@ class RetryPolicyTest extends TestCase
         self::assertSame([], $this->retriesAfterFailure(new PolicyHandler(true, 0)));
     }
 
-    public function testHandlerWithTheMethodsButNeitherInterfaceNorTraitIsNotRetried(): void
+    public function testHandlerWithOwnMethodsButWithoutTheInterfaceIsRetriedAsIn5x(): void
     {
-        $handler = new class implements HandlerInterface {
-            public function canRetry(): bool
-            {
-                return true;
-            }
+        $handler = new LegacyOwnMethodsHandler(false, 3);
 
-            public function maxRetry(): int
-            {
-                return 25;
-            }
+        // canRetry() returns false, but 5.x never called it: the message is retried anyway
+        $sent = $this->retriesAfterFailure($handler, 2);
+        self::assertCount(1, $sent);
+        self::assertSame(3, $sent[0]->getRetries());
+        self::assertSame('id-1', $sent[0]->getId());
+        self::assertSame(0, $handler->canRetryCalls);
 
-            #[\Override]
-            public function handle(MessageInterface $message): bool
-            {
-                throw new RuntimeException('fail');
-            }
-        };
-
-        self::assertSame([], $this->retriesAfterFailure($handler));
+        // maxRetry() is still the limit
+        self::assertSame([], $this->retriesAfterFailure($handler, 3));
+        self::assertSame([], $this->retriesAfterFailure(new LegacyOwnMethodsHandler(true, 0)));
+        self::assertSame(0, $handler->canRetryCalls);
     }
 
-    public function testTraitHandlerWithoutTheInterfaceIsStillRetried(): void
+    public function testTraitHandlerWithoutTheInterfaceIsRetriedAsIn5x(): void
     {
         $handler = new class implements HandlerInterface {
             use RetryTrait;
@@ -134,14 +131,17 @@ class RetryPolicyTest extends TestCase
         self::assertSame([], $this->retriesAfterFailure($handler, 25));
     }
 
-    public function testTraitHandlerThatOverridesCanRetryIsAsked(): void
+    public function testTraitHandlerWithoutTheInterfaceIgnoresItsCanRetryOverrideAsIn5x(): void
     {
-        // 5.x style override without parameters: the dispatcher's arguments are ignored
-        $no = new class implements HandlerInterface {
+        $handler = new class implements HandlerInterface {
             use RetryTrait;
+
+            public int $calls = 0;
 
             public function canRetry(): bool
             {
+                ++$this->calls;
+
                 return false;
             }
 
@@ -151,14 +151,26 @@ class RetryPolicyTest extends TestCase
                 throw new RuntimeException('fail');
             }
         };
-        self::assertSame([], $this->retriesAfterFailure($no));
 
-        $yes = new class implements HandlerInterface {
-            use RetryTrait;
+        self::assertCount(1, $this->retriesAfterFailure($handler));
+        self::assertSame(0, $handler->calls);
+    }
 
-            public function canRetry(): int
+    public function testRetryMethodsFromAParentClassOrATraitCount(): void
+    {
+        self::assertCount(1, $this->retriesAfterFailure(new ChildOfRetryingHandler()));
+        self::assertCount(1, $this->retriesAfterFailure(new HandlerWithNestedTrait()));
+        self::assertCount(1, $this->retriesAfterFailure(new HandlerWithUnrelatedTrait()));
+        self::assertCount(1, $this->retriesAfterFailure(new RetryingChildOfPlainHandler()));
+        self::assertCount(1, $this->retriesAfterFailure(new HandlerWithTwoNestedTraits()));
+    }
+
+    public function testHandlerWithOnlyOneOfTheMethodsIsNotRetried(): void
+    {
+        $handler = new class implements HandlerInterface {
+            public function maxRetry(): int
             {
-                return 1; // truthy but not true: only a real true allows the retry
+                return 25;
             }
 
             #[\Override]
@@ -167,18 +179,115 @@ class RetryPolicyTest extends TestCase
                 throw new RuntimeException('fail');
             }
         };
-        self::assertSame([], $this->retriesAfterFailure($yes));
+
+        $deprecations = $this->captureDeprecations(fn(): array => $this->retriesAfterFailure($handler), $sent);
+        self::assertSame([], $sent);
+        self::assertSame([], $deprecations);
     }
 
-    public function testTraitFromAParentClassOrAnotherTraitCounts(): void
+    public function testLegacyHandlerTriggersOneDeprecationAndWarningPerClass(): void
     {
-        self::assertCount(1, $this->retriesAfterFailure(new ChildOfRetryingHandler()));
-        self::assertCount(1, $this->retriesAfterFailure(new HandlerWithNestedTrait()));
-        self::assertSame([], $this->retriesAfterFailure(new HandlerWithUnrelatedTrait()));
-        // the trait list of the class is kept while the parents are read
-        self::assertCount(1, $this->retriesAfterFailure(new RetryingChildOfPlainHandler()));
-        // and the other traits are kept while one trait's own traits are read
-        self::assertCount(1, $this->retriesAfterFailure(new HandlerWithTwoNestedTraits()));
+        $logger = new TestLogger();
+        $first = new class implements HandlerInterface {
+            use RetryTrait;
+
+            #[\Override]
+            public function handle(MessageInterface $message): bool
+            {
+                throw new RuntimeException('fail');
+            }
+        };
+        $second = new class implements HandlerInterface {
+            use RetryTrait;
+
+            #[\Override]
+            public function handle(MessageInterface $message): bool
+            {
+                throw new RuntimeException('fail');
+            }
+        };
+
+        $deprecations = $this->captureDeprecations(function () use ($first, $second, $logger): array {
+            $this->retriesAfterFailure($first, 0, $logger);
+            $this->retriesAfterFailure(clone $first, 0, $logger);
+            // a new dispatcher does not report the class again either
+            $this->retriesAfterFailure($first, 0, $logger);
+
+            return $this->retriesAfterFailure($second, 0, $logger);
+        }, $sent);
+
+        self::assertCount(1, $sent);
+        self::assertCount(2, $deprecations);
+        foreach ([$first, $second] as $i => $handler) {
+            self::assertSame(
+                'Handler ' . $handler::class . ' defines canRetry() and maxRetry() without implementing Tomaj\\Hermes\\Handler\\RetryableHandlerInterface.'
+                . ' Hermes retries it as 5.x did (canRetry() is not called), which is deprecated since 6.0 and removed in 7.0.'
+                . ' Implement Tomaj\\Hermes\\Handler\\RetryableHandlerInterface.',
+                $deprecations[$i],
+            );
+        }
+
+        $warnings = array_values(array_filter($logger->getLogs(), fn(array $record): bool => $record['level'] === LogLevel::WARNING));
+        self::assertCount(2, $warnings);
+        self::assertSame($deprecations[0], $warnings[0]['message']);
+        self::assertSame(['handler' => $first::class], $warnings[0]['context']);
+        self::assertSame($deprecations[1], $warnings[1]['message']);
+    }
+
+    public function testDeprecationIsReportedEvenWhenTheRetryLimitIsReached(): void
+    {
+        $handler = new class implements HandlerInterface {
+            use RetryTrait;
+
+            #[\Override]
+            public function handle(MessageInterface $message): bool
+            {
+                throw new RuntimeException('fail');
+            }
+        };
+
+        $deprecations = $this->captureDeprecations(fn(): array => $this->retriesAfterFailure($handler, 25), $sent);
+        self::assertSame([], $sent);
+        self::assertCount(1, $deprecations);
+    }
+
+    public function testInterfaceHandlerTriggersNoDeprecation(): void
+    {
+        $logger = new TestLogger();
+        $deprecations = $this->captureDeprecations(fn(): array => $this->retriesAfterFailure(new PolicyHandler(true, 3), 0, $logger), $sent);
+
+        self::assertCount(1, $sent);
+        self::assertSame([], $deprecations);
+        self::assertSame([], array_filter($logger->getLogs(), fn(array $record): bool => $record['level'] === LogLevel::WARNING));
+    }
+
+    /**
+     * Runs $run and returns the E_USER_DEPRECATED messages it triggered (they are silenced with @).
+     *
+     * @param Closure(): list<MessageInterface> $run
+     * @param list<MessageInterface>|null $sent
+     *
+     * @param-out list<MessageInterface> $sent
+     *
+     * @return list<string>
+     */
+    private function captureDeprecations(Closure $run, ?array &$sent): array
+    {
+        $deprecations = [];
+        set_error_handler(static function (int $level, string $message) use (&$deprecations): bool {
+            if ($level === E_USER_DEPRECATED) {
+                $deprecations[] = $message;
+            }
+
+            return true;
+        });
+        try {
+            $sent = $run();
+        } finally {
+            restore_error_handler();
+        }
+
+        return $deprecations;
     }
 
     public function testTraitImplementsTheInterface(): void
@@ -196,6 +305,31 @@ class RetryPolicyTest extends TestCase
         self::assertTrue($handler->canRetry(new Message('job', []), new RuntimeException('x')));
         self::assertSame(25, $handler->maxRetry());
         self::assertCount(1, $this->retriesAfterFailure($handler));
+    }
+}
+
+final class LegacyOwnMethodsHandler implements HandlerInterface
+{
+    public int $canRetryCalls = 0;
+
+    public function __construct(private readonly bool $retry, private readonly int $max) {}
+
+    #[\Override]
+    public function handle(MessageInterface $message): bool
+    {
+        throw new RuntimeException('fail');
+    }
+
+    public function canRetry(): bool
+    {
+        ++$this->canRetryCalls;
+
+        return $this->retry;
+    }
+
+    public function maxRetry(): int
+    {
+        return $this->max;
     }
 }
 

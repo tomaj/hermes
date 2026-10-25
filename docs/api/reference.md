@@ -198,7 +198,7 @@ The docblock allows the method to throw `\Exception`.
 
 ## Tomaj\Hermes\Handler\RetryTrait
 
-`src/Handler/RetryTrait.php`. Implements the methods of `RetryableHandlerInterface`. `Dispatcher` also retries a handler that uses the trait without declaring the interface.
+`src/Handler/RetryTrait.php`. Implements the methods of `RetryableHandlerInterface`; the class declares the interface. A handler that uses the trait, or defines both methods itself, without declaring the interface is retried by the deprecated 5.x rule: while `getRetries() < maxRetry()`, without calling `canRetry()`, with one `E_USER_DEPRECATED` and one `warning` per class. 7.0 removes that rule.
 
 | Method | Returns |
 | --- | --- |
@@ -207,7 +207,7 @@ The docblock allows the method to throw `\Exception`.
 
 ## Tomaj\Hermes\Handler\EchoHandler
 
-`src/Handler/EchoHandler.php`. Uses `RetryTrait`.
+`src/Handler/EchoHandler.php`. Implements `RetryableHandlerInterface` and uses `RetryTrait`.
 
 `handle()` echoes `Received message: #<id> (type <type>)` and `Payload: <json>`, then returns `true`.
 

@@ -10,7 +10,7 @@ A checklist of everything that can need work, in the order of this file. Most ap
 - RabbitMQ queues become durable and messages are acknowledged after the handler; plan the deploy: [Deploy order and rollback](#deploy-order-and-rollback), [RabbitMQ](#rabbitmq-durable-queue-and-acknowledgements).
 - Redis delivers old scheduled entries on the first 6.0 start and polls priorities highest first: [Redis schedule set](#redis-clear-old-entries-from-the-schedule-set-before-you-deploy), [Priority order](#redis-and-predis-priority-order). A negative `$refreshInterval` is rejected: [Negative refresh interval](#redis-and-predis-negative-refreshinterval).
 - SQS deletes after the handler: [Amazon SQS](#amazon-sqs-delete-after-handling).
-- Handlers: any `Throwable` is a failed message, retries need `RetryableHandlerInterface` or `RetryTrait`, and jitter uses `Random\Randomizer`: [Handler errors](#at-least-once-delivery-and-handler-errors), [Retries](#retries-follow-retryablehandlerinterface-and-canretry), [Retry jitter](#retry-jitter-no-longer-uses-rand).
+- Handlers: any `Throwable` is a failed message, retries follow `RetryableHandlerInterface` (5.x-style handlers keep retrying with a deprecation), and jitter uses `Random\Randomizer`: [Handler errors](#at-least-once-delivery-and-handler-errors), [Retries](#retries-follow-retryablehandlerinterface-and-canretry), [Retry jitter](#retry-jitter-no-longer-uses-rand).
 - Shutdown: `DateTimeInterface`, microsecond times, `SIGTERM`/`SIGINT`: [Shutdown times](#shutdown-times-keep-microseconds), [`ShutdownInterface`](#shutdowninterface-takes-datetimeinterface), [Signals](#sigterm-and-sigint-stop-the-worker-gracefully).
 - API: final and readonly classes, `never` return types, plain integer priorities: [Final classes](#classes-are-final), [`never`](#setuppriorityqueue-on-rabbitmq-sqs-and-kafka-returns-never), [Readonly](#private-state-is-readonly), [Priorities](#priorities-stay-plain-integers).
 - Logs and exit codes: driver errors are logged and rethrown, serializer exceptions no longer contain the message, and the emitter logs `Emitter send message`: [Driver errors](#driver-errors-stop-the-worker-with-an-error), [Serializer exceptions](#serializer-exceptions-no-longer-contain-the-message), [Emitter log](#emitter-logs-emitter-send-message).
@@ -154,12 +154,18 @@ public function canRetry(MessageInterface $message, Throwable $exception): bool;
 public function maxRetry(): int;
 ```
 
-A retry copy is sent when the handler implements the interface or uses `RetryTrait`, the message has fewer than `maxRetry()` retries, and `canRetry()` returns `true`.
+For a handler that implements the interface, a retry copy is sent when the message has fewer than `maxRetry()` retries and `canRetry()` returns `true`.
 
-- **Handlers that use `RetryTrait`** keep retrying without changes. Adding `implements RetryableHandlerInterface` is recommended. `RetryTrait::canRetry()` now takes the message and the exception; it still returns `true`.
-- **Handlers that define `canRetry()` and `maxRetry()` without the trait** are no longer retried. Add `implements RetryableHandlerInterface` and change `canRetry()` to the signature above.
-- **A `canRetry()` that returns `false`** now really skips the retry. 5.x retried anyway; check that your overrides return what you want.
-- A trait-based handler may keep a `canRetry(): bool` override without parameters, but once the class implements the interface it needs the full signature.
+**You do not have to change your handlers for 6.0.** A handler that has `canRetry()` and `maxRetry()` but does not implement the interface, whether it defines the methods itself or uses `RetryTrait`, is retried exactly as in 5.x: while the message has fewer than `maxRetry()` retries, and `canRetry()` is not called. This fallback is deprecated. The first time such a handler fails, `Dispatcher` triggers `E_USER_DEPRECATED` and logs a `warning` with the class name (once per class and worker process):
+
+```text
+Handler App\SendInvoiceHandler defines canRetry() and maxRetry() without implementing Tomaj\Hermes\Handler\RetryableHandlerInterface. Hermes retries it as 5.x did (canRetry() is not called), which is deprecated since 6.0 and removed in 7.0. Implement Tomaj\Hermes\Handler\RetryableHandlerInterface.
+```
+
+7.0 removes the fallback and retries only handlers that implement the interface. Move your handlers over during 6.x, one class at a time:
+
+- **Add `RetryableHandlerInterface`** next to `HandlerInterface` or instead of it; the interface extends `HandlerInterface`, so type hints and `instanceof HandlerInterface` keep working. With `RetryTrait` nothing else changes: `RetryTrait::canRetry()` now takes the message and the exception and still returns `true`.
+- **Give your own `canRetry()` the signature above.** From that moment it is called, and **a `canRetry()` that returns `false` really skips the retry**. 5.x retried anyway, and so does the fallback; check that your overrides return what you want before you add the interface.
 
 ```php
 use InvalidArgumentException;

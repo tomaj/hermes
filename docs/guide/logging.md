@@ -34,6 +34,7 @@ Levels are PSR-3 strings (`Psr\Log\LogLevel`).
 | `Dispatcher::handle` | `info` | `Start handle message #<id> (<type>) priority:<n>` |
 | `Dispatcher` after a handler returns | `info` | `End handle message #<id> (<type>)` |
 | `Dispatcher` when a handler throws | `error` | `Handler <class> throws exception - <exception message>` |
+| `Dispatcher` when a handler without `RetryableHandlerInterface` is retried by the 5.x rule (deprecated), once per class | `warning` | `Handler <class> defines canRetry() and maxRetry() without implementing …RetryableHandlerInterface. …` |
 | `Dispatcher` after `SIGTERM` / `SIGINT` (ext-pcntl) | `notice` | `Exiting hermes dispatcher - received SIGTERM` (or `SIGINT`) |
 | `Dispatcher` on `ShutdownException` | `notice` | `Exiting hermes dispatcher - shutdown` |
 | `Dispatcher` when the driver throws, before rethrowing | `error` | `Exiting hermes dispatcher - driver error: <class> - <exception message>` |

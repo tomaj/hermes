@@ -9,7 +9,7 @@ A retry is a new `Message` published by `Dispatcher` after a handler throws. It 
 
 <Diagram name="retry-1" alt="A handler throws, the error is logged, and when retries remain a new message with a later executeAt is sent" />
 
-A handler is retried when it implements `RetryableHandlerInterface`, or uses `RetryTrait` (directly, through a parent class or through another trait). When `handle()` throws, `Dispatcher` sends a retry copy only if the message has fewer than `maxRetry()` retries and `canRetry($message, $exception)` returns `true`. `canRetry()` is not called once `maxRetry()` is reached. A handler that merely has methods named `canRetry()` and `maxRetry()`, without the interface or the trait, is not retried ([#107](https://github.com/tomaj/hermes/issues/107)).
+A handler is retried when it implements `RetryableHandlerInterface`. When `handle()` throws, `Dispatcher` sends a retry copy only if the message has fewer than `maxRetry()` retries and `canRetry($message, $exception)` returns `true`. `canRetry()` is not called once `maxRetry()` is reached ([#107](https://github.com/tomaj/hermes/issues/107)). A handler with `canRetry()` and `maxRetry()` but without the interface follows the [deprecated 5.x rule](#handlers-without-the-interface-deprecated).
 
 Returning `false` from `handle()` does not retry. Only an exception does.
 
@@ -50,11 +50,15 @@ public function canRetry(MessageInterface $message, Throwable $exception): bool
 }
 ```
 
-A class that uses `RetryTrait` without implementing the interface may keep a 5.x `canRetry(): bool` override without parameters. It is called too, and only a real `true` allows the retry.
+## Handlers without the interface (deprecated)
+
+A 5.x handler has `canRetry()` and `maxRetry()`, its own methods or from `RetryTrait`, but does not implement `RetryableHandlerInterface`. 6.0 retries it exactly as 5.x did: while `getRetries() < maxRetry()`, and `canRetry()` is **not** called, so its result and its parameters do not matter. The methods may come from the class, a parent class or a trait. A handler with only one of the two methods is not retried.
+
+This keeps an upgrade from 5.x working without touching every handler, but it is deprecated and removed in 7.0. The first time such a handler fails, `Dispatcher` triggers `E_USER_DEPRECATED` and logs a `warning` that names the class, once per class and worker process. The `warning` context has the class under `handler`. Add `implements RetryableHandlerInterface` to that class and give an own `canRetry()` the `(MessageInterface $message, Throwable $exception)` parameters. From then on `canRetry()` decides, so a `false` really skips the retry.
 
 The new message keeps the original id, type, payload, and `created`. `retries` becomes `getRetries() + 1`. `executeAt` becomes the value below. `send()` is called **without** a priority, so Redis puts the copy on the schedule set and, once it is due, on the default priority key (`100`).
 
-`HandleTest` covers the boundary. A message that already has `retries = 5` and a handler whose `maxRetry()` is `25` is republished with `retries = 6`. The same message with `maxRetry()` of `5` is not republished, because the test is `getRetries() < maxRetry()`. `RetryPolicyTest` covers `canRetry()`, the interface and the trait. A handler without the interface or the trait is not republished.
+`HandleTest` covers the boundary. A message that already has `retries = 5` and a handler whose `maxRetry()` is `25` is republished with `retries = 6`. The same message with `maxRetry()` of `5` is not republished, because the test is `getRetries() < maxRetry()`. `RetryPolicyTest` covers `canRetry()`, the interface, the trait and the deprecated 5.x rule, including one deprecation per class.
 
 The copy is one `send()`. On Redis and Predis that `executeAt` parks the copy in the sorted set; `FileSystemDriver` leaves the file in `new/` until it is due. On RabbitMQ, SQS and Kafka the publish is immediate, so the backoff number is stored and not waited on.
 
@@ -134,7 +138,11 @@ Implement `RetryableHandlerInterface`, usually with `use RetryTrait;`, and throw
 
 ### How do I turn retries off for one handler?
 
-Return `false` from `canRetry()`, or make `maxRetry()` return `0`. Removing the interface and the trait also works.
+Return `false` from `canRetry()`, or make `maxRetry()` return `0`.
+
+### Why does my log say a handler is retried as 5.x did?
+
+The handler has `canRetry()` and `maxRetry()` but does not implement `RetryableHandlerInterface`. It is still retried, but `canRetry()` is not called. Add the interface before 7.0. See [Handlers without the interface](#handlers-without-the-interface-deprecated).
 
 ### How long until the next attempt?
 

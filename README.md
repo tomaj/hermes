@@ -215,7 +215,7 @@ class SendEmailHandlerWithLogger implements HandlerInterface
 
 ## Retry
 
-If your handler fails, it can be retried automatically: implement `RetryableHandlerInterface` and add `RetryTrait`. Override `maxRetry()` to control the number of retry attempts (default is 25), and `canRetry($message, $exception)` to skip retries for permanent errors.
+If your handler fails, it can be retried automatically: implement `RetryableHandlerInterface` and add `RetryTrait`. Override `maxRetry()` to control the number of retry attempts (default is 25), and `canRetry($message, $exception)` to skip retries for permanent errors. A 5.x handler that has `canRetry()` and `maxRetry()` without the interface is still retried as in 5.x, with a deprecation; see [UPGRADE-6.0.md](UPGRADE-6.0.md#retries-follow-retryablehandlerinterface-and-canretry).
 
 **Note:** The retry waits only on drivers that support delayed execution (the `$executeAt` message parameter): `RedisSetDriver`, `PredisSetDriver` and `FileSystemDriver`. `LazyRabbitMqDriver`, `AmazonSqsDriver` and `KafkaDriver` deliver the retry at once.
 

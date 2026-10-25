@@ -116,7 +116,7 @@ A handler does the slow work: mail, HTTP, files. Hermes calls it only from `Disp
 
 If the dispatcher has a logger and the handler has `setLogger()` (for example `Psr\Log\LoggerAwareTrait`), the logger is injected before `handle()`.
 
-`EchoHandler` is the built-in handler used by the examples. It prints the message and returns `true`. It also `use`s `RetryTrait`. `EchoHandler::handle()` itself does not throw. From 6.0 the class is `final`; write your own handler instead of extending it.
+`EchoHandler` is the built-in handler used by the examples. It prints the message and returns `true`. It implements `RetryableHandlerInterface` with `RetryTrait`. `EchoHandler::handle()` itself does not throw. From 6.0 the class is `final`; write your own handler instead of extending it.
 
 ## Driver
 

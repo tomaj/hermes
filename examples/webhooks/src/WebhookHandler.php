@@ -6,11 +6,11 @@ namespace App;
 
 use RuntimeException;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Tomaj\Hermes\Handler\HandlerInterface;
+use Tomaj\Hermes\Handler\RetryableHandlerInterface;
 use Tomaj\Hermes\Handler\RetryTrait;
 use Tomaj\Hermes\MessageInterface;
 
-final class WebhookHandler implements HandlerInterface
+final class WebhookHandler implements RetryableHandlerInterface
 {
     use RetryTrait;
 

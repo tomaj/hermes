@@ -7,11 +7,11 @@ namespace App;
 use LimitIterator;
 use PDO;
 use SplFileObject;
-use Tomaj\Hermes\Handler\HandlerInterface;
+use Tomaj\Hermes\Handler\RetryableHandlerInterface;
 use Tomaj\Hermes\Handler\RetryTrait;
 use Tomaj\Hermes\MessageInterface;
 
-final class ImportChunkHandler implements HandlerInterface
+final class ImportChunkHandler implements RetryableHandlerInterface
 {
     use RetryTrait;
 

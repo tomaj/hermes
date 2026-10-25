@@ -198,7 +198,7 @@ Docblock povoľuje, aby metóda vyhodila `\Exception`.
 
 ## Tomaj\Hermes\Handler\RetryTrait
 
-`src/Handler/RetryTrait.php`. Implementuje metódy `RetryableHandlerInterface`. `Dispatcher` opakuje aj handler, ktorý trait používa bez deklarovania rozhrania.
+`src/Handler/RetryTrait.php`. Implementuje metódy `RetryableHandlerInterface`; rozhranie deklaruje trieda. Handler, ktorý trait používa alebo obe metódy definuje sám bez deklarovania rozhrania, sa opakuje podľa zastaraného pravidla z 5.x: kým `getRetries() < maxRetry()`, bez volania `canRetry()`, s jedným `E_USER_DEPRECATED` a jedným `warning` na triedu. 7.0 toto pravidlo odstráni.
 
 | Metóda | Vracia |
 | --- | --- |
@@ -207,7 +207,7 @@ Docblock povoľuje, aby metóda vyhodila `\Exception`.
 
 ## Tomaj\Hermes\Handler\EchoHandler
 
-`src/Handler/EchoHandler.php`. Používa `RetryTrait`.
+`src/Handler/EchoHandler.php`. Implementuje `RetryableHandlerInterface` a používa `RetryTrait`.
 
 `handle()` vypíše `Received message: #<id> (type <type>)` a `Payload: <json>` a vráti `true`.
 
