@@ -96,7 +96,7 @@ public function handle(array $priorities = []): void
 
 Keď pre typ nie je zaregistrovaný žiadny handler, `dispatch()` vráti `true` a nezaloguje `End handle message`. Správa už vo fronte nie je.
 
-`Dispatcher::emit()` stále posiela cez driver, ale metóda je zastaraná. Použite `Emitter`.
+`Dispatcher::emit()` stále posiela cez driver, ale metóda je zastaraná a 7.0 ju odstráni; jej prvé volanie na každom `Dispatcher` vyvolá `E_USER_DEPRECATED`. Použite `Emitter`.
 
 Handlery meníte cez `registerHandler()`, `registerHandlers()`, `unregisterHandler()` a `unregisterAllHandlers()`. `unregisterHandler()` odstráni jednu inštanciu objektu (`!==`) pre jeden typ. `unregisterAllHandlers()` vymaže všetky typy. Obe existujú preto, aby testy mohli znova použiť dispatcher. Pribudli vo verzii 4.2.0.
 

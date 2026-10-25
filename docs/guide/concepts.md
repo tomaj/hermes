@@ -96,7 +96,7 @@ public function handle(array $priorities = []): void
 
 When no handler is registered for the type, `dispatch()` returns `true` and does not log `End handle message`. The message is already gone from the queue.
 
-`Dispatcher::emit()` still sends through the driver, but the method is deprecated. Use `Emitter`.
+`Dispatcher::emit()` still sends through the driver, but the method is deprecated and removed in 7.0; its first call on each `Dispatcher` triggers `E_USER_DEPRECATED`. Use `Emitter`.
 
 Handlers are replaced with `registerHandler()`, `registerHandlers()`, `unregisterHandler()`, and `unregisterAllHandlers()`. `unregisterHandler()` drops one object instance (`!==`) for one type. `unregisterAllHandlers()` clears every type. Both exist so tests can reuse a dispatcher. They were added in 4.2.0.
 

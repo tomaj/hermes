@@ -117,6 +117,44 @@ class LoggerTest extends TestCase
         );
     }
 
+    /**
+     * @deprecated Covers the deprecated Dispatcher::emit().
+     */
+    public function testDeprecatedDispatcherEmitIsReportedOncePerInstance(): void
+    {
+        $notice = 'Dispatcher::emit() is deprecated since 2.0 and removed in 7.0. Use ' . Emitter::class . '::emit().';
+        $deprecations = [];
+        set_error_handler(static function (int $level, string $message) use (&$deprecations): bool {
+            $deprecations[] = [$level, $message];
+
+            return true;
+        });
+        try {
+            $first = new TestLogger();
+            $dispatcher = new Dispatcher(new DummyDriver(), $first);
+            $dispatcher->emit(new Message('test', [], 'a'));
+            $dispatcher->emit(new Message('test', [], 'b'));
+
+            $second = new TestLogger();
+            new Dispatcher(new DummyDriver(), $second)->emit(new Message('test', [], 'c'));
+        } finally {
+            restore_error_handler();
+        }
+
+        self::assertSame([[E_USER_DEPRECATED, $notice], [E_USER_DEPRECATED, $notice]], $deprecations);
+        self::assertSame(
+            [
+                ['info', 'Dispatcher send message #a with priority 100 to driver ' . DummyDriver::class],
+                ['warning', $notice],
+                ['info', 'Dispatcher send message #b with priority 100 to driver ' . DummyDriver::class],
+            ],
+            array_map(static fn(array $log): array => [$log['level'], $log['message']], $first->getLogs()),
+        );
+        self::assertSame('warning', $second->getLogs()[1]['level']);
+        self::assertSame([], $second->getLogs()[1]['context']);
+        self::assertCount(2, $second->getLogs());
+    }
+
     public function testHandlerExceptionLogsHandlerClassName(): void
     {
         $testLogger = new TestLogger();

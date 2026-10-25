@@ -61,6 +61,7 @@ Hermes 6.0. Upgrade steps for every breaking change are in [UPGRADE-6.0.md](UPGR
 ### Deprecated
 
 * A handler that has `canRetry()` and `maxRetry()` (its own methods or `RetryTrait`) but does not implement `RetryableHandlerInterface` is still retried exactly as in 5.x: while `getRetries() < maxRetry()`, without calling `canRetry()`. `Dispatcher` triggers `E_USER_DEPRECATED` and logs a warning naming the class, once per class and process. Implement `RetryableHandlerInterface`; the fallback is removed in 7.0 ([#170](https://github.com/tomaj/hermes/pull/170)).
+* `Dispatcher::emit()`, deprecated since 2.0, is removed in 7.0. Its first call on each `Dispatcher` now triggers `E_USER_DEPRECATED` (silenced with `@`) and logs a `warning`; the message is still sent and logged as before. Use `Emitter::emit()` ([#177](https://github.com/tomaj/hermes/pull/177)).
 
 ### Removed
 
