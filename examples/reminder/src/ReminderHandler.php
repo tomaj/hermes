@@ -6,11 +6,11 @@ namespace App;
 
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
-use Tomaj\Hermes\Handler\HandlerInterface;
+use Tomaj\Hermes\Handler\RetryableHandlerInterface;
 use Tomaj\Hermes\Handler\RetryTrait;
 use Tomaj\Hermes\MessageInterface;
 
-final class ReminderHandler implements HandlerInterface
+final class ReminderHandler implements RetryableHandlerInterface
 {
     use RetryTrait;
 

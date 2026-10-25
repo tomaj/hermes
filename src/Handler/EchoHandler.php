@@ -6,7 +6,7 @@ namespace Tomaj\Hermes\Handler;
 
 use Tomaj\Hermes\MessageInterface;
 
-final class EchoHandler implements HandlerInterface
+final class EchoHandler implements RetryableHandlerInterface
 {
     use RetryTrait;
 

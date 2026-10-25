@@ -13,7 +13,6 @@ use Throwable;
 use Tomaj\Hermes\Driver\DriverInterface;
 use Tomaj\Hermes\Handler\HandlerInterface;
 use Tomaj\Hermes\Handler\RetryableHandlerInterface;
-use Tomaj\Hermes\Handler\RetryTrait;
 use Tomaj\Hermes\Shutdown\ShutdownException;
 use Tomaj\Hermes\Shutdown\ShutdownInterface;
 use Tomaj\Hermes\Shutdown\SignalStop;
@@ -31,6 +30,13 @@ final class Dispatcher implements DispatcherInterface
     private array $handlers = [];
 
     private readonly DateTimeImmutable $startTime;
+
+    /**
+     * Handler classes already reported by reportLegacyRetry(), so each one is reported once per process.
+     *
+     * @var array<class-string, true>
+     */
+    private static array $deprecatedRetryHandlers = [];
 
     private readonly Randomizer $randomizer;
 
@@ -202,9 +208,10 @@ final class Dispatcher implements DispatcherInterface
     {
         if ($handler instanceof RetryableHandlerInterface) {
             $retry = $message->getRetries() < $handler->maxRetry() && $handler->canRetry($message, $exception);
-        } elseif ($this->usesRetryTrait($handler) && method_exists($handler, 'canRetry') && method_exists($handler, 'maxRetry')) {
-            // a handler that uses RetryTrait without the interface, as in 5.x
-            $retry = $message->getRetries() < $handler->maxRetry() && $handler->canRetry($message, $exception) === true;
+        } elseif (method_exists($handler, 'canRetry') && method_exists($handler, 'maxRetry')) {
+            // DEPRECATED since 6.0, remove in 7.0: the 5.x rule for handlers without the interface
+            $this->reportLegacyRetry($handler);
+            $retry = $message->getRetries() < $handler->maxRetry();
         } else {
             return;
         }
@@ -223,22 +230,26 @@ final class Dispatcher implements DispatcherInterface
     }
 
     /**
-     * True when the handler's class, a parent class or one of their traits uses RetryTrait.
+     * Reports, once per handler class, that the handler is retried by the 5.x rule: it has canRetry()
+     * and maxRetry() (its own methods or RetryTrait) but does not implement RetryableHandlerInterface.
+     * Such a handler is retried while getRetries() < maxRetry(), without calling canRetry(), as in 5.x.
+     *
+     * Deprecated since 6.0 and removed in 7.0 together with its branch in retryMessage().
      */
-    private function usesRetryTrait(HandlerInterface $handler): bool
+    private function reportLegacyRetry(HandlerInterface $handler): void
     {
-        $pending = [];
-        for ($class = $handler::class; $class !== false; $class = get_parent_class($class)) {
-            $pending = array_merge($pending, class_uses($class));
+        $class = $handler::class;
+        if (self::$deprecatedRetryHandlers[$class] ?? false) {
+            return;
         }
-        while (($trait = array_pop($pending)) !== null) {
-            if ($trait === RetryTrait::class) {
-                return true;
-            }
-            $pending = array_merge($pending, class_uses($trait));
-        }
+        self::$deprecatedRetryHandlers[$class] = true;
 
-        return false;
+        $interface = RetryableHandlerInterface::class;
+        $notice = "Handler {$class} defines canRetry() and maxRetry() without implementing {$interface}."
+            . ' Hermes retries it as 5.x did (canRetry() is not called), which is deprecated since 6.0 and removed in 7.0.'
+            . " Implement {$interface}.";
+        $this->log(LogLevel::WARNING, $notice, ['handler' => $class]);
+        @trigger_error($notice, E_USER_DEPRECATED);
     }
 
     /**

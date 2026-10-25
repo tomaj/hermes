@@ -9,7 +9,7 @@ Opakovanie je nová `Message`, ktorú `Dispatcher` publikuje po tom, čo handler
 
 <Diagram name="retry-1" alt="Handler vyhodí výnimku, chyba sa zaloguje a ak zostávajú pokusy, odošle sa nová správa s neskorším executeAt" />
 
-Handler sa opakuje, keď implementuje `RetryableHandlerInterface` alebo používa `RetryTrait` (priamo, cez rodičovskú triedu alebo cez iný trait). Keď `handle()` vyhodí výnimku, `Dispatcher` pošle kópiu na opakovanie, len ak má správa menej opakovaní ako `maxRetry()` a `canRetry($message, $exception)` vráti `true`. Po dosiahnutí `maxRetry()` sa `canRetry()` už nevolá. Handler, ktorý má len metódy s názvami `canRetry()` a `maxRetry()`, bez rozhrania alebo traitu, sa neopakuje ([#107](https://github.com/tomaj/hermes/issues/107)).
+Handler sa opakuje, keď implementuje `RetryableHandlerInterface`. Keď `handle()` vyhodí výnimku, `Dispatcher` pošle kópiu na opakovanie, len ak má správa menej opakovaní ako `maxRetry()` a `canRetry($message, $exception)` vráti `true`. Po dosiahnutí `maxRetry()` sa `canRetry()` už nevolá ([#107](https://github.com/tomaj/hermes/issues/107)). Handler s `canRetry()` a `maxRetry()`, ale bez rozhrania, sa riadi [zastaraným pravidlom z 5.x](#handlery-bez-rozhrania-zastarane).
 
 Vrátenie `false` z `handle()` opakovanie nespustí. Spustí ho len výnimka.
 
@@ -50,11 +50,15 @@ public function canRetry(MessageInterface $message, Throwable $exception): bool
 }
 ```
 
-Trieda, ktorá používa `RetryTrait` bez implementácie rozhrania, si môže ponechať prepísanú metódu `canRetry(): bool` z 5.x bez parametrov. Volá sa tiež a opakovanie povolí len skutočné `true`.
+## Handlery bez rozhrania (zastarané) {#handlery-bez-rozhrania-zastarane}
+
+Handler z 5.x má `canRetry()` a `maxRetry()`, vlastné alebo z `RetryTrait`, ale neimplementuje `RetryableHandlerInterface`. 6.0 ho opakuje presne ako 5.x: kým `getRetries() < maxRetry()`, a `canRetry()` sa **nevolá**, takže na jej výsledku ani parametroch nezáleží. Metódy môžu pochádzať z triedy, z rodičovskej triedy alebo z traitu. Handler, ktorý má len jednu z oboch metód, sa neopakuje.
+
+Upgrade z 5.x tak funguje bez úpravy každého handlera, ale je to zastarané a 7.0 to odstráni. Keď takýto handler prvýkrát zlyhá, `Dispatcher` vyvolá `E_USER_DEPRECATED` a zaloguje `warning` s názvom triedy, raz za triedu a proces workera. Kontext `warning` má triedu pod kľúčom `handler`. Do tejto triedy pridajte `implements RetryableHandlerInterface` a vlastnej `canRetry()` dajte parametre `(MessageInterface $message, Throwable $exception)`. Odvtedy rozhoduje `canRetry()`, takže `false` opakovanie naozaj preskočí.
 
 Nová správa si ponechá pôvodné id, typ, payload a `created`. `retries` bude `getRetries() + 1`. `executeAt` dostane hodnotu podľa vzorca nižšie. `send()` sa volá **bez** priority, takže Redis vloží kópiu do množiny naplánovaných správ a keď nastane čas, na kľúč predvolenej priority (`100`).
 
-Hranicu pokrýva `HandleTest`. Správa, ktorá už má `retries = 5`, s handlerom, ktorého `maxRetry()` je `25`, sa publikuje znova s `retries = 6`. Tá istá správa s `maxRetry()` rovným `5` sa znova nepublikuje, pretože podmienka je `getRetries() < maxRetry()`. `RetryPolicyTest` pokrýva `canRetry()`, rozhranie aj trait. Handler bez rozhrania a traitu sa znova nepublikuje.
+Hranicu pokrýva `HandleTest`. Správa, ktorá už má `retries = 5`, s handlerom, ktorého `maxRetry()` je `25`, sa publikuje znova s `retries = 6`. Tá istá správa s `maxRetry()` rovným `5` sa znova nepublikuje, pretože podmienka je `getRetries() < maxRetry()`. `RetryPolicyTest` pokrýva `canRetry()`, rozhranie, trait aj zastarané pravidlo z 5.x vrátane jedného upozornenia na triedu.
 
 Kópia je jedno volanie `send()`. Na Redise a Predise toto `executeAt` odloží kópiu do zoradenej množiny; `FileSystemDriver` nechá súbor v `new/`, kým nebude splatný. Na RabbitMQ, SQS a Kafka sa publikuje hneď, takže číslo oneskorenia sa uloží, ale nečaká sa naň.
 
@@ -134,7 +138,11 @@ Implementujte `RetryableHandlerInterface`, zvyčajne s `use RetryTrait;`, a keď
 
 ### Ako vypnúť opakovanie pre jeden handler?
 
-Vráťte `false` z `canRetry()` alebo nech `maxRetry()` vracia `0`. Funguje aj odstránenie rozhrania a traitu.
+Vráťte `false` z `canRetry()` alebo nech `maxRetry()` vracia `0`.
+
+### Prečo log píše, že sa handler opakuje ako v 5.x?
+
+Handler má `canRetry()` a `maxRetry()`, ale neimplementuje `RetryableHandlerInterface`. Stále sa opakuje, no `canRetry()` sa nevolá. Rozhranie pridajte pred 7.0. Pozrite [Handlery bez rozhrania](#handlery-bez-rozhrania-zastarane).
 
 ### Ako dlho trvá do ďalšieho pokusu?
 

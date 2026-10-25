@@ -57,7 +57,8 @@ class ArchitectureTest extends TestCase
         $reflection = new ReflectionClass($class);
         $missing = [];
         foreach ($reflection->getMethods() as $method) {
-            if ($method->getDeclaringClass()->getName() !== $class || $method->isConstructor()) {
+            // a method copied from a trait cannot carry #[\Override]: the trait is used outside interfaces too
+            if ($method->getDeclaringClass()->getName() !== $class || $method->isConstructor() || $method->getFileName() !== $reflection->getFileName()) {
                 continue;
             }
             $inherited = false;

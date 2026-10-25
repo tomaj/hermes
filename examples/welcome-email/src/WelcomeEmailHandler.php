@@ -6,11 +6,11 @@ namespace App;
 
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
-use Tomaj\Hermes\Handler\HandlerInterface;
+use Tomaj\Hermes\Handler\RetryableHandlerInterface;
 use Tomaj\Hermes\Handler\RetryTrait;
 use Tomaj\Hermes\MessageInterface;
 
-final class WelcomeEmailHandler implements HandlerInterface
+final class WelcomeEmailHandler implements RetryableHandlerInterface
 {
     use RetryTrait;
 

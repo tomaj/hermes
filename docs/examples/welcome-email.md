@@ -65,7 +65,7 @@ This is the web side. It validates the form, would save the user, and emits a `u
 
 ## 5. Write the handler
 
-The handler does the slow work in the worker process. `RetryTrait` tells the dispatcher that this handler wants retries, and `maxRetry()` limits them to five.
+The handler does the slow work in the worker process. `RetryableHandlerInterface` tells the dispatcher that this handler wants retries, `RetryTrait` implements it, and `maxRetry()` limits them to five.
 
 <<< @/../examples/welcome-email/src/WelcomeEmailHandler.php{php} [src/WelcomeEmailHandler.php]
 

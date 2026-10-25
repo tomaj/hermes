@@ -65,7 +65,7 @@ Toto je webová strana. Overí formulár, uložila by používateľa a vloží s
 
 ## 5. Napíšte handler
 
-Handler robí pomalú prácu v procese workera. `RetryTrait` dá dispatcheru vedieť, že tento handler chce opakovanie, a `maxRetry()` ho obmedzí na päť pokusov.
+Handler robí pomalú prácu v procese workera. `RetryableHandlerInterface` dá dispatcheru vedieť, že tento handler chce opakovanie, `RetryTrait` ho implementuje a `maxRetry()` ho obmedzí na päť pokusov.
 
 <<< @/../examples/welcome-email/src/WelcomeEmailHandler.php{php} [src/WelcomeEmailHandler.php]
 

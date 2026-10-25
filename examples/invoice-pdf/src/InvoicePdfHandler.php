@@ -6,11 +6,11 @@ namespace App;
 
 use Dompdf\Dompdf;
 use RuntimeException;
-use Tomaj\Hermes\Handler\HandlerInterface;
+use Tomaj\Hermes\Handler\RetryableHandlerInterface;
 use Tomaj\Hermes\Handler\RetryTrait;
 use Tomaj\Hermes\MessageInterface;
 
-final class InvoicePdfHandler implements HandlerInterface
+final class InvoicePdfHandler implements RetryableHandlerInterface
 {
     use RetryTrait;
 

@@ -27,15 +27,15 @@ RabbitMQ, SQS and Kafka do not implement priority. `setupPriorityQueue()` throws
 
 ## I returned `false` and the message disappeared
 
-The driver had already removed it. `false` does not requeue. An exception sends a retry copy only when the handler implements `RetryableHandlerInterface` (or uses `RetryTrait`), `getRetries() < maxRetry()` and `canRetry()` returns `true`.
+The driver had already removed it. `false` does not requeue. An exception sends a retry copy only when the handler implements `RetryableHandlerInterface`, `getRetries() < maxRetry()` and `canRetry()` returns `true`. A 5.x handler with `canRetry()` and `maxRetry()` but without the interface is retried while `getRetries() < maxRetry()` ([deprecated](/guide/retry#handlers-without-the-interface-deprecated)).
 
 ## `canRetry()` returns `false` and it still retries
 
-Not from 6.0: `Dispatcher` calls `canRetry($message, $exception)` and skips the retry when it returns `false` ([#107](https://github.com/tomaj/hermes/issues/107)). Hermes 5.x only checked that the method existed.
+`Dispatcher` calls `canRetry($message, $exception)` and skips the retry when it returns `false` only for a handler that implements `RetryableHandlerInterface` ([#107](https://github.com/tomaj/hermes/issues/107)). Without the interface the handler follows the deprecated 5.x rule, which never calls `canRetry()`: add `implements RetryableHandlerInterface` and the full `canRetry()` signature. See [Retry](/guide/retry#handlers-without-the-interface-deprecated).
 
-## My handler stopped retrying after the upgrade
+## My log has a deprecation about `canRetry()` and `maxRetry()` after the upgrade
 
-It defines `canRetry()` and `maxRetry()` without implementing `RetryableHandlerInterface` or using `RetryTrait`. Add `implements RetryableHandlerInterface` and give `canRetry()` the `(MessageInterface $message, Throwable $exception)` parameters. See [UPGRADE-6.0.md](https://github.com/tomaj/hermes/blob/master/UPGRADE-6.0.md).
+The handler named in the message has `canRetry()` and `maxRetry()` (its own or from `RetryTrait`) but does not implement `RetryableHandlerInterface`. 6.0 still retries it as 5.x did, without calling `canRetry()`, and reports it once per class. 7.0 stops retrying it. Add `implements RetryableHandlerInterface` and give `canRetry()` the `(MessageInterface $message, Throwable $exception)` parameters. See [UPGRADE-6.0.md](https://github.com/tomaj/hermes/blob/master/UPGRADE-6.0.md#retries-follow-retryablehandlerinterface-and-canretry).
 
 ## There is no `Dispatcher::PRIORITY_HIGH`
 

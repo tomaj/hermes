@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Hermes;
 
 use Psr\Log\LoggerInterface;
-use Tomaj\Hermes\Handler\HandlerInterface;
+use Tomaj\Hermes\Handler\RetryableHandlerInterface;
 use Tomaj\Hermes\Handler\RetryTrait;
 use Tomaj\Hermes\MessageInterface;
 
-final class UserRegisteredHandler implements HandlerInterface
+final class UserRegisteredHandler implements RetryableHandlerInterface
 {
     use RetryTrait;
 

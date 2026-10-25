@@ -13,7 +13,7 @@ Upgrading from 5.x to 6.0? The steps are in [UPGRADE-6.0.md](https://github.com/
 
 Minimum PHP is 8.4. CI runs 8.4, 8.4 with the lowest dependencies, and 8.5.
 
-Delivery is at least once on every broker: RabbitMQ acknowledges after the handler and declares a durable queue, SQS deletes after the handler, and the Redis drivers deliver delayed messages and retries again and poll priorities highest first. Retries need `RetryableHandlerInterface` or `RetryTrait`. `SIGTERM` and `SIGINT` stop the worker after the current message. Driver errors are logged and rethrown. `tracy/tracy` is only suggested, and serializer exceptions no longer contain the message. Classes are `final` and `readonly` where possible. Every breaking change and its migration step is in [UPGRADE-6.0.md](https://github.com/tomaj/hermes/blob/master/UPGRADE-6.0.md).
+Delivery is at least once on every broker: RabbitMQ acknowledges after the handler and declares a durable queue, SQS deletes after the handler, and the Redis drivers deliver delayed messages and retries again and poll priorities highest first. Retries follow `RetryableHandlerInterface` and its `canRetry()`; a 5.x handler with `canRetry()` and `maxRetry()` but without the interface is still retried as in 5.x, which is deprecated and removed in 7.0. `SIGTERM` and `SIGINT` stop the worker after the current message. Driver errors are logged and rethrown. `tracy/tracy` is only suggested, and serializer exceptions no longer contain the message. Classes are `final` and `readonly` where possible. Every breaking change and its migration step is in [UPGRADE-6.0.md](https://github.com/tomaj/hermes/blob/master/UPGRADE-6.0.md).
 
 ## 5.0.0
 

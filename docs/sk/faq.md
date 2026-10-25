@@ -27,15 +27,15 @@ RabbitMQ, SQS a Kafka priority neimplementujú. `setupPriorityQueue()` vyhodí `
 
 ## Vrátil som `false` a správa zmizla
 
-Driver ju už odstránil. `false` správu nevráti do fronty. Výnimka pošle kópiu na opakovanie, len keď handler implementuje `RetryableHandlerInterface` (alebo používa `RetryTrait`), `getRetries() < maxRetry()` a `canRetry()` vráti `true`.
+Driver ju už odstránil. `false` správu nevráti do fronty. Výnimka pošle kópiu na opakovanie, len keď handler implementuje `RetryableHandlerInterface`, `getRetries() < maxRetry()` a `canRetry()` vráti `true`. Handler z 5.x s `canRetry()` a `maxRetry()`, ale bez rozhrania, sa opakuje, kým `getRetries() < maxRetry()` ([zastarané](/sk/guide/retry#handlery-bez-rozhrania-zastarane)).
 
 ## `canRetry()` vracia `false` a aj tak sa opakuje
 
-Od 6.0 nie: `Dispatcher` volá `canRetry($message, $exception)` a opakovanie preskočí, keď vráti `false` ([#107](https://github.com/tomaj/hermes/issues/107)). Hermes 5.x len kontroloval, či metóda existuje.
+`Dispatcher` volá `canRetry($message, $exception)` a pri `false` opakovanie preskočí len pri handleri, ktorý implementuje `RetryableHandlerInterface` ([#107](https://github.com/tomaj/hermes/issues/107)). Bez rozhrania sa handler riadi zastaraným pravidlom z 5.x, ktoré `canRetry()` nikdy nevolá: pridajte `implements RetryableHandlerInterface` a úplnú signatúru `canRetry()`. Pozrite [Opakovanie](/sk/guide/retry#handlery-bez-rozhrania-zastarane).
 
-## Po aktualizácii sa môj handler prestal opakovať
+## Po aktualizácii mám v logu upozornenie o `canRetry()` a `maxRetry()`
 
-Definuje `canRetry()` a `maxRetry()` bez implementovania `RetryableHandlerInterface` alebo použitia `RetryTrait`. Pridajte `implements RetryableHandlerInterface` a dajte `canRetry()` parametre `(MessageInterface $message, Throwable $exception)`. Pozrite [UPGRADE-6.0.md](https://github.com/tomaj/hermes/blob/master/UPGRADE-6.0.md).
+Handler uvedený v správe má `canRetry()` a `maxRetry()` (vlastné alebo z `RetryTrait`), ale neimplementuje `RetryableHandlerInterface`. 6.0 ho stále opakuje ako 5.x, bez volania `canRetry()`, a ohlási ho raz za triedu. 7.0 ho prestane opakovať. Pridajte `implements RetryableHandlerInterface` a dajte `canRetry()` parametre `(MessageInterface $message, Throwable $exception)`. Pozrite [UPGRADE-6.0.md](https://github.com/tomaj/hermes/blob/master/UPGRADE-6.0.md#retries-follow-retryablehandlerinterface-and-canretry).
 
 ## Neexistuje `Dispatcher::PRIORITY_HIGH`
 

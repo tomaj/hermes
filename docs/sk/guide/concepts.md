@@ -116,7 +116,7 @@ Handler robí pomalú prácu: e-maily, HTTP, súbory. Hermes ho volá len z `Dis
 
 Ak má dispatcher logger a handler má `setLogger()` (napríklad `Psr\Log\LoggerAwareTrait`), logger sa mu nastaví pred `handle()`.
 
-`EchoHandler` je vstavaný handler, ktorý používajú príklady. Vypíše správu a vráti `true`. Používa aj `RetryTrait`. Samotné `EchoHandler::handle()` výnimku nevyhadzuje. Od 6.0 je trieda `final`; namiesto rozširovania si napíšte vlastný handler.
+`EchoHandler` je vstavaný handler, ktorý používajú príklady. Vypíše správu a vráti `true`. Implementuje `RetryableHandlerInterface` s `RetryTrait`. Samotné `EchoHandler::handle()` výnimku nevyhadzuje. Od 6.0 je trieda `final`; namiesto rozširovania si napíšte vlastný handler.
 
 ## Driver
 

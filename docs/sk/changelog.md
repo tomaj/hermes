@@ -13,7 +13,7 @@ Prechádzate z 5.x na 6.0? Postup je v [UPGRADE-6.0.md](https://github.com/tomaj
 
 Minimálne PHP je 8.4. CI beží na 8.4, na 8.4 s najnižšími závislosťami a na 8.5.
 
-Doručenie je aspoň raz na každom brokeri: RabbitMQ potvrdzuje po handleri a deklaruje trvalú frontu, SQS maže po handleri a Redis drivery znova doručujú odložené správy aj opakovania a prechádzajú priority od najvyššej. Opakovanie potrebuje `RetryableHandlerInterface` alebo `RetryTrait`. `SIGTERM` a `SIGINT` zastavia workera po aktuálnej správe. Chyby drivera sa logujú a znova vyhadzujú. `tracy/tracy` je len odporúčaná a výnimky serializéra už neobsahujú správu. Triedy sú `final` a `readonly`, kde sa dá. Každá nekompatibilná zmena a krok migrácie je v [UPGRADE-6.0.md](https://github.com/tomaj/hermes/blob/master/UPGRADE-6.0.md).
+Doručenie je aspoň raz na každom brokeri: RabbitMQ potvrdzuje po handleri a deklaruje trvalú frontu, SQS maže po handleri a Redis drivery znova doručujú odložené správy aj opakovania a prechádzajú priority od najvyššej. Opakovanie riadi `RetryableHandlerInterface` a jeho `canRetry()`; handler z 5.x s `canRetry()` a `maxRetry()`, ale bez rozhrania, sa stále opakuje ako v 5.x, čo je zastarané a 7.0 to odstráni. `SIGTERM` a `SIGINT` zastavia workera po aktuálnej správe. Chyby drivera sa logujú a znova vyhadzujú. `tracy/tracy` je len odporúčaná a výnimky serializéra už neobsahujú správu. Triedy sú `final` a `readonly`, kde sa dá. Každá nekompatibilná zmena a krok migrácie je v [UPGRADE-6.0.md](https://github.com/tomaj/hermes/blob/master/UPGRADE-6.0.md).
 
 ## 5.0.0
 
