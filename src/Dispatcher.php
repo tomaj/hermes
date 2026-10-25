@@ -41,6 +41,11 @@ final class Dispatcher implements DispatcherInterface
     private readonly Randomizer $randomizer;
 
     /**
+     * Set after the first call of the deprecated emit(), so it is reported once per instance.
+     */
+    private bool $deprecatedEmitReported = false;
+
+    /**
      * Create new Dispatcher
      *
      * @param Randomizer|null $randomizer Source of the retry jitter. Pass one with a seeded engine
@@ -64,7 +69,7 @@ final class Dispatcher implements DispatcherInterface
     /**
      * @return $this
      *
-     * @deprecated - use Emitter::emit method instead
+     * @deprecated since 2.0, use Emitter::emit() instead; removed in 7.0
      */
     public function emit(MessageInterface $message, int $priority = self::DEFAULT_PRIORITY): DispatcherInterface
     {
@@ -75,6 +80,14 @@ final class Dispatcher implements DispatcherInterface
             "Dispatcher send message #{$message->getId()} with priority {$priority} to driver " . $this->driver::class,
             $this->messageLoggerContext($message),
         );
+
+        if (!$this->deprecatedEmitReported) {
+            $this->deprecatedEmitReported = true;
+            $notice = 'Dispatcher::emit() is deprecated since 2.0 and removed in 7.0. Use ' . Emitter::class . '::emit().';
+            $this->log(LogLevel::WARNING, $notice);
+            @trigger_error($notice, E_USER_DEPRECATED);
+        }
+
         return $this;
     }
 
