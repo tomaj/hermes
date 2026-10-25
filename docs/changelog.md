@@ -15,6 +15,13 @@ Minimum PHP is 8.4. CI runs 8.4, 8.4 with the lowest dependencies, and 8.5.
 
 Delivery is at least once on every broker: RabbitMQ acknowledges after the handler and declares a durable queue, SQS deletes after the handler, and the Redis drivers deliver delayed messages and retries again and poll priorities highest first. Retries follow `RetryableHandlerInterface` and its `canRetry()`; a 5.x handler with `canRetry()` and `maxRetry()` but without the interface is still retried as in 5.x, which is deprecated and removed in 7.0. `SIGTERM` and `SIGINT` stop the worker after the current message. Driver errors are logged and rethrown. `tracy/tracy` is only suggested, and serializer exceptions no longer contain the message. Classes are `final` and `readonly` where possible. Every breaking change and its migration step is in [UPGRADE-6.0.md](https://github.com/tomaj/hermes/blob/master/UPGRADE-6.0.md).
 
+### Deprecated in 6.0, removed in 7.0
+
+Both still work in 6.x and report themselves with `E_USER_DEPRECATED` (silenced with `@`) and a `warning` in the `Dispatcher` log:
+
+- A handler with `canRetry()` and `maxRetry()` that does not implement `RetryableHandlerInterface` is retried by the 5.x rule, without calling `canRetry()`. Implement the interface. See [Handlers without the interface](/guide/retry#handlers-without-the-interface-deprecated).
+- `Dispatcher::emit()`, deprecated since 2.0. Use `Emitter::emit()`. See [the API reference](/api/reference#is-dispatcher-emit-still-supported).
+
 ## 5.0.0
 
 Minimum PHP is 7.4. PHP 7.2 and 7.3 left the CI matrix. The matrix includes 8.0, 8.1, 8.2, and 8.3.

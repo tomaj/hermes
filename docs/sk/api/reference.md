@@ -74,7 +74,7 @@ Keď `$shutdown` nie je `null` a driver má `setShutdown()`, konštruktor ju zav
 
 | Metóda | Správanie |
 | --- | --- |
-| `emit(MessageInterface $message, int $priority = self::DEFAULT_PRIORITY): DispatcherInterface` | Zastarané. Posiela cez driver a loguje. Uprednostnite `Emitter`. |
+| `emit(MessageInterface $message, int $priority = self::DEFAULT_PRIORITY): DispatcherInterface` | Zastarané od 2.0, 7.0 ju odstráni. Posiela cez driver a loguje; prvé volanie na každej inštancii navyše vyvolá `E_USER_DEPRECATED` a zaloguje `warning`. Používajte `Emitter`. |
 | `handle(array $priorities = []): void` | Blokuje v `Driver::wait`. Zachytí `ShutdownException` a zaloguje notice. Zachytí ostatné `Exception`, zaloguje ich na úrovni `error`, zapíše ich do Tracy, keď je Tracy nainštalovaná a zapnutá, a znova ich vyhodí. |
 | `registerHandler(string $type, HandlerInterface $handler): DispatcherInterface` | Pridá jeden handler pre `$type`. |
 | `registerHandlers(string $type, array $handlers): DispatcherInterface` | Zavolá `registerHandler` pre každý. |
@@ -241,7 +241,7 @@ Na `Emitter::emit()` a `DriverInterface::send()`, ako druhý argument. `Message`
 
 ### Je `Dispatcher::emit()` stále podporovaná?
 
-Funguje, ale je zastaraná. Používajte `Emitter`.
+Funguje, ale je zastaraná od 2.0 a 7.0 ju odstráni. Prvé volanie na každom `Dispatcher` vyvolá `E_USER_DEPRECATED` a zaloguje `warning`. Používajte `Emitter`.
 
 ### Ktoré traity používajú vstavané drivery?
 
