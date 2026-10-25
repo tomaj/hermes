@@ -1,0 +1,14 @@
+{
+    "require": {
+        "php": ">=8.4",
+        "ext-pdo_sqlite": "*",
+        "tomaj/hermes": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

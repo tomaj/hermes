@@ -230,6 +230,8 @@ If you extended one of these classes, switch to the interface it implements and 
 | a shutdown | `ShutdownInterface` |
 | `EchoHandler` | `HandlerInterface`, or `RetryableHandlerInterface` with `RetryTrait` if you need retries |
 
+If you extended `Emitter` to hold messages until a database transaction commits, use the new `BufferedEmitter` instead: it wraps any `EmitterInterface` and sends the held messages on `flush()` (see [Emitting after a database commit](https://tomaj.github.io/hermes/guide/buffered-emitter)).
+
 For example, a driver that adds logging around `RedisSetDriver`:
 
 ```php

@@ -79,6 +79,35 @@ V testovacom kontajneri nahraďte `EmitterInterface` mockom. Od Hermesu 6.0 je `
 
 <<< @/../examples/frameworks/symfony/tests/Controller/UserControllerTest.php{php} [tests/Controller/UserControllerTest.php]
 
+## Emitovanie po commite do databázy {#emitovanie-po-commite-do-databazy}
+
+Ak controller vloží riadok v transakcii a emitne o ňom správu, nasmerujte `EmitterInterface` na [`BufferedEmitter`](/sk/guide/buffered-emitter), aby worker nikdy nehľadal riadok, ktorý ešte nie je commitnutý. Doctrine DBAL nemá callbacky po commite, preto zavolajte `flush()` po návrate z `transactional()` a `discard()`, keď vyhodí výnimku:
+
+```yaml
+    Tomaj\Hermes\Emitter: ~
+
+    Tomaj\Hermes\EmitterInterface:
+        class: Tomaj\Hermes\BufferedEmitter
+        arguments:
+            - '@Tomaj\Hermes\Emitter'
+            - ['@doctrine.dbal.default_connection', 'isTransactionActive']
+```
+
+```php
+try {
+    $connection->transactional(function () use ($emitter): void {
+        // INSERT ...
+        $emitter->emit(new Message('user.registered', ['id' => $id]));
+    });
+} catch (\Throwable $e) {
+    $emitter->discard();
+    throw $e;
+}
+$emitter->flush();
+```
+
+`isTransactionActive()` zabezpečí, že mimo transakcie emitter odosiela hneď. Predikát a volania `flush()`/`discard()` okolo `transactional()` boli overené s Doctrine DBAL 4.5.0; definícia služby nebola spustená v Symfony kerneli.
+
 ## Náhodná zložka opakovania a služba `Random\Randomizer`
 
 Od Hermesu 6.0 `Dispatcher` prijíma voliteľný `?Random\Randomizer $randomizer` (pozrite [Integrácia do frameworkov](/sk/frameworks/#nahodna-zlozka-opakovania-a-zaregistrovany-random-randomizer)). Ak vaša aplikácia registruje službu `Random\Randomizer`, autowiring ju odovzdá dispatcheru a náhodná zložka opakovania pochádza z tohto enginu. Ak chcete zachovať predvolený bezpečný engine, na Hermese 6.0 alebo novšom pridajte toto do služby dispatchera:

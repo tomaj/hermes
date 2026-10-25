@@ -69,6 +69,8 @@ The context array is `id`, `created`, `type`, `payload`, `retries`, and `execute
 
 `UnknownPriorityException` comes from the driver when `$priority` was never registered with `setupPriorityQueue()`.
 
+To emit only after a database transaction commits, wrap the emitter in `BufferedEmitter`. See [Emitting after a database commit](/guide/buffered-emitter).
+
 ## Dispatcher
 
 `Dispatcher` is the worker.

@@ -101,6 +101,10 @@ Hermes stores the handler objects and a processed-item counter. It does not pool
 
 Not on Redis or Predis: live queues are sets, and `SPOP` returns one random member. Two messages with the same priority have no order. Across priorities, `wait()` walks queues from the highest number down (5.x used reverse insertion order, [issue #50](https://github.com/tomaj/hermes/issues/50)). `FileSystemDriver` is FIFO within each priority folder. RabbitMQ, SQS and Kafka order is whatever those brokers do with a single queue (Kafka: one partition is ordered). Hermes does not set a FIFO SQS queue or a message group.
 
+## My handler does not find the row I have just inserted
+
+The message was sent before the transaction committed, and the worker was faster than the commit. Wrap the emitter in `BufferedEmitter` and flush it from your commit hook; see [Emitting after a database commit](/guide/buffered-emitter).
+
 ## Can the same work run twice?
 
 A normal success does not republish. A retry does, and it reuses the same message id with `retries + 1`. If the handler already performed the side effect and then threw, the next attempt does it again. If the process dies after the side effect and after the broker removal, the attempt is not repeated, because nothing is left to retry. Treat the message id as an idempotency key if the work must not happen twice.

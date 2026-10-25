@@ -122,6 +122,20 @@ $message = new Message('send-email', [
 $emitter->emit($message);
 ```
 
+#### Emitting after a database commit
+
+When you insert a row in a transaction and emit a message about it, the worker can pick up the message before the commit and not find the row. `BufferedEmitter` (since 6.0) holds the messages until you flush them from your commit hook and drops them on rollback:
+
+```php
+use Tomaj\Hermes\BufferedEmitter;
+
+$emitter = new BufferedEmitter(new Emitter($driver), [$database, 'isInTransaction']);
+$database->registerOnCommit([$emitter, 'flush']);
+$database->registerOnRollback([$emitter, 'discard']);
+```
+
+Outside a transaction the predicate returns `false` and messages are sent straight away. The buffer lives in memory, so it is not a transactional outbox. See [Emitting after a database commit](https://tomaj.github.io/hermes/guide/buffered-emitter) and `examples/emit-after-commit`.
+
 ### Processing Messages
 
 To process messages, create a PHP CLI script that runs continuously. Here's a simple implementation with a handler:

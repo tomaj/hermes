@@ -87,6 +87,20 @@ Príkazu odovzdajte mock `EmitterInterface`. Od Hermesu 6.0 je `Emitter` `final`
 
 <<< @/../examples/frameworks/nette/tests/RegisterUserCommandTest.php{php} [tests/RegisterUserCommandTest.php]
 
+## Emitovanie po commite do databázy {#emitovanie-po-commite-do-databazy}
+
+Ak presenter vloží riadok v transakcii a emitne o ňom správu, obaľte emitter do [`BufferedEmitter`](/sk/guide/buffered-emitter), aby worker nikdy nehľadal riadok, ktorý ešte nie je commitnutý. Riadok `- Tomaj\Hermes\Emitter` v `hermes.neon` nahraďte týmto, kde `databaseTransaction` je vaša služba s `isInTransaction()`, `registerOnCommit()` a `registerOnRollback()`:
+
+```yaml
+	hermes.emitter:
+		create: Tomaj\Hermes\BufferedEmitter(Tomaj\Hermes\Emitter(@hermes.driver, @Psr\Log\LoggerInterface), [@databaseTransaction, isInTransaction])
+		setup:
+			- @databaseTransaction::registerOnCommit([@self, flush])
+			- @databaseTransaction::registerOnRollback([@self, discard])
+```
+
+`@self` je `BufferedEmitter`, takže hooky odosielajú a zahadzujú tú istú inštanciu, ktorú producenti dostanú pre `EmitterInterface`. Overené na skompilovanom kontajneri s nette/di 3.2.7. Nette Database vlastné callbacky po commite nemá; overte, že ich vaša služba transakcií volá len pre najvonkajšiu transakciu.
+
 ## Náhodná zložka opakovania a služba `Random\Randomizer`
 
 Od Hermesu 6.0 `Dispatcher` prijíma voliteľný `?Random\Randomizer $randomizer` (pozrite [Integrácia do frameworkov](/sk/frameworks/#nahodna-zlozka-opakovania-a-zaregistrovany-random-randomizer)). Nette ho autowiruje: ak má kontajner službu `Random\Randomizer`, dispatcher ju dostane. Ak chcete zachovať predvolený bezpečný engine, na Hermese 6.0 alebo novšom zapíšte dispatcher takto:

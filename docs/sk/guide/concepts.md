@@ -69,6 +69,8 @@ Pole kontextu obsahuje `id`, `created`, `type`, `payload`, `retries` a `execute_
 
 `UnknownPriorityException` vyhodí driver, keď `$priority` nikdy nebola zaregistrovaná cez `setupPriorityQueue()`.
 
+Ak chcete emitovať až po commite databázovej transakcie, obaľte emitter do `BufferedEmitter`. Pozrite [Emitovanie po commite do databázy](/sk/guide/buffered-emitter).
+
 ## Dispatcher
 
 `Dispatcher` je worker.

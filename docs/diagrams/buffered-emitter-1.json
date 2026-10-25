@@ -1,0 +1,279 @@
+{
+ "padding": 10,
+ "elements": [
+  {
+   "t": "rect",
+   "x": 0,
+   "y": 0,
+   "w": 170,
+   "h": 56
+  },
+  {
+   "t": "text",
+   "x": 85.0,
+   "y": 16.75,
+   "text": "BEGIN",
+   "size": 18
+  },
+  {
+   "t": "rect",
+   "x": 230,
+   "y": 0,
+   "w": 190,
+   "h": 56
+  },
+  {
+   "t": "text",
+   "x": 325.0,
+   "y": 16.75,
+   "text": "INSERT user",
+   "size": 18
+  },
+  {
+   "t": "rect",
+   "x": 480,
+   "y": -8.5,
+   "w": 220,
+   "h": 73
+  },
+  {
+   "t": "text",
+   "x": 590.0,
+   "y": 5.5,
+   "text": "emit(): kept in\nthe buffer",
+   "size": 18
+  },
+  {
+   "t": "diamond",
+   "x": 760,
+   "y": -50,
+   "w": 200,
+   "h": 156
+  },
+  {
+   "t": "text",
+   "x": 860,
+   "y": 5,
+   "text": "commit or\nrollback?",
+   "size": 18
+  },
+  {
+   "t": "rect",
+   "x": 1030,
+   "y": -100,
+   "w": 200,
+   "h": 73
+  },
+  {
+   "t": "text",
+   "x": 1130.0,
+   "y": -86,
+   "text": "commit hook:\nflush()",
+   "size": 18
+  },
+  {
+   "t": "rect",
+   "x": 1290,
+   "y": -100,
+   "w": 220,
+   "h": 73
+  },
+  {
+   "t": "text",
+   "x": 1400.0,
+   "y": -86,
+   "text": "Emitter sends,\nsame order",
+   "size": 18
+  },
+  {
+   "t": "rect",
+   "x": 1570,
+   "y": -100,
+   "w": 220,
+   "h": 73
+  },
+  {
+   "t": "text",
+   "x": 1680.0,
+   "y": -86,
+   "text": "worker finds\nthe row",
+   "size": 18
+  },
+  {
+   "t": "rect",
+   "x": 1030,
+   "y": 83,
+   "w": 200,
+   "h": 73
+  },
+  {
+   "t": "text",
+   "x": 1130.0,
+   "y": 97,
+   "text": "rollback hook:\ndiscard()",
+   "size": 18
+  },
+  {
+   "t": "rect",
+   "x": 1290,
+   "y": 83,
+   "w": 220,
+   "h": 73
+  },
+  {
+   "t": "text",
+   "x": 1400.0,
+   "y": 97,
+   "text": "nothing is\nsent",
+   "size": 18,
+   "color": "muted"
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     176,
+     28
+    ],
+    [
+     224,
+     28
+    ]
+   ],
+   "curve": false
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     426,
+     28
+    ],
+    [
+     474,
+     28
+    ]
+   ],
+   "curve": false
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     706,
+     28
+    ],
+    [
+     754,
+     28
+    ]
+   ],
+   "curve": false
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     860,
+     -56
+    ],
+    [
+     860,
+     -63.5
+    ],
+    [
+     1024,
+     -63.5
+    ]
+   ],
+   "curve": false
+  },
+  {
+   "t": "text",
+   "x": 942,
+   "y": -90,
+   "text": "commit",
+   "size": 15,
+   "color": "muted",
+   "align": "center"
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     860,
+     112
+    ],
+    [
+     860,
+     119.5
+    ],
+    [
+     1024,
+     119.5
+    ]
+   ],
+   "curve": false
+  },
+  {
+   "t": "text",
+   "x": 942,
+   "y": 93,
+   "text": "rollback",
+   "size": 15,
+   "color": "muted",
+   "align": "center"
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     1236,
+     -63.5
+    ],
+    [
+     1284,
+     -63.5
+    ]
+   ],
+   "curve": false
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     1516,
+     -63.5
+    ],
+    [
+     1564,
+     -63.5
+    ]
+   ],
+   "curve": false
+  },
+  {
+   "t": "arrow",
+   "points": [
+    [
+     1236,
+     119.5
+    ],
+    [
+     1284,
+     119.5
+    ]
+   ],
+   "curve": false
+  },
+  {
+   "t": "text",
+   "x": 0,
+   "y": 190,
+   "text": "Outside a transaction the predicate returns false and emit() sends right away.",
+   "size": 15,
+   "color": "muted",
+   "align": "left"
+  }
+ ]
+}

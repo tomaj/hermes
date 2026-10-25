@@ -55,6 +55,21 @@ Calls `Driver::send`. Logs at `info` when `$logger` is set. Returns `$this`. Thr
 
 `src/EmitterInterface.php`. The `emit()` method above.
 
+## Tomaj\Hermes\BufferedEmitter
+
+`src/BufferedEmitter.php`. Since 6.0. Implements `EmitterInterface` and `Countable`; decorates another `EmitterInterface`.
+
+```php
+public function __construct(EmitterInterface $emitter, ?callable $shouldBuffer = null)
+
+public function emit(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): EmitterInterface
+public function flush(): void
+public function discard(): int
+public function count(): int
+```
+
+`emit()` holds the message when `$shouldBuffer` is `null` or returns `true` for `($message, $priority)` (a callable without parameters is called without arguments); otherwise it calls the inner `emit()` straight away. Returns `$this`. `flush()` sends the held messages in order with their priorities; when the inner emitter throws, the sent ones stay sent, the rest stay held, and the exception is rethrown. A `flush()` called during `flush()` returns at once. `discard()` drops the held messages and returns how many. See [Emitting after a database commit](/guide/buffered-emitter).
+
 ## Tomaj\Hermes\Dispatcher
 
 `src/Dispatcher.php`. Implements `DispatcherInterface`.

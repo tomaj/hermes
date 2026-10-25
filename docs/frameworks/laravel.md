@@ -99,6 +99,42 @@ Bind a mock of `EmitterInterface` in the container. From Hermes 6.0 `Emitter` is
 
 Test handlers on their own, without a driver; see [Testing](/guide/testing).
 
+## Emitting after a database commit
+
+If a controller inserts a row in `DB::transaction()` and emits about it, bind [`BufferedEmitter`](/guide/buffered-emitter) instead of `Emitter` and alias `EmitterInterface` to it, so the worker never looks for a row that is not committed yet. In `HermesServiceProvider`:
+
+```php
+use Illuminate\Database\Events\TransactionCommitted;
+use Illuminate\Database\Events\TransactionRolledBack;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
+use Tomaj\Hermes\BufferedEmitter;
+
+// register()
+$this->app->singleton(
+    BufferedEmitter::class,
+    static fn(Application $app): BufferedEmitter => new BufferedEmitter(
+        new Emitter($app->make(DriverInterface::class), $app->make(LoggerInterface::class)),
+        static fn(): bool => DB::transactionLevel() > 0,
+    ),
+);
+$this->app->alias(BufferedEmitter::class, EmitterInterface::class);
+
+// boot()
+Event::listen(TransactionCommitted::class, function (TransactionCommitted $event): void {
+    if ($event->connection->transactionLevel() === 0) {
+        $this->app->make(BufferedEmitter::class)->flush();
+    }
+});
+Event::listen(TransactionRolledBack::class, function (TransactionRolledBack $event): void {
+    if ($event->connection->transactionLevel() === 0) {
+        $this->app->make(BufferedEmitter::class)->discard();
+    }
+});
+```
+
+The predicate sends straight away outside a transaction. The `transactionLevel() === 0` checks make a nested `DB::transaction()` neither flush nor discard; only the outermost one does. A message emitted inside a nested transaction that rolls back stays in the buffer and is sent when the outer transaction commits. The predicate looks at the default connection; with several connections, also compare `$event->connectionName` in the listeners. The binding, the alias and the listeners were checked with Laravel 13.38 on SQLite.
+
 ## Retry jitter and a `Random\Randomizer` binding
 
 From Hermes 6.0, `Dispatcher` takes an optional `?Random\Randomizer` as its fourth argument (see [Framework integration](/frameworks/#retry-jitter-and-a-registered-random-randomizer)). The provider above calls `new Dispatcher(...)` with three arguments, so a `Random\Randomizer` binding elsewhere in the app does not change the retry times.

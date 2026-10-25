@@ -13,6 +13,7 @@ use ReflectionClassConstant;
 use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionProperty;
+use Tomaj\Hermes\BufferedEmitter;
 use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\Driver\AmazonSqsDriver;
 use Tomaj\Hermes\Driver\LazyRabbitMqDriver;
@@ -35,6 +36,7 @@ use Tomaj\Hermes\Test\Driver\DummyDriver;
 #[CoversClass(Message::class)]
 #[CoversClass(Dispatcher::class)]
 #[CoversClass(Emitter::class)]
+#[CoversClass(BufferedEmitter::class)]
 #[CoversClass(RedisSetDriver::class)]
 #[CoversClass(PredisSetDriver::class)]
 #[CoversClass(LazyRabbitMqDriver::class)]
@@ -54,6 +56,7 @@ final class PublicApiContractTest extends TestCase
         yield 'Message' => [Message::class, ['string $type', '?array $payload = null', '?string $messageId = null', '?float $created = null', '?float $executeAt = null', 'int $retries = 0']];
         yield 'Dispatcher' => [Dispatcher::class, ['Tomaj\\Hermes\\Driver\\DriverInterface $driver', '?Psr\\Log\\LoggerInterface $logger = null', '?Tomaj\\Hermes\\Shutdown\\ShutdownInterface $shutdown = null', '?Random\\Randomizer $randomizer = null']];
         yield 'Emitter' => [Emitter::class, ['Tomaj\\Hermes\\Driver\\DriverInterface $driver', '?Psr\\Log\\LoggerInterface $logger = null']];
+        yield 'BufferedEmitter' => [BufferedEmitter::class, ['Tomaj\\Hermes\\EmitterInterface $emitter', '?callable $shouldBuffer = null']];
         yield 'RedisSetDriver' => [RedisSetDriver::class, ['Redis $redis', 'string $key = "hermes"', 'int $refreshInterval = 1', 'string $scheduleKey = "hermes_schedule"']];
         yield 'PredisSetDriver' => [PredisSetDriver::class, ['Predis\\Client $redis', 'string $key = "hermes"', 'int $refreshInterval = 1', 'string $scheduleKey = "hermes_schedule"']];
         yield 'LazyRabbitMqDriver' => [LazyRabbitMqDriver::class, ['PhpAmqpLib\\Connection\\AbstractConnection $connection', 'string $queue', 'array $amqpMessageProperties = []', 'int $refreshInterval = 0', 'string $consumerTag = "hermes"', 'bool $durable = true']];
