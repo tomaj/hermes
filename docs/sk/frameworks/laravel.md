@@ -1,14 +1,14 @@
 ---
 title: "Hermes v Laraveli"
-description: "Používajte Hermes v Laraveli 11 a 12: service provider, config/hermes.php, príkaz workera v Artisane, PSR-3 logovanie, hermes:restart a testy so zamockovaným EmitterInterface."
+description: "Používajte Hermes v Laraveli 11, 12 a 13: service provider, config/hermes.php, príkaz workera v Artisane, PSR-3 logovanie, hermes:restart a testy so zamockovaným EmitterInterface."
 howto:
   totalTime: PT20M
-  tools: [PHP 8.4, Composer, Laravel 11 alebo 12, Redis alebo RabbitMQ alebo SQS]
+  tools: [PHP 8.4, Composer, Laravel 11, 12 alebo 13, Redis alebo RabbitMQ alebo SQS]
 ---
 
 # Laravel
 
-Táto stránka pridá Hermes do nového projektu v Laraveli 11 alebo 12. Controller vloží `user.registered` a `php artisan hermes:work` ju spracuje. Najprv si prečítajte [Integráciu do frameworkov](/sk/frameworks/), kde sú časti spoločné pre všetky frameworky.
+Táto stránka pridá Hermes do nového projektu v Laraveli 11, 12 alebo 13. Controller vloží `user.registered` a `php artisan hermes:work` ju spracuje. Najprv si prečítajte [Integráciu do frameworkov](/sk/frameworks/), kde sú časti spoločné pre všetky frameworky.
 
 <ProjectSource name="frameworks/laravel" :files="['app/Providers/HermesServiceProvider.php', 'config/hermes.php', 'app/Console/Commands/HermesWorkCommand.php', 'app/Http/Controllers/UserController.php']" />
 
@@ -69,7 +69,7 @@ Provider ho vytvára cez `$app->make()`, takže jeho konštruktor si môže vyp�
 
 ## 6. Spustite workera
 
-Laravel 11 a 12 registrujú každý príkaz v `app/Console/Commands`.
+Laravel 11, 12 a 13 registrujú každý príkaz v `app/Console/Commands`.
 
 <<< @/../examples/frameworks/laravel/app/Console/Commands/HermesWorkCommand.php{php} [app/Console/Commands/HermesWorkCommand.php]
 
@@ -114,7 +114,7 @@ $this->app->when(Dispatcher::class)->needs(Randomizer::class)->give(fn () => nul
 
 ## Celý zdrojový kód
 
-Všetky súbory, s `install.sh`, `e2e.sh` a programom pre Supervisor, sú v [`examples/frameworks/laravel` na GitHube](https://github.com/tomaj/hermes/tree/master/examples/frameworks/laravel). Overené s Laravelom 11.57.0 a 12.70.0 na PHP 8.4, so všetkými drivermi.
+Všetky súbory, s `install.sh`, `e2e.sh` a programom pre Supervisor, sú v [`examples/frameworks/laravel` na GitHube](https://github.com/tomaj/hermes/tree/master/examples/frameworks/laravel). Overené s Laravelom 11.57.0, 12.70.0 a 13.38.0 na PHP 8.4, so všetkými drivermi.
 
 ## Časté otázky
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copy this integration into a Laravel 11 or 12 project: ./install.sh /path/to/project
+# Copy this integration into a Laravel 11, 12 or 13 project: ./install.sh /path/to/project
 set -euo pipefail
 src="$(cd "$(dirname "$0")" && pwd)"
 app="${1:?usage: $0 /path/to/laravel-project}"

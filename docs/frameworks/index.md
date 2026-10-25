@@ -8,7 +8,7 @@ description: "Wire Hermes into Nette, Laravel, or Symfony: one driver from confi
 Hermes has no framework bundle, and it does not need one. Its classes take their dependencies in the constructor, so any container can build them. The pages here show the same small integration in three frameworks:
 
 - [Nette 3.2](/frameworks/nette): services in a NEON file, Tracy as the PSR-3 logger, [contributte/console](https://github.com/contributte/console) for the worker command.
-- [Laravel 11 and 12](/frameworks/laravel): a service provider, `config/hermes.php`, and Artisan commands.
+- [Laravel 11, 12 and 13](/frameworks/laravel): a service provider, `config/hermes.php`, and Artisan commands.
 - [Symfony 7.4](/frameworks/symfony): `services.yaml` with autowiring, Monolog, and Symfony Console commands.
 
 <Diagram name="frameworks-1" alt="A DriverFactory builds one driver from config. The container gives EmitterInterface to controllers and commands, which send messages to Redis, RabbitMQ, or SQS. The hermes:work command gets DispatcherInterface, waits for messages and runs the registered handlers." />
@@ -56,7 +56,7 @@ The Laravel provider builds the dispatcher with `new Dispatcher(...)`, so it is 
 | Framework | Versions | Drivers | Also checked |
 |---|---|---|---|
 | Nette | nette/web-project, nette/application 3.3.0, nette/di 3.2.6, contributte/console 0.11.0 | ext-redis, Predis 3.7, RabbitMQ (php-amqplib 3.7.5), SQS on moto | POST to the presenter, the PHPUnit test, Supervisor |
-| Laravel | 11.57.0 and 12.70.0 | the same four | feature tests, Supervisor |
+| Laravel | 11.57.0, 12.70.0 and 13.38.0 | the same four | feature tests, Supervisor |
 | Symfony | 7.4.21, monolog-bundle 4.1.0 | the same four | POST to the controller, the WebTestCase test, Supervisor |
 
 PHP 8.4, Hermes `dev-master`. Each framework was also run on Hermes 5.0.0 and on the branches of [#103](https://github.com/tomaj/hermes/pull/103) and [#105](https://github.com/tomaj/hermes/pull/105).

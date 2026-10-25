@@ -8,7 +8,7 @@ description: "Zapojte Hermes do Nette, Laravelu alebo Symfony: jeden driver z ko
 Hermes nemá bundle pre framework a ani ho nepotrebuje. Jeho triedy dostávajú závislosti v konštruktore, takže ich vytvorí akýkoľvek kontajner. Stránky v tejto sekcii ukazujú tú istú malú integráciu v troch frameworkoch:
 
 - [Nette 3.2](/sk/frameworks/nette): služby v súbore NEON, Tracy ako PSR-3 logger, [contributte/console](https://github.com/contributte/console) pre príkaz workera.
-- [Laravel 11 a 12](/sk/frameworks/laravel): service provider, `config/hermes.php` a príkazy Artisan.
+- [Laravel 11, 12 a 13](/sk/frameworks/laravel): service provider, `config/hermes.php` a príkazy Artisan.
 - [Symfony 7.4](/sk/frameworks/symfony): `services.yaml` s autowiringom, Monolog a príkazy Symfony Console.
 
 <Diagram name="frameworks-1" alt="DriverFactory vytvorí jeden driver z konfigurácie. Kontajner dá EmitterInterface controllerom a príkazom, ktoré posielajú správy do Redisu, RabbitMQ alebo SQS. Príkaz hermes:work dostane DispatcherInterface, čaká na správy a spúšťa zaregistrované handlery." />
@@ -56,7 +56,7 @@ Provider pre Laravel vytvára dispatcher cez `new Dispatcher(...)`, takže sa ho
 | Framework | Verzie | Drivery | Ďalej overené |
 |---|---|---|---|
 | Nette | nette/web-project, nette/application 3.3.0, nette/di 3.2.6, contributte/console 0.11.0 | ext-redis, Predis 3.7, RabbitMQ (php-amqplib 3.7.5), SQS na moto | POST na presenter, PHPUnit test, Supervisor |
-| Laravel | 11.57.0 a 12.70.0 | tie isté štyri | feature testy, Supervisor |
+| Laravel | 11.57.0, 12.70.0 a 13.38.0 | tie isté štyri | feature testy, Supervisor |
 | Symfony | 7.4.21, monolog-bundle 4.1.0 | tie isté štyri | POST na controller, test WebTestCase, Supervisor |
 
 PHP 8.4, Hermes `dev-master`. Každý framework bol spustený aj na Hermese 5.0.0 a na vetvách [#103](https://github.com/tomaj/hermes/pull/103) a [#105](https://github.com/tomaj/hermes/pull/105).
