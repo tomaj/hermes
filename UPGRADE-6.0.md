@@ -306,6 +306,8 @@ Cannot unserialize message: invalid JSON (Syntax error) (11 bytes, sha256 846579
 Invalid message format: "message" needs type, id and created (22 bytes, sha256 689d9dd54d900a86)
 ```
 
+The text in parentheses after `invalid JSON` is PHP's own JSON error and depends on the PHP version: PHP 8.6 appends the position, for example `Syntax error near location 1:12`. Match the `JSON_ERROR_*` exception code rather than this text.
+
 `hash('sha256', $body)` on the stored message gives the same prefix, so you can still find it in the queue or a dead-letter queue. Invalid JSON keeps the `JsonException` as `getPrevious()`, and its code (`JSON_ERROR_*`) is the exception code. `serialize()` failures append the JSON error (`Cannot serialize message <id>: Type is not supported`).
 
 What to check: log searches or alerts that match `Cannot unserialize message from` or `Invalid message format in`. Match `Cannot unserialize message` and `Invalid message format` instead. A custom serializer is not affected.
