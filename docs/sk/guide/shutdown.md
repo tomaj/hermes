@@ -15,7 +15,7 @@ Objekt na ukončenie odovzdajte dispatcheru. Ak má driver `setShutdown()`, kon�
 $dispatcher = new Dispatcher($driver, $logger, $shutdown);
 ```
 
-Príklady volajú aj `$driver->setShutdown()` samy. To stačí na vlastnú kontrolu drivera. Kontrola v dispatcheri po každej správe beží len vtedy, keď objekt dostal aj dispatcher.
+Príklady volajú aj `$driver->setShutdown()` samy. To stačí na vlastnú kontrolu drivera. Driver, ktorý nepoužíva `ShutdownTrait`, namiesto toho zastaví dispatcher po každej správe, a to len vtedy, keď objekt dostal aj dispatcher.
 
 `ShutdownException` rozširuje `HermesException`. `handle()` ju zachytí, zaloguje `Exiting hermes dispatcher - shutdown` na úrovni `notice` a vráti sa. Akákoľvek iná `Exception`, ktorá unikne z `wait()`, sa zaloguje na úrovni `error` ako `Exiting hermes dispatcher - driver error: <class> - <message>`, odovzdá sa `Debugger::log($exception, Debugger::EXCEPTION)`, keď `Tracy\Debugger::isEnabled()` vráti true, a vyhodí sa znova, takže worker skončí s nenulovým kódom ([#113](https://github.com/tomaj/hermes/issues/113)). Hermes za vás `Debugger::enable()` nevolá.
 
@@ -23,12 +23,13 @@ Príklady volajú aj `$driver->setShutdown()` samy. To stačí na vlastnú kontr
 
 Keď je načítané `ext-pcntl`, `handle()` sa na `SIGTERM` a `SIGINT` čisto zastaví ([#116](https://github.com/tomaj/hermes/issues/116)). Je to vždy zapnuté; nie je čo konfigurovať.
 
-- Aktuálna správa sa dokončí: handler sa vráti, správa sa potvrdí (RabbitMQ) alebo zmaže (SQS) a potom sa vráti `handle()`.
+- Aktuálna správa sa dokončí: handler sa vráti, callback dispatchera vráti driveru jeho výsledok, správa sa potvrdí (RabbitMQ) alebo zmaže (SQS) a `handle()` sa vráti pri ďalšej kontrole ukončenia v driveri.
 - Nečinný worker sa zastaví pri najbližšej kontrole ukončenia v driveri: hneď pri intervale obnovy `0`, inak do jedného intervalu (predvolene jedna sekunda a na SQS jeden long poll). RabbitMQ blokuje počas svojho intervalu obnovy, pri `0` jednu sekundu.
 - `handle()` zaloguje `Exiting hermes dispatcher - received SIGTERM` (alebo `SIGINT`) na úrovni `notice` a normálne sa vráti, takže proces skončí so stavom 0.
 - Signály sa spracúvajú len v týchto bezpečných bodoch, nikdy uprostred kódu vášho handlera. Blokujúce volanie ako `sleep()` v handleri sa po príchode signálu aj tak vráti skôr, ako v každom PHP procese s obsluhou signálu.
 - Ďalšie `SIGTERM`/`SIGINT` počas spracovania správy nič nezmenia. `SIGKILL` stále ukončí proces okamžite, čo správcovia procesov posielajú po uplynutí stop timeoutu.
-- Signál zastaví len volanie `handle()`, počas ktorého prišiel. Ďalšie volanie `handle()` alebo priame použitie drivera potom beží normálne.
+- Signál zastaví len volanie `handle()`, počas ktorého prišiel. Ďalšie volanie `handle()` alebo priame použitie drivera potom beží normálne. Preto `handle()` nebaľte do `while (true)`: slučka by po `SIGTERM` spustila nové `handle()` a nikdy neskončila. Nechajte proces skončiť a nový nech spustí správca procesov.
+- Vlastný driver zachytí signál len vtedy, keď čaká cez `ShutdownTrait::checkShutdown()`. Driver bez tohto traitu alebo driver, ktorý blokuje bez jeho volania, čaká až do ďalšej správy alebo kým správca procesov nepošle `SIGKILL`. Pozrite [Rozširovanie](/sk/guide/extending).
 - Obsluhy signálov a nastavenie `pcntl_async_signals()`, ktoré platili pred `handle()`, sa obnovia, keď sa vráti alebo vyhodí výnimku. Konzoly frameworkov (Symfony, Laravel), ktoré si inštalujú vlastné obsluhy signálov, ich po `handle()` dostanú späť.
 
 Bez `ext-pcntl` (napríklad na Windows) sa nič nemení: signál ukončí proces predvolenou akciou. Objekt na ukončenie aj limit správ fungujú s ním aj bez neho. Stop timeout správcu procesov nastavte dlhší ako vaša najpomalšia správa; pozrite [Nasadenie do produkcie](/sk/guide/deployment).

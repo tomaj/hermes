@@ -9,7 +9,7 @@ Five types do the work. Everything else is a driver, a shutdown signal, or a ser
 
 <Diagram name="concepts-1" alt="A web request creates a Message, the Emitter passes it to the Driver and queue, and the Dispatcher hands it to the Handler" />
 
-A message is not a row with a status column. These names are the stages the code actually passes through. `Processing` starts only after the driver has already removed the payload from the broker.
+A message is not a row with a status column. These names are the stages the code actually passes through. On Redis and Predis `Processing` starts only after the driver has already removed the payload from the broker. RabbitMQ, SQS, Kafka and the filesystem driver keep it until the handler has finished, then acknowledge or delete it.
 
 <Diagram name="concepts-2" alt="Message states: emitted, scheduled or queued, processing, then done, failed, or retried as a copy" />
 
@@ -79,20 +79,21 @@ To emit only after a database transaction commits, wrap the emitter in `Buffered
 public function __construct(
     DriverInterface $driver,
     ?LoggerInterface $logger = null,
-    ?ShutdownInterface $shutdown = null
+    ?ShutdownInterface $shutdown = null,
+    ?Random\Randomizer $randomizer = null
 )
 
 public function handle(array $priorities = []): void
 ```
 
-`DEFAULT_PRIORITY` is `100`. There is no `PRIORITY_HIGH` constant. The commented call in `examples/redis/processor.php` refers to a constant the class does not have.
+`DEFAULT_PRIORITY` is `100`. There is no `PRIORITY_HIGH` constant: pass the integer you registered, for example `Dispatcher::DEFAULT_PRIORITY + 10`. `$randomizer` is the source of the retry jitter; see [Retry](/guide/retry#reproducible-retry-times).
 
 `handle()` calls `Driver::wait()`. The closure receives the message and the priority the driver found (defaulting to `100` when a driver omits it). For each message the dispatcher:
 
 1. Logs `Start handle message #<id> (<type>) priority:<n>` at `info`.
 2. Runs every handler registered for `$message->getType()`, in registration order.
-3. If a shutdown object was given and `shouldShutdown($startTime)` is true, throws `ShutdownException`.
-4. Returns the handler result to the driver. None of the built-in drivers read that boolean.
+3. If the driver does not use `ShutdownTrait` (a driver with its own `setShutdown()` counts as without it) and `SIGTERM`/`SIGINT` arrived or the shutdown object's `shouldShutdown($startTime)` is true, throws `ShutdownException`. A driver with the trait stops at its own `checkShutdown()` instead.
+4. Returns the handler result to the driver, also when a stop was requested during the message. None of the built-in drivers read that boolean.
 
 When no handler is registered for the type, `dispatch()` returns `true` and does not log `End handle message`. The message is already gone from the queue.
 

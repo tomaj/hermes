@@ -109,6 +109,8 @@ Use a policy, not queue arguments. The driver declares the queue without argumen
 
 The consume loop blocks until a delivery arrives instead of polling. `$refreshInterval` (the fourth constructor argument) is how long one wait blocks on an idle queue before the driver checks shutdown; `0`, the default, means one second. 5.x slept `$refreshInterval` seconds after every wait, so `0` spun a CPU core and `1` delayed every message by a second. No code change is needed. If you passed a value only to stop the CPU spin, you can drop it; a large value only makes an idle worker stop later.
 
+`setMaxProcessItems()` did nothing on `LazyRabbitMqDriver` in 5.x, because the driver never counted handled messages. Now the worker exits with status 0 after that many messages. If you call it, make sure your process manager restarts the worker after a normal exit.
+
 ### Amazon SQS: delete after handling
 
 `AmazonSqsDriver` deletes a message only after it was handled ([#69](https://github.com/tomaj/hermes/issues/69)). Set `VisibilityTimeout` above your slowest handler, or SQS delivers the message again while it is still being handled.
@@ -352,7 +354,9 @@ What to check:
 - If you installed your own `SIGTERM`/`SIGINT` handler, it does not run while `handle()` runs. It is restored when `handle()` returns. The same applies to framework console signal handling (Symfony `SignalableCommandInterface`, Laravel `trap()`).
 - A `sleep()` in a handler returns early when a signal arrives.
 - `pcntl_async_signals()` is switched off while `handle()` runs and restored after it.
-- A signal stops only the `handle()` call it arrived in; a later `handle()` call, or a driver used directly afterwards in the same process, runs normally.
+- A signal stops only the `handle()` call it arrived in; a later `handle()` call, or a driver used directly afterwards in the same process, runs normally. A bootstrap that calls `handle()` in a `while (true)` loop therefore never stops on `SIGTERM`: let `handle()` return and end the process instead.
+- **Custom drivers** see the signal only when their `wait()` loop calls `checkShutdown()` from `ShutdownTrait`. Signals are dispatched synchronously at that check (and, for a driver without the trait, after each message), so a custom driver without the trait, or one that blocks without calling it, ignores `SIGTERM` while the queue is empty and is killed only by the process manager's `SIGKILL`. In 5.x the signal killed it at once. Use `ShutdownTrait` and call `$this->checkShutdown()` in every iteration, with blocking calls of a second or so (see [Extending](docs/guide/extending.md)).
+- **A driver with `ShutdownTrait` gets the result before a stop.** In 5.x the dispatcher callback threw `ShutdownException` after the message when the shutdown object asked to stop, so a driver never got the handler's result for that message. Now, for a driver that uses `ShutdownTrait`, the callback returns the result and the driver stops at its own `checkShutdown()`. Any other driver, also one with its own `setShutdown()`, still gets `ShutdownException` after the message, as in 5.x. A custom driver that has the trait but never calls `checkShutdown()` no longer stops on the shutdown object: call it in every iteration.
 
 ## Priorities stay plain integers
 
@@ -370,7 +374,7 @@ The value is the same.
 - The integer is the ordering key. The Redis drivers poll from the highest number down ([#50](https://github.com/tomaj/hermes/issues/50)). A value object would only wrap that integer.
 - Changing the parameter type of the driver interface would break every custom driver and every call site, with no new safety. An unknown priority still has to be checked at runtime, because it depends on what was registered.
 
-The runtime check stays: on the Redis and Predis drivers, sending with a priority that was not registered throws `UnknownPriorityException`, and so does `wait()` (and `Dispatcher::handle()`) when its priority list contains one; 5.x skipped it silently. The RabbitMQ, SQS and Kafka drivers have no priority queues and ignore the priority argument of `send()` and the priority list of `wait()`: `Dispatcher::handle([200])` on them consumes every message in the queue, not only priority `200`, and throws nothing. Run one queue per priority if you need lanes. To name your priorities, use your own typed constants:
+The runtime check stays: on the Redis and Predis drivers, sending with a priority that was not registered throws `UnknownPriorityException`, and so does `wait()` (and `Dispatcher::handle()`) when its priority list contains one; 5.x skipped it silently. `Dispatcher::handle()` casts integer strings such as `'110'` from argv to `int` and rejects other strings with `InvalidArgumentException`; a direct `$driver->wait($callback, ['110'])` needs integers, because the drivers check priorities as `int`. The RabbitMQ, SQS and Kafka drivers have no priority queues and ignore the priority argument of `send()` and the priority list of `wait()`: `Dispatcher::handle([200])` on them consumes every message in the queue, not only priority `200`, and throws nothing. Run one queue per priority if you need lanes. To name your priorities, use your own typed constants:
 
 ```php
 final class Priority

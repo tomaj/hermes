@@ -25,4 +25,4 @@ $dispatcher = new Dispatcher($driver);
 $dispatcher->registerHandler('type1', new EchoHandler());
 
 $dispatcher->handle();
-//$dispatcher->handle([Dispatcher::PRIORITY_HIGH]);
+// only one priority: $dispatcher->handle([Dispatcher::DEFAULT_PRIORITY]);

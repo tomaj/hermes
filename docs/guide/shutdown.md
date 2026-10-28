@@ -15,7 +15,7 @@ Pass the shutdown object to the dispatcher. If the driver has `setShutdown()`, t
 $dispatcher = new Dispatcher($driver, $logger, $shutdown);
 ```
 
-The examples also call `$driver->setShutdown()` themselves. That is enough for the driver's own check. The dispatcher check after each message runs only when the dispatcher was given the object too.
+The examples also call `$driver->setShutdown()` themselves. That is enough for the driver's own check. A driver that does not use `ShutdownTrait` is stopped by the dispatcher after each message instead, and only when the dispatcher was given the object.
 
 `ShutdownException` extends `HermesException`. `handle()` catches it, logs `Exiting hermes dispatcher - shutdown` at `notice`, and returns. Any other `Exception` that escapes `wait()` is logged at `error` as `Exiting hermes dispatcher - driver error: <class> - <message>`, passed to `Debugger::log($exception, Debugger::EXCEPTION)` when `Tracy\Debugger::isEnabled()` is true, and rethrown, so the worker exits non-zero ([#113](https://github.com/tomaj/hermes/issues/113)). Hermes does not call `Debugger::enable()` for you.
 
@@ -23,12 +23,13 @@ The examples also call `$driver->setShutdown()` themselves. That is enough for t
 
 With `ext-pcntl` loaded, `handle()` stops gracefully on `SIGTERM` and `SIGINT` ([#116](https://github.com/tomaj/hermes/issues/116)). It is always on; there is nothing to configure.
 
-- The current message finishes: the handler returns, the message is acknowledged (RabbitMQ) or deleted (SQS), then `handle()` returns.
+- The current message finishes: the handler returns, the dispatcher callback returns its result to the driver, the message is acknowledged (RabbitMQ) or deleted (SQS), then `handle()` returns at the driver's next shutdown check.
 - An idle worker stops at the driver's next shutdown check: right away with a refresh interval of `0`, otherwise within one interval (one second by default, and one long poll on SQS). RabbitMQ blocks for its refresh interval, one second when it is `0`.
 - `handle()` logs `Exiting hermes dispatcher - received SIGTERM` (or `SIGINT`) at `notice` and returns normally, so the process exits with status 0.
 - Signals are dispatched only at those safe points, never in the middle of your handler code. A blocking call such as `sleep()` in a handler still returns early when the signal arrives, as it does in any PHP process with a signal handler.
 - Further `SIGTERM`/`SIGINT` while the message runs change nothing. `SIGKILL` still ends the process at once, which is what process managers send after their stop timeout.
-- A signal stops only the `handle()` call it arrived in. Calling `handle()` again, or using the driver directly afterwards, runs normally.
+- A signal stops only the `handle()` call it arrived in. Calling `handle()` again, or using the driver directly afterwards, runs normally. So do not wrap `handle()` in `while (true)`: the loop would start a new `handle()` after `SIGTERM` and never exit. Let the process end and the process manager start a new one.
+- A custom driver notices a signal only while it waits through `ShutdownTrait::checkShutdown()`. A driver without the trait, or one that blocks without calling it, keeps waiting until the next message or until the process manager sends `SIGKILL`. See [Extending](/guide/extending).
 - The handlers and the `pcntl_async_signals()` setting that were active before `handle()` come back when it returns or throws. Framework consoles (Symfony, Laravel) that install their own signal handlers get them back after `handle()`.
 
 Without `ext-pcntl` (for example on Windows) nothing changes: a signal ends the process with its default action. A shutdown object and max items work with or without it. Set the process manager's stop timeout longer than your slowest message; see [Production deployment](/guide/deployment).

@@ -15,7 +15,7 @@ Začnite návodom. Vysvetľuje každý krok a ostatné recepty stavajú na jeho 
 | [Faktúra v PDF](/sk/examples/invoice-pdf) | Predis | Idempotentný handler, ktorý zapisuje súbory |
 | [Webhooky s opakovaním](/sk/examples/webhooks) | Predis | Podpísané požiadavky, ktoré zlyhania opakovať, oneskorenie |
 | [Import CSV po častiach](/sk/examples/csv-import) | Predis | Rozdelenie veľkej úlohy na bezpečné paralelné časti |
-| [Náhľady obrázkov](/sk/examples/thumbnails) | RabbitMQ | Čo sa mení na brokeri bez oneskorenia a potvrdzovania |
+| [Náhľady obrázkov](/sk/examples/thumbnails) | RabbitMQ | Čo sa mení na brokeri bez oneskorenia a s potvrdzovaním po handleri |
 | [Odložená pripomienka](/sk/examples/reminder) | Predis | `executeAt` a kontrola stavu v čase spustenia správy |
 | [Prioritné fronty](/sk/examples/priority) | Predis | Poradie priorít a worker len pre urgentnú prácu |
 

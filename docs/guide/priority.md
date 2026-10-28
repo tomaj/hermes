@@ -52,7 +52,7 @@ Up to 5.x the drivers used `array_reverse($this->queues, true)`, which polls in 
 $dispatcher->handle([Dispatcher::DEFAULT_PRIORITY + 10]);
 ```
 
-The list is integers. `in_array($priority, $priorities)` decides. An empty list polls every registered queue, highest number first.
+The list is integers. `Dispatcher::handle()` casts integer strings such as `'110'` from argv or a console option to `int` (any other string throws `InvalidArgumentException`), and the Redis drivers then compare strictly (`in_array($priority, $priorities, true)`). A driver called directly through `wait()` gets no cast, so pass integers there. An empty list polls every registered queue, highest number first.
 
 Run three CLI processes if you want to scale priorities separately:
 

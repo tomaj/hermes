@@ -52,7 +52,7 @@ Do verzie 5.x drivery používali `array_reverse($this->queues, true)`, čo čí
 $dispatcher->handle([Dispatcher::DEFAULT_PRIORITY + 10]);
 ```
 
-Zoznam obsahuje celé čísla. Rozhoduje `in_array($priority, $priorities)`. Prázdny zoznam číta všetky zaregistrované fronty, od najvyššieho čísla.
+Zoznam obsahuje celé čísla. `Dispatcher::handle()` pretypuje celočíselné reťazce ako `'110'` z argv alebo z voľby konzolového príkazu na `int` (iný reťazec vyhodí `InvalidArgumentException`) a Redis drivery potom porovnávajú striktne (`in_array($priority, $priorities, true)`). Driver volaný priamo cez `wait()` pretypovanie nedostane, tam odovzdajte celé čísla. Prázdny zoznam číta všetky zaregistrované fronty, od najvyššieho čísla.
 
 Ak chcete priority škálovať samostatne, spustite tri CLI procesy:
 

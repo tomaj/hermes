@@ -27,7 +27,7 @@ RabbitMQ, SQS and Kafka do not implement priority. `setupPriorityQueue()` throws
 
 ## I returned `false` and the message disappeared
 
-The driver had already removed it. `false` does not requeue. An exception sends a retry copy only when the handler implements `RetryableHandlerInterface`, `getRetries() < maxRetry()` and `canRetry()` returns `true`. A 5.x handler with `canRetry()` and `maxRetry()` but without the interface is retried while `getRetries() < maxRetry()` ([deprecated](/guide/retry#handlers-without-the-interface-deprecated)).
+The return value is not checked: the Redis drivers removed the message before the handler ran, and RabbitMQ, SQS, Kafka and the filesystem driver acknowledge or delete it once `handle()` returns, `true` or `false`. `false` does not requeue. An exception sends a retry copy only when the handler implements `RetryableHandlerInterface`, `getRetries() < maxRetry()` and `canRetry()` returns `true`. A 5.x handler with `canRetry()` and `maxRetry()` but without the interface is retried while `getRetries() < maxRetry()` ([deprecated](/guide/retry#handlers-without-the-interface-deprecated)).
 
 ## `canRetry()` returns `false` and it still retries
 
@@ -39,7 +39,7 @@ The handler named in the message has `canRetry()` and `maxRetry()` (its own or f
 
 ## There is no `Dispatcher::PRIORITY_HIGH`
 
-The only priority constant is `DEFAULT_PRIORITY = 100`. The comment in `examples/redis/processor.php` that mentions `PRIORITY_HIGH` does not match the class. Pass the integer you registered, for example `Dispatcher::DEFAULT_PRIORITY + 10`.
+The only priority constant is `DEFAULT_PRIORITY = 100`. Pass the integer you registered, for example `Dispatcher::DEFAULT_PRIORITY + 10`.
 
 ## How do I run the tests?
 
