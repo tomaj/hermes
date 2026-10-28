@@ -6,11 +6,13 @@ namespace Tomaj\Hermes;
 
 use DateTimeImmutable;
 use Exception;
+use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Random\Randomizer;
 use Throwable;
 use Tomaj\Hermes\Driver\DriverInterface;
+use Tomaj\Hermes\Driver\ShutdownTrait;
 use Tomaj\Hermes\Handler\HandlerInterface;
 use Tomaj\Hermes\Handler\RetryableHandlerInterface;
 use Tomaj\Hermes\Shutdown\ShutdownException;
@@ -46,6 +48,12 @@ final class Dispatcher implements DispatcherInterface
     private bool $deprecatedEmitReported = false;
 
     /**
+     * The driver uses ShutdownTrait: it stops at its own checkShutdown(), so the dispatcher never throws from the callback.
+     * A driver with its own setShutdown() is stopped after the message, as in 5.x.
+     */
+    private readonly bool $driverStopsItself;
+
+    /**
      * Create new Dispatcher
      *
      * @param Randomizer|null $randomizer Source of the retry jitter. Pass one with a seeded engine
@@ -61,6 +69,7 @@ final class Dispatcher implements DispatcherInterface
         $this->startTime = new DateTimeImmutable();
 
         // check if driver use ShutdownTrait
+        $this->driverStopsItself = $this->usesShutdownTrait($this->driver);
         if ($this->shutdown instanceof ShutdownInterface && method_exists($this->driver, 'setShutdown')) {
             $this->driver->setShutdown($this->shutdown);
         }
@@ -100,13 +109,15 @@ final class Dispatcher implements DispatcherInterface
      *
      * An Exception from the driver is logged at error and rethrown, so the worker exits non-zero.
      *
-     * @param int[] $priorities
+     * @param array<int|string> $priorities
      *
      * @throws Exception
      */
     #[\Override]
     public function handle(array $priorities = []): void
     {
+        // the drivers compare priorities strictly; '110' from argv must still select priority 110
+        $priorities = array_map($this->priority(...), $priorities);
         // stop after the current message on SIGTERM / SIGINT; the previous handlers come back when this returns
         $signals = SignalStop::install();
         try {
@@ -119,7 +130,9 @@ final class Dispatcher implements DispatcherInterface
 
                 $result = $this->dispatch($message);
 
-                if (SignalStop::received() !== null || ($this->shutdown instanceof ShutdownInterface && $this->shutdown->shouldShutdown($this->startTime))) {
+                // A driver with ShutdownTrait gets the result and stops at its next checkShutdown().
+                // Any other driver has no check of its own, so stop it after the message, as in 5.x.
+                if (!$this->driverStopsItself && $this->shouldStop()) {
                     throw new ShutdownException('Shutdown');
                 }
 
@@ -147,6 +160,42 @@ final class Dispatcher implements DispatcherInterface
         if (class_exists(Debugger::class) && Debugger::isEnabled()) {
             Debugger::log($exception, Debugger::EXCEPTION);
         }
+    }
+
+    /**
+     * @throws InvalidArgumentException when the priority is not an integer or an integer string
+     */
+    private function priority(mixed $priority): int
+    {
+        if (is_int($priority)) {
+            return $priority;
+        }
+        if (!is_string($priority) || preg_match('/^-?\d+$/', $priority) !== 1) {
+            $given = is_string($priority) ? "'{$priority}'" : get_debug_type($priority);
+            throw new InvalidArgumentException("Priority must be an integer, {$given} given");
+        }
+
+        return (int) $priority;
+    }
+
+    /**
+     * Only ShutdownTrait checks SignalStop; a driver with its own setShutdown() may not, so it is stopped after the message.
+     */
+    private function usesShutdownTrait(DriverInterface $driver): bool
+    {
+        for ($class = $driver::class; $class !== false; $class = get_parent_class($class)) {
+            if (in_array(ShutdownTrait::class, class_uses($class), true)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function shouldStop(): bool
+    {
+        return SignalStop::received() !== null
+            || ($this->shutdown instanceof ShutdownInterface && $this->shutdown->shouldShutdown($this->startTime));
     }
 
     private function shutdownReason(): string
@@ -232,14 +281,26 @@ final class Dispatcher implements DispatcherInterface
             return;
         }
 
-        $this->driver->send(new Message(
-            $message->getType(),
-            $message->getPayload(),
-            $message->getId(),
-            $message->getCreated(),
-            $this->nextRetry($message),
-            $message->getRetries() + 1,
-        ));
+        try {
+            $this->driver->send(new Message(
+                $message->getType(),
+                $message->getPayload(),
+                $message->getId(),
+                $message->getCreated(),
+                $this->nextRetry($message),
+                $message->getRetries() + 1,
+            ));
+        } catch (Throwable $sendException) {
+            // Rethrown: drivers that acknowledge after the callback deliver the message again, the Redis
+            // drivers have already removed it. Log it here so the lost retry is visible.
+            $this->log(
+                LogLevel::ERROR,
+                "Retry of message #{$message->getId()} ({$message->getType()}) lost - driver send failed: "
+                . $sendException::class . " - {$sendException->getMessage()}",
+                ['message' => $this->messageLoggerContext($message), 'exception' => $sendException],
+            );
+            throw $sendException;
+        }
     }
 
     /**

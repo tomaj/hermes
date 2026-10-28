@@ -36,6 +36,7 @@ Ak emitter a dispatcher bežia v rôznych procesoch, dajte každému vlastnú in
 | `Dispatcher` po návrate handlera | `info` | `End handle message #<id> (<type>)` |
 | `Dispatcher`, keď handler vyhodí výnimku | `error` | `Handler <class> throws exception - <exception message>` |
 | `Dispatcher`, keď sa handler bez `RetryableHandlerInterface` opakuje podľa pravidla z 5.x (zastarané), raz za triedu | `warning` | `Handler <class> defines canRetry() and maxRetry() without implementing …RetryableHandlerInterface. …` |
+| `Dispatcher`, keď `send()` kópie na opakovanie vyhodí výnimku, pred jej vyhodením ako chyby drivera | `error` | `Retry of message #<id> (<type>) lost - driver send failed: <class> - <exception message>` |
 | `Dispatcher` po `SIGTERM` / `SIGINT` (ext-pcntl) | `notice` | `Exiting hermes dispatcher - received SIGTERM` (alebo `SIGINT`) |
 | `Dispatcher` pri `ShutdownException` | `notice` | `Exiting hermes dispatcher - shutdown` |
 | `Dispatcher`, keď driver vyhodí výnimku, pred jej opätovným vyhodením | `error` | `Exiting hermes dispatcher - driver error: <class> - <exception message>` |

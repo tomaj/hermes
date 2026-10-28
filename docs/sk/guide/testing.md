@@ -50,7 +50,7 @@ Spustí PHPUnit s `XDEBUG_MODE=coverage`. Reporty:
 - HTML: `build/coverage/index.html`
 - Clover: `build/logs/clover.xml`
 
-CI spúšťa PHPUnit na PHP 8.4, PHP 8.4 s `--prefer-lowest` a PHP 8.5. Brána 65 % pokrytia príkazov beží v jobe PHP 8.4. Ten pri pushi do `master` nahráva aj artefakt `coverage-report`.
+CI spúšťa PHPUnit aj s integračnými testami proti skutočným brokerom na PHP 8.4, PHP 8.4 s `--prefer-lowest`, PHP 8.5 a na nočnom builde PHP 8.6, ktorý môže zlyhať bez zlyhania workflowu. Brána 95 % pokrytia príkazov beží v jobe PHP 8.5, ktorý pokrytie nahráva aj do Coveralls. Ten pri pushi do `master` nahráva aj artefakt `coverage-report`.
 
 Mutačné testovanie používa [Infection](https://infection.github.io/) s `infection.json5`. Zlyhá, keď je MSI pod 85 % alebo MSI pokrytého kódu pod 90 %:
 
@@ -72,7 +72,8 @@ Testy driverov, ktoré by potrebovali server, mockujú klienta (`Redis`, `Predis
 
 | Workflow | Kedy |
 | --- | --- |
-| CI | push a pull request: PHPUnit na PHP 8.4, 8.4 lowest a 8.5, štýl kódu, PHPStan level max, `composer audit` a Infection |
+| CI | push a pull request: PHPUnit s integračnými testami na PHP 8.4, 8.4 lowest, 8.5 a 8.6 (nočný build), štýl kódu, PHPStan level max, Rector, `composer audit` a Infection |
+| Examples | end-to-end skripty príkladov proti tomuto checkoutu |
 | CodeQL Security Analysis | push a pull request do `master` a raz týždenne |
 | OpenSSF Scorecard | push a pull request do `master`, zmeny ochrany vetvy a raz týždenne |
 | Deploy Documentation | kontroly diagramov, odkazov a SVG pri pull requestoch a pushoch; nasadenie Pages po úspešnom CI na `master` |
@@ -89,7 +90,7 @@ Nie. Je v `tests/` tohto repozitára. Prevezmite myšlienku, `DriverInterface` v
 
 ### Potrebujú testy Hermesu Redis alebo RabbitMQ?
 
-Nie. Testy driverov mockujú klientov, takže `composer phpunit` beží bez akéhokoľvek servera.
+Unit testy nie: mockujú klientov, takže `composer phpunit` beží bez akéhokoľvek servera a integračné testy preskočí. `composer test:integration` ich spustí proti brokerom z `compose.yaml` (`docker compose up -d --wait`).
 
 ### Existuje skript `composer test`?
 

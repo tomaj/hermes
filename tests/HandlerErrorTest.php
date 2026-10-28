@@ -8,6 +8,7 @@ use Closure;
 use Error;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LogLevel;
+use RuntimeException;
 use Tomaj\Hermes\Dispatcher;
 use Tomaj\Hermes\Driver\DriverInterface;
 use Tomaj\Hermes\Handler\HandlerInterface;
@@ -92,5 +93,50 @@ class HandlerErrorTest extends TestCase
         self::assertCount(1, $errors);
         self::assertSame('Handler ' . $failing::class . ' throws exception - Argument #1 must be of type int, string given', $errors[0]['message']);
         self::assertInstanceOf(Error::class, $errors[0]['context']['exception']);
+    }
+
+    public function testFailedRetrySendIsLoggedAndRethrown(): void
+    {
+        $driver = new class implements DriverInterface {
+            #[\Override]
+            public function send(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): bool
+            {
+                throw new RuntimeException('connection lost');
+            }
+
+            #[\Override]
+            public function setupPriorityQueue(string $name, int $priority): void {}
+
+            #[\Override]
+            public function wait(Closure $callback, array $priorities = []): void
+            {
+                $callback(new Message('job', [], 'first'));
+            }
+        };
+        $failing = new class implements HandlerInterface {
+            use RetryTrait;
+
+            #[\Override]
+            public function handle(MessageInterface $message): bool
+            {
+                throw new TypeError('handler failed');
+            }
+        };
+        $logger = new TestLogger();
+        $dispatcher = new Dispatcher($driver, $logger);
+        $dispatcher->registerHandler('job', $failing);
+
+        try {
+            $dispatcher->handle();
+            self::fail('the send error must leave handle()');
+        } catch (RuntimeException $e) {
+            self::assertSame('connection lost', $e->getMessage());
+        }
+
+        $errors = array_values(array_filter($logger->getLogs(), static fn(array $log): bool => $log['level'] === LogLevel::ERROR));
+        self::assertCount(3, $errors);
+        self::assertSame('Handler ' . $failing::class . ' throws exception - handler failed', $errors[0]['message']);
+        self::assertSame('Retry of message #first (job) lost - driver send failed: RuntimeException - connection lost', $errors[1]['message']);
+        self::assertSame('Exiting hermes dispatcher - driver error: RuntimeException - connection lost', $errors[2]['message']);
     }
 }
