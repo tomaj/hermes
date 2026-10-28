@@ -87,9 +87,13 @@ Volajte `$callback($message, $priority)`. Dispatcher toto číslo zaloguje. Ak h
 
 `SerializerAwareTrait` vám dá `setSerializer()`. Vstavané drivery ho používajú a `MessageSerializer` si vytvárajú samy. Urobte to isté, ak má váš driver prijať náhradu.
 
-`MaxItemsTrait` a `ShutdownTrait` sú voliteľné. Použite ich, ak `wait()` beží v slučke. `Dispatcher` zavolá `setShutdown()`, len keď metóda existuje.
+`MaxItemsTrait` a `ShutdownTrait` sú voliteľné, ale ak `wait()` beží v slučke, použite ich. `Dispatcher` zavolá `setShutdown()`, len keď metóda existuje.
+
+V každej iterácii slučky, aj keď je fronta prázdna, volajte `$this->checkShutdown()` zo `ShutdownTrait` a blokujúce volania držte krátke (približne sekundu). Od 6.0 sa `SIGTERM` a `SIGINT` doručia len pri týchto kontrolách ([ukončenie](/sk/guide/shutdown#sigterm-a-sigint)). Driver, ktorý čaká bez volania `checkShutdown()`, signál počas nečinnosti ignoruje: v 5.x ho signál ukončil hneď, v 6.0 čaká, kým správca procesov nepošle `SIGKILL`.
 
 Ak správu odstraňujete pred callbackom, zdokumentujte to, pretože Redis drivery to robia a volajúci predpokladajú, že pád doručenie stratí. `LazyRabbitMqDriver`, `AmazonSqsDriver`, `KafkaDriver` a `FileSystemDriver` ju odstránia až po tom, čo sa callback vráti bez výnimky. Ak ju odstránite až po vrátení `true`, ste prísnejší ako vstavané drivery. Dispatcher návratovú hodnotu na ceste späť stále ignoruje, takže váš driver si musí návratovú hodnotu callbacku prečítať sám. Vstavané drivery to nerobia.
+
+So `ShutdownTrait` callback vždy vráti výsledok správy, aj keď počas nej prišla žiadosť o ukončenie, a váš driver skončí pri ďalšom `checkShutdown()`. Bez traitu vás dispatcher nemá ako inak zastaviť, takže po spracovaní správy vyhodí z callbacku `ShutdownException` ako v 5.x; výsledok tejto správy sa potom stratí. Ak váš driver výsledok číta, použite trait.
 
 ## Handler
 

@@ -84,7 +84,7 @@ $dispatcher->registerHandler('send-email', new EchoHandler());
 $dispatcher->handle();
 ```
 
-`handle()` does not return until the driver stops the loop (shutdown, max items, or a driver error). Do not call it from a web request. The docblock on `Dispatcher::handle()` says the same thing.
+`handle()` does not return until a shutdown request, `SIGTERM` or `SIGINT` (with `ext-pcntl`), or max items stops the loop. A driver error is logged and rethrown, so the script exits non-zero. Do not call it from a web request. The docblock on `Dispatcher::handle()` says the same thing.
 
 <img class="theme-img only-light" src="/illustrations/terminal-light.svg" alt="Terminal showing EchoHandler output" />
 <img class="theme-img only-dark" src="/illustrations/terminal-dark.svg" alt="" />
@@ -152,7 +152,7 @@ Use `PredisSetDriver` if you cannot install a PHP extension, or `RedisSetDriver`
 
 ### Can I call `handle()` from a web request?
 
-No. `handle()` blocks until shutdown, max items, or a driver error. Run it in a separate CLI process under a process manager. See [Production deployment](/guide/deployment).
+No. `handle()` blocks until a shutdown request, a signal, or max items, or until a driver error is thrown. Run it in a separate CLI process under a process manager. See [Production deployment](/guide/deployment).
 
 ### What should a handler return?
 

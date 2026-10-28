@@ -39,7 +39,10 @@ interface DispatcherInterface
     /**
      * Basic method for background job to star listening.
      *
-     * @param int[] $priorities
+     * @param array<int|string> $priorities Priorities to process, all when empty. Numeric strings
+     *                                              (from argv or console options) are cast to int.
+     *
+     * @throws \InvalidArgumentException when a priority is a string that is not an integer
      */
     public function handle(array $priorities = []): void;
 }

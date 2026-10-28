@@ -87,9 +87,13 @@ Call `$callback($message, $priority)`. The dispatcher logs that integer. If you 
 
 `SerializerAwareTrait` gives you `setSerializer()`. The built-in drivers `use` it and construct a `MessageSerializer` themselves. Copy that if your driver should accept a replacement.
 
-`MaxItemsTrait` and `ShutdownTrait` are optional. Use them if `wait()` loops. `Dispatcher` will call `setShutdown()` only when the method exists.
+`MaxItemsTrait` and `ShutdownTrait` are optional, but use them if `wait()` loops. `Dispatcher` will call `setShutdown()` only when the method exists.
+
+Call `$this->checkShutdown()` from `ShutdownTrait` in every iteration of the loop, also while the queue is empty, and keep each blocking call short (a second or so). From 6.0 `SIGTERM` and `SIGINT` are delivered only at these checks ([shutdown](/guide/shutdown#sigterm-and-sigint)). A driver that waits without calling `checkShutdown()` ignores the signal while idle: in 5.x the signal killed it at once, in 6.0 it keeps waiting until the process manager sends `SIGKILL`.
 
 If you remove the message before the callback, document that, because the Redis drivers do and callers assume a crash loses the delivery. `LazyRabbitMqDriver`, `AmazonSqsDriver`, `KafkaDriver` and `FileSystemDriver` remove it only after the callback returns without an exception. If you remove it only after a `true` return, you are stricter than the built-in drivers. The dispatcher still ignores the boolean on the way back, so your driver has to read the callback's return value itself. The built-in drivers do not.
+
+With `ShutdownTrait` the callback always returns the result of the message, also when a stop was requested while it ran, and your driver stops at its next `checkShutdown()`. Without the trait the dispatcher has no other way to stop you, so it throws `ShutdownException` from the callback after the message was handled, as in 5.x; the result of that message is then lost. Use the trait if your driver reads the result.
 
 ## A handler
 

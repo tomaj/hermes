@@ -62,6 +62,8 @@ The new message keeps the original id, type, payload, and `created`. `retries` b
 
 The copy is one `send()`. On Redis and Predis that `executeAt` parks the copy in the sorted set; `FileSystemDriver` leaves the file in `new/` until it is due. On RabbitMQ, SQS and Kafka the publish is immediate, so the backoff number is stored and not waited on.
 
+When that `send()` throws, for example because Redis is briefly unreachable, the dispatcher logs `Retry of message #<id> (<type>) lost - driver send failed: …` at `error` and rethrows the exception, so it ends `handle()` as a driver error. RabbitMQ, SQS, Kafka and FileSystem then deliver the original message again; the Redis drivers have already removed it, so the log line is the only trace of the lost retry.
+
 <Diagram name="retry-2" alt="Sequence of a retry: the dispatcher sends a copy with retries plus one, Redis schedules it, RabbitMQ, SQS and Kafka publish it at once" />
 
 ## The delay
@@ -97,11 +99,12 @@ $dispatcher = new Dispatcher($driver, $logger, null, new Randomizer(new Mt19937(
 
 Keep the default in production. Workers started with the same seed compute the same delays, so when an outage makes them all fail at once, their retries come back together on Redis and Predis. RabbitMQ, SQS and Kafka ignore `executeAt`, so the jitter does not spread their retries in any case. `mt_srand()` does not affect the jitter any more, because it only seeds the global `rand()` that 5.x used.
 
-A container that autowires `Dispatcher` injects a `Random\Randomizer` service if you registered one, for example a seeded one meant for something else. Pass `null` to keep the default. In Symfony, in `config/services.yaml`:
+A container that autowires `Dispatcher` injects a `Random\Randomizer` service if you registered one, for example a seeded one meant for something else. Pass `null` to keep the default. In Symfony, on the dispatcher service in `config/services.yaml` (the [Symfony guide](/frameworks/symfony) registers it under `DispatcherInterface`):
 
 ```yaml
 services:
-    Tomaj\Hermes\Dispatcher:
+    Tomaj\Hermes\DispatcherInterface:
+        class: Tomaj\Hermes\Dispatcher
         arguments:
             $randomizer: null
 ```
@@ -112,16 +115,17 @@ In Laravel, in a service provider's `register()`:
 $this->app->when(Dispatcher::class)->needs(Randomizer::class)->give(fn () => null);
 ```
 
-In Nette, in `config/services.neon`:
+In Nette, on the existing dispatcher service in `config/services.neon` (do not add a second one; see the [Nette guide](/frameworks/nette)):
 
 ```yaml
 services:
-	- Tomaj\Hermes\Dispatcher(randomizer: null)
+	hermes.dispatcher:
+		create: Tomaj\Hermes\Dispatcher(randomizer: null)
 ```
 
 ## Several handlers
 
-Every handler for the type is called, even after an earlier one throws. The exception is caught inside `handleMessage()`. Each throwing handler that has the two methods can publish its own copy. Two failing handlers produce two copies.
+Every handler for the type is called, even after an earlier one throws. The exception is caught inside `handleMessage()`. Each throwing handler that implements `RetryableHandlerInterface` (or, deprecated, has `canRetry()` and `maxRetry()`) can publish its own copy. Two failing handlers produce two copies, and each copy is dispatched to every handler of the type again, including the ones that succeeded the first time. Register one handler per type if your handlers are not idempotent.
 
 ## What you do not get
 

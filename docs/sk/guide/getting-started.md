@@ -84,7 +84,7 @@ $dispatcher->registerHandler('send-email', new EchoHandler());
 $dispatcher->handle();
 ```
 
-`handle()` sa nevráti, kým driver slučku nezastaví (ukončenie, limit správ alebo chyba drivera). Nevolajte ho z webovej požiadavky. To isté hovorí aj docblock `Dispatcher::handle()`.
+`handle()` sa nevráti, kým slučku nezastaví požiadavka na ukončenie, `SIGTERM` alebo `SIGINT` (s `ext-pcntl`) alebo limit správ. Chyba drivera sa zaloguje a vyhodí ďalej, takže skript skončí s nenulovým kódom. Nevolajte ho z webovej požiadavky. To isté hovorí aj docblock `Dispatcher::handle()`.
 
 <img class="theme-img only-light" src="/illustrations/terminal-light.svg" alt="Terminál s výstupom EchoHandler" />
 <img class="theme-img only-dark" src="/illustrations/terminal-dark.svg" alt="" />
@@ -152,7 +152,7 @@ Ak nemôžete nainštalovať PHP rozšírenie, použite `PredisSetDriver`. Ak u�
 
 ### Môžem volať `handle()` z webovej požiadavky?
 
-Nie. `handle()` blokuje až do ukončenia, limitu správ alebo chyby drivera. Spúšťajte ho v samostatnom CLI procese pod správcom procesov. Pozrite [Nasadenie do produkcie](/sk/guide/deployment).
+Nie. `handle()` blokuje až do požiadavky na ukončenie, signálu alebo limitu správ, prípadne kým nevyhodí chybu drivera. Spúšťajte ho v samostatnom CLI procese pod správcom procesov. Pozrite [Nasadenie do produkcie](/sk/guide/deployment).
 
 ### Čo má handler vrátiť?
 

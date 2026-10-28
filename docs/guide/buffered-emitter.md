@@ -44,7 +44,7 @@ The transaction is already committed at that point, so the rows exist and the me
 2. Call `flush()` again. It sends only what is left.
 3. When that fails too, call `discard()` and handle the lost messages the way the rest of the app handles a failed side effect: a cron job that finds rows without a processed flag, or an alert.
 
-A buffer that is neither flushed nor discarded is sent by the next successful `flush()` in the same process, after the next commit. In a long-running process (a worker, a queue consumer) that can be much later, so always end with one of the two.
+A buffer that is neither flushed nor discarded is sent by the next successful `flush()` in the same process, after the next commit. In a long-running process (a worker, a queue consumer) that can be much later, so always end with one of the two. Until then the leftover messages are in the wrong place: a message emitted outside a transaction is sent at once and overtakes them, and the next rollback calls `discard()` and drops them although their rows are committed. `discard()` returns how many it dropped; log that number when it is not `0`.
 
 ## Not a transactional outbox
 

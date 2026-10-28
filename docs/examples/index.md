@@ -15,7 +15,7 @@ Start with the tutorial. It explains every step, and the other recipes build on 
 | [Invoice PDF generation](/examples/invoice-pdf) | Predis | An idempotent handler that writes files |
 | [Webhook delivery with retries](/examples/webhooks) | Predis | Signed requests, which failures to retry, backoff |
 | [CSV import in chunks](/examples/csv-import) | Predis | Splitting a large job into safe, parallel chunks |
-| [Image thumbnails](/examples/thumbnails) | RabbitMQ | What changes on a broker without delay or ack |
+| [Image thumbnails](/examples/thumbnails) | RabbitMQ | What changes on a broker without delay, and acknowledgements after the handler |
 | [Delayed reminder](/examples/reminder) | Predis | `executeAt` and checking state when the message runs |
 | [Priority queues](/examples/priority) | Predis | Priority order, and a worker for urgent work only |
 

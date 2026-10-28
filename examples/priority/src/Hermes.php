@@ -19,7 +19,7 @@ final class Hermes
         $driver = new PredisSetDriver($redis ?? new Client(getenv('REDIS_URL') ?: 'tcp://127.0.0.1:6379'), 'hermes', 1);
 
         // The emitter and every worker must register the same queues.
-        // Register them in ascending order: the worker polls them in reverse registration order.
+        // The worker polls the highest priority first, whatever the registration order.
         $driver->setupPriorityQueue('hermes_normal', self::NORMAL);
         $driver->setupPriorityQueue('hermes_high', self::HIGH);
 

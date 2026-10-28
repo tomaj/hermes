@@ -62,6 +62,8 @@ Hranicu pokrýva `HandleTest`. Správa, ktorá už má `retries = 5`, s handlero
 
 Kópia je jedno volanie `send()`. Na Redise a Predise toto `executeAt` odloží kópiu do zoradenej množiny; `FileSystemDriver` nechá súbor v `new/`, kým nebude splatný. Na RabbitMQ, SQS a Kafka sa publikuje hneď, takže číslo oneskorenia sa uloží, ale nečaká sa naň.
 
+Keď toto `send()` vyhodí výnimku, napríklad preto, že Redis je chvíľu nedostupný, dispatcher zaloguje `Retry of message #<id> (<type>) lost - driver send failed: …` na úrovni `error` a výnimku vyhodí znova, takže ukončí `handle()` ako chyba drivera. RabbitMQ, SQS, Kafka a FileSystem potom pôvodnú správu doručia znova; Redis drivery ju už odstránili, takže riadok v logu je jediná stopa po stratenom opakovaní.
+
 <Diagram name="retry-2" alt="Postup opakovania: dispatcher pošle kópiu s retries plus jedna, Redis ju naplánuje, RabbitMQ, SQS a Kafka ju publikujú hneď" />
 
 ## Oneskorenie
@@ -97,11 +99,12 @@ $dispatcher = new Dispatcher($driver, $logger, null, new Randomizer(new Mt19937(
 
 V produkcii ponechajte predvolený. Workery spustené s rovnakým seedom vypočítajú rovnaké oneskorenia, takže keď pri výpadku všetky naraz zlyhajú, ich opakovania sa na Redise a Predise vrátia spolu. RabbitMQ, SQS a Kafka `executeAt` ignorujú, takže náhodná zložka ich opakovania aj tak nerozloží. `mt_srand()` už náhodnú zložku neovplyvňuje, pretože nastavuje len globálny `rand()`, ktorý používala verzia 5.x.
 
-Kontajner, ktorý `Dispatcher` autowiruje, vloží službu `Random\Randomizer`, ak ste ju zaregistrovali, napríklad so seedom určenú na niečo iné. Predvolené správanie zachováte odovzdaním `null`. V Symfony v `config/services.yaml`:
+Kontajner, ktorý `Dispatcher` autowiruje, vloží službu `Random\Randomizer`, ak ste ju zaregistrovali, napríklad so seedom určenú na niečo iné. Predvolené správanie zachováte odovzdaním `null`. V Symfony na službe dispatchera v `config/services.yaml` ([návod pre Symfony](/sk/frameworks/symfony) ju registruje pod `DispatcherInterface`):
 
 ```yaml
 services:
-    Tomaj\Hermes\Dispatcher:
+    Tomaj\Hermes\DispatcherInterface:
+        class: Tomaj\Hermes\Dispatcher
         arguments:
             $randomizer: null
 ```
@@ -112,16 +115,17 @@ V Laraveli v metóde `register()` service providera:
 $this->app->when(Dispatcher::class)->needs(Randomizer::class)->give(fn () => null);
 ```
 
-V Nette v `config/services.neon`:
+V Nette na existujúcej službe dispatchera v `config/services.neon` (nepridávajte druhú; pozrite [návod pre Nette](/sk/frameworks/nette)):
 
 ```yaml
 services:
-	- Tomaj\Hermes\Dispatcher(randomizer: null)
+	hermes.dispatcher:
+		create: Tomaj\Hermes\Dispatcher(randomizer: null)
 ```
 
 ## Viac handlerov
 
-Zavolá sa každý handler pre daný typ, aj keď predchádzajúci vyhodil výnimku. Výnimka sa zachytí v `handleMessage()`. Každý handler s opakovaním, ktorý vyhodí výnimku, môže publikovať vlastnú kópiu. Dva zlyhávajúce handlery vytvoria dve kópie.
+Zavolá sa každý handler pre daný typ, aj keď predchádzajúci vyhodil výnimku. Výnimka sa zachytí v `handleMessage()`. Každý handler s opakovaním, ktorý vyhodí výnimku, môže publikovať vlastnú kópiu. Dva zlyhávajúce handlery vytvoria dve kópie a každá kópia sa znova doručí všetkým handlerom daného typu, aj tým, ktoré prvýkrát uspeli. Ak handlery nie sú idempotentné, registrujte pre typ len jeden.
 
 ## Čo nedostanete
 

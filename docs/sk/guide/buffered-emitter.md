@@ -44,7 +44,7 @@ Transakcia je v tej chvíli už commitnutá, takže riadky existujú a správy n
 2. Zavolajte `flush()` znova. Odošle len to, čo zostalo.
 3. Keď zlyhá aj to, zavolajte `discard()` a stratené správy riešte tak, ako aplikácia rieši iný zlyhaný vedľajší efekt: cron, ktorý nájde riadky bez príznaku spracovania, alebo alert.
 
-Buffer, ktorý nikto neodošle ani nezahodí, odošle až ďalší úspešný `flush()` v tom istom procese po ďalšom commite. V dlho bežiacom procese (worker, consumer fronty) to môže byť oveľa neskôr, preto vždy skončite jednou z týchto dvoch metód.
+Buffer, ktorý nikto neodošle ani nezahodí, odošle až ďalší úspešný `flush()` v tom istom procese po ďalšom commite. V dlho bežiacom procese (worker, consumer fronty) to môže byť oveľa neskôr, preto vždy skončite jednou z týchto dvoch metód. Dovtedy sú zvyšné správy na nesprávnom mieste: správa emitnutá mimo transakcie sa odošle hneď a predbehne ich a ďalší rollback zavolá `discard()` a zahodí ich, hoci ich riadky sú commitnuté. `discard()` vráti, koľko správ zahodil; keď to nie je `0`, zalogujte to číslo.
 
 ## Nie je to transactional outbox
 

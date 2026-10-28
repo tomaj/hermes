@@ -9,7 +9,7 @@ Prácu robí päť typov. Všetko ostatné je driver, signál na ukončenie aleb
 
 <Diagram name="concepts-1" alt="Webová požiadavka vytvorí Message, Emitter ju odovzdá Driveru a fronte a Dispatcher ju podá Handleru" />
 
-Správa nie je riadok so stĺpcom stavu. Tieto názvy sú fázy, ktorými kód naozaj prechádza. `Processing` začne až potom, čo driver payload z brokera odstránil.
+Správa nie je riadok so stĺpcom stavu. Tieto názvy sú fázy, ktorými kód naozaj prechádza. Pri Redis a Predis začne `Processing` až potom, čo driver payload z brokera odstránil. RabbitMQ, SQS, Kafka a súborový driver ho držia, kým handler neskončí, a potom ho potvrdia alebo zmažú.
 
 <Diagram name="concepts-2" alt="Stavy správy: vložená, naplánovaná alebo vo fronte, spracúva sa, potom hotová, neúspešná alebo zopakovaná ako kópia" />
 
@@ -79,20 +79,21 @@ Ak chcete emitovať až po commite databázovej transakcie, obaľte emitter do `
 public function __construct(
     DriverInterface $driver,
     ?LoggerInterface $logger = null,
-    ?ShutdownInterface $shutdown = null
+    ?ShutdownInterface $shutdown = null,
+    ?Random\Randomizer $randomizer = null
 )
 
 public function handle(array $priorities = []): void
 ```
 
-`DEFAULT_PRIORITY` je `100`. Konštanta `PRIORITY_HIGH` neexistuje. Zakomentované volanie v `examples/redis/processor.php` odkazuje na konštantu, ktorú trieda nemá.
+`DEFAULT_PRIORITY` je `100`. Konštanta `PRIORITY_HIGH` neexistuje: odovzdajte číslo, ktoré ste zaregistrovali, napríklad `Dispatcher::DEFAULT_PRIORITY + 10`. `$randomizer` je zdroj náhodného rozptylu opakovaní; pozrite [Opakovanie](/sk/guide/retry).
 
 `handle()` volá `Driver::wait()`. Closure dostane správu a prioritu, ktorú driver našiel (ak ju driver neuvedie, použije sa `100`). Pre každú správu dispatcher:
 
 1. Zaloguje `Start handle message #<id> (<type>) priority:<n>` na úrovni `info`.
 2. Spustí každý handler zaregistrovaný pre `$message->getType()` v poradí registrácie.
-3. Ak dostal objekt na ukončenie a `shouldShutdown($startTime)` vráti true, vyhodí `ShutdownException`.
-4. Vráti výsledok handlera driveru. Žiadny zo vstavaných driverov túto hodnotu nečíta.
+3. Ak driver nepoužíva `ShutdownTrait` (driver s vlastným `setShutdown()` sa berie ako bez neho) a prišiel `SIGTERM`/`SIGINT` alebo `shouldShutdown($startTime)` objektu na ukončenie vráti true, vyhodí `ShutdownException`. Driver s traitom sa namiesto toho zastaví pri vlastnom `checkShutdown()`.
+4. Vráti výsledok handlera driveru, aj keď počas správy prišla žiadosť o ukončenie. Žiadny zo vstavaných driverov túto hodnotu nečíta.
 
 Keď pre typ nie je zaregistrovaný žiadny handler, `dispatch()` vráti `true` a nezaloguje `End handle message`. Správa už vo fronte nie je.
 

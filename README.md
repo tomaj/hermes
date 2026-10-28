@@ -173,7 +173,9 @@ $dispatcher->registerHandler('send-email', new SendEmailHandler());
 $dispatcher->handle();
 ```
 
-To keep the worker running continuously on your server, use a process manager like [supervisord][], [upstart][], [monit][], or [god][].
+`handle()` returns after a shutdown request, after `SIGTERM` or `SIGINT` (with `ext-pcntl`, once the current message is finished), or when the max items limit is reached. A driver error (for example a lost connection) is logged and rethrown, so the script exits non-zero.
+
+To keep the worker running continuously on your server, use a process manager like [supervisord][], [upstart][], [monit][], or [god][], and let it restart the process on any exit. Do not wrap `handle()` in a `while (true)` loop: it would never stop on `SIGTERM`.
 
 [upstart]: http://upstart.ubuntu.com/
 [supervisord]: http://supervisord.org
@@ -184,7 +186,7 @@ To keep the worker running continuously on your server, use a process manager li
 
 Hermes supports any PSR-3 compliant logger. Set a logger for the Dispatcher or Emitter to track message flow and handler execution.
 
-To enable logging in your handlers, add the `Psr\Log\LoggerAwareTrait` trait (or implement `Psr\Log\LoggerAwareInterface`)—the Dispatcher and Emitter will automatically inject the logger.
+To enable logging in your handlers, add the `Psr\Log\LoggerAwareTrait` trait (or implement `Psr\Log\LoggerAwareInterface`)—the Dispatcher will automatically inject its logger before each message.
 
 Example using [monolog][]:
 
@@ -291,7 +293,7 @@ Key points about priorities:
 
 Hermes workers can be gracefully stopped without losing messages.
 
-When you provide an implementation of `Tomaj\Hermes\Shutdown\ShutdownInterface` to the `Dispatcher`, Hermes checks `ShutdownInterface::shouldShutdown()` after each message. If it returns `true`, the worker shuts down cleanly.
+When you provide an implementation of `Tomaj\Hermes\Shutdown\ShutdownInterface` to the `Dispatcher`, Hermes checks `ShutdownInterface::shouldShutdown()` between messages. If it returns `true`, the worker finishes the current message and shuts down cleanly.
 
 **Important:** Hermes handles shutdown, but automatic restart must be managed by your process controller (e.g., supervisord, systemd, or Docker).
 
@@ -363,9 +365,9 @@ Hermes can easily scale to handle high message volumes. Simply run multiple work
 
 Requirements for scaling:
 1. **Network-capable driver**: Your driver must support remote connections (Redis, RabbitMQ, Amazon SQS and Kafka all support this)
-2. **At-most-once delivery**: Each message should be delivered to only one worker
+2. **One worker per delivery**: Each delivery goes to only one worker
 
-Both Redis and RabbitMQ drivers satisfy these requirements and are designed for high-throughput scenarios.
+All built-in drivers satisfy these requirements; `FileSystemDriver` only for workers on the same server. The Redis drivers remove a message before the handler runs (at most once: a crashed worker loses it). RabbitMQ, SQS, Kafka and the filesystem driver remove it only after the handler finished (at least once: a crashed worker's message is delivered again), so keep those handlers idempotent.
 
 ## Extending Hermes
 
@@ -438,7 +440,7 @@ A complete JSON serializer is in [Extending Hermes](https://tomaj.github.io/herm
 
 ### Scheduled Execution
 
-Since version 2.0, you can schedule messages for future execution by passing a timestamp as the fifth parameter (`executeAt`) to the `Message` constructor. Currently supported by `RedisSetDriver`, `PredisSetDriver` and `FileSystemDriver`.
+Since version 2.0, you can schedule messages for future execution by passing a timestamp as the fifth parameter (`executeAt`) to the `Message` constructor, for example `new Message('type', $payload, executeAt: microtime(true) + 3600)`. Currently supported by `RedisSetDriver`, `PredisSetDriver` and `FileSystemDriver`; RabbitMQ, SQS and Kafka deliver the message at once.
 
 ## Upgrade Guide
 

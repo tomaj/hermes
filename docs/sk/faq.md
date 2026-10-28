@@ -27,7 +27,7 @@ RabbitMQ, SQS a Kafka priority neimplementujú. `setupPriorityQueue()` vyhodí `
 
 ## Vrátil som `false` a správa zmizla
 
-Driver ju už odstránil. `false` správu nevráti do fronty. Výnimka pošle kópiu na opakovanie, len keď handler implementuje `RetryableHandlerInterface`, `getRetries() < maxRetry()` a `canRetry()` vráti `true`. Handler z 5.x s `canRetry()` a `maxRetry()`, ale bez rozhrania, sa opakuje, kým `getRetries() < maxRetry()` ([zastarané](/sk/guide/retry#handlery-bez-rozhrania-zastarane)).
+Návratová hodnota sa nekontroluje: Redis drivery správu odstránili pred spustením handlera a RabbitMQ, SQS, Kafka a súborový driver ju potvrdia alebo zmažú, keď sa `handle()` vráti, či už s `true` alebo `false`. `false` správu nevráti do fronty. Výnimka pošle kópiu na opakovanie, len keď handler implementuje `RetryableHandlerInterface`, `getRetries() < maxRetry()` a `canRetry()` vráti `true`. Handler z 5.x s `canRetry()` a `maxRetry()`, ale bez rozhrania, sa opakuje, kým `getRetries() < maxRetry()` ([zastarané](/sk/guide/retry#handlery-bez-rozhrania-zastarane)).
 
 ## `canRetry()` vracia `false` a aj tak sa opakuje
 
@@ -39,7 +39,7 @@ Handler uvedený v správe má `canRetry()` a `maxRetry()` (vlastné alebo z `Re
 
 ## Neexistuje `Dispatcher::PRIORITY_HIGH`
 
-Jediná konštanta priority je `DEFAULT_PRIORITY = 100`. Komentár v `examples/redis/processor.php`, ktorý spomína `PRIORITY_HIGH`, nezodpovedá triede. Odovzdajte číslo, ktoré ste zaregistrovali, napríklad `Dispatcher::DEFAULT_PRIORITY + 10`.
+Jediná konštanta priority je `DEFAULT_PRIORITY = 100`. Odovzdajte číslo, ktoré ste zaregistrovali, napríklad `Dispatcher::DEFAULT_PRIORITY + 10`.
 
 ## Ako spustiť testy?
 
