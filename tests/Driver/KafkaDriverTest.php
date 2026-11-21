@@ -92,7 +92,7 @@ final class KafkaDriverTest extends TestCase
 
     public function testPriorityQueuesAreNotSupported(): void
     {
-        $this->assertThrows(NotSupportedException::class, 'Kafka is not supporting priority queues now', fn() => new KafkaDriver(self::createStub(Producer::class))->setupPriorityQueue('high', 200));
+        $this->assertThrows(NotSupportedException::class, 'Kafka is not supporting priority queues now', fn(): never => new KafkaDriver(self::createStub(Producer::class))->setupPriorityQueue('high', 200));
     }
 
     public function testWaitNeedsAConsumer(): void
