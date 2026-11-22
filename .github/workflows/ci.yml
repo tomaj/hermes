@@ -13,8 +13,8 @@ jobs:
   tests:
     name: PHP ${{ matrix.php }} ${{ matrix.dependency-version }}
     runs-on: ubuntu-latest
-    # PHP 8.6 is a nightly build: it runs to show problems early but does not fail the workflow
-    continue-on-error: ${{ matrix.php == '8.6' }}
+    # PHP 8.7 is a nightly build: it runs to show problems early but does not fail the workflow
+    continue-on-error: ${{ matrix.php == '8.7' }}
     permissions:
       contents: read
       actions: write
@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['8.4', '8.5', '8.6']
+        php: ['8.4', '8.5', '8.6', '8.7']
         dependency-version: ['']
         include:
           - php: '8.4'
@@ -80,11 +80,11 @@ jobs:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
     - name: Setup PHP
-      uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+      uses: shivammathur/setup-php@e8d43d139fbfbe401c32ef3a3a32e14075f20122 # main after 2.40.0 (PHP 8.6 stable)
       with:
         php-version: ${{ matrix.php }}
         extensions: mbstring, xml, redis, rdkafka
-        coverage: ${{ matrix.php == '8.5' && matrix.dependency-version == '' && 'xdebug' || 'none' }}
+        coverage: ${{ matrix.php == '8.6' && matrix.dependency-version == '' && 'xdebug' || 'none' }}
 
     - name: Validate composer.json
       run: composer validate --strict
@@ -98,7 +98,8 @@ jobs:
           ${{ runner.os }}-php-${{ matrix.php }}-${{ matrix.dependency-version }}-
 
     - name: Install dependencies
-      run: composer update ${{ matrix.dependency-version }} --prefer-dist --no-progress --no-interaction
+      # dev dependencies such as tracy/tracy cap their PHP version, so the nightly ignores the upper bound
+      run: composer update ${{ matrix.dependency-version }} ${{ matrix.php == '8.7' && '--ignore-platform-req=php+' || '' }} --prefer-dist --no-progress --no-interaction
 
     - name: Require ext-rdkafka
       # the Kafka tests skip without the extension; fail instead
@@ -108,15 +109,15 @@ jobs:
       run: curl --silent --show-error --fail --retry 30 --retry-delay 1 --retry-all-errors --output /dev/null http://127.0.0.1:4566/moto-api/
 
     - name: Run tests
-      if: matrix.php != '8.5' || matrix.dependency-version != ''
+      if: matrix.php != '8.6' || matrix.dependency-version != ''
       run: vendor/bin/phpunit --no-coverage
 
     - name: Run tests with coverage
-      if: matrix.php == '8.5' && matrix.dependency-version == ''
+      if: matrix.php == '8.6' && matrix.dependency-version == ''
       run: XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-clover build/logs/clover.xml --coverage-html build/coverage
 
     - name: Require 95% statement coverage
-      if: matrix.php == '8.5' && matrix.dependency-version == ''
+      if: matrix.php == '8.6' && matrix.dependency-version == ''
       run: |
         php -r '
           $xml = simplexml_load_file("build/logs/clover.xml");
@@ -132,7 +133,7 @@ jobs:
         '
 
     - name: Upload coverage to Coveralls
-      if: matrix.php == '8.5' && matrix.dependency-version == ''
+      if: matrix.php == '8.6' && matrix.dependency-version == ''
       uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -142,7 +143,7 @@ jobs:
 
     - name: Upload coverage reports
       uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-      if: github.event_name == 'push' && github.ref == 'refs/heads/master' && matrix.php == '8.5' && matrix.dependency-version == ''
+      if: github.event_name == 'push' && github.ref == 'refs/heads/master' && matrix.php == '8.6' && matrix.dependency-version == ''
       with:
         name: coverage-report
         path: build/coverage
@@ -157,7 +158,7 @@ jobs:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
     - name: Setup PHP
-      uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+      uses: shivammathur/setup-php@e8d43d139fbfbe401c32ef3a3a32e14075f20122 # main after 2.40.0 (PHP 8.6 stable)
       with:
         php-version: '8.4'
         extensions: mbstring, xml, redis
@@ -178,7 +179,7 @@ jobs:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
     - name: Setup PHP
-      uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+      uses: shivammathur/setup-php@e8d43d139fbfbe401c32ef3a3a32e14075f20122 # main after 2.40.0 (PHP 8.6 stable)
       with:
         php-version: '8.4'
         extensions: mbstring, xml, redis
@@ -199,7 +200,7 @@ jobs:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
     - name: Setup PHP
-      uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+      uses: shivammathur/setup-php@e8d43d139fbfbe401c32ef3a3a32e14075f20122 # main after 2.40.0 (PHP 8.6 stable)
       with:
         php-version: '8.4'
         extensions: mbstring, xml, redis
@@ -220,7 +221,7 @@ jobs:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
     - name: Setup PHP
-      uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+      uses: shivammathur/setup-php@e8d43d139fbfbe401c32ef3a3a32e14075f20122 # main after 2.40.0 (PHP 8.6 stable)
       with:
         php-version: '8.4'
         extensions: redis
@@ -289,9 +290,9 @@ jobs:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
     - name: Setup PHP
-      uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+      uses: shivammathur/setup-php@e8d43d139fbfbe401c32ef3a3a32e14075f20122 # main after 2.40.0 (PHP 8.6 stable)
       with:
-        php-version: '8.5'
+        php-version: '8.6'
         extensions: mbstring, xml, redis, rdkafka
         coverage: xdebug
 

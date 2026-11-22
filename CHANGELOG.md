@@ -4,6 +4,10 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ## [Unreleased][unreleased]
 
+### Changed
+
+* PHP 8.6 is a required CI version, and coverage, the 95% coverage check, Coveralls and Infection run on PHP 8.6 instead of 8.5. A nightly PHP 8.7 job runs with `continue-on-error`, so its failure does not fail the workflow. `shivammathur/setup-php` is pinned to a `main` commit after 2.40.0, which installs PHP 8.6 stable instead of a nightly build.
+
 ## [6.0.0] - 2026-10-19
 
 Hermes 6.0. Upgrade steps for every breaking change are in [UPGRADE-6.0.md](UPGRADE-6.0.md).

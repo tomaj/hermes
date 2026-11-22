@@ -50,7 +50,7 @@ It runs PHPUnit with `XDEBUG_MODE=coverage`. Reports:
 - HTML: `build/coverage/index.html`
 - Clover: `build/logs/clover.xml`
 
-CI runs PHPUnit with the integration tests against real brokers on PHP 8.4, PHP 8.4 with `--prefer-lowest`, PHP 8.5, and a PHP 8.6 nightly build that may fail without failing the workflow. The 95% statement coverage gate runs on the PHP 8.5 job, which also uploads the coverage to Coveralls. That job also uploads the `coverage-report` artifact on pushes to `master`.
+CI runs PHPUnit with the integration tests against real brokers on PHP 8.4, PHP 8.4 with `--prefer-lowest`, PHP 8.5, PHP 8.6, and a PHP 8.7 nightly build that may fail without failing the workflow. The 95% statement coverage gate runs on the PHP 8.6 job, which also uploads the coverage to Coveralls. That job also uploads the `coverage-report` artifact on pushes to `master`.
 
 Mutation testing uses [Infection](https://infection.github.io/) with `infection.json5`. It fails when the MSI is below 85% or the covered code MSI is below 90%:
 
@@ -72,7 +72,7 @@ Driver tests that need a server mock the client (`Redis`, `Predis\Client`, `SqsC
 
 | Workflow | When |
 | --- | --- |
-| CI | push and pull request: PHPUnit with the integration tests on PHP 8.4, 8.4 lowest, 8.5 and 8.6 (nightly), code style, PHPStan level max, Rector, `composer audit`, and Infection |
+| CI | push and pull request: PHPUnit with the integration tests on PHP 8.4, 8.4 lowest, 8.5, 8.6 and 8.7 (nightly), code style, PHPStan level max, Rector, `composer audit`, and Infection |
 | Examples | the examples' end-to-end scripts against this checkout |
 | CodeQL Security Analysis | push and pull request to `master`, and a weekly schedule |
 | OpenSSF Scorecard | push and pull request to `master`, branch protection changes, and a weekly schedule |

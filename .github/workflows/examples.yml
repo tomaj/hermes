@@ -53,7 +53,7 @@ jobs:
         persist-credentials: false
 
     - name: Setup PHP
-      uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+      uses: shivammathur/setup-php@e8d43d139fbfbe401c32ef3a3a32e14075f20122 # main after 2.40.0 (PHP 8.6 stable)
       with:
         php-version: '8.4'
         extensions: mbstring, xml, gd, redis, pdo_sqlite
@@ -106,7 +106,7 @@ jobs:
         persist-credentials: false
 
     - name: Setup PHP
-      uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+      uses: shivammathur/setup-php@e8d43d139fbfbe401c32ef3a3a32e14075f20122 # main after 2.40.0 (PHP 8.6 stable)
       with:
         php-version: '8.4'
         extensions: mbstring, xml, redis, sqlite3, pdo_sqlite
@@ -152,7 +152,7 @@ jobs:
         persist-credentials: false
 
     - name: Setup PHP
-      uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+      uses: shivammathur/setup-php@e8d43d139fbfbe401c32ef3a3a32e14075f20122 # main after 2.40.0 (PHP 8.6 stable)
       with:
         php-version: '8.4'
         extensions: mbstring, xml, rdkafka

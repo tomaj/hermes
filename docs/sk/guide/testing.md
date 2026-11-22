@@ -50,7 +50,7 @@ Spustí PHPUnit s `XDEBUG_MODE=coverage`. Reporty:
 - HTML: `build/coverage/index.html`
 - Clover: `build/logs/clover.xml`
 
-CI spúšťa PHPUnit aj s integračnými testami proti skutočným brokerom na PHP 8.4, PHP 8.4 s `--prefer-lowest`, PHP 8.5 a na nočnom builde PHP 8.6, ktorý môže zlyhať bez zlyhania workflowu. Brána 95 % pokrytia príkazov beží v jobe PHP 8.5, ktorý pokrytie nahráva aj do Coveralls. Ten pri pushi do `master` nahráva aj artefakt `coverage-report`.
+CI spúšťa PHPUnit aj s integračnými testami proti skutočným brokerom na PHP 8.4, PHP 8.4 s `--prefer-lowest`, PHP 8.5, PHP 8.6 a na nočnom builde PHP 8.7, ktorý môže zlyhať bez zlyhania workflowu. Brána 95 % pokrytia príkazov beží v jobe PHP 8.6, ktorý pokrytie nahráva aj do Coveralls. Ten pri pushi do `master` nahráva aj artefakt `coverage-report`.
 
 Mutačné testovanie používa [Infection](https://infection.github.io/) s `infection.json5`. Zlyhá, keď je MSI pod 85 % alebo MSI pokrytého kódu pod 90 %:
 
@@ -72,7 +72,7 @@ Testy driverov, ktoré by potrebovali server, mockujú klienta (`Redis`, `Predis
 
 | Workflow | Kedy |
 | --- | --- |
-| CI | push a pull request: PHPUnit s integračnými testami na PHP 8.4, 8.4 lowest, 8.5 a 8.6 (nočný build), štýl kódu, PHPStan level max, Rector, `composer audit` a Infection |
+| CI | push a pull request: PHPUnit s integračnými testami na PHP 8.4, 8.4 lowest, 8.5, 8.6 a 8.7 (nočný build), štýl kódu, PHPStan level max, Rector, `composer audit` a Infection |
 | Examples | end-to-end skripty príkladov proti tomuto checkoutu |
 | CodeQL Security Analysis | push a pull request do `master` a raz týždenne |
 | OpenSSF Scorecard | push a pull request do `master`, zmeny ochrany vetvy a raz týždenne |

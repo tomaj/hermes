@@ -9,7 +9,7 @@ Hermes 6.x je PHP knižnica. Nemá vlastný spustiteľný súbor. Webová požia
 
 <Diagram name="getting-started-1" alt="Postup: aplikácia vloží správu, emitter ju pošle driveru a dispatcher čaká, prijme ju a zavolá handler" />
 
-Obmedzenie balíka v `composer.json` je `php: ^8.4`. CI beží na PHP 8.4, na PHP 8.4 s najnižšími verziami závislostí a na PHP 8.5.
+Obmedzenie balíka v `composer.json` je `php: ^8.4`. CI beží na PHP 8.4, na PHP 8.4 s najnižšími verziami závislostí, na PHP 8.5 a na PHP 8.6. Beží aj nočný build PHP 8.7, ale jeho zlyhanie nezhodí workflow.
 
 ## Inštalácia
 
