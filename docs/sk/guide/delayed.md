@@ -27,20 +27,20 @@ Podporované drivery sú `RedisSetDriver`, `PredisSetDriver` a `FileSystemDriver
 `send()` správu odloží, keď `getExecuteAt()` nie je `null` a je väčšie ako `microtime(true)`:
 
 ```php
-$this->redis->zAdd($this->scheduleKey, $message->getExecuteAt(), $serialized);
+$this->redis->zAdd($this->scheduleKey($priority), $message->getExecuteAt(), $serialized);
 ```
 
-Predvolený kľúč plánovača je `hermes_schedule`. Ak je už obsadený, zmeňte ho štvrtým argumentom konštruktora. Emitter aj worker musia používať ten istý kľúč.
+Predvolený kľúč plánovača je `hermes_schedule`. Ak je už obsadený, zmeňte ho štvrtým argumentom konštruktora. Emitter aj worker musia používať ten istý kľúč. Správa s predvolenou prioritou sa naplánuje do tohto kľúča, správa s inou prioritou do vlastnej zoradenej množiny `<kľúč plánovača>:<priorita>` (napríklad `hermes_schedule:110`). `send()` vyhodí `UnknownPriorityException` pre prioritu, ktorú `setupPriorityQueue()` nezaregistrovalo, či už je správa odložená, alebo nie.
 
-Každá iterácia `wait()` zavolá `zRangeByScore($scheduleKey, '-inf', $now, ['limit' => [0, 1]])`. Pre každý vrátený prvok zavolá `zRem()`. Driver ho pošle znova, len keď `ZREM` oznámi, že prvok odstránil, takže dva workery nikdy nepresunú ten istý záznam. Do verzie 5.x tento krok používal `SPOP`, ktorý na zoradenej množine nefunguje, takže splatné správy zostávali v pláne ([issue #95](https://github.com/tomaj/hermes/issues/95)).
+Každá iterácia `wait()` zavolá `zRangeByScore($scheduleKey, '-inf', $now, ['limit' => [0, 1]])` na kľúči plánovača každej zaregistrovanej priority, aj tých, ktoré worker nespracúva, takže worker spustený s `handle([110])` presúva aj odložené správy s prioritou 100. Pre každý vrátený prvok zavolá `zRem()`. Driver ho pošle znova, len keď `ZREM` oznámi, že prvok odstránil, takže dva workery nikdy nepresunú ten istý záznam. Do verzie 5.x tento krok používal `SPOP`, ktorý na zoradenej množine nefunguje, takže splatné správy zostávali v pláne ([issue #95](https://github.com/tomaj/hermes/issues/95)).
 
-Po úspešnom `ZREM` ju driver deserializuje a zavolá `send()` bez priority. `send()` uvidí to isté `executeAt` a porovná ho s časom načítaným až po `ZRANGEBYSCORE`, takže správa je splatná a `send()` ju zapíše do množiny predvolenej priority (`hermes`, ak ste kľúč nezmenili). Pôvodná priorita sa v správe neukladá, takže odložená správa sa do `hermes_high` nevráti.
+Po úspešnom `ZREM` ju driver deserializuje a zavolá `send()` s prioritou daného kľúča plánovača. `send()` uvidí to isté `executeAt` a porovná ho s časom načítaným až po `ZRANGEBYSCORE`, takže správa je splatná a `send()` ju zapíše do množiny jej priority: správa odložená so 110 sa vráti do `hermes_high`. V 5.x existoval jeden kľúč plánovača a každá odložená správa sa presunula na predvolenú prioritu. Záznamy, ktoré zapísala 5.x, sú v `hermes_schedule` a presúvajú sa ďalej, s predvolenou prioritou ([#183](https://github.com/tomaj/hermes/issues/183)).
 
 ## Predis
 
-`send()` správu odloží, keď je `getExecuteAt()` pravdivé a väčšie ako teraz. Zápis je `zadd($scheduleKey, [$serialized => $executeAt])`.
+`send()` správu odloží, keď je `getExecuteAt()` pravdivé a väčšie ako teraz. Zápis je `zadd($this->scheduleKey($priority), [$serialized => $executeAt])`.
 
-`wait()` číta cez `zrangebyscore` s `LIMIT OFFSET 0 COUNT 1`, potom presne tento prvok odstráni cez `zrem`. Cez `send()` ho pošle, len keď `zrem` vráti `1`, takže dva workery nikdy nepresunú ten istý záznam. Do verzie 5.x Predis výsledok `zrem` ignoroval a súbežné workery mohli jednu odloženú správu doručiť dvakrát. Samotné `zrem` je oprava [issue #48](https://github.com/tomaj/hermes/issues/48) z verzie 4.0.1. Presun stále používa `send()` bez priority, takže splatná správa skončí v predvolenej množine.
+`send()` používa ten istý kľúč plánovača pre každú prioritu ako driver pre rozšírenie Redis. `wait()` číta každý kľúč plánovača cez `zrangebyscore` s `LIMIT OFFSET 0 COUNT 1`, potom presne tento prvok odstráni cez `zrem`. Cez `send()` ho pošle, len keď `zrem` vráti `1`, takže dva workery nikdy nepresunú ten istý záznam. Do verzie 5.x Predis výsledok `zrem` ignoroval a súbežné workery mohli jednu odloženú správu doručiť dvakrát. Samotné `zrem` je oprava [issue #48](https://github.com/tomaj/hermes/issues/48) z verzie 4.0.1. Presun volá `send()` s prioritou kľúča plánovača, takže splatná správa skončí v množine svojej priority.
 
 ## FileSystem
 
@@ -62,11 +62,11 @@ Ako piaty argument `Message`, `executeAt`, odovzdajte Unix časovú značku, nap
 
 ### Kde sú odložené správy uložené?
 
-Na Redise a Predise predvolene v zoradenej množine `hermes_schedule` so skóre podľa `executeAt`. Emitter aj worker musia používať ten istý kľúč plánovača. Na `FileSystemDriver` odložené správy zostanú v `new/` svojho prioritného priečinka, kým nenastane čas splatnosti v názve súboru.
+Na Redise a Predise predvolene v zoradenej množine `hermes_schedule` (`hermes_schedule:<priorita>` pre inú prioritu ako 100) so skóre podľa `executeAt`. Emitter aj worker musia používať ten istý kľúč plánovača. Na `FileSystemDriver` odložené správy zostanú v `new/` svojho prioritného priečinka, kým nenastane čas splatnosti v názve súboru.
 
 ### Ponechá si odložená správa prioritu?
 
-Nie. Keď je splatná, driver zavolá `send()` bez priority, takže skončí s predvolenou prioritou 100.
+Áno. Redis drivery majú pre každú prioritu vlastnú množinu plánovača a splatnú správu presunú s touto prioritou, `FileSystemDriver` ju drží v priečinku jej priority. V 5.x Redis drivery presúvali každú odloženú správu na predvolenú prioritu 100 ([#183](https://github.com/tomaj/hermes/issues/183)).
 
 ### Čo ak v čase splatnosti nebeží žiadny worker?
 

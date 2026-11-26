@@ -56,7 +56,7 @@ A 5.x handler has `canRetry()` and `maxRetry()`, its own methods or from `RetryT
 
 This keeps an upgrade from 5.x working without touching every handler, but it is deprecated and removed in 7.0. The first time such a handler fails, `Dispatcher` triggers `E_USER_DEPRECATED` and logs a `warning` that names the class, once per class and worker process. The `warning` context has the class under `handler`. Add `implements RetryableHandlerInterface` to that class and give an own `canRetry()` the `(MessageInterface $message, Throwable $exception)` parameters. From then on `canRetry()` decides, so a `false` really skips the retry.
 
-The new message keeps the original id, type, payload, and `created`. `retries` becomes `getRetries() + 1`. `executeAt` becomes the value below. `send()` is called **without** a priority, so Redis puts the copy on the schedule set and, once it is due, on the default priority key (`100`).
+The new message keeps the original id, type, payload, and `created`. `retries` becomes `getRetries() + 1`. `executeAt` becomes the value below. `send()` is called with the priority the worker received the message with, so Redis puts the copy on the schedule set of that priority and, once it is due, back on the same priority key. In 5.x the copy went to the default priority (`100`) ([#183](https://github.com/tomaj/hermes/issues/183)).
 
 `HandleTest` covers the boundary. A message that already has `retries = 5` and a handler whose `maxRetry()` is `25` is republished with `retries = 6`. The same message with `maxRetry()` of `5` is not republished, because the test is `getRetries() < maxRetry()`. `RetryPolicyTest` covers `canRetry()`, the interface, the trait and the deprecated 5.x rule, including one deprecation per class.
 
@@ -131,7 +131,7 @@ Every handler for the type is called, even after an earlier one throws. The exce
 
 - No retry when the process is killed after the driver has already removed the message and before `handle()` returns.
 - No retry from a `false` return.
-- No per-priority retry. The copy uses the default priority.
+- The copy keeps the priority of the failed message. RabbitMQ, SQS and Kafka have no priorities, so there it does not matter.
 - No dead-letter queue inside Hermes. After the last allowed failure the method returns and the copy is not sent.
 
 ## FAQ

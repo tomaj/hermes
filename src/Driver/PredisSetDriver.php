@@ -58,11 +58,11 @@ final class PredisSetDriver implements DriverInterface
     #[\Override]
     public function send(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): bool
     {
+        $key = $this->getKey($priority);
         $executeAt = $message->getExecuteAt();
         if ($executeAt !== null && $executeAt > microtime(true)) {
-            $this->redis->zadd($this->scheduleKey, [$this->serializer->serialize($message) => $executeAt]);
+            $this->redis->zadd($this->scheduleKey($priority), [$this->serializer->serialize($message) => $executeAt]);
         } else {
-            $key = $this->getKey($priority);
             $this->redis->sadd($key, [$this->serializer->serialize($message)]);
         }
         return true;
@@ -72,6 +72,15 @@ final class PredisSetDriver implements DriverInterface
     public function setupPriorityQueue(string $name, int $priority): void
     {
         $this->queues[$priority] = $name;
+    }
+
+    /**
+     * The default priority keeps the plain schedule key, so entries written by 5.x are still
+     * promoted at the default priority; any other priority has its own sorted set.
+     */
+    private function scheduleKey(int $priority): string
+    {
+        return $priority === Dispatcher::DEFAULT_PRIORITY ? $this->scheduleKey : "{$this->scheduleKey}:{$priority}";
     }
 
     /**
@@ -96,6 +105,8 @@ final class PredisSetDriver implements DriverInterface
         // Highest priority first, regardless of the order the queues were set up in
         $queues = $this->queues;
         krsort($queues, SORT_NUMERIC);
+        // every registered priority is promoted, also those this worker does not handle
+        $schedules = array_keys($queues);
         if ($priorities !== []) {
             foreach ($priorities as $priority) {
                 $this->getKey($priority);
@@ -108,19 +119,9 @@ final class PredisSetDriver implements DriverInterface
                 break;
             }
 
-            // check schedule; Redis takes the score bound as a string, keep the microseconds
-            $now = sprintf('%.6F', microtime(true));
-            $messagesString = $this->redis->zrangebyscore($this->scheduleKey, '-inf', $now, ['LIMIT' => ['OFFSET' => 0, 'COUNT' => 1]]);
-            if ($messagesString !== []) {
-                foreach ($messagesString as $messageString) {
-                    if (!is_string($messageString)) {
-                        continue;
-                    }
-                    // ZREM is atomic: only the worker that actually removed the entry re-sends it
-                    if ($this->redis->zrem($this->scheduleKey, $messageString) === 1) {
-                        $this->send($this->serializer->unserialize($messageString));
-                    }
-                }
+            // check schedule
+            foreach ($schedules as $priority) {
+                $this->promoteDue($priority);
             }
 
             $messageString = null;
@@ -144,6 +145,29 @@ final class PredisSetDriver implements DriverInterface
                     $this->checkShutdown();
                     sleep($this->refreshInterval);
                 }
+            }
+        }
+    }
+
+    /**
+     * Moves the next due entry of the priority's schedule into its set.
+     *
+     * @throws UnknownPriorityException
+     * @throws SerializeException
+     */
+    private function promoteDue(int $priority): void
+    {
+        $scheduleKey = $this->scheduleKey($priority);
+        // Redis takes the score bound as a string, keep the microseconds
+        $now = sprintf('%.6F', microtime(true));
+        $messagesString = $this->redis->zrangebyscore($scheduleKey, '-inf', $now, ['LIMIT' => ['OFFSET' => 0, 'COUNT' => 1]]);
+        foreach ($messagesString as $messageString) {
+            if (!is_string($messageString)) {
+                continue;
+            }
+            // ZREM is atomic: only the worker that actually removed the entry re-sends it
+            if ($this->redis->zrem($scheduleKey, $messageString) === 1) {
+                $this->send($this->serializer->unserialize($messageString), $priority);
             }
         }
     }

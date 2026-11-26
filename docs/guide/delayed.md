@@ -27,20 +27,20 @@ Supported drivers are `RedisSetDriver`, `PredisSetDriver` and `FileSystemDriver`
 `send()` delays when `getExecuteAt()` is not `null` and is greater than `microtime(true)`:
 
 ```php
-$this->redis->zAdd($this->scheduleKey, $message->getExecuteAt(), $serialized);
+$this->redis->zAdd($this->scheduleKey($priority), $message->getExecuteAt(), $serialized);
 ```
 
-The default schedule key is `hermes_schedule`. Change it with the fourth constructor argument if the default key is already used. The emitter and the worker must use the same key.
+The default schedule key is `hermes_schedule`. Change it with the fourth constructor argument if the default key is already used. The emitter and the worker must use the same key. A message with the default priority is scheduled in that key; any other priority in its own sorted set, `<schedule key>:<priority>` (for example `hermes_schedule:110`). `send()` throws `UnknownPriorityException` for a priority that `setupPriorityQueue()` never registered, delayed or not.
 
-Each `wait()` iteration calls `zRangeByScore($scheduleKey, '-inf', $now, ['limit' => [0, 1]])`. For each returned member it calls `zRem()`. Only when `ZREM` reports that it removed the member does the driver re-send it, so two workers never promote the same entry. Up to 5.x this step used `SPOP`, which does not work on a sorted set, so due messages stayed in the schedule ([issue #95](https://github.com/tomaj/hermes/issues/95)).
+Each `wait()` iteration calls `zRangeByScore($scheduleKey, '-inf', $now, ['limit' => [0, 1]])` on the schedule key of every registered priority, also of the priorities the worker does not handle, so a worker started with `handle([110])` still promotes the delayed messages of priority 100. For each returned member it calls `zRem()`. Only when `ZREM` reports that it removed the member does the driver re-send it, so two workers never promote the same entry. Up to 5.x this step used `SPOP`, which does not work on a sorted set, so due messages stayed in the schedule ([issue #95](https://github.com/tomaj/hermes/issues/95)).
 
-After a successful `ZREM` the driver unserializes it and calls `send()` with no priority. `send()` sees the same `executeAt` and compares it with a clock read taken after `ZRANGEBYSCORE`, so the message is due and `send()` writes it to the default priority set (`hermes` unless you changed the key). The original priority is not stored on the message, so a delayed message does not return to `hermes_high`.
+After a successful `ZREM` the driver unserializes it and calls `send()` with the priority of that schedule key. `send()` sees the same `executeAt` and compares it with a clock read taken after `ZRANGEBYSCORE`, so the message is due and `send()` writes it to the set of its priority: a message delayed at 110 returns to `hermes_high`. In 5.x there was one schedule key and every delayed message was promoted to the default priority. Entries that 5.x wrote are in `hermes_schedule` and are still promoted, at the default priority ([#183](https://github.com/tomaj/hermes/issues/183)).
 
 ## Predis
 
-`send()` delays when `getExecuteAt()` is truthy and greater than now. The write is `zadd($scheduleKey, [$serialized => $executeAt])`.
+`send()` delays when `getExecuteAt()` is truthy and greater than now. The write is `zadd($this->scheduleKey($priority), [$serialized => $executeAt])`.
 
-`wait()` reads with `zrangebyscore` and `LIMIT OFFSET 0 COUNT 1`, then `zrem`s that exact member. Only when `zrem` returns `1` does it `send()` the member, so two workers never promote the same entry. Up to 5.x Predis ignored the `zrem` result, and concurrent workers could deliver one delayed message twice. The `zrem` itself is the 4.0.1 fix for [issue #48](https://github.com/tomaj/hermes/issues/48). Promotion still uses `send()` without a priority, so the due message joins the default set.
+`send()` uses the same schedule key per priority as the Redis extension driver. `wait()` reads every schedule key with `zrangebyscore` and `LIMIT OFFSET 0 COUNT 1`, then `zrem`s that exact member. Only when `zrem` returns `1` does it `send()` the member, so two workers never promote the same entry. Up to 5.x Predis ignored the `zrem` result, and concurrent workers could deliver one delayed message twice. The `zrem` itself is the 4.0.1 fix for [issue #48](https://github.com/tomaj/hermes/issues/48). Promotion calls `send()` with the priority of the schedule key, so the due message joins the set of its own priority.
 
 ## FileSystem
 
@@ -62,11 +62,11 @@ Pass a Unix timestamp as the fifth `Message` argument, `executeAt`, for example 
 
 ### Where are delayed messages stored?
 
-On Redis and Predis, in the sorted set `hermes_schedule` by default, scored by `executeAt`. The emitter and the worker must use the same schedule key. On `FileSystemDriver`, delayed messages stay in `new/` of their priority folder until the due time in the file name.
+On Redis and Predis, in the sorted set `hermes_schedule` by default (`hermes_schedule:<priority>` for a priority other than 100), scored by `executeAt`. The emitter and the worker must use the same schedule key. On `FileSystemDriver`, delayed messages stay in `new/` of their priority folder until the due time in the file name.
 
 ### Does a delayed message keep its priority?
 
-No. When it is due, the driver calls `send()` without a priority, so it lands on the default priority 100.
+Yes. The Redis drivers keep one schedule set per priority and promote a due message with that priority, and `FileSystemDriver` keeps it in the folder of its priority. In 5.x the Redis drivers promoted every delayed message to the default priority 100 ([#183](https://github.com/tomaj/hermes/issues/183)).
 
 ### What if no worker is running when the message is due?
 

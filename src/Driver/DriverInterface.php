@@ -41,7 +41,8 @@ interface DriverInterface
      * Dispatcher will call this method for receiving data from driver.
      * This can be implemented as infinite loop and checking driver in periodic time for new messages
      * or can be implemented as callback for driver emit method (like rabbitmq or redis pubsub).
-     * When driver receive new message, you have to call $callback with this message like $callback($message)
+     * When driver receive new message, you have to call $callback with this message like $callback($message),
+     * or $callback($message, $priority) for a driver with priorities: a retry is sent back with that priority.
      *
      * @param int[] $priorities
      *

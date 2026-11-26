@@ -42,7 +42,7 @@ class PredisSetDriverIntegrationTest extends TestCase
     protected function tearDown(): void
     {
         if (isset($this->prefix)) {
-            $this->redis->del([$this->prefix, $this->prefix . '_high', $this->prefix . '_schedule', $this->prefix . '_top', $this->prefix . '_low']);
+            $this->redis->del([$this->prefix, $this->prefix . '_high', $this->prefix . '_schedule', $this->prefix . '_schedule:200', $this->prefix . '_top', $this->prefix . '_low']);
         }
     }
 
@@ -73,6 +73,22 @@ class PredisSetDriverIntegrationTest extends TestCase
         self::assertSame('reminder', $received[0][0]->getType());
         self::assertGreaterThanOrEqual(1.0, microtime(true) - $started);
         self::assertSame(0, $this->redis->zcard($this->prefix . '_schedule'));
+    }
+
+    public function testDelayedMessageKeepsItsPriority(): void
+    {
+        $driver = $this->driver();
+        $driver->setupPriorityQueue($this->prefix . '_high', 200);
+        $driver->send(new Message('reminder', executeAt: microtime(true) + 1.5), 200);
+
+        self::assertSame(1, $this->redis->zcard($this->prefix . '_schedule:200'));
+        self::assertSame(0, $this->redis->zcard($this->prefix . '_schedule'));
+
+        $received = $this->receive($driver, 1);
+
+        self::assertSame('reminder', $received[0][0]->getType());
+        self::assertSame(200, $received[0][1]);
+        self::assertSame(0, $this->redis->zcard($this->prefix . '_schedule:200'));
     }
 
     public function testHigherPriorityIsTakenFirst(): void

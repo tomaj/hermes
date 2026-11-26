@@ -57,10 +57,10 @@ final class RedisSetDriver implements DriverInterface
     #[\Override]
     public function send(MessageInterface $message, int $priority = Dispatcher::DEFAULT_PRIORITY): bool
     {
+        $key = $this->getKey($priority);
         if ($message->getExecuteAt() !== null && $message->getExecuteAt() > microtime(true)) {
-            $this->redis->zAdd($this->scheduleKey, $message->getExecuteAt(), $this->serializer->serialize($message));
+            $this->redis->zAdd($this->scheduleKey($priority), $message->getExecuteAt(), $this->serializer->serialize($message));
         } else {
-            $key = $this->getKey($priority);
             $this->redis->sAdd($key, $this->serializer->serialize($message));
         }
         return true;
@@ -70,6 +70,15 @@ final class RedisSetDriver implements DriverInterface
     public function setupPriorityQueue(string $name, int $priority): void
     {
         $this->queues[$priority] = $name;
+    }
+
+    /**
+     * The default priority keeps the plain schedule key, so entries written by 5.x are still
+     * promoted at the default priority; any other priority has its own sorted set.
+     */
+    private function scheduleKey(int $priority): string
+    {
+        return $priority === Dispatcher::DEFAULT_PRIORITY ? $this->scheduleKey : "{$this->scheduleKey}:{$priority}";
     }
 
     /**
@@ -94,6 +103,8 @@ final class RedisSetDriver implements DriverInterface
         // Highest priority first, regardless of the order the queues were set up in
         $queues = $this->queues;
         krsort($queues, SORT_NUMERIC);
+        // every registered priority is promoted, also those this worker does not handle
+        $schedules = array_keys($queues);
         if ($priorities !== []) {
             foreach ($priorities as $priority) {
                 $this->getKey($priority);
@@ -107,13 +118,8 @@ final class RedisSetDriver implements DriverInterface
             }
 
             // check schedule
-            /** @var list<string> $messageStrings */
-            $messageStrings = $this->redis->zRangeByScore($this->scheduleKey, '-inf', sprintf('%.6F', microtime(true)), ['limit' => [0, 1]]);
-            foreach ($messageStrings as $messageString) {
-                // ZREM is atomic: only the worker that actually removed the entry re-sends it
-                if ($this->redis->zRem($this->scheduleKey, $messageString) === 1) {
-                    $this->send($this->serializer->unserialize($messageString));
-                }
+            foreach ($schedules as $priority) {
+                $this->promoteDue($priority);
             }
 
             $messageString = null;
@@ -136,6 +142,25 @@ final class RedisSetDriver implements DriverInterface
                     $this->checkShutdown();
                     sleep($this->refreshInterval);
                 }
+            }
+        }
+    }
+
+    /**
+     * Moves the next due entry of the priority's schedule into its set.
+     *
+     * @throws UnknownPriorityException
+     * @throws SerializeException
+     */
+    private function promoteDue(int $priority): void
+    {
+        $scheduleKey = $this->scheduleKey($priority);
+        /** @var list<string> $messageStrings */
+        $messageStrings = $this->redis->zRangeByScore($scheduleKey, '-inf', sprintf('%.6F', microtime(true)), ['limit' => [0, 1]]);
+        foreach ($messageStrings as $messageString) {
+            // ZREM is atomic: only the worker that actually removed the entry re-sends it
+            if ($this->redis->zRem($scheduleKey, $messageString) === 1) {
+                $this->send($this->serializer->unserialize($messageString), $priority);
             }
         }
     }

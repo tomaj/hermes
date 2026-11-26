@@ -56,7 +56,7 @@ Handler z 5.x má `canRetry()` a `maxRetry()`, vlastné alebo z `RetryTrait`, al
 
 Upgrade z 5.x tak funguje bez úpravy každého handlera, ale je to zastarané a 7.0 to odstráni. Keď takýto handler prvýkrát zlyhá, `Dispatcher` vyvolá `E_USER_DEPRECATED` a zaloguje `warning` s názvom triedy, raz za triedu a proces workera. Kontext `warning` má triedu pod kľúčom `handler`. Do tejto triedy pridajte `implements RetryableHandlerInterface` a vlastnej `canRetry()` dajte parametre `(MessageInterface $message, Throwable $exception)`. Odvtedy rozhoduje `canRetry()`, takže `false` opakovanie naozaj preskočí.
 
-Nová správa si ponechá pôvodné id, typ, payload a `created`. `retries` bude `getRetries() + 1`. `executeAt` dostane hodnotu podľa vzorca nižšie. `send()` sa volá **bez** priority, takže Redis vloží kópiu do množiny naplánovaných správ a keď nastane čas, na kľúč predvolenej priority (`100`).
+Nová správa si ponechá pôvodné id, typ, payload a `created`. `retries` bude `getRetries() + 1`. `executeAt` dostane hodnotu podľa vzorca nižšie. `send()` sa volá s prioritou, s ktorou worker správu prijal, takže Redis vloží kópiu do množiny naplánovaných správ tejto priority a keď nastane čas, späť na kľúč tej istej priority. V 5.x išla kópia na predvolenú prioritu (`100`) ([#183](https://github.com/tomaj/hermes/issues/183)).
 
 Hranicu pokrýva `HandleTest`. Správa, ktorá už má `retries = 5`, s handlerom, ktorého `maxRetry()` je `25`, sa publikuje znova s `retries = 6`. Tá istá správa s `maxRetry()` rovným `5` sa znova nepublikuje, pretože podmienka je `getRetries() < maxRetry()`. `RetryPolicyTest` pokrýva `canRetry()`, rozhranie, trait aj zastarané pravidlo z 5.x vrátane jedného upozornenia na triedu.
 
@@ -131,7 +131,7 @@ Zavolá sa každý handler pre daný typ, aj keď predchádzajúci vyhodil výni
 
 - Žiadne opakovanie, keď je proces zabitý po tom, čo driver správu odstránil, a pred návratom `handle()`.
 - Žiadne opakovanie po vrátení `false`.
-- Žiadne opakovanie podľa priority. Kópia má predvolenú prioritu.
+- Kópia si ponechá prioritu neúspešnej správy. RabbitMQ, SQS a Kafka priority nemajú, takže tam na tom nezáleží.
 - Žiadnu dead-letter frontu v Hermese. Po poslednom povolenom zlyhaní sa metóda vráti a kópia sa nepošle.
 
 ## Časté otázky

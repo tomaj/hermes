@@ -17,7 +17,7 @@ Hermes is a library inside your process. The queue is the only thing shared betw
 
 Only the serialized message. `MessageSerializer` writes JSON with `id`, `type`, `created`, `payload`, `execute_at`, and `retries`. The handler class is not serialized. The worker must register handlers for the types it wants to run.
 
-Priority is not in the JSON. Redis stores it by choosing which set key to `SADD`. After a delayed message is promoted, `send()` is called with the default priority, so the message lands on the default key. The same happens for a retry: `Dispatcher::retryMessage()` calls `send()` with one argument.
+Priority is not in the JSON. Redis stores it by choosing which set key to `SADD`, and a delayed message by choosing the schedule key: `hermes_schedule` for the default priority, `hermes_schedule:<priority>` for any other. When a delayed message is promoted, `send()` is called with the priority of its schedule key, so the message lands on the key of its own priority. A retry keeps its priority too: `Dispatcher::retryMessage()` passes the priority the driver handed to the callback ([#183](https://github.com/tomaj/hermes/issues/183)).
 
 ## Who removes the message
 

@@ -62,7 +62,7 @@ $dispatcher->handle([Dispatcher::DEFAULT_PRIORITY + 10]);
 
 Argument je celočíselná priorita, nie názov kľúča `hermes_high`.
 
-Hermes nepoužíva Redis list. Živé správy sú prvky množiny. Odložené správy sú prvky zoradenej množiny. Každé číslo priority má vlastný kľúč množiny. Predvolený kľúč je `hermes` s prioritou `100`. Kľúč plánovača je predvolene `hermes_schedule`.
+Hermes nepoužíva Redis list. Živé správy sú prvky množiny. Odložené správy sú prvky zoradenej množiny. Každé číslo priority má vlastný kľúč množiny. Predvolený kľúč je `hermes` s prioritou `100`. Kľúč plánovača je predvolene `hermes_schedule`; odložené správy s inou prioritou idú do `hermes_schedule:<priorita>`, takže sa vrátia so svojou prioritou.
 
 <Diagram name="drivers-redis-1" alt="Redis send: budúce správy idú do zoradenej množiny hermes_schedule, ostatné do množiny svojej priority" />
 
@@ -71,10 +71,11 @@ Hermes nepoužíva Redis list. Živé správy sú prvky množiny. Odložené spr
 ## Čo zapisuje `send()`
 
 ```php
+$key = $this->getKey($priority); // UnknownPriorityException for an unregistered priority
 if ($message->getExecuteAt() !== null && $message->getExecuteAt() > microtime(true)) {
-    $this->redis->zAdd($this->scheduleKey, $message->getExecuteAt(), $serialized);
+    $this->redis->zAdd($this->scheduleKey($priority), $message->getExecuteAt(), $serialized);
 } else {
-    $this->redis->sAdd($this->getKey($priority), $serialized);
+    $this->redis->sAdd($key, $serialized);
 }
 ```
 

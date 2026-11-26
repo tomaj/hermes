@@ -133,6 +133,8 @@ public function wait(Closure $callback, array $priorities): void;
 
 `RedisSetDriver`, `PredisSetDriver` and `FileSystemDriver` throw `InvalidArgumentException` from the constructor for a negative `$refreshInterval`, and `FileSystemDriver` also for a negative `$visibilityTimeout`.
 
+The Redis drivers schedule delayed messages of the default priority in `$scheduleKey` and those of any other priority in `$scheduleKey:<priority>`, and promote a due message with its priority. `send()` throws `UnknownPriorityException` for an unregistered priority also when the message is delayed.
+
 All six `use` `MaxItemsTrait`, `ShutdownTrait`, and `SerializerAwareTrait`.
 
 ## Traits

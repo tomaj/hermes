@@ -65,7 +65,7 @@ Procesu so 110 dajte viac replík ako ostatným. Každý proces robí `SPOP` len
 ## Ďalšie obmedzenia
 
 - Množina nie je zoradená. Dve správy v `hermes_high` sa vyberajú cez `SPOP`, ktorý nie je FIFO.
-- Opakovania a presunuté odložené správy volajú `send()` bez priority, takže skončia v kľúči `hermes` so 100.
+- Opakovania a presunuté odložené správy si ponechajú prioritu: dispatcher pošle opakovanie s prioritou, s ktorou správu prijal, a Redis drivery majú množinu plánovača pre každú prioritu (`hermes_schedule:110`). V 5.x obe skončili v kľúči `hermes` so 100 ([#183](https://github.com/tomaj/hermes/issues/183)).
 - JSON správy nemá pole priority. Worker pôvodné číslo z payloadu nezistí.
 
 ## Časté otázky

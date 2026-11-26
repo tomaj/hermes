@@ -128,7 +128,7 @@ final class Dispatcher implements DispatcherInterface
                     $this->messageLoggerContext($message),
                 );
 
-                $result = $this->dispatch($message);
+                $result = $this->dispatch($message, $priority);
 
                 // A driver with ShutdownTrait gets the result and stops at its next checkShutdown().
                 // Any other driver has no check of its own, so stop it after the message, as in 5.x.
@@ -206,9 +206,9 @@ final class Dispatcher implements DispatcherInterface
     }
 
     /**
-     * Dispatch message
+     * Dispatch message; $priority is the one it was received with, retries are sent back with it
      */
-    private function dispatch(MessageInterface $message): bool
+    private function dispatch(MessageInterface $message, int $priority): bool
     {
         $type = $message->getType();
 
@@ -219,7 +219,7 @@ final class Dispatcher implements DispatcherInterface
         $result = true;
 
         foreach ($this->handlers[$type] as $handler) {
-            $handlerResult = $this->handleMessage($handler, $message);
+            $handlerResult = $this->handleMessage($handler, $message, $priority);
 
             if ($result && !$handlerResult) {
                 $result = false;
@@ -232,7 +232,7 @@ final class Dispatcher implements DispatcherInterface
     /**
      * Handle given message with given handler
      */
-    private function handleMessage(HandlerInterface $handler, MessageInterface $message): bool
+    private function handleMessage(HandlerInterface $handler, MessageInterface $message, int $priority): bool
     {
         // check if handler implements Psr\Log\LoggerAwareInterface (you can use \Psr\Log\LoggerAwareTrait)
         if ($this->logger instanceof LoggerInterface && method_exists($handler, 'setLogger')) {
@@ -256,7 +256,7 @@ final class Dispatcher implements DispatcherInterface
             );
             $this->reportToTracy($e);
 
-            $this->retryMessage($message, $handler, $e);
+            $this->retryMessage($message, $handler, $e, $priority);
 
             $result = false;
         }
@@ -264,9 +264,9 @@ final class Dispatcher implements DispatcherInterface
     }
 
     /**
-     * Helper function for sending retrying message back to driver
+     * Helper function for sending retrying message back to driver, at the priority it was received with
      */
-    private function retryMessage(MessageInterface $message, HandlerInterface $handler, Throwable $exception): void
+    private function retryMessage(MessageInterface $message, HandlerInterface $handler, Throwable $exception, int $priority): void
     {
         if ($handler instanceof RetryableHandlerInterface) {
             $retry = $message->getRetries() < $handler->maxRetry() && $handler->canRetry($message, $exception);
@@ -289,7 +289,7 @@ final class Dispatcher implements DispatcherInterface
                 $message->getCreated(),
                 $this->nextRetry($message),
                 $message->getRetries() + 1,
-            ));
+            ), $priority);
         } catch (Throwable $sendException) {
             // Rethrown: drivers that acknowledge after the callback deliver the message again, the Redis
             // drivers have already removed it. Log it here so the lost retry is visible.

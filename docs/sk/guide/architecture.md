@@ -17,7 +17,7 @@ Hermes je knižnica vo vašom procese. Fronta je jediné, čo požiadavka a work
 
 Len serializovaná správa. `MessageSerializer` zapisuje JSON s `id`, `type`, `created`, `payload`, `execute_at` a `retries`. Trieda handlera sa neserializuje. Worker musí zaregistrovať handlery pre typy, ktoré chce spúšťať.
 
-Priorita v JSON nie je. Redis ju uloží výberom kľúča množiny, do ktorej robí `SADD`. Keď sa odložená správa presunie do fronty, `send()` sa zavolá s predvolenou prioritou, takže správa skončí na predvolenom kľúči. To isté platí pre opakovanie: `Dispatcher::retryMessage()` volá `send()` s jedným argumentom.
+Priorita v JSON nie je. Redis ju uloží výberom kľúča množiny, do ktorej robí `SADD`, a pri odloženej správe výberom kľúča plánovača: `hermes_schedule` pre predvolenú prioritu, `hermes_schedule:<priorita>` pre každú inú. Keď sa odložená správa presunie do fronty, `send()` sa zavolá s prioritou jej kľúča plánovača, takže správa skončí na kľúči svojej priority. Prioritu si ponechá aj opakovanie: `Dispatcher::retryMessage()` odovzdá prioritu, s ktorou driver zavolal callback ([#183](https://github.com/tomaj/hermes/issues/183)).
 
 ## Kto správu odstráni
 

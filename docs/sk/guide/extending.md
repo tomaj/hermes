@@ -83,7 +83,7 @@ class MemoryDriver implements DriverInterface
 }
 ```
 
-Volajte `$callback($message, $priority)`. Dispatcher toto číslo zaloguje. Ak ho vynecháte, parameter closure má predvolenú hodnotu `Dispatcher::DEFAULT_PRIORITY`.
+Volajte `$callback($message, $priority)`. Dispatcher toto číslo zaloguje a s ním pošle opakovanie správy späť do vášho `send()`, takže `send()` musí prijať každú prioritu, ktorú tu odovzdáte. Ak ho vynecháte, parameter closure má predvolenú hodnotu `Dispatcher::DEFAULT_PRIORITY`.
 
 `SerializerAwareTrait` vám dá `setSerializer()`. Vstavané drivery ho používajú a `MessageSerializer` si vytvárajú samy. Urobte to isté, ak má váš driver prijať náhradu.
 

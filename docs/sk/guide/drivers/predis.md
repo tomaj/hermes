@@ -61,10 +61,12 @@ new PredisShutdown($redis)->shutdown();
 Splatná správa alebo správa bez `executeAt` sa vloží cez `sadd` do kľúča priority. Budúca správa takto:
 
 ```php
-$this->redis->zadd($this->scheduleKey, [
+$this->redis->zadd($this->scheduleKey($priority), [
     $this->serializer->serialize($message) => $message->getExecuteAt(),
 ]);
 ```
+
+`scheduleKey($priority)` je `hermes_schedule` pre predvolenú prioritu a `hermes_schedule:<priorita>` pre každú inú, takže sa odložená správa vráti so svojou prioritou.
 
 Táto mapa prvok → skóre je tvar, ktorý Predis očakáva. Je to oprava [issue #48](https://github.com/tomaj/hermes/issues/48), kde sa opakovanie plánovalo s argumentmi naopak.
 
