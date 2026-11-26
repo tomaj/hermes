@@ -10,6 +10,12 @@ Releases are published by `.github/workflows/release.yml` when a version tag is 
    .github/scripts/release-notes.sh X.Y.Z
    ```
 
+   For a major version (`X.0.0`), the same pull request also:
+
+   - finishes `UPGRADE-X.0.md`: every breaking change of the CHANGELOG section with before/after code;
+   - updates the supported versions table in `SECURITY.md`: the new line `X.x` gets bug and security fixes, the previous line gets security fixes only until the release date plus six months (write the date), and the line before it is no longer supported;
+   - archives the documentation of the previous major and adds it to the version menu, as described in [`docs/guide/versioning.md`](docs/guide/versioning.md) ("Adding the next major version"), in English and Slovak.
+
 2. Merge the pull request and wait for CI on `master`.
 3. Tag the merge commit and push the tag:
 
@@ -18,6 +24,8 @@ Releases are published by `.github/workflows/release.yml` when a version tag is 
    git tag -a X.Y.Z -m X.Y.Z
    git push origin X.Y.Z
    ```
+
+4. After the release is published, close the `X.Y.Z` milestone and open the milestone of the next version (titled with the version, for example `X.Y.(Z+1)` or `X.(Y+1).0`, with a one-sentence description). Move the issues that did not make it into the new milestone or into `Backlog`.
 
 The workflow then:
 

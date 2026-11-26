@@ -16,6 +16,8 @@
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/tomaj/hermes/badge)](https://scorecard.dev/viewer/?uri=github.com/tomaj/hermes)
 [![PHPStan](https://img.shields.io/badge/PHPStan-level%20max-brightgreen.svg)](https://phpstan.org/)
 [![Documentation](https://img.shields.io/badge/docs-6.x-4f46e5.svg)](https://tomaj.github.io/hermes/)
+[![License](https://img.shields.io/packagist/l/tomaj/hermes.svg)](LICENSE.md)
+[![PHP Version Require](https://img.shields.io/packagist/dependency-v/tomaj/hermes/php.svg)](https://packagist.org/packages/tomaj/hermes)
 
 ## What is Hermes?
 
