@@ -194,12 +194,47 @@ Hermes 6.0. Upgrade steps for every breaking change are in [UPGRADE-6.0.md](UPGR
 * Upgraded phpunit and tests
 * **BREAKING CHANGE** Drop support for php 7.1
 
+## [2.2.3] - 2021-01-31
+
+Maintenance release of the 2.x line, tagged after 3.1.0.
+
+### Fixed
+
+* `SharedFileRestart` clears PHP's stat cache before it checks the restart file, so a long-running worker notices a restart requested after it started instead of reading a cached file time.
+
+## [2.2.2] - 2019-10-29
+
+### Fixed
+
+* `LazyRabbitMqDriver` no longer calls `basic_ack` after the callback. Since 2.2.1 it consumes with `no_ack = true`, so RabbitMQ already removed the message and the extra acknowledgement of an unknown delivery tag closed the channel ([#30](https://github.com/tomaj/hermes/pull/30)).
+
+## [2.2.1] - 2019-09-11
+
+`LazyRabbitMqDriver` changes back to the queue and consumer settings used before 2.2.0.
+
+### Changed
+
+* `LazyRabbitMqDriver` declares the queue as non-durable again, so it works with queues that were created by Hermes before 2.2.0 (2.2.0 declared a durable queue, which RabbitMQ rejects for an existing non-durable queue).
+* `LazyRabbitMqDriver` consumes with `no_ack = true` (automatic acknowledgement). A message is removed from the queue when it is delivered, so it is lost if the worker crashes while handling it.
+
 ## [2.2.0] - 2019-07-12
 
 ### Added
 
-* Ability to register multiple handlers at once for one key (`registerHandlers` in `DispatcherInterface`)
 * Fixed loss of messages when the handler crashes and mechanism of retries for RabbitMQ Drivers 
+
+## [2.1.1] - 2019-07-08
+
+Fixes for delayed execution and retries introduced in 2.1.0.
+
+### Added
+
+* `Dispatcher::registerHandlers()` (also in `DispatcherInterface`) registers several handlers for one message type at once.
+* The dispatcher log context carries the message `retries` and `execute_at`.
+
+### Fixed
+
+* `MessageSerializer` converts `execute_at` to a float when unserializing, so a scheduled or retried message restored by a driver keeps a valid execution time.
 
 ## [2.1.0] - 2019-07-06
 
@@ -207,11 +242,18 @@ Hermes 6.0. Upgrade steps for every breaking change are in [UPGRADE-6.0.md](UPGR
 
 * Added retry to handlers
 
-#### Added
+## [2.0.1] - 2019-03-08
 
-* Added missing handle() method to DispatcherInterface
+### Added
 
-## [2.0.0] - 2018-08-14
+* Added missing `handle()` method to `DispatcherInterface` ([#25](https://github.com/tomaj/hermes/pull/25)).
+
+### Fixed
+
+* Syntax error in the new `DispatcherInterface::handle()` declaration ([#26](https://github.com/tomaj/hermes/pull/26)).
+* `Closure` type in the `DriverInterface::wait()` docblock ([#27](https://github.com/tomaj/hermes/pull/27)).
+
+## [2.0.0] - 2018-10-17
 
 ### Added
 
@@ -220,12 +262,27 @@ Hermes 6.0. Upgrade steps for every breaking change are in [UPGRADE-6.0.md](UPGR
 
 ### Changed
 
-* Dropped support for php 5.4
-* Deprecated emit() in Disapatcher - introduced Emitter
+* **BREAKING CHANGE**: Dropped support for old PHP versions: Hermes requires PHP 7.1 or newer.
+
+## [1.3.1] - 2016-11-27
+
+Dependency fix: Hermes no longer pins `psr/log` to one exact version.
+
+### Fixed
+
+* `psr/log` is required as `^1.0` instead of exactly `1.0.0`, so Hermes installs next to applications and loggers (for example Monolog) that need a newer `psr/log` 1.x.
+
+## [1.3.0] - 2016-10-27
+
+### Changed
+
+* Deprecated `emit()` in `Dispatcher` - moved to the new `Emitter` class (`EmitterInterface`).
+* **BREAKING CHANGE**: `emit()` was removed from `DispatcherInterface`; implementations and type hints that call `emit()` through the interface use `EmitterInterface` instead.
+* **BREAKING CHANGE**: Dropped support for PHP 5.4: Hermes requires PHP 5.5 or newer.
 
 ## [1.2.0] - 2016-09-26
 
-### Updated
+### Changed
 
 * Amazon aws library updated to version 3 in composer - still works with v2 but you have to initialize Sqs client in v2 style
 
@@ -277,10 +334,17 @@ Hermes 6.0. Upgrade steps for every breaking change are in [UPGRADE-6.0.md](UPGR
 [4.0.0]: https://github.com/tomaj/hermes/compare/3.1.0...4.0.0
 [3.1.0]: https://github.com/tomaj/hermes/compare/3.0.1...3.1.0
 [3.0.1]: https://github.com/tomaj/hermes/compare/3.0.0...3.0.1
-[3.0.0]: https://github.com/tomaj/hermes/compare/2.2.0...3.0.0
-[2.2.0]: https://github.com/tomaj/hermes/compare/2.1.0...2.2.0
-[2.1.0]: https://github.com/tomaj/hermes/compare/2.0.0...2.1.0
-[2.0.0]: https://github.com/tomaj/hermes/compare/1.2.0...2.0.0
+[3.0.0]: https://github.com/tomaj/hermes/compare/2.2.2...3.0.0
+[2.2.3]: https://github.com/tomaj/hermes/compare/2.2.2...2.2.3
+[2.2.2]: https://github.com/tomaj/hermes/compare/2.2.1...2.2.2
+[2.2.1]: https://github.com/tomaj/hermes/compare/2.2.0...2.2.1
+[2.2.0]: https://github.com/tomaj/hermes/compare/2.1.1...2.2.0
+[2.1.1]: https://github.com/tomaj/hermes/compare/2.1.0...2.1.1
+[2.1.0]: https://github.com/tomaj/hermes/compare/2.0.1...2.1.0
+[2.0.1]: https://github.com/tomaj/hermes/compare/2.0.0...2.0.1
+[2.0.0]: https://github.com/tomaj/hermes/compare/1.3.1...2.0.0
+[1.3.1]: https://github.com/tomaj/hermes/compare/1.3.0...1.3.1
+[1.3.0]: https://github.com/tomaj/hermes/compare/1.2.0...1.3.0
 [1.2.0]: https://github.com/tomaj/hermes/compare/1.1.0...1.2.0
 [1.1.0]: https://github.com/tomaj/hermes/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/tomaj/hermes/compare/0.4.0...1.0.0

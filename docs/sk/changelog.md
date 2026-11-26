@@ -60,18 +60,22 @@ Podpora mäkkého reštartu v driveroch toho vydania, consumer tag v `LazyRabbit
 - ZeroMQ driver sa presunul do [tomaj/hermes-zmq-driver](https://github.com/tomaj/hermes-zmq-driver).
 - Podpora PHP 7.1 skončila.
 
-## 2.2.0
+## 2.2.3
 
-`registerHandlers()` registruje viac handlerov pre jeden typ. RabbitMQ drivery dostali v tomto vydaní opravu opakovania súvisiacu s ack. `LazyRabbitMqDriver` konzumoval s `no_ack = true` až do 6.0. Toto volanie opisuje [RabbitMQ](/sk/guide/drivers/rabbitmq).
+Vydané na rade 2.x po 3.1.0: `SharedFileRestart` pred kontrolou súboru reštartu vyčistí stat cache PHP, takže dlho bežiaci worker si všimne aj neskorší reštart.
 
-## 2.1.0
+## 2.2.0 až 2.2.2
 
-Handlery môžu opakovať. Do rozhrania pribudlo `DispatcherInterface::handle()`.
+2.2.0 zaviedlo v `LazyRabbitMqDriver` potvrdenie správy až po handleri, durable frontu a vlastnosti AMQP správy. 2.2.1 sa vrátilo k non-durable fronte a `no_ack = true`, pretože durable deklarácia na existujúcich frontách zlyhávala; takto driver konzumoval až do 6.0. 2.2.2 odstránilo zvyšné potvrdenie po callbacku. Správanie v 6.0 opisuje [RabbitMQ](/sk/guide/drivers/rabbitmq).
 
-## 2.0.0
+## 2.1.0 a 2.1.1
 
-Správy dostali `executeAt`. `Emitter` nahradil `Dispatcher::emit()`, ktorý stále existuje a je zastaraný. Podpora PHP 5.4 skončila.
+Handlery môžu opakovať (`RetryTrait`). 2.1.1 pridalo `registerHandlers()`, ktoré registruje viac handlerov pre jeden typ, doplnilo `retries` a `execute_at` do kontextu logu dispatchera a opravilo `execute_at` po deserializácii.
+
+## 2.0.0 a 2.0.1
+
+Správy dostali `executeAt`, kód typové deklarácie a minimom sa stalo PHP 7.1. 2.0.1 pridalo `handle()` do `DispatcherInterface`.
 
 ## 1.x a staršie
 
-1.2.0 aktualizovalo odporúčanú hlavnú verziu AWS SDK. 1.1.0 pridalo Amazon SQS. 1.0.0 bolo prvé stabilné vydanie a pridalo ack do vtedajšieho RabbitMQ drivera. 0.4.0 pridalo lenivý RabbitMQ driver. 0.3.0 pridalo plynulý reštart a logovanie výnimiek do Tracy. 0.2.0 zmenilo spracovanie návratových hodnôt handlerov. 0.1.0 bolo prvé vydanie s dvoma drivermi.
+1.3.1 povolilo ľubovoľné `psr/log` 1.x. 1.3.0 zaviedlo `Emitter`, označilo `Dispatcher::emit()` za zastarané a odstránilo ho z `DispatcherInterface` a ukončilo podporu PHP 5.4. 1.2.0 aktualizovalo odporúčanú hlavnú verziu AWS SDK. 1.1.0 pridalo Amazon SQS. 1.0.0 bolo prvé stabilné vydanie a pridalo ack do vtedajšieho RabbitMQ drivera. 0.4.0 pridalo lenivý RabbitMQ driver. 0.3.0 pridalo plynulý reštart a logovanie výnimiek do Tracy. 0.2.0 zmenilo spracovanie návratových hodnôt handlerov. 0.1.0 bolo prvé vydanie s dvoma drivermi.

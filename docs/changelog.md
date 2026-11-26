@@ -60,18 +60,22 @@ Soft restart support on the drivers of that release, a consumer tag on `LazyRabb
 - The ZeroMQ driver moved to [tomaj/hermes-zmq-driver](https://github.com/tomaj/hermes-zmq-driver).
 - PHP 7.1 was dropped.
 
-## 2.2.0
+## 2.2.3
 
-`registerHandlers()` registers several handlers for one type. RabbitMQ drivers gained an ack-related retry fix in that release. `LazyRabbitMqDriver` consumed with `no_ack = true` until 6.0. [RabbitMQ](/guide/drivers/rabbitmq) describes that call.
+Tagged on the 2.x line after 3.1.0: `SharedFileRestart` clears PHP's stat cache before it checks the restart file, so a long-running worker notices a later restart.
 
-## 2.1.0
+## 2.2.0 to 2.2.2
 
-Handlers can retry. `DispatcherInterface::handle()` was added to the interface.
+2.2.0 made `LazyRabbitMqDriver` acknowledge a message after the handler, declare a durable queue and accept AMQP message properties. 2.2.1 went back to a non-durable queue and `no_ack = true`, because the durable declaration failed on existing queues; the driver consumed that way until 6.0. 2.2.2 removed the leftover acknowledgement after the callback. [RabbitMQ](/guide/drivers/rabbitmq) describes the 6.0 behaviour.
 
-## 2.0.0
+## 2.1.0 and 2.1.1
 
-Messages gained `executeAt`. `Emitter` replaced `Dispatcher::emit()`, which is still present and deprecated. PHP 5.4 was dropped.
+Handlers can retry (`RetryTrait`). 2.1.1 added `registerHandlers()`, which registers several handlers for one type, put `retries` and `execute_at` into the dispatcher log context, and fixed `execute_at` after unserializing.
+
+## 2.0.0 and 2.0.1
+
+Messages gained `executeAt`, the code got type hints, and PHP 7.1 became the minimum. 2.0.1 added `handle()` to `DispatcherInterface`.
 
 ## 1.x and earlier
 
-1.2.0 updated the suggested AWS SDK major. 1.1.0 added Amazon SQS. 1.0.0 was the first stable release and added ack on the RabbitMQ driver of that time. 0.4.0 added the lazy RabbitMQ driver. 0.3.0 added graceful restart and Tracy exception logging. 0.2.0 changed how handler return values are treated. 0.1.0 was the initial release with two drivers.
+1.3.1 allowed any `psr/log` 1.x. 1.3.0 introduced `Emitter`, deprecated `Dispatcher::emit()` and removed it from `DispatcherInterface`, and dropped PHP 5.4. 1.2.0 updated the suggested AWS SDK major. 1.1.0 added Amazon SQS. 1.0.0 was the first stable release and added ack on the RabbitMQ driver of that time. 0.4.0 added the lazy RabbitMQ driver. 0.3.0 added graceful restart and Tracy exception logging. 0.2.0 changed how handler return values are treated. 0.1.0 was the initial release with two drivers.
