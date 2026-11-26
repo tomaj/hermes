@@ -83,7 +83,7 @@ class MemoryDriver implements DriverInterface
 }
 ```
 
-Call `$callback($message, $priority)`. The dispatcher logs that integer. If you omit it, the closure parameter defaults to `Dispatcher::DEFAULT_PRIORITY`.
+Call `$callback($message, $priority)`. The dispatcher logs that integer and sends a retry of the message back to your `send()` with it, so `send()` must accept every priority you pass here. If you omit it, the closure parameter defaults to `Dispatcher::DEFAULT_PRIORITY`.
 
 `SerializerAwareTrait` gives you `setSerializer()`. The built-in drivers `use` it and construct a `MessageSerializer` themselves. Copy that if your driver should accept a replacement.
 
