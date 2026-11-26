@@ -15,10 +15,12 @@
             "homepage": "http://www.tomaj.sk/"
         }
     ],
-    "homepage": "https://github.com/tomaj/hermes",
+    "homepage": "https://tomaj.github.io/hermes/",
     "support": {
         "issues": "https://github.com/tomaj/hermes/issues",
-        "source": "https://github.com/tomaj/hermes"
+        "source": "https://github.com/tomaj/hermes",
+        "docs": "https://tomaj.github.io/hermes/",
+        "security": "https://github.com/tomaj/hermes/security/policy"
     },
     "require": {
         "php": "^8.4",
@@ -104,5 +106,18 @@
             "@putenv HERMES_REQUIRE_SERVICES=1",
             "phpunit --no-coverage"
         ]
+    },
+    "scripts-descriptions": {
+        "check": "Runs code style, PHPStan, Rector and the tests.",
+        "coverage": "Runs the tests with coverage (Clover in build/logs, HTML in build/coverage; needs Xdebug or PCOV).",
+        "cs-fix": "Fixes the code style with PHP-CS-Fixer.",
+        "infection": "Runs Infection mutation testing (thresholds in infection.json5; needs Xdebug or PCOV).",
+        "phpcs": "Checks the code style with PHP-CS-Fixer (dry run).",
+        "phpstan": "Runs PHPStan static analysis (level max).",
+        "phpunit": "Runs the PHPUnit tests without coverage; integration tests are skipped without the HERMES_TEST_* services.",
+        "rector": "Shows the changes Rector would make (dry run, must be none).",
+        "rector-fix": "Applies the Rector changes.",
+        "test": "Runs the PHPUnit tests (alias of phpunit).",
+        "test:integration": "Runs the tests against the services from compose.yaml (Redis, RabbitMQ, moto, Kafka) and fails when one is missing."
     }
 }

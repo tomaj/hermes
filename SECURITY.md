@@ -40,8 +40,10 @@ When a fix is ready, we publish a [GitHub Security Advisory](https://github.com/
 
 ## Security considerations
 
-Hermes moves job payloads through Redis, RabbitMQ, Amazon SQS, or a custom driver. Treat the queue as a trusted channel:
+Hermes moves job payloads through Redis, RabbitMQ, Amazon SQS, Kafka, a local directory (`FileSystemDriver`), or a custom driver. Anyone who can write to the queue can make your workers run handlers with any payload, so treat the queue as a trusted channel:
 
-- Keep credentials for Redis, RabbitMQ, and AWS in the environment or a secret store. Do not commit them.
+- Keep credentials for Redis, RabbitMQ, AWS and Kafka in the environment or a secret store. Do not commit them.
 - Payloads can contain personal or business data. Limit who can publish and consume messages, and avoid logging full payloads.
+- **Kafka:** configure TLS and SASL (`security.protocol`, `sasl.*`, `ssl.*`) on the `RdKafka\Conf` you pass to the producer and consumer, with the values from the environment, and restrict the Hermes topic and consumer group with Kafka ACLs to the principals of your emitters and workers.
+- **FileSystemDriver:** every message is a plain JSON file with the full payload, in `tmp/`, `new/`, `processing/` and `failed/` under the queue directory. Folders are created with mode `0775` and files with `0666`, both minus the process umask. Keep the queue directory outside the web root, owned by the user that runs the emitters and workers, and not readable or writable by other users (a umask such as `0007` or `0077`, or a parent directory with mode `0700`/`0770`).
 - Run workers with the least privilege they need, and keep Hermes and its driver clients up to date.
