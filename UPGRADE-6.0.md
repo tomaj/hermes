@@ -29,11 +29,11 @@ These still work in 6.x. Each one triggers `E_USER_DEPRECATED` silenced with `@`
 
 ## Requirements
 
-- PHP 8.4 or newer.
+- PHP 8.4 or newer ([#67](https://github.com/tomaj/hermes/pull/67)). 6.0 is tested on PHP 8.4, 8.5 and 8.6.
 - `predis/predis` `^2.3 || ^3.0` if you use `PredisSetDriver` or `PredisShutdown`. Predis is only a suggested package, but `composer.json` declares a `conflict` with `predis/predis` `<2.3`, so Composer refuses to install Hermes 6 next to an older Predis: upgrade it in the same `composer update`.
 - `ramsey/uuid` `^4.7`. Composer resolves it unless your project pins an older version.
 - `tracy/tracy` is no longer required, only suggested. If you use Tracy, require it yourself (`composer require tracy/tracy`). See [Tracy is optional](#tracy-is-optional).
-- `psr/log` `^2 || ^3`. psr/log 1.x (no native types) is no longer allowed; a project that pins `psr/log` 1.x must upgrade it.
+- `psr/log` `^2 || ^3`. psr/log 1.x (no native types) is no longer allowed; a project that pins `psr/log` 1.x must upgrade it ([#87](https://github.com/tomaj/hermes/issues/87)).
 - `ext-json` is no longer listed in `require`: it is always enabled since PHP 8.0.
 - Optional: `ext-pcntl` (listed under `suggest`) lets the worker finish its message and stop on `SIGTERM`/`SIGINT`. See [SIGTERM and SIGINT stop the worker gracefully](#sigterm-and-sigint-stop-the-worker-gracefully).
 
@@ -228,7 +228,7 @@ An implementation that called `DateTime` methods such as `modify()` on `$startTi
 
 ## Classes are final
 
-Every concrete class in `src/` is `final` ([#81](https://github.com/tomaj/hermes/issues/81)): `Message`, `MessageSerializer`, `Emitter`, `Dispatcher`, `EchoHandler`, the six drivers, the three shutdowns, and the exceptions `SerializeException`, `ShutdownException`, `NotSupportedException`, `UnknownPriorityException`, `FileSystemDriverException` and `KafkaDriverException`. `HermesException` stays open, because the other exceptions extend it, and so can yours.
+Every concrete class in `src/` is `final` ([#81](https://github.com/tomaj/hermes/issues/81)): `Message`, `MessageSerializer`, `Emitter`, `Dispatcher`, `EchoHandler`, the six drivers, the three shutdowns, and every exception class except `HermesException` (`SerializeException`, `ShutdownException`, `NotSupportedException`, `UnknownPriorityException` and the driver exceptions such as `FileSystemDriverException` and `KafkaDriverException`). `HermesException` stays open, because the other exceptions extend it, and so can yours.
 
 If you extended one of these classes, switch to the interface it implements and wrap the built-in class:
 
