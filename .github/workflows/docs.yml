@@ -46,6 +46,10 @@ jobs:
         run: npm ci
         working-directory: docs
 
+      - name: Audit npm dependencies
+        run: npm audit --audit-level=low
+        working-directory: docs
+
       - name: Check links on the built site
         run: bash scripts/check-links.sh
         working-directory: docs
