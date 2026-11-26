@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
+use Rector\DeadCode\Rector\ClassMethod\RemoveEmptyClassMethodRector;
 use Rector\DeadCode\Rector\ClassMethod\RemoveUselessReturnTagRector;
 
 return RectorConfig::configure()
@@ -16,9 +17,10 @@ return RectorConfig::configure()
         deadCode: true,
         codeQuality: true,
         typeDeclarations: true,
-        earlyReturn: true,
     )
     ->withSkip([
         // "@return $this" documents the fluent contract of the interfaces.
         RemoveUselessReturnTagRector::class,
+        // The empty setShutdown() override is the point of this test: a driver that ignores the shutdown.
+        RemoveEmptyClassMethodRector::class => [__DIR__ . '/tests/Shutdown/DispatcherShutdownTest.php'],
     ]);
