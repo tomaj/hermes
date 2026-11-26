@@ -20,7 +20,8 @@ notes=$(awk -v version="$version" '
 # drop leading and trailing blank lines
 notes=$(printf '%s\n' "$notes" | sed -e '/./,$!d' | sed -e ':a' -e '/^\n*$/{$d;N;ba' -e '}')
 
-if [[ -z "${notes//[[:space:]]/}" ]]; then
+# a regex test, not ${notes//[[:space:]]/}: that is quadratic in bash 3.2 (macOS) and hangs on a long section (#192)
+if [[ ! "$notes" =~ [^[:space:]] ]]; then
     echo "error: no \"## [${version}] - <date>\" section with content in ${changelog}" >&2
     exit 1
 fi
