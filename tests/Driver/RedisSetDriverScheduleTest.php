@@ -7,10 +7,12 @@ namespace Tomaj\Hermes\Test\Driver;
 use PHPUnit\Framework\TestCase;
 use Redis;
 use Tomaj\Hermes\Driver\RedisSetDriver;
+use Tomaj\Hermes\Driver\UnknownPriorityException;
 use Tomaj\Hermes\Message;
 use Tomaj\Hermes\MessageInterface;
 use Tomaj\Hermes\MessageSerializer;
 use Tomaj\Hermes\SerializerInterface;
+use Tomaj\Hermes\Test\Shutdown\PollBudgetShutdown;
 
 /**
  * @covers \Tomaj\Hermes\Driver\RedisSetDriver
@@ -73,5 +75,65 @@ class RedisSetDriverScheduleTest extends TestCase
             $ids[] = $message->getId();
         });
         self::assertSame(['fallback'], $ids);
+    }
+
+    public function testDelayedMessageWithAPriorityIsScheduledInTheSetOfThatPriority(): void
+    {
+        $executeAt = microtime(true) + 3600;
+        $message = new Message('type', [], 'id-1', null, $executeAt);
+        $redis = $this->createMock(Redis::class);
+        $redis->expects(self::once())->method('zAdd')
+            ->with('sched:200', $executeAt, new MessageSerializer()->serialize($message));
+
+        $driver = new RedisSetDriver($redis, 'q', 0, 'sched');
+        $driver->setupPriorityQueue('q_high', 200);
+
+        self::assertTrue($driver->send($message, 200));
+    }
+
+    public function testDelayedMessageWithAnUnknownPriorityIsRejected(): void
+    {
+        $redis = $this->createMock(Redis::class);
+        $redis->expects(self::never())->method('zAdd');
+
+        $this->expectException(UnknownPriorityException::class);
+        new RedisSetDriver($redis, 'q', 0, 'sched')->send(new Message('type', [], 'id-1', null, microtime(true) + 3600), 200);
+    }
+
+    public function testDueEntriesArePromotedToTheQueueOfTheirPriority(): void
+    {
+        $high = new MessageSerializer()->serialize(new Message('type', [], 'high', null, microtime(true) - 60));
+        // an entry without a priority, as 6.0 wrote them, comes back at the default priority
+        $old = new MessageSerializer()->serialize(new Message('type', [], 'old', null, microtime(true) - 60));
+        $schedules = ['sched:200' => [$high], 'sched' => [$old]];
+        /** @var array<string, list<string>> $sets */
+        $sets = [];
+        $redis = $this->createMock(Redis::class);
+        $redis->method('zRangeByScore')->willReturnCallback(static function (string $key) use (&$schedules): array {
+            $due = $schedules[$key] ?? [];
+            unset($schedules[$key]);
+            return $due;
+        });
+        $redis->expects(self::exactly(2))->method('zRem')->willReturn(1);
+        $redis->method('sAdd')->willReturnCallback(static function (string $key, string $member) use (&$sets): int {
+            $sets[$key][] = $member;
+            return 1;
+        });
+        $redis->method('sPop')->willReturnCallback(static function (string $key) use (&$sets): string|false {
+            return isset($sets[$key]) && $sets[$key] !== [] ? array_shift($sets[$key]) : false;
+        });
+
+        $driver = new RedisSetDriver($redis, 'q', 0, 'sched');
+        $driver->setupPriorityQueue('q_high', 200);
+        $driver->setMaxProcessItems(2);
+        // a regression ends in ShutdownException instead of polling forever
+        $driver->setShutdown(new PollBudgetShutdown());
+
+        $received = [];
+        $driver->wait(static function (MessageInterface $message, int $priority) use (&$received): void {
+            $received[] = [$message->getId(), $priority];
+        });
+
+        self::assertSame([['high', 200], ['old', 100]], $received);
     }
 }

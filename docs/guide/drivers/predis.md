@@ -61,10 +61,12 @@ new PredisShutdown($redis)->shutdown();
 A due message, or a message with no `executeAt`, is `sadd` on the priority key. A future message is:
 
 ```php
-$this->redis->zadd($this->scheduleKey, [
+$this->redis->zadd($this->scheduleKey($priority), [
     $this->serializer->serialize($message) => $message->getExecuteAt(),
 ]);
 ```
+
+`scheduleKey($priority)` is `hermes_schedule` for the default priority and `hermes_schedule:<priority>` for any other, so a delayed message comes back at its own priority.
 
 That member-to-score map is the shape Predis expects. It is the fix for [issue #48](https://github.com/tomaj/hermes/issues/48), where a retry was scheduled with the arguments the other way around.
 

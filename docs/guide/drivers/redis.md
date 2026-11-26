@@ -62,7 +62,7 @@ $dispatcher->handle([Dispatcher::DEFAULT_PRIORITY + 10]);
 
 The argument is the integer priority, not the key name `hermes_high`.
 
-Hermes does not use a Redis list. Live messages are set members. Delayed messages are sorted-set members. Each priority integer is its own set key. The default key is `hermes` at priority `100`. The schedule key defaults to `hermes_schedule`.
+Hermes does not use a Redis list. Live messages are set members. Delayed messages are sorted-set members. Each priority integer is its own set key. The default key is `hermes` at priority `100`. The schedule key defaults to `hermes_schedule`; delayed messages of another priority go to `hermes_schedule:<priority>`, so they come back at their own priority.
 
 <Diagram name="drivers-redis-1" alt="Redis send: future messages go to the hermes_schedule sorted set, others to the set for their priority" />
 
@@ -71,10 +71,11 @@ Hermes does not use a Redis list. Live messages are set members. Delayed message
 ## What `send()` writes
 
 ```php
+$key = $this->getKey($priority); // UnknownPriorityException for an unregistered priority
 if ($message->getExecuteAt() !== null && $message->getExecuteAt() > microtime(true)) {
-    $this->redis->zAdd($this->scheduleKey, $message->getExecuteAt(), $serialized);
+    $this->redis->zAdd($this->scheduleKey($priority), $message->getExecuteAt(), $serialized);
 } else {
-    $this->redis->sAdd($this->getKey($priority), $serialized);
+    $this->redis->sAdd($key, $serialized);
 }
 ```
 

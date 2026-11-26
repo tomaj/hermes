@@ -40,8 +40,29 @@ class RedisSetDriverPriorityIntegrationTest extends TestCase
     protected function tearDown(): void
     {
         if (isset($this->prefix)) {
-            $this->redis->del($this->prefix, $this->prefix . '_higher', $this->prefix . '_top', $this->prefix . '_lower', $this->prefix . '_schedule');
+            $this->redis->del($this->prefix, $this->prefix . '_higher', $this->prefix . '_top', $this->prefix . '_lower', $this->prefix . '_schedule', $this->prefix . '_schedule:200');
         }
+    }
+
+    public function testDelayedMessageKeepsItsPriority(): void
+    {
+        // a refresh interval of 1 second, so the poll budget lasts until the message is due
+        $driver = new RedisSetDriver($this->redis, $this->prefix, 1, $this->prefix . '_schedule');
+        $driver->setupPriorityQueue($this->prefix . '_higher', 200);
+        $driver->send(new Message('reminder', executeAt: microtime(true) + 1.5), 200);
+
+        self::assertSame(1, $this->redis->zCard($this->prefix . '_schedule:200'));
+        self::assertSame(0, $this->redis->zCard($this->prefix . '_schedule'));
+
+        $received = [];
+        $driver->setMaxProcessItems(1);
+        $driver->setShutdown(new PollBudgetShutdown());
+        $driver->wait(static function (MessageInterface $message, int $priority) use (&$received): void {
+            $received[] = [$message->getType(), $priority];
+        });
+
+        self::assertSame([['reminder', 200]], $received);
+        self::assertSame(0, $this->redis->zCard($this->prefix . '_schedule:200'));
     }
 
     public function testPrioritiesAreTakenInNumericOrderRegardlessOfSetupOrder(): void

@@ -133,6 +133,8 @@ public function wait(Closure $callback, array $priorities): void;
 
 `RedisSetDriver`, `PredisSetDriver` a `FileSystemDriver` vyhodia v konštruktore `InvalidArgumentException` pre záporné `$refreshInterval` a `FileSystemDriver` aj pre záporné `$visibilityTimeout`.
 
+Redis drivery plánujú odložené správy s predvolenou prioritou do `$scheduleKey` a s inou prioritou do `$scheduleKey:<priorita>` a splatnú správu presunú s jej prioritou. `send()` vyhodí `UnknownPriorityException` pre nezaregistrovanú prioritu aj vtedy, keď je správa odložená.
+
 Všetkých šesť používa (`use`) `MaxItemsTrait`, `ShutdownTrait` a `SerializerAwareTrait`.
 
 ## Traity

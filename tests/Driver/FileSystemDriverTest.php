@@ -346,7 +346,7 @@ final class FileSystemDriverTest extends TestCase
         self::assertSame(['id-1'], $received);
     }
 
-    public function testDispatcherRetryIsADelayedFileInTheDefaultQueue(): void
+    public function testDispatcherRetryIsADelayedFileInTheQueueOfItsPriority(): void
     {
         $driver = new FileSystemDriver($this->dir, 'q', 0);
         $driver->setupPriorityQueue('q_high', Dispatcher::DEFAULT_PRIORITY + 10);
@@ -366,12 +366,13 @@ final class FileSystemDriverTest extends TestCase
         $before = microtime(true);
         $dispatcher->handle();
 
-        self::assertSame([], $this->files('q_high/new'));
+        // the retry keeps the priority it was received with (#183)
+        self::assertSame([], $this->files('q/new'));
         self::assertSame([], $this->files('q_high/processing'));
-        $files = $this->files('q/new');
+        $files = $this->files('q_high/new');
         self::assertCount(1, $files);
         self::assertGreaterThan($before, (float) $files[0]);
-        $retry = new MessageSerializer()->unserialize((string) file_get_contents("{$this->dir}/q/new/{$files[0]}"));
+        $retry = new MessageSerializer()->unserialize((string) file_get_contents("{$this->dir}/q_high/new/{$files[0]}"));
         self::assertSame('id-1', $retry->getId());
         self::assertSame(1, $retry->getRetries());
         self::assertSame((float) $files[0], round((float) $retry->getExecuteAt(), 6));

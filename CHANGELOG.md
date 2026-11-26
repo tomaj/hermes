@@ -4,6 +4,15 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ## [Unreleased][unreleased]
 
+### Changed
+
+* `RedisSetDriver::send()` and `PredisSetDriver::send()` throw `UnknownPriorityException` for a priority that was not registered with `setupPriorityQueue()` also when the message is delayed, as they already did for a message sent right away. 6.0 scheduled such a message and later delivered it at the default priority. Register the priority on the emitter too ([#183](https://github.com/tomaj/hermes/issues/183)).
+
+### Fixed
+
+* A retry keeps the priority of the failed message. `Dispatcher` passes the priority the driver handed to the callback on to `send()`, so with `FileSystemDriver` and the Redis drivers a failing priority-200 message is retried at 200, and a worker started with `handle([200])` sees the retry. 6.0 sent every retry at the default priority. Drivers without priorities (RabbitMQ, SQS, Kafka, or a custom driver that calls the callback with the message only) get the default priority as before ([#183](https://github.com/tomaj/hermes/issues/183)).
+* `RedisSetDriver` and `PredisSetDriver` deliver a delayed message or retry at its own priority. A message with the default priority is scheduled in `$scheduleKey` (`hermes_schedule`) as before, any other priority in its own sorted set `$scheduleKey:<priority>` (for example `hermes_schedule:200`). `wait()` promotes the due entries of every registered priority with that priority, one `ZRANGEBYSCORE` per priority and loop. Entries that 6.0 wrote stay in `hermes_schedule` and are promoted at the default priority. 6.0 workers read only `hermes_schedule`: before you roll back to 6.0, wait until the `hermes_schedule:<priority>` sets are empty ([#183](https://github.com/tomaj/hermes/issues/183)).
+
 ## [6.0.0] - 2026-10-19
 
 Hermes 6.0. Upgrade steps for every breaking change are in [UPGRADE-6.0.md](UPGRADE-6.0.md).

@@ -65,7 +65,7 @@ Give the 110 process more replicas than the others. Each process only `SPOP`s it
 ## Other limits
 
 - A set is unordered. Two messages on `hermes_high` come off with `SPOP`, which is not FIFO.
-- Retries and promoted delayed messages call `send()` without a priority, so they join key `hermes` at 100.
+- Retries and promoted delayed messages keep their priority: the dispatcher sends a retry with the priority it received the message with, and the Redis drivers keep a schedule set per priority (`hermes_schedule:110`). Up to 6.0 both joined key `hermes` at 100 ([#183](https://github.com/tomaj/hermes/issues/183)).
 - The message JSON has no priority field. A worker cannot recover the original integer from the payload.
 
 ## FAQ

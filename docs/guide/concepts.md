@@ -151,7 +151,7 @@ The built-in drivers also use three traits:
 
 ### Does a message remember its priority?
 
-No. Priority is only the second argument of `emit()` and `send()`. The serialized message has no priority field, so retries and delayed messages come back at the default priority 100.
+Not in the message itself: priority is only the second argument of `emit()` and `send()`, and the serialized message has no priority field. The drivers keep it next to the message instead. Retries go back to the priority the message was received with, and the Redis drivers keep a delayed message in a schedule set per priority, so both come back at their own priority. Up to 6.0 they came back at the default priority 100 ([#183](https://github.com/tomaj/hermes/issues/183)).
 
 ### What can I put in the payload?
 
