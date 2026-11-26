@@ -132,7 +132,7 @@ class PredisSetDriverCommandsTest extends TestCase
     public function testDueEntriesArePromotedToTheQueueOfTheirPriority(): void
     {
         $high = new MessageSerializer()->serialize(new Message('type', [], 'high', null, microtime(true) - 60));
-        // an entry without a priority, as 6.0 wrote them, comes back at the default priority
+        // an entry without a priority, as 5.x wrote them, comes back at the default priority
         $old = new MessageSerializer()->serialize(new Message('type', [], 'old', null, microtime(true) - 60));
         $schedules = ['hermes_schedule:200' => [$high], 'hermes_schedule' => [$old]];
         // the queue sets, so the promoted entries can be popped again

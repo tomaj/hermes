@@ -58,7 +58,7 @@ It handles the password reset and leaves the other four in Redis for a normal wo
 - **On 5.x, register queues in ascending order.** The 5.x worker polls queues in reverse registration order, not by number. Hermes 6.0 sorts them by number, so the order no longer matters. The driver always registers the default priority 100 first. This recipe therefore uses 100 as the lowest priority and adds 150 and 200 in that order. A priority below 100 would be polled before 100. See [Priority](/guide/priority) and issue [#50](https://github.com/tomaj/hermes/issues/50).
 - **Emitter and worker need the same queues.** Emitting with a priority that the driver did not register throws `UnknownPriorityException`.
 - **No order inside one priority.** The three newsletters come out in random order, because a Redis set has none.
-- **Retries keep their priority.** The dispatcher sends a retry copy with the priority the message was received with, so a failed password reset is retried at 200, ahead of receipts. Up to 6.0 it was retried at 100 ([#183](https://github.com/tomaj/hermes/issues/183)).
+- **Retries keep their priority.** The dispatcher sends a retry copy with the priority the message was received with, so a failed password reset is retried at 200, ahead of receipts. In 5.x it was retried at 100 ([#183](https://github.com/tomaj/hermes/issues/183)).
 - **Low priority can wait forever.** While high messages keep arriving, a worker that reads all queues never reaches the low ones. Add a worker for low work if newsletters must go out.
 - **Priorities are on the Redis drivers and `FileSystemDriver`.** On RabbitMQ, SQS and Kafka, `setupPriorityQueue()` throws `NotSupportedException`. Use separate queues and workers there.
 
@@ -78,7 +78,7 @@ Each priority is a Redis set, which has no order.
 
 ### Where do retries land?
 
-On the priority of the failed message: the dispatcher passes the priority it received the message with to `send()`. Up to 6.0 retries landed on the default priority 100 ([#183](https://github.com/tomaj/hermes/issues/183)).
+On the priority of the failed message: the dispatcher passes the priority it received the message with to `send()`. In 5.x retries landed on the default priority 100 ([#183](https://github.com/tomaj/hermes/issues/183)).
 
 ### How do I keep a worker free for urgent work?
 

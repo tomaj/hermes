@@ -34,7 +34,7 @@ Predvolený kľúč plánovača je `hermes_schedule`. Ak je už obsadený, zmeň
 
 Každá iterácia `wait()` zavolá `zRangeByScore($scheduleKey, '-inf', $now, ['limit' => [0, 1]])` na kľúči plánovača každej zaregistrovanej priority, aj tých, ktoré worker nespracúva, takže worker spustený s `handle([110])` presúva aj odložené správy s prioritou 100. Pre každý vrátený prvok zavolá `zRem()`. Driver ho pošle znova, len keď `ZREM` oznámi, že prvok odstránil, takže dva workery nikdy nepresunú ten istý záznam. Do verzie 5.x tento krok používal `SPOP`, ktorý na zoradenej množine nefunguje, takže splatné správy zostávali v pláne ([issue #95](https://github.com/tomaj/hermes/issues/95)).
 
-Po úspešnom `ZREM` ju driver deserializuje a zavolá `send()` s prioritou daného kľúča plánovača. `send()` uvidí to isté `executeAt` a porovná ho s časom načítaným až po `ZRANGEBYSCORE`, takže správa je splatná a `send()` ju zapíše do množiny jej priority: správa odložená so 110 sa vráti do `hermes_high`. Do 6.0 existoval jeden kľúč plánovača a každá odložená správa sa presunula na predvolenú prioritu. Záznamy, ktoré zapísala 6.0, sú v `hermes_schedule` a presúvajú sa ďalej, s predvolenou prioritou ([#183](https://github.com/tomaj/hermes/issues/183)).
+Po úspešnom `ZREM` ju driver deserializuje a zavolá `send()` s prioritou daného kľúča plánovača. `send()` uvidí to isté `executeAt` a porovná ho s časom načítaným až po `ZRANGEBYSCORE`, takže správa je splatná a `send()` ju zapíše do množiny jej priority: správa odložená so 110 sa vráti do `hermes_high`. V 5.x existoval jeden kľúč plánovača a každá odložená správa sa presunula na predvolenú prioritu. Záznamy, ktoré zapísala 5.x, sú v `hermes_schedule` a presúvajú sa ďalej, s predvolenou prioritou ([#183](https://github.com/tomaj/hermes/issues/183)).
 
 ## Predis
 
@@ -66,7 +66,7 @@ Na Redise a Predise predvolene v zoradenej množine `hermes_schedule` (`hermes_s
 
 ### Ponechá si odložená správa prioritu?
 
-Áno. Redis drivery majú pre každú prioritu vlastnú množinu plánovača a splatnú správu presunú s touto prioritou, `FileSystemDriver` ju drží v priečinku jej priority. Do 6.0 Redis drivery presúvali každú odloženú správu na predvolenú prioritu 100 ([#183](https://github.com/tomaj/hermes/issues/183)).
+Áno. Redis drivery majú pre každú prioritu vlastnú množinu plánovača a splatnú správu presunú s touto prioritou, `FileSystemDriver` ju drží v priečinku jej priority. V 5.x Redis drivery presúvali každú odloženú správu na predvolenú prioritu 100 ([#183](https://github.com/tomaj/hermes/issues/183)).
 
 ### Čo ak v čase splatnosti nebeží žiadny worker?
 

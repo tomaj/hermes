@@ -8,7 +8,7 @@ A checklist of everything that can need work, in the order of this file. Most ap
 
 - PHP 8.4, `psr/log` 2 or 3, Predis 2.3 or 3, and `tracy/tracy` only if you use it: [Requirements](#requirements), [Tracy is optional](#tracy-is-optional).
 - RabbitMQ queues become durable and messages are acknowledged after the handler; plan the deploy: [Deploy order and rollback](#deploy-order-and-rollback), [RabbitMQ](#rabbitmq-durable-queue-and-acknowledgements).
-- Redis delivers old scheduled entries on the first 6.0 start and polls priorities highest first: [Redis schedule set](#redis-clear-old-entries-from-the-schedule-set-before-you-deploy), [Priority order](#redis-and-predis-priority-order). A negative `$refreshInterval` is rejected: [Negative refresh interval](#redis-and-predis-negative-refreshinterval).
+- Redis delivers old scheduled entries on the first 6.0 start and polls priorities highest first: [Redis schedule set](#redis-clear-old-entries-from-the-schedule-set-before-you-deploy), [Priority order](#redis-and-predis-priority-order). A negative `$refreshInterval` is rejected: [Negative refresh interval](#redis-and-predis-negative-refreshinterval). Delayed messages and retries keep their priority in a schedule set per priority, and a delayed `send()` with an unregistered priority throws: [Priorities of delayed messages and retries](#redis-and-predis-delayed-messages-and-retries-keep-their-priority).
 - SQS deletes after the handler: [Amazon SQS](#amazon-sqs-delete-after-handling).
 - Handlers: any `Throwable` is a failed message, retries follow `RetryableHandlerInterface` (5.x-style handlers keep retrying with a deprecation), and jitter uses `Random\Randomizer`: [Handler errors](#at-least-once-delivery-and-handler-errors), [Retries](#retries-follow-retryablehandlerinterface-and-canretry), [Retry jitter](#retry-jitter-no-longer-uses-rand).
 - Shutdown: `DateTimeInterface`, microsecond times, `SIGTERM`/`SIGINT`: [Shutdown times](#shutdown-times-keep-microseconds), [`ShutdownInterface`](#shutdowninterface-takes-datetimeinterface), [Signals](#sigterm-and-sigint-stop-the-worker-gracefully).
@@ -43,7 +43,9 @@ The message format is unchanged: 5.x and 6.0 read each other's messages. On Redi
 
 RabbitMQ is the exception, because 6.0 declares the queue durable. Read the [RabbitMQ](#rabbitmq-durable-queue-and-acknowledgements) section before you deploy.
 
-To roll back to 5.x, deploy 5.x again. A 5.x `RedisSetDriver` worker stops delivering the schedule set again. A 5.x process cannot declare a durable RabbitMQ queue, so a rollback needs the same drain and delete as the upgrade. If you need a quick rollback, deploy 6.0 with `durable: false` first. On RabbitMQ 4.3 and newer neither 5.x nor `durable: false` works without the `deprecated_features.permit.transient_nonexcl_queues` setting (see [RabbitMQ](#rabbitmq-durable-queue-and-acknowledgements)).
+On Redis and Predis, a delayed message or retry with a priority other than the default goes to its own schedule set `hermes_schedule:<priority>`, which 5.x workers do not read: it is delivered once a 6.0 worker runs (see [Priorities of delayed messages and retries](#redis-and-predis-delayed-messages-and-retries-keep-their-priority)).
+
+To roll back to 5.x, deploy 5.x again. A 5.x `RedisSetDriver` worker stops delivering the schedule set again, and no 5.x worker reads the `hermes_schedule:<priority>` sets: move their entries into `hermes_schedule` first, as described in that section. A 5.x process cannot declare a durable RabbitMQ queue, so a rollback needs the same drain and delete as the upgrade. If you need a quick rollback, deploy 6.0 with `durable: false` first. On RabbitMQ 4.3 and newer neither 5.x nor `durable: false` works without the `deprecated_features.permit.transient_nonexcl_queues` setting (see [RabbitMQ](#rabbitmq-durable-queue-and-acknowledgements)).
 
 ## Driver behavior
 
@@ -69,6 +71,23 @@ The due entries are delayed messages and retries that 5.x never delivered. Remov
 ### Redis and Predis: negative `$refreshInterval`
 
 The `RedisSetDriver` and `PredisSetDriver` constructors throw `InvalidArgumentException` when `$refreshInterval` is negative. 5.x accepted the value and failed only on the first idle pass of `wait()`, where `sleep()` throws `ValueError` on PHP 8. Pass `0` to poll without sleeping.
+
+### Redis and Predis: delayed messages and retries keep their priority
+
+In 5.x a delayed message lost its priority: the drivers kept one schedule sorted set, `hermes_schedule`, and promoted a due entry with `send()` at the default priority. A retry lost it on every driver, because `Dispatcher` sent the retry copy without a priority ([#183](https://github.com/tomaj/hermes/issues/183)). Now:
+
+- `Dispatcher` sends a retry with the priority the driver handed to the callback. With `FileSystemDriver` and the Redis drivers a failing priority-200 message is retried at 200, so a worker started with `handle([200])` sees the retry. RabbitMQ, SQS and Kafka call the callback without a priority and get the default, as before.
+- `RedisSetDriver` and `PredisSetDriver` schedule a delayed message of the default priority in `hermes_schedule` (your `$scheduleKey`), as in 5.x, and one of any other priority in its own sorted set `hermes_schedule:<priority>`, for example `hermes_schedule:200`. `wait()` promotes the due entries of every priority registered on the worker's driver, also of priorities that the worker does not handle, with their priority. Register the same priorities on every emitter and worker, as you already must for messages sent right away.
+- Entries that 5.x wrote are in `hermes_schedule` and are promoted at the default priority.
+- **Behavior change:** `send()` of a delayed message with a priority that was not registered with `setupPriorityQueue()` throws `UnknownPriorityException`, like a message sent right away already did in 5.x. 5.x scheduled such a message and later delivered it at the default priority. Register the priority on the emitter's driver.
+- **Custom drivers:** a driver that calls the dispatcher callback with a priority now gets the retry copy in `send()` with that priority. If its `send()` rejects the priority, the retry is logged as lost and the exception stops the worker (see [Driver errors](#driver-errors-stop-the-worker-with-an-error)).
+
+During a rolling deploy, 5.x workers do not read the `hermes_schedule:<priority>` sets; their entries wait until a 6.0 worker runs. Before you roll back to 5.x, stop the 6.0 emitters and workers and move the entries into `hermes_schedule` (5.x then promotes them at the default priority; a 5.x `RedisSetDriver` does not promote the schedule at all, see [the schedule set](#redis-clear-old-entries-from-the-schedule-set-before-you-deploy)). For each priority, with your connection options and key prefix:
+
+```bash
+redis-cli --scan --pattern 'hermes_schedule:*'                   # the per-priority schedule sets
+printf 'MULTI\nZUNIONSTORE hermes_schedule 2 hermes_schedule hermes_schedule:200 AGGREGATE MIN\nDEL hermes_schedule:200\nEXEC\n' | redis-cli
+```
 
 ### RabbitMQ: durable queue and acknowledgements
 

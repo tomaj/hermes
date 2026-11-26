@@ -58,7 +58,7 @@ Spracuje obnovu hesla a ostatné štyri nechá v Redise pre bežného workera. `
 - **Vo verzii 5.x registrujte fronty vo vzostupnom poradí.** Worker v 5.x číta fronty v opačnom poradí registrácie, nie podľa čísla. Hermes 6.0 ich zoraďuje podľa čísla, takže na poradí už nezáleží. Driver vždy registruje predvolenú prioritu 100 ako prvú. Tento recept preto používa 100 ako najnižšiu prioritu a v tomto poradí pridáva 150 a 200. Priorita pod 100 by sa čítala pred 100. Pozrite [Priorita](/sk/guide/priority) a issue [#50](https://github.com/tomaj/hermes/issues/50).
 - **Emitter a worker potrebujú rovnaké fronty.** Vloženie s prioritou, ktorú driver nezaregistroval, vyhodí `UnknownPriorityException`.
 - **V rámci jednej priority nie je poradie.** Tri newslettery vyjdú v náhodnom poradí, pretože množina v Redise žiadne nemá.
-- **Opakovania si ponechajú prioritu.** Dispatcher pošle kópiu na opakovanie s prioritou, s ktorou správu prijal, takže neúspešná obnova hesla sa zopakuje s 200, pred potvrdeniami platieb. Do 6.0 sa opakovala so 100 ([#183](https://github.com/tomaj/hermes/issues/183)).
+- **Opakovania si ponechajú prioritu.** Dispatcher pošle kópiu na opakovanie s prioritou, s ktorou správu prijal, takže neúspešná obnova hesla sa zopakuje s 200, pred potvrdeniami platieb. V 5.x sa opakovala so 100 ([#183](https://github.com/tomaj/hermes/issues/183)).
 - **Nízka priorita môže čakať navždy.** Kým prichádzajú správy s vysokou prioritou, worker, ktorý číta všetky fronty, sa k nízkym nikdy nedostane. Ak newslettery musia odísť, pridajte workera pre nízku prioritu.
 - **Priority majú Redis drivery a `FileSystemDriver`.** Na RabbitMQ, SQS a Kafka `setupPriorityQueue()` vyhodí `NotSupportedException`. Tam použite samostatné fronty a workery.
 
@@ -78,7 +78,7 @@ Každá priorita je množina v Redise, ktorá nemá poradie.
 
 ### Kam idú opakovania?
 
-Na prioritu neúspešnej správy: dispatcher odovzdá `send()` prioritu, s ktorou správu prijal. Do 6.0 končili opakovania na predvolenej priorite 100 ([#183](https://github.com/tomaj/hermes/issues/183)).
+Na prioritu neúspešnej správy: dispatcher odovzdá `send()` prioritu, s ktorou správu prijal. V 5.x končili opakovania na predvolenej priorite 100 ([#183](https://github.com/tomaj/hermes/issues/183)).
 
 ### Ako si nechať workera voľného na urgentnú prácu?
 

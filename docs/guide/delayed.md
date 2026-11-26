@@ -34,7 +34,7 @@ The default schedule key is `hermes_schedule`. Change it with the fourth constru
 
 Each `wait()` iteration calls `zRangeByScore($scheduleKey, '-inf', $now, ['limit' => [0, 1]])` on the schedule key of every registered priority, also of the priorities the worker does not handle, so a worker started with `handle([110])` still promotes the delayed messages of priority 100. For each returned member it calls `zRem()`. Only when `ZREM` reports that it removed the member does the driver re-send it, so two workers never promote the same entry. Up to 5.x this step used `SPOP`, which does not work on a sorted set, so due messages stayed in the schedule ([issue #95](https://github.com/tomaj/hermes/issues/95)).
 
-After a successful `ZREM` the driver unserializes it and calls `send()` with the priority of that schedule key. `send()` sees the same `executeAt` and compares it with a clock read taken after `ZRANGEBYSCORE`, so the message is due and `send()` writes it to the set of its priority: a message delayed at 110 returns to `hermes_high`. Up to 6.0 there was one schedule key and every delayed message was promoted to the default priority. Entries that 6.0 wrote are in `hermes_schedule` and are still promoted, at the default priority ([#183](https://github.com/tomaj/hermes/issues/183)).
+After a successful `ZREM` the driver unserializes it and calls `send()` with the priority of that schedule key. `send()` sees the same `executeAt` and compares it with a clock read taken after `ZRANGEBYSCORE`, so the message is due and `send()` writes it to the set of its priority: a message delayed at 110 returns to `hermes_high`. In 5.x there was one schedule key and every delayed message was promoted to the default priority. Entries that 5.x wrote are in `hermes_schedule` and are still promoted, at the default priority ([#183](https://github.com/tomaj/hermes/issues/183)).
 
 ## Predis
 
@@ -66,7 +66,7 @@ On Redis and Predis, in the sorted set `hermes_schedule` by default (`hermes_sch
 
 ### Does a delayed message keep its priority?
 
-Yes. The Redis drivers keep one schedule set per priority and promote a due message with that priority, and `FileSystemDriver` keeps it in the folder of its priority. Up to 6.0 the Redis drivers promoted every delayed message to the default priority 100 ([#183](https://github.com/tomaj/hermes/issues/183)).
+Yes. The Redis drivers keep one schedule set per priority and promote a due message with that priority, and `FileSystemDriver` keeps it in the folder of its priority. In 5.x the Redis drivers promoted every delayed message to the default priority 100 ([#183](https://github.com/tomaj/hermes/issues/183)).
 
 ### What if no worker is running when the message is due?
 

@@ -73,7 +73,7 @@ final class RedisSetDriver implements DriverInterface
     }
 
     /**
-     * The default priority keeps the plain schedule key, so entries written before 6.1 are still
+     * The default priority keeps the plain schedule key, so entries written by 5.x are still
      * promoted at the default priority; any other priority has its own sorted set.
      */
     private function scheduleKey(int $priority): string

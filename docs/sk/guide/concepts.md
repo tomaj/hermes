@@ -151,7 +151,7 @@ Vstavané drivery používajú aj tri traity:
 
 ### Pamätá si správa svoju prioritu?
 
-V samotnej správe nie: priorita je len druhý argument `emit()` a `send()` a serializovaná správa nemá pole priority. Drivery ju namiesto toho držia vedľa správy. Opakovania idú späť na prioritu, s ktorou bola správa prijatá, a Redis drivery držia odloženú správu v množine plánovača pre každú prioritu, takže sa obe vrátia so svojou prioritou. Do 6.0 sa vracali s predvolenou prioritou 100 ([#183](https://github.com/tomaj/hermes/issues/183)).
+V samotnej správe nie: priorita je len druhý argument `emit()` a `send()` a serializovaná správa nemá pole priority. Drivery ju namiesto toho držia vedľa správy. Opakovania idú späť na prioritu, s ktorou bola správa prijatá, a Redis drivery držia odloženú správu v množine plánovača pre každú prioritu, takže sa obe vrátia so svojou prioritou. V 5.x sa vracali s predvolenou prioritou 100 ([#183](https://github.com/tomaj/hermes/issues/183)).
 
 ### Čo môžem vložiť do payloadu?
 
