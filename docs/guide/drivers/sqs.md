@@ -21,6 +21,8 @@ $result = $client->createQueue([
 $this->queueUrl = $result->get('QueueUrl');
 ```
 
+When the result has no `QueueUrl`, the constructor throws `Tomaj\Hermes\Driver\AmazonSqsDriverException`, a `HermesException`.
+
 The IAM principal used by both the emitter and the worker needs permission to create the queue, because both processes construct the driver. Attribute values are the strings SQS expects. The unit test passes `VisibilityTimeout` as `'60'`.
 
 ## Emit and handle

@@ -21,6 +21,8 @@ $result = $client->createQueue([
 $this->queueUrl = $result->get('QueueUrl');
 ```
 
+Keď výsledok neobsahuje `QueueUrl`, konštruktor vyhodí `Tomaj\Hermes\Driver\AmazonSqsDriverException`, ktorá je `HermesException`.
+
 IAM principal, ktorý používa emitter aj worker, potrebuje oprávnenie vytvoriť frontu, pretože driver vytvárajú oba procesy. Hodnoty atribútov sú reťazce, ktoré SQS očakáva. Unit test odovzdáva `VisibilityTimeout` ako `'60'`.
 
 ## Vloženie a spracovanie

@@ -38,6 +38,8 @@ final class AmazonSqsDriver implements DriverInterface
      * @see examples/sqs folder
      *
      * @param array<string, scalar|null> $queueAttributes
+     *
+     * @throws AmazonSqsDriverException when the createQueue result has no QueueUrl
      */
     public function __construct(
         private readonly SqsClient $client,
@@ -58,7 +60,7 @@ final class AmazonSqsDriver implements DriverInterface
 
         $queueUrl = $result->get('QueueUrl');
         if (!is_string($queueUrl)) {
-            throw new \RuntimeException('Amazon SQS createQueue response did not include a queue URL');
+            throw new AmazonSqsDriverException('Amazon SQS createQueue response did not include a queue URL');
         }
         $this->queueUrl = $queueUrl;
     }
