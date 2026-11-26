@@ -6,7 +6,9 @@ namespace Tomaj\Hermes\Test\Driver;
 
 use PHPUnit\Framework\TestCase;
 use Tomaj\Hermes\Driver\AmazonSqsDriver;
+use Tomaj\Hermes\Driver\AmazonSqsDriverException;
 use Tomaj\Hermes\Driver\NotSupportedException;
+use Tomaj\Hermes\HermesException;
 use Tomaj\Hermes\Message;
 use Tomaj\Hermes\SerializerInterface;
 use Tomaj\Hermes\Test\Double\SqsClientDouble;
@@ -70,6 +72,25 @@ class AmazonSqsDriverTest extends TestCase
                ->willReturn($this->createMockResult(['QueueUrl' => 'https://sqs.region.amazonaws.com/123456789/test-queue']));
 
         new AmazonSqsDriver($client, 'test-queue', $attributes);
+    }
+
+    public function testConstructorThrowsHermesExceptionWithoutQueueUrl(): void
+    {
+        $client = $this->getMockBuilder(SqsClientDouble::class)
+                       ->disableOriginalConstructor()
+                       ->onlyMethods(['createQueue'])
+                       ->getMock();
+        $client->expects(self::once())
+               ->method('createQueue')
+               ->willReturn($this->createMockResult([]));
+
+        try {
+            new AmazonSqsDriver($client, 'test-queue');
+            self::fail('AmazonSqsDriverException was not thrown');
+        } catch (HermesException $e) {
+            self::assertInstanceOf(AmazonSqsDriverException::class, $e);
+            self::assertSame('Amazon SQS createQueue response did not include a queue URL', $e->getMessage());
+        }
     }
 
     public function testTraitsAreUsed(): void

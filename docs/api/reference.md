@@ -171,6 +171,7 @@ All six `use` `MaxItemsTrait`, `ShutdownTrait`, and `SerializerAwareTrait`.
 | `Driver\NotSupportedException` | `HermesException` | Priority queues on RabbitMQ, SQS or Kafka. |
 | `Driver\FileSystemDriverException` | `HermesException` | `FileSystemDriver` cannot create a folder, or write, move or read a message file. |
 | `Driver\KafkaDriverException` | `HermesException` | Kafka did not confirm a sent message, the consumer reported an error, or `wait()` has no consumer. |
+| `Driver\AmazonSqsDriverException` | `HermesException` | The `createQueue` result in the `AmazonSqsDriver` constructor has no `QueueUrl`. |
 
 ## Tomaj\Hermes\SerializerInterface
 

@@ -171,6 +171,7 @@ Všetkých šesť používa (`use`) `MaxItemsTrait`, `ShutdownTrait` a `Serializ
 | `Driver\NotSupportedException` | `HermesException` | Prioritné fronty na RabbitMQ, SQS alebo Kafka. |
 | `Driver\FileSystemDriverException` | `HermesException` | `FileSystemDriver` nemôže vytvoriť priečinok, alebo zapísať, presunúť či prečítať súbor správy. |
 | `Driver\KafkaDriverException` | `HermesException` | Kafka nepotvrdila odoslanú správu, consumer nahlásil chybu, alebo `wait()` nemá consumer. |
+| `Driver\AmazonSqsDriverException` | `HermesException` | Výsledok `createQueue` v konštruktore `AmazonSqsDriver` neobsahuje `QueueUrl`. |
 
 ## Tomaj\Hermes\SerializerInterface
 
